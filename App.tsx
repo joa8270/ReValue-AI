@@ -59,6 +59,8 @@ const DeviceButton: React.FC<{ icon: React.ReactNode, label: string, subLabel: s
   </button>
 );
 
+import { supabase } from './lib/supabase';
+
 const App: React.FC = () => {
   const [step, setStep] = useState<'landing' | 'analysis' | 'history'>('landing');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -92,64 +94,80 @@ const App: React.FC = () => {
   const [aiError, setAiError] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('vc_current_user');
-    if (savedUser) {
-      try {
-        const user = JSON.parse(savedUser);
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        const user: User = {
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata.name || 'User'
+        };
         setCurrentUser(user);
         loadHistory(user.id);
-      } catch (e) {
-        localStorage.removeItem('vc_current_user');
       }
-    }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        const user: User = {
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata.name || 'User'
+        };
+        setCurrentUser(user);
+        loadHistory(user.id);
+      } else {
+        setCurrentUser(null);
+        setHistory([]);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const loadHistory = (userId: string) => {
+  const loadHistory = async (userId: string) => {
     try {
-      const allHistory = JSON.parse(localStorage.getItem('vc_history') || '{}');
-      const userHistory = allHistory[userId];
-      if (Array.isArray(userHistory)) {
-        setHistory(userHistory);
-      } else {
-        setHistory([]);
+      const { data, error } = await supabase
+        .from('history')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (data) {
+        const formatted: HistoryEntry[] = data.map(item => ({
+          id: item.id,
+          timestamp: new Date(item.created_at).getTime(),
+          specs: item.specs,
+          valuation: item.valuation,
+          aiAdvice: item.ai_advice
+        }));
+        setHistory(formatted);
       }
     } catch (e) {
       console.error("Failed to load history:", e);
-      setHistory([]);
     }
   };
 
-  const handleLoginSuccess = (user: User) => {
-    setCurrentUser(user);
-    localStorage.setItem('vc_current_user', JSON.stringify(user));
+  const handleLoginSuccess = async (user: User) => {
+    // AuthModal handles Supabase signIn, setting currentUser via callback is redundant if onAuthStateChange works,
+    // but we keep it for immediate UI feedback or additional logic.
+    // Actually, onAuthStateChange will trigger, so we might just need to handle the pending valuation sync here.
 
-    // Save pending valuation if exists (fix for lost history)
+    // Save pending valuation if exists (Sync)
     if (valuation && specs) {
-      const allHistory = JSON.parse(localStorage.getItem('vc_history') || '{}');
-      const userHistory = allHistory[user.id] || [];
-      const newEntry: HistoryEntry = {
-        specs,
-        valuation,
-        aiAdvice: aiResponse || undefined,
-        id: Date.now().toString(),
-        timestamp: Date.now()
-      };
-      userHistory.unshift(newEntry);
-      allHistory[user.id] = userHistory;
-      localStorage.setItem('vc_history', JSON.stringify(allHistory));
+      await saveToHistory({ specs, valuation, aiAdvice: aiResponse || undefined });
     }
 
-    loadHistory(user.id);
-
-    // 如果登入前是在首頁，且這可能是因為點擊歷史紀錄觸發的登入，則跳轉到歷史紀錄
     if (step === 'landing') {
       setStep('history');
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setCurrentUser(null);
-    localStorage.removeItem('vc_current_user');
     setStep('landing');
     setValuation(null);
     setAiResponse(null);
@@ -160,24 +178,45 @@ const App: React.FC = () => {
     if (step === 'history') {
       setStep('analysis');
     } else if (step === 'analysis') {
-      // 如果已經在分析頁面，點擊返回則回到首頁並清空暫存（視需求可保留）
       setStep('landing');
       setValuation(null);
       setAiResponse(null);
     }
   };
 
-  const saveToHistory = (entry: Omit<HistoryEntry, 'id' | 'timestamp'>): string => {
-    if (!currentUser) return '';
-    const allHistory = JSON.parse(localStorage.getItem('vc_history') || '{}');
-    const userHistory = allHistory[currentUser.id] || [];
-    const newId = Date.now().toString();
-    const newEntry: HistoryEntry = { ...entry, id: newId, timestamp: Date.now() };
-    userHistory.unshift(newEntry);
-    allHistory[currentUser.id] = userHistory;
-    localStorage.setItem('vc_history', JSON.stringify(allHistory));
-    setHistory(userHistory);
-    return newId;
+  const saveToHistory = async (entry: Omit<HistoryEntry, 'id' | 'timestamp'>): Promise<string> => {
+    // If not logged in, we cannot save to Supabase history (RLS). 
+    // We can just return empty or maybe prompt login? 
+    // The current flow calls authentication if calculateValuation sees no user?
+    // Wait, original logic called saveToHistory inside calculateValuation.
+
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return '';
+
+    try {
+      const { data, error } = await supabase.from('history').insert({
+        user_id: user.id,
+        specs: entry.specs,
+        valuation: entry.valuation,
+        ai_advice: entry.aiAdvice
+      }).select().single();
+
+      if (error) throw error;
+
+      // Update local state to reflect new addition immediately
+      const newEntry: HistoryEntry = {
+        id: data.id,
+        timestamp: new Date(data.created_at).getTime(),
+        specs: entry.specs,
+        valuation: entry.valuation,
+        aiAdvice: entry.aiAdvice
+      };
+      setHistory(prev => [newEntry, ...prev]);
+      return data.id;
+    } catch (e) {
+      console.error("Save history failed:", e);
+      return '';
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -249,7 +288,7 @@ const App: React.FC = () => {
 
       setValuation(fullResult);
       if (currentUser) {
-        const id = saveToHistory({ specs, valuation: fullResult });
+        const id = await saveToHistory({ specs, valuation: fullResult }); // Await here
         setCurrentHistoryId(id);
       }
     } catch (err: any) {

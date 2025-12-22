@@ -9,6 +9,10 @@ interface AuthModalProps {
   onLogin: (user: UserType) => void;
 }
 
+import { supabase } from '../lib/supabase';
+
+// ... (keep interface and imports)
+
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -23,69 +27,54 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // 調試訊息：開始驗證過程
-    console.log(`[Auth] Attempting ${isLogin ? 'Login' : 'Registration'} for: ${email}`);
-
     try {
-      // 1. 從 localStorage 獲取所有用戶
-      const rawUsers = localStorage.getItem('vc_users');
-      let users = [];
-      if (rawUsers) {
-        users = JSON.parse(rawUsers);
-      }
-      
-      console.log(`[Auth] Current DB count: ${users.length}`);
-
       if (isLogin) {
-        // 登入邏輯
-        const user = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
-        
-        if (!user) {
-          setError('找不到此帳號，請確認 Email 是否正確 / Email not found');
-          return;
-        }
+        // Supabase Login
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-        if (user.password !== password) {
-          setError('密碼錯誤 / Incorrect password');
-          return;
+        if (error) throw error;
+        if (data.user) {
+          // Fetch user metadata (name) if stored there, or just use email/fallback
+          onLogin({
+            id: data.user.id,
+            email: data.user.email || '',
+            name: data.user.user_metadata.name || data.user.email?.split('@')[0] || 'User'
+          });
+          onClose();
         }
-
-        console.log(`[Auth] Login Successful:`, user.name);
-        onLogin({ id: user.id, email: user.email, name: user.name });
-        onClose();
       } else {
-        // 註冊邏輯
-        const existingUser = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
-        if (existingUser) {
-          setError('此電子郵件已註冊過 / Email already exists. Please login instead.');
-          return;
+        // Supabase Register
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name: name,
+            },
+          },
+        });
+
+        if (error) throw error;
+        if (data.user) {
+          onLogin({
+            id: data.user.id,
+            email: data.user.email || '',
+            name: name
+          });
+          onClose();
+          alert("註冊成功！請檢查您的信箱以驗證帳號 (如果 Supabase 開啟了 Email 確認)");
         }
-
-        const newUser = { 
-          id: Date.now().toString(), 
-          email: email.toLowerCase(), 
-          password, 
-          name: name || 'User' 
-        };
-
-        // 2. 將新用戶加入陣列並寫回 localStorage
-        users.push(newUser);
-        localStorage.setItem('vc_users', JSON.stringify(users));
-        
-        // 驗證是否成功寫入
-        const verifyWrite = localStorage.getItem('vc_users');
-        console.log(`[Auth] Register Successful. New DB size: ${JSON.parse(verifyWrite || '[]').length}`);
-
-        onLogin({ id: newUser.id, email: newUser.email, name: newUser.name });
-        onClose();
       }
-    } catch (err) {
-      console.error("[Auth] Fatal Error:", err);
-      setError('發生系統錯誤，請重試 / System error. Please try again.');
+    } catch (err: any) {
+      console.error("[Auth] Error:", err.message);
+      setError(err.message || '發生錯誤，請重試');
     }
   };
 
@@ -96,7 +85,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
           <button onClick={onClose} className="absolute top-8 right-8 text-slate-500 hover:text-slate-100 transition-colors">
             <X className="w-6 h-6" />
           </button>
-          
+
           <div className="text-center mb-10">
             <h3 className="text-3xl font-black text-white mb-2 tracking-tight">
               {isLogin ? '歡迎回來 / Welcome' : '建立帳戶 / Join Us'}
