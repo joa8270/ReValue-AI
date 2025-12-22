@@ -9,8 +9,6 @@ interface AuthModalProps {
   onLogin: (user: UserType) => void;
 }
 
-import { supabase } from '../lib/supabase';
-
 // ... (keep interface and imports)
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
@@ -31,50 +29,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
     e.preventDefault();
     setError('');
 
-    try {
-      if (isLogin) {
-        // Supabase Login
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-        if (error) throw error;
-        if (data.user) {
-          // Fetch user metadata (name) if stored there, or just use email/fallback
-          onLogin({
-            id: data.user.id,
-            email: data.user.email || '',
-            name: data.user.user_metadata.name || data.user.email?.split('@')[0] || 'User'
-          });
-          onClose();
-        }
-      } else {
-        // Supabase Register
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              name: name,
-            },
-          },
-        });
-
-        if (error) throw error;
-        if (data.user) {
-          onLogin({
-            id: data.user.id,
-            email: data.user.email || '',
-            name: name
-          });
-          onClose();
-          alert("註冊成功！請檢查您的信箱以驗證帳號 (如果 Supabase 開啟了 Email 確認)");
-        }
-      }
-    } catch (err: any) {
-      console.error("[Auth] Error:", err.message);
-      setError(err.message || '發生錯誤，請重試');
+    if (isLogin) {
+      // Local Login Simulation
+      const mockId = btoa(email); // Simple base64 of email as ID
+      onLogin({ id: mockId, email, name: email.split('@')[0] });
+      onClose();
+    } else {
+      // Local Register Simulation
+      const mockId = btoa(email);
+      onLogin({ id: mockId, email, name });
+      onClose();
     }
   };
 
