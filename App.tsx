@@ -1,17 +1,17 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-  Monitor, 
-  Smartphone, 
-  Laptop, 
-  Apple, 
-  ArrowLeft, 
-  Cpu, 
-  Zap, 
-  Battery, 
-  HardDrive, 
-  CheckCircle, 
-  Wand2, 
+import {
+  Monitor,
+  Smartphone,
+  Laptop,
+  Apple,
+  ArrowLeft,
+  Cpu,
+  Zap,
+  Battery,
+  HardDrive,
+  CheckCircle,
+  Wand2,
   AlertTriangle,
   CircleDollarSign,
   Layers,
@@ -66,7 +66,7 @@ const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
-  
+
   const [specs, setSpecs] = useState<HardwareSpecs & { aiKeywords?: string }>({
     modelName: '未偵測到型號 / Unknown Model',
     os: DeviceType.WINDOWS,
@@ -105,16 +105,46 @@ const App: React.FC = () => {
   }, []);
 
   const loadHistory = (userId: string) => {
-    const allHistory = JSON.parse(localStorage.getItem('vc_history') || '{}');
-    setHistory(allHistory[userId] || []);
+    try {
+      const allHistory = JSON.parse(localStorage.getItem('vc_history') || '{}');
+      const userHistory = allHistory[userId];
+      if (Array.isArray(userHistory)) {
+        setHistory(userHistory);
+      } else {
+        setHistory([]);
+      }
+    } catch (e) {
+      console.error("Failed to load history:", e);
+      setHistory([]);
+    }
   };
 
   const handleLoginSuccess = (user: User) => {
     setCurrentUser(user);
     localStorage.setItem('vc_current_user', JSON.stringify(user));
+
+    // Save pending valuation if exists (fix for lost history)
+    if (valuation && specs) {
+      const allHistory = JSON.parse(localStorage.getItem('vc_history') || '{}');
+      const userHistory = allHistory[user.id] || [];
+      const newEntry: HistoryEntry = {
+        specs,
+        valuation,
+        aiAdvice: aiResponse || undefined,
+        id: Date.now().toString(),
+        timestamp: Date.now()
+      };
+      userHistory.unshift(newEntry);
+      allHistory[user.id] = userHistory;
+      localStorage.setItem('vc_history', JSON.stringify(allHistory));
+    }
+
     loadHistory(user.id);
-    // 關鍵：這裡不呼叫 setStep('landing')，讓使用者留在原本的 analysis 或 history 狀態
-    console.log("[Auth] User logged in, maintaining current step:", step);
+
+    // 如果登入前是在首頁，且這可能是因為點擊歷史紀錄觸發的登入，則跳轉到歷史紀錄
+    if (step === 'landing') {
+      setStep('history');
+    }
   };
 
   const handleLogout = () => {
@@ -176,7 +206,7 @@ const App: React.FC = () => {
     try {
       const extracted = await analyzeHardwareScreenshot(pendingImages);
       const finalModel = extracted.modelName || 'Unknown Device';
-      
+
       setSpecs(prev => ({
         ...prev,
         modelName: finalModel,
@@ -187,12 +217,13 @@ const App: React.FC = () => {
         storage: (extracted as any).storageType === 'hdd' ? StorageType.HDD : StorageType.SSD,
         aiKeywords: (extracted as any).searchKeywords
       }));
-      
+
       setIsScanningImage(false);
       setPendingImages([]);
       setShowScanSuccess({ model: finalModel });
     } catch (err: any) {
-      setAiError("圖片辨識失敗。 Recognition failed.");
+      console.error(err);
+      setAiError(err.message || "圖片辨識失敗。 Recognition failed.");
       setIsScanningImage(false);
     }
   };
@@ -206,7 +237,7 @@ const App: React.FC = () => {
       const notes: string[] = [];
       if (specs.storage === StorageType.HDD) { finalOffer -= 1000; notes.push("硬碟老舊 / HDD Penalty (-$1,000)"); }
       if (specs.grade === VisualGrade.C) { finalOffer -= 2000; notes.push("外觀損傷 / Cosmetic Damage (-$2,000)"); }
-      
+
       const fullResult: ValuationResult = {
         scrapPrice: result.scrapPrice || 0,
         potentialPrice: result.potentialPrice || 0,
@@ -221,8 +252,9 @@ const App: React.FC = () => {
         const id = saveToHistory({ specs, valuation: fullResult });
         setCurrentHistoryId(id);
       }
-    } catch (err) {
-      setAiError("估價服務暫時無法使用。 Service unavailable.");
+    } catch (err: any) {
+      console.error(err);
+      setAiError(err.message || "估價服務暫時無法使用。 Service unavailable.");
     } finally {
       setIsValuing(false);
     }
@@ -279,8 +311,8 @@ const App: React.FC = () => {
             <h1 className="text-base md:text-xl font-black tracking-tighter italic whitespace-nowrap">VALUECHECK <span className="text-indigo-400">AI</span></h1>
           </div>
           <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
-            <button 
-              onClick={() => { if (!currentUser) setIsAuthModalOpen(true); else setStep('history'); }} 
+            <button
+              onClick={() => { if (!currentUser) setIsAuthModalOpen(true); else setStep('history'); }}
               className={`text-[11px] md:text-sm font-bold flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-lg transition-all ${step === 'history' ? 'bg-indigo-500/20 text-indigo-400' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}`}
             >
               <History className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -300,20 +332,31 @@ const App: React.FC = () => {
         </div>
       </nav>
 
+
+      {aiError && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[100] bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-5 duration-300">
+          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+          <span className="font-bold">{aiError}</span>
+          <button onClick={() => setAiError(null)} className="ml-3 hover:bg-white/20 p-1 rounded-full transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {step === 'landing' ? (
         <div className="flex-grow flex flex-col items-center justify-center p-6 text-center">
           <div className="mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-             <div className="w-24 h-24 bg-slate-900 rounded-[2.5rem] shadow-2xl flex items-center justify-center mx-auto mb-8 text-indigo-400 border border-slate-800">
+            <div className="w-24 h-24 bg-slate-900 rounded-[2.5rem] shadow-2xl flex items-center justify-center mx-auto mb-8 text-indigo-400 border border-slate-800">
               <CircleDollarSign className="w-12 h-12" />
             </div>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tighter uppercase leading-tight">AI 智慧估值 / AI Valuation</h2>
             <h2 className="text-xl md:text-4xl font-bold text-slate-300 mb-6 tracking-tight">精準關鍵字匹配 / Precise Search</h2>
           </div>
           <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
-            <DeviceButton icon={<Apple className="w-10 h-10 text-slate-300" />} label="iPhone / iPad" subLabel="蘋果裝置 / Apple" onClick={() => { setSpecs(p => ({...p, os: DeviceType.IOS})); setStep('analysis'); }} />
-            <DeviceButton icon={<Smartphone className="w-10 h-10 text-emerald-500" />} label="Android" subLabel="安卓設備 / Android" onClick={() => { setSpecs(p => ({...p, os: DeviceType.ANDROID})); setStep('analysis'); }} />
-            <DeviceButton icon={<Laptop className="w-10 h-10 text-blue-400" />} label="PC / Laptop" subLabel="個人電腦 / PC" onClick={() => { setSpecs(p => ({...p, os: DeviceType.WINDOWS})); setStep('analysis'); }} />
-            <DeviceButton icon={<Monitor className="w-10 h-10 text-indigo-400" />} label="Mac Station" subLabel="蘋果工作站 / Mac" onClick={() => { setSpecs(p => ({...p, os: DeviceType.MACOS})); setStep('analysis'); }} />
+            <DeviceButton icon={<Apple className="w-10 h-10 text-slate-300" />} label="iPhone / iPad" subLabel="蘋果裝置 / Apple" onClick={() => { setSpecs(p => ({ ...p, os: DeviceType.IOS })); setStep('analysis'); }} />
+            <DeviceButton icon={<Smartphone className="w-10 h-10 text-emerald-500" />} label="Android" subLabel="安卓設備 / Android" onClick={() => { setSpecs(p => ({ ...p, os: DeviceType.ANDROID })); setStep('analysis'); }} />
+            <DeviceButton icon={<Laptop className="w-10 h-10 text-blue-400" />} label="PC / Laptop" subLabel="個人電腦 / PC" onClick={() => { setSpecs(p => ({ ...p, os: DeviceType.WINDOWS })); setStep('analysis'); }} />
+            <DeviceButton icon={<Monitor className="w-10 h-10 text-indigo-400" />} label="Mac Station" subLabel="蘋果工作站 / Mac" onClick={() => { setSpecs(p => ({ ...p, os: DeviceType.MACOS })); setStep('analysis'); }} />
           </div>
         </div>
       ) : step === 'history' ? (
@@ -329,7 +372,7 @@ const App: React.FC = () => {
                     <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{new Date(entry.timestamp).toLocaleString()} • TWD ${entry.valuation.finalOffer.toLocaleString()}</p>
                   </div>
                 </div>
-                <button onClick={() => {setSpecs(entry.specs); setValuation(entry.valuation); setAiResponse(entry.aiAdvice || null); setStep('analysis');}} className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl hover:bg-indigo-500/20 transition-all"><ChevronRight className="w-5 h-5" /></button>
+                <button onClick={() => { setSpecs(entry.specs); setValuation(entry.valuation); setAiResponse(entry.aiAdvice || null); setStep('analysis'); }} className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl hover:bg-indigo-500/20 transition-all"><ChevronRight className="w-5 h-5" /></button>
               </div>
             )) : (
               <div className="text-center py-20 bg-slate-900/50 rounded-[2rem] border border-dashed border-slate-800">
@@ -350,14 +393,14 @@ const App: React.FC = () => {
               <p className="text-sm md:text-base text-yellow-400 mb-8 max-w-md mx-auto leading-relaxed font-bold">
                 只需上傳「關於本機」或「系統資訊」截圖，AI 將自動優化搜尋關鍵字。支援同時上傳多張截圖。
               </p>
-              
+
               <div className="flex flex-col items-center justify-center gap-6 mb-10">
                 {pendingImages.length > 0 && (
                   <div className="flex flex-wrap justify-center gap-4 p-4 bg-slate-900/50 rounded-3xl border border-slate-800 w-full max-w-2xl">
                     {pendingImages.map((img, idx) => (
                       <div key={idx} className="relative group w-24 h-24">
                         <img src={img} alt="preview" className="w-full h-full object-cover rounded-xl border border-indigo-500/30" />
-                        <button 
+                        <button
                           onClick={() => removePendingImage(idx)}
                           className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
                         >
@@ -365,7 +408,7 @@ const App: React.FC = () => {
                         </button>
                       </div>
                     ))}
-                    <button 
+                    <button
                       onClick={() => fileInputRef.current?.click()}
                       className="w-24 h-24 border-2 border-dashed border-slate-700 rounded-xl flex flex-col items-center justify-center text-slate-500 hover:border-indigo-500 hover:text-indigo-400 transition-all group"
                     >
@@ -382,8 +425,8 @@ const App: React.FC = () => {
                       <span className="uppercase tracking-widest italic font-bold">選擇截圖 / SELECT IMAGES</span>
                     </button>
                   ) : (
-                    <button 
-                      onClick={startBatchScan} 
+                    <button
+                      onClick={startBatchScan}
                       disabled={isScanningImage}
                       className={`w-full sm:w-auto flex items-center justify-center gap-3 px-12 py-5 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl shadow-2xl shadow-emerald-500/20 transition-all active:scale-95 ${isScanningImage ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
@@ -416,17 +459,17 @@ const App: React.FC = () => {
                 <h3 className="text-lg font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tight">
                   <Zap className="w-5 h-5 text-indigo-400" /> 硬體清單 / Device Specs
                 </h3>
-                
+
                 <div className="space-y-6">
-                  <SpecItem icon={<Tag className="w-4 h-4 text-emerald-400" />} label="設備型號 / Product Model" value={specs.modelName} onChange={(v) => setSpecs(p => ({...p, modelName: v}))} />
-                  <SpecItem icon={<Cpu className="w-4 h-4" />} label="處理器 / CPU" value={specs.cpu} onChange={(v) => setSpecs(p => ({...p, cpu: v}))} />
-                  <SpecItem icon={<Layers className="w-4 h-4" />} label="記憶體 / RAM" value={specs.ram} onChange={(v) => setSpecs(p => ({...p, ram: v}))} />
-                  <SpecItem icon={<Monitor className="w-4 h-4" />} label="顯示卡 / GPU" value={specs.gpu} onChange={(v) => setSpecs(p => ({...p, gpu: v}))} />
-                  
+                  <SpecItem icon={<Tag className="w-4 h-4 text-emerald-400" />} label="設備型號 / Product Model" value={specs.modelName} onChange={(v) => setSpecs(p => ({ ...p, modelName: v }))} />
+                  <SpecItem icon={<Cpu className="w-4 h-4" />} label="處理器 / CPU" value={specs.cpu} onChange={(v) => setSpecs(p => ({ ...p, cpu: v }))} />
+                  <SpecItem icon={<Layers className="w-4 h-4" />} label="記憶體 / RAM" value={specs.ram} onChange={(v) => setSpecs(p => ({ ...p, ram: v }))} />
+                  <SpecItem icon={<Monitor className="w-4 h-4" />} label="顯示卡 / GPU" value={specs.gpu} onChange={(v) => setSpecs(p => ({ ...p, gpu: v }))} />
+
                   <div className="pt-6 border-t border-slate-800">
                     <div className="flex items-center justify-between mb-2">
-                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">優化後關鍵字 / Cleaned Keywords</label>
-                       <span className="text-[10px] text-indigo-400 font-bold uppercase">Better Search!</span>
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">優化後關鍵字 / Cleaned Keywords</label>
+                      <span className="text-[10px] text-indigo-400 font-bold uppercase">Better Search!</span>
                     </div>
                     <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-xl px-4 py-3 text-sm font-bold text-indigo-300 italic">
                       {optimizedKeyword}
@@ -434,8 +477,8 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                <button 
-                  onClick={calculateValuation} 
+                <button
+                  onClick={calculateValuation}
                   disabled={isValuing}
                   className="w-full mt-10 bg-white text-slate-950 hover:bg-indigo-50 font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-50"
                 >
@@ -518,11 +561,11 @@ const App: React.FC = () => {
             </div>
             <h3 className="text-2xl font-black text-white mb-2 tracking-tight italic">辨識完成 / Scan Complete</h3>
             <p className="text-sm text-slate-400 mb-8 font-medium">
-              偵測到型號：<span className="text-indigo-400 font-bold">{showScanSuccess.model}</span><br/>
-              規格已從多張截圖中自動整合並同步至清單。<br/>
+              偵測到型號：<span className="text-indigo-400 font-bold">{showScanSuccess.model}</span><br />
+              規格已從多張截圖中自動整合並同步至清單。<br />
               <span className="text-[10px] text-slate-500 uppercase font-black">Multi-image sync successful.</span>
             </p>
-            <button 
+            <button
               onClick={() => setShowScanSuccess(null)}
               className="w-full bg-white text-slate-950 font-black py-4 rounded-2xl shadow-xl hover:bg-indigo-50 transition-all active:scale-95 uppercase tracking-widest italic"
             >
