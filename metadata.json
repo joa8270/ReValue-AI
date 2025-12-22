@@ -1,0 +1,7 @@
+{
+  "name": "舊機整新 AI 估值",
+  "description": "一種由 AI 驅動的設備估值工具，可檢測硬件規格、執行互動式觸控測試，並利用 Gemini 提供翻新策略和銷售文案。\nAn AI-powered device valuation tool that detects hardware specs, performs interactive touch tests, and uses Gemini to provide refurbishment strategies and sales copy.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
