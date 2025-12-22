@@ -308,7 +308,7 @@ const App: React.FC = () => {
             <div className="p-1.5 rounded-lg group-hover:bg-slate-800 transition-colors">
               <ArrowLeft className={`w-5 h-5 ${step === 'landing' ? 'text-slate-700' : 'text-slate-400 group-hover:text-indigo-400'} flex-shrink-0 transition-colors`} />
             </div>
-            <h1 className="text-base md:text-xl font-black tracking-tighter italic whitespace-nowrap">VALUECHECK <span className="text-indigo-400">AI</span></h1>
+            <h1 className="text-base md:text-xl font-black tracking-tighter italic whitespace-nowrap">VALUECHECK <span className="text-indigo-400">AI</span> <span className="text-[10px] bg-indigo-500/20 px-2 py-0.5 rounded text-indigo-300 ml-1">Secure v2.0</span></h1>
           </div>
           <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
             <button
