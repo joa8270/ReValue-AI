@@ -41,7 +41,7 @@ import {
   Plus,
   X
 } from 'lucide-react';
-import { DeviceType, HardwareSpecs, StorageType, VisualGrade, ValuationResult, User, HistoryEntry } from './types';
+import { DeviceType, DeviceCategory, UnifiedSpecs, StorageType, VisualGrade, ValuationResult, User, HistoryEntry } from './types';
 import TouchTestModal from './components/TouchTestModal';
 import AuthModal from './components/AuthModal';
 import MarketplaceLinks from './components/MarketplaceLinks';
@@ -67,18 +67,22 @@ const App: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
 
-  const [specs, setSpecs] = useState<HardwareSpecs & { aiKeywords?: string }>({
+  // 統一規格狀態（支援手機與電腦的差異化欄位）
+  const [specs, setSpecs] = useState<UnifiedSpecs>({
+    deviceCategory: 'computer',
+    brand: '偵測中... / Detecting...',
     modelName: '未偵測到型號 / Unknown Model',
-    os: DeviceType.WINDOWS,
-    ram: '偵測中... / Detecting...',
-    cpu: '偵測中... / Detecting...',
-    gpu: '偵測中... / Detecting...',
-    battery: '偵測中... / Detecting...',
-    storage: StorageType.SSD,
+    releaseYear: '偵測中... / Detecting...',
     storageCapacity: '未偵測 / N/A',
-    grade: VisualGrade.A,
-    defects: [],
-    userAgent: navigator.userAgent
+    searchKeywords: '',
+    // 手機欄位
+    processor: '偵測中... / Detecting...',
+    screenSize: '',
+    // 電腦欄位
+    cpu: '偵測中... / Detecting...',
+    ram: '偵測中... / Detecting...',
+    gpu: '偵測中... / Detecting...',
+    storageType: StorageType.SSD,
   });
 
   const [isScanningImage, setIsScanningImage] = useState(false);
@@ -209,18 +213,26 @@ const App: React.FC = () => {
     setIsScanningImage(true);
     setAiError(null);
     try {
-      const extracted = await analyzeHardwareScreenshot(pendingImages);
+      const extracted = await analyzeHardwareScreenshot(pendingImages) as any;
       const finalModel = extracted.modelName || 'Unknown Device';
+      const deviceCategory = extracted.deviceCategory || 'computer';
 
       setSpecs(prev => ({
         ...prev,
+        deviceCategory,
+        brand: extracted.brand || prev.brand,
         modelName: finalModel,
+        releaseYear: extracted.releaseYear || prev.releaseYear,
+        storageCapacity: extracted.storageCapacity || prev.storageCapacity,
+        // 手機欄位
+        processor: extracted.processor || prev.processor,
+        screenSize: extracted.screenSize || prev.screenSize,
+        // 電腦欄位
         cpu: extracted.cpu || prev.cpu,
         ram: extracted.ram || prev.ram,
         gpu: extracted.gpu || prev.gpu,
-        storageCapacity: extracted.storageCapacity || prev.storageCapacity,
-        storage: (extracted as any).storageType === 'hdd' ? StorageType.HDD : StorageType.SSD,
-        aiKeywords: (extracted as any).searchKeywords
+        storageType: extracted.storageType === 'hdd' ? StorageType.HDD : StorageType.SSD,
+        aiKeywords: extracted.searchKeywords
       }));
 
       setIsScanningImage(false);
@@ -240,8 +252,7 @@ const App: React.FC = () => {
       const result = await getRealMarketValuation(specs);
       let finalOffer = result.finalOffer || 0;
       const notes: string[] = [];
-      if (specs.storage === StorageType.HDD) { finalOffer -= 1000; notes.push("硬碟老舊 / HDD Penalty (-$1,000)"); }
-      if (specs.grade === VisualGrade.C) { finalOffer -= 2000; notes.push("外觀損傷 / Cosmetic Damage (-$2,000)"); }
+      if (specs.storageType === StorageType.HDD) { finalOffer -= 1000; notes.push("硬碟老舊 / HDD Penalty (-$1,000)"); }
 
       const fullResult: ValuationResult = {
         scrapPrice: result.scrapPrice || 0,
@@ -466,10 +477,30 @@ const App: React.FC = () => {
                 </h3>
 
                 <div className="space-y-6">
-                  <SpecItem icon={<Tag className="w-4 h-4 text-emerald-400" />} label="設備型號 / Product Model" value={specs.modelName} onChange={(v) => setSpecs(p => ({ ...p, modelName: v }))} />
-                  <SpecItem icon={<Cpu className="w-4 h-4" />} label="處理器 / CPU" value={specs.cpu} onChange={(v) => setSpecs(p => ({ ...p, cpu: v }))} />
-                  <SpecItem icon={<Layers className="w-4 h-4" />} label="記憶體 / RAM" value={specs.ram} onChange={(v) => setSpecs(p => ({ ...p, ram: v }))} />
-                  <SpecItem icon={<Monitor className="w-4 h-4" />} label="顯示卡 / GPU" value={specs.gpu} onChange={(v) => setSpecs(p => ({ ...p, gpu: v }))} />
+                  {/* 共用欄位 */}
+                  <SpecItem icon={<Tag className="w-4 h-4 text-emerald-400" />} label="品牌 / Brand" value={specs.brand || ''} onChange={(v) => setSpecs(p => ({ ...p, brand: v }))} />
+                  <SpecItem icon={<Tag className="w-4 h-4 text-indigo-400" />} label="型號 / Model" value={specs.modelName || ''} onChange={(v) => setSpecs(p => ({ ...p, modelName: v }))} />
+                  <SpecItem icon={<Clock className="w-4 h-4 text-yellow-400" />} label="年份 / Year" value={specs.releaseYear || ''} onChange={(v) => setSpecs(p => ({ ...p, releaseYear: v }))} />
+
+                  {/* 根據設備類型顯示不同欄位 */}
+                  {(specs.deviceCategory === 'phone' || specs.deviceCategory === 'tablet') ? (
+                    // 手機/平板欄位
+                    <>
+                      <SpecItem icon={<Cpu className="w-4 h-4 text-purple-400" />} label="處理器 / Processor" value={specs.processor || ''} onChange={(v) => setSpecs(p => ({ ...p, processor: v }))} />
+                      <SpecItem icon={<HardDrive className="w-4 h-4 text-blue-400" />} label="儲存容量 / Storage" value={specs.storageCapacity || ''} onChange={(v) => setSpecs(p => ({ ...p, storageCapacity: v }))} />
+                      {specs.screenSize && (
+                        <SpecItem icon={<Smartphone className="w-4 h-4 text-cyan-400" />} label="螢幕尺寸 / Screen" value={specs.screenSize} onChange={(v) => setSpecs(p => ({ ...p, screenSize: v }))} />
+                      )}
+                    </>
+                  ) : (
+                    // 電腦/Mac 欄位
+                    <>
+                      <SpecItem icon={<Cpu className="w-4 h-4 text-purple-400" />} label="處理器 / CPU" value={specs.cpu || ''} onChange={(v) => setSpecs(p => ({ ...p, cpu: v }))} />
+                      <SpecItem icon={<Layers className="w-4 h-4 text-green-400" />} label="記憶體 / RAM" value={specs.ram || ''} onChange={(v) => setSpecs(p => ({ ...p, ram: v }))} />
+                      <SpecItem icon={<Monitor className="w-4 h-4 text-orange-400" />} label="顯示卡 / GPU" value={specs.gpu || ''} onChange={(v) => setSpecs(p => ({ ...p, gpu: v }))} />
+                      <SpecItem icon={<HardDrive className="w-4 h-4 text-blue-400" />} label="儲存容量 / Storage" value={specs.storageCapacity || ''} onChange={(v) => setSpecs(p => ({ ...p, storageCapacity: v }))} />
+                    </>
+                  )}
 
                   <div className="pt-6 border-t border-slate-800">
                     <div className="flex items-center justify-between mb-2">

@@ -1,6 +1,6 @@
-import { HardwareSpecs, ValuationResult, GroundingSource } from "../types";
+import { UnifiedSpecs, ValuationResult, GroundingSource } from "../types";
 
-export const analyzeHardwareScreenshot = async (images: string[]): Promise<Partial<HardwareSpecs & { searchKeywords: string }>> => {
+export const analyzeHardwareScreenshot = async (images: string[]): Promise<Partial<UnifiedSpecs>> => {
   try {
     const response = await fetch('/api/analyze', {
       method: 'POST',
@@ -21,7 +21,7 @@ export const analyzeHardwareScreenshot = async (images: string[]): Promise<Parti
   }
 };
 
-export const getRealMarketValuation = async (specs: HardwareSpecs): Promise<Partial<ValuationResult>> => {
+export const getRealMarketValuation = async (specs: UnifiedSpecs): Promise<Partial<ValuationResult>> => {
   try {
     const response = await fetch('/api/valuation', {
       method: 'POST',
@@ -49,7 +49,7 @@ export const getRealMarketValuation = async (specs: HardwareSpecs): Promise<Part
   }
 };
 
-export const generateAIAdvice = async (specs: HardwareSpecs, valuation?: Partial<ValuationResult>): Promise<string> => {
+export const generateAIAdvice = async (specs: UnifiedSpecs, valuation?: Partial<ValuationResult>): Promise<string> => {
   try {
     const response = await fetch('/api/advice', {
       method: 'POST',
