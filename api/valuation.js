@@ -34,25 +34,45 @@ export default async function handler(req, res) {
 
         const searchKeyword = specs.searchKeywords || specs.modelName || specsDescription;
 
-        const prompt = `你是專業的二手電子產品估價師。請使用 Google Search 搜尋以下設備在台灣二手市場的實際成交價格：
+        // 取得當前日期用於搜尋
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1;
 
-設備：${searchKeyword}
-完整規格：${specsDescription}
+        const prompt = `你是專業的二手電子產品估價師。現在是 ${currentYear} 年 ${currentMonth} 月。
 
-請搜尋蝦皮、露天拍賣、FB Marketplace 等台灣二手平台上的實際售價。
+請使用 Google Search 搜尋以下設備在台灣的【即時二手市場價格】：
 
-回傳 JSON 格式（單位 TWD 新台幣）：
+🔍 搜尋關鍵字：${searchKeyword} 二手 ${currentYear}
+📱 設備規格：${specsDescription}
+
+【必須執行的搜尋】
+1. 搜尋「${searchKeyword} 二手價格 ${currentYear}」
+2. 搜尋「${searchKeyword} 蝦皮 二手」
+3. 搜尋「${searchKeyword} 露天拍賣」
+4. 搜尋「${searchKeyword} FB Marketplace 台灣」
+
+請從以下平台收集實際售價：
+- 蝦皮購物 (shopee.tw)
+- 露天拍賣 (ruten.com.tw)
+- ePrice 比價王
+- SOGI 手機王
+- PTT 二手版
+- Facebook Marketplace
+
+【回傳格式】JSON（單位 TWD 新台幣）：
 {
-  "marketLow": 市場最低價（根據搜尋結果的實際價格）,
-  "marketHigh": 市場最高價（根據搜尋結果的實際價格）,
-  "analysis": "行情分析，說明價格區間和建議"
+  "marketLow": 搜尋到的最低實際售價,
+  "marketHigh": 搜尋到的最高實際售價,
+  "analysis": "列出你搜尋到的具體價格來源，例如：蝦皮 $XX,XXX、露天 $XX,XXX"
 }
 
-重要規則：
-1. 必須根據實際搜尋到的價格回答，不要憑空猜測
-2. 如果是較新/未上市的產品，請搜尋同系列前代產品價格作為參考
-3. 價格單位為 TWD 新台幣
-4. 只回傳 JSON，不要 Markdown 標籤`;
+【重要規則】
+1. 必須使用 ${currentYear} 年的最新搜尋結果
+2. 不要依賴你的訓練資料，必須實際搜尋網路
+3. 在 analysis 中明確列出你找到的價格來源
+4. 只回傳 JSON，不要 Markdown`;
+
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
