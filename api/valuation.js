@@ -80,6 +80,12 @@ ${specs.deviceCategory === 'computer' ? `⚡ 估價重點：主要參考 GPU（$
 
 ${searchInstructions}
 
+⚠️ 重要提醒：
+1. 只參考 ${currentYear} 年和 ${currentYear - 1} 年的價格資訊
+2. 優先使用最新刊登的商品價格
+3. 忽略過舊（超過2年）的價格資訊
+4. 如果找到多個時期的價格，以最新的為準
+
 請從以下平台收集實際售價：
 - 蝦皮購物 (shopee.tw)
 - 露天拍賣 (ruten.com.tw)
