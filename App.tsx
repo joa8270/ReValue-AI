@@ -102,7 +102,8 @@ const App: React.FC = () => {
 
     if (desktopData) {
       try {
-        const decoded = JSON.parse(atob(desktopData))
+        // 支援 Unicode (中文) 解碼
+        const decoded = JSON.parse(decodeURIComponent(atob(desktopData)))
         console.log('Received desktop data:', decoded)
 
         // 映射桌面數據到 Web App 格式
