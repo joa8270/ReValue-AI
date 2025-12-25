@@ -96,6 +96,40 @@ const App: React.FC = () => {
   const [aiError, setAiError] = useState<string | null>(null);
 
   useEffect(() => {
+    // 檢查是否有來自桌面應用的數據
+    const params = new URLSearchParams(window.location.search)
+    const desktopData = params.get('desktop_data')
+
+    if (desktopData) {
+      try {
+        const decoded = JSON.parse(atob(desktopData))
+        console.log('Received desktop data:', decoded)
+
+        // 映射桌面數據到 Web App 格式
+        setSpecs(prev => ({
+          ...prev,
+          deviceCategory: decoded.deviceCategory === 'mac' ? 'mac' : 'computer',
+          brand: decoded.brand,
+          modelName: decoded.modelName,
+          releaseYear: decoded.releaseYear || 'Unknown',
+          storageCapacity: decoded.storageCapacity || 'Unknown',
+          searchKeywords: decoded.searchKeywords || '',
+          cpu: decoded.cpu,
+          ram: decoded.ram,
+          gpu: decoded.gpu,
+          storageType: decoded.storageType?.includes('ssd') ? StorageType.SSD : StorageType.HDD,
+        }))
+
+        // 自動跳轉到分析頁面
+        setStep('analysis')
+
+        // 清除 URL 參數
+        window.history.replaceState({}, '', window.location.pathname)
+      } catch (e) {
+        console.error('Failed to parse desktop data:', e)
+      }
+    }
+
     const savedUser = localStorage.getItem('vc_current_user');
     if (savedUser) {
       try {
