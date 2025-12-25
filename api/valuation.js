@@ -57,14 +57,14 @@ export default async function handler(req, res) {
         if (specs.deviceCategory === 'phone' || specs.deviceCategory === 'tablet') {
             searchInstructions = `
 【必須執行的搜尋】
-1. 搜尋「${searchKeyword} 二手價格 ${currentYear}」
+1. 搜尋「${searchKeyword} 二手價格」
 2. 搜尋「${specs.brand} ${specs.modelName} ${specs.storageCapacity} 蝦皮」
 3. 搜尋「${specs.modelName} 二手 台灣」`;
         } else {
             // PC/電腦：重點搜尋顯示卡和 CPU
             searchInstructions = `
 【必須執行的搜尋】
-1. 搜尋「${specs.gpu} 二手價格 ${currentYear}」
+1. 搜尋「${specs.gpu} 二手價格」
 2. 搜尋「${specs.gpu} ${specs.cpu} 二手主機」
 3. 搜尋「${specs.gpu} 蝦皮 二手」
 4. 搜尋「RTX 3080 二手電腦」（作為參考價格）`;
