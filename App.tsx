@@ -514,7 +514,14 @@ const App: React.FC = () => {
                 <div className="space-y-6">
                   {/* 共用欄位 */}
                   <SpecItem icon={<Tag className="w-4 h-4 text-emerald-400" />} label="品牌 / Brand" value={specs.brand || ''} onChange={(v) => setSpecs(p => ({ ...p, brand: v }))} />
-                  <SpecItem icon={<Tag className="w-4 h-4 text-indigo-400" />} label="型號 / Model" value={specs.modelName || ''} onChange={(v) => setSpecs(p => ({ ...p, modelName: v }))} />
+                  <SpecItem
+                    icon={<Tag className="w-4 h-4 text-indigo-400" />}
+                    label="型號 / Model"
+                    value={specs.deviceCategory === 'computer' || specs.deviceCategory === 'mac'
+                      ? `${specs.gpu || ''} ${specs.cpu || ''} ${specs.ram || ''}`.trim() || specs.modelName || ''
+                      : specs.modelName || ''}
+                    onChange={(v) => setSpecs(p => ({ ...p, modelName: v }))}
+                  />
                   <SpecItem icon={<Clock className="w-4 h-4 text-yellow-400" />} label="年份 / Year" value={specs.releaseYear || ''} onChange={(v) => setSpecs(p => ({ ...p, releaseYear: v }))} />
 
                   {/* 根據設備類型顯示不同欄位 */}
@@ -606,7 +613,7 @@ const App: React.FC = () => {
                       <div className="prose prose-invert prose-sm max-w-none text-slate-300 leading-relaxed font-medium">
                         {aiResponse.split('\n').map((line, i) => <p key={i} className="mb-4">{line}</p>)}
                       </div>
-                      <MarketplaceLinks content={aiResponse} deviceInfo={specs.modelName} />
+                      <MarketplaceLinks content={aiResponse} deviceInfo={specs.searchKeywords || getOptimizedSearchKeyword()} />
                     </div>
                   )}
                 </section>
