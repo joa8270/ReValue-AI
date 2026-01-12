@@ -3,6 +3,9 @@ __pycache__/
 *.pyc
 venv/
 .env
+*.db
+*.log
+
 
 # --- Node.js 垃圾 ---
 node_modules/
