@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="dark" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MIRRA 首頁 - 繁體中文版</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f13ec",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#141118",
+                        "glass-border": "rgba(255, 255, 255, 0.1)",
+                        "glass-bg": "rgba(48, 40, 57, 0.4)",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "Noto Sans TC", "sans-serif"],
+                        "body": ["Noto Sans", "Noto Sans TC", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    backgroundImage: {
+                        'hero-glow': 'radial-gradient(circle at 50% 50%, rgba(127, 19, 236, 0.15) 0%, rgba(20, 17, 24, 0) 50%)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(33, 28, 39, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .text-glow {
+            text-shadow: 0 0 20px rgba(127, 19, 236, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-body antialiased selection:bg-primary selection:text-white overflow-x-hidden">
+<div class="relative flex min-h-screen w-full flex-col group/design-root">
+<div class="fixed top-0 left-0 right-0 z-50 px-4 pt-4 lg:px-40 flex justify-center">
+<header class="glass-panel rounded-full flex items-center justify-between whitespace-nowrap px-6 py-3 w-full max-w-[960px] shadow-lg shadow-primary/5">
+<div class="flex items-center gap-3 text-white">
+<div class="size-6 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 28px;">all_inclusive</span>
+</div>
+<h2 class="text-white text-xl font-display font-bold leading-tight tracking-[-0.015em]">MIRRA</h2>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-gray-300 hover:text-white hover:text-shadow transition-colors text-sm font-medium font-display leading-normal" href="#">運作原理</a>
+<a class="text-gray-300 hover:text-white hover:text-shadow transition-colors text-sm font-medium font-display leading-normal" href="#">市民</a>
+<a class="text-gray-300 hover:text-white hover:text-shadow transition-colors text-sm font-medium font-display leading-normal" href="#">定價</a>
+</div>
+<button class="hidden md:flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-9 px-5 bg-primary hover:bg-primary/90 transition-all text-white text-sm font-bold font-display leading-normal tracking-[0.015em] shadow-[0_0_15px_rgba(127,19,236,0.5)]">
+<span class="truncate">開始模擬</span>
+</button>
+<button class="md:hidden text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</header>
+</div>
+<div class="layout-container flex h-full grow flex-col pt-24 md:pt-32">
+<div class="px-4 md:px-40 flex flex-1 justify-center py-5 relative">
+<div class="absolute inset-0 bg-hero-glow z-0 pointer-events-none"></div>
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1 z-10">
+<div class="@container">
+<div class="@[480px]:p-4">
+<div class="flex min-h-[480px] flex-col gap-6 bg-cover bg-center bg-no-repeat @[480px]:gap-10 @[480px]:rounded-xl items-center justify-center p-8 relative overflow-hidden group" data-alt="Abstract network of purple glowing nodes connecting in dark space" style='background-image: linear-gradient(rgba(20, 17, 24, 0.7) 0%, rgba(20, 17, 24, 0.9) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDDxAK_NLyevC7uMBsh39_QDpO0Ze3OoyVQe0-kWtK4jmpYpnB0UQTzrKrE525cNnJs97jhdfuBXHesRR-lLJRcSkYvCoF6QQy6jxGIlDizVoVLWxexnWmvvYLRjoTNGscmfNSmaGDd178JUE_eeiUaQwjlYbg5lA5jxkBEhv90i2nwHes3Luu6zTAV3djCWUvjORkZMMhvBNiCFLVf7BVMkBgs632jlV7jRfr9T21nNvMFFxxaOxEZjSrA6xFrDr8LGK_CUtzVgIE");'>
+<div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+<div class="flex flex-col gap-4 text-center max-w-[800px] z-10">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 mx-auto w-fit mb-2">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="text-xs font-display font-medium text-primary uppercase tracking-widest">系統上線</span>
+</div>
+<h1 class="text-white text-glow text-5xl md:text-7xl font-display font-black leading-[1.1] tracking-[-0.033em]">
+                                    在<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400">平行世界</span>中測試您的商業點子
+                                </h1>
+<h2 class="text-gray-300 text-base md:text-lg font-body font-light leading-relaxed max-w-[600px] mx-auto">
+                                    將您的產品部署給 1000 名自主 AI 市民。從未來獲取今日的市場回饋。
+                                </h2>
+</div>
+<div class="flex flex-wrap gap-4 justify-center z-10 mt-4">
+<button class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary hover:bg-primary/90 transition-all hover:scale-105 text-white text-base font-bold font-display leading-normal tracking-[0.015em] shadow-[0_0_20px_rgba(127,19,236,0.4)]">
+<span class="truncate">開始模擬</span>
+</button>
+<button class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-sm transition-all text-white text-base font-bold font-display leading-normal tracking-[0.015em]">
+<span class="mr-2 material-symbols-outlined text-sm">play_arrow</span>
+<span class="truncate">觀看演示</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="px-4 md:px-40 flex flex-1 justify-center py-5 -mt-10 relative z-20">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<div class="glass-panel rounded-xl p-1 mx-4 md:mx-8 shadow-2xl shadow-black/50">
+<div class="flex flex-wrap md:flex-nowrap divide-y md:divide-y-0 md:divide-x divide-white/10">
+<div class="flex flex-1 items-center gap-4 p-6 hover:bg-white/5 transition-colors group">
+<div class="p-3 rounded-lg bg-primary/20 text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<div class="flex flex-col">
+<p class="text-gray-400 text-xs font-display uppercase tracking-wider font-medium">活躍市民</p>
+<p class="text-white text-2xl font-display font-bold leading-tight tabular-nums">1,000</p>
+</div>
+</div>
+<div class="flex flex-1 items-center gap-4 p-6 hover:bg-white/5 transition-colors group">
+<div class="p-3 rounded-lg bg-blue-500/20 text-blue-400 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">model_training</span>
+</div>
+<div class="flex flex-col">
+<p class="text-gray-400 text-xs font-display uppercase tracking-wider font-medium">模擬運行中</p>
+<p class="text-white text-2xl font-display font-bold leading-tight tabular-nums">124</p>
+</div>
+</div>
+<div class="flex flex-1 items-center gap-4 p-6 hover:bg-white/5 transition-colors group">
+<div class="p-3 rounded-lg bg-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">insights</span>
+</div>
+<div class="flex flex-col">
+<p class="text-gray-400 text-xs font-display uppercase tracking-wider font-medium">預測準確度</p>
+<p class="text-white text-2xl font-display font-bold leading-tight tabular-nums">98%</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="px-4 md:px-40 flex flex-1 justify-center py-16 md:py-24 relative overflow-hidden">
+<div class="absolute top-1/2 left-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1 z-10">
+<div class="flex flex-col gap-12 px-4 @container">
+<div class="flex flex-col gap-4 text-center items-center">
+<h2 class="text-white tracking-tight text-3xl md:text-4xl font-display font-bold leading-tight max-w-[720px]">
+                            模擬如何運作
+                        </h2>
+<p class="text-gray-400 text-base md:text-lg font-body font-light leading-relaxed max-w-[600px]">
+                            使用我們的自主代理技術，只需三個簡單步驟即可啟動平行世界模擬。
+                        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="glass-panel group p-6 rounded-xl border border-white/5 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1">
+<div class="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-[#2a2435] text-white group-hover:bg-primary group-hover:shadow-[0_0_15px_rgba(127,19,236,0.6)] transition-all duration-300">
+<span class="material-symbols-outlined">tune</span>
+</div>
+<div class="flex flex-col gap-3">
+<h3 class="text-white text-xl font-display font-bold leading-tight">1. 設定世界</h3>
+<p class="text-gray-400 text-sm font-body leading-relaxed">
+                                    定義您的平行市場環境的參數、人口統計和經濟狀況。
+                                </p>
+</div>
+</div>
+<div class="glass-panel group p-6 rounded-xl border border-white/5 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1">
+<div class="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-[#2a2435] text-white group-hover:bg-primary group-hover:shadow-[0_0_15px_rgba(127,19,236,0.6)] transition-all duration-300">
+<span class="material-symbols-outlined">smart_toy</span>
+</div>
+<div class="flex flex-col gap-3">
+<h3 class="text-white text-xl font-display font-bold leading-tight">2. 部署代理人</h3>
+<p class="text-gray-400 text-sm font-body leading-relaxed">
+                                    將您的產品發布給 1000 個在模擬中生活、工作和消費的自主 AI 人物。
+                                </p>
+</div>
+</div>
+<div class="glass-panel group p-6 rounded-xl border border-white/5 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1">
+<div class="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-[#2a2435] text-white group-hover:bg-primary group-hover:shadow-[0_0_15px_rgba(127,19,236,0.6)] transition-all duration-300">
+<span class="material-symbols-outlined">query_stats</span>
+</div>
+<div class="flex flex-col gap-3">
+<h3 class="text-white text-xl font-display font-bold leading-tight">3. 獲取洞察</h3>
+<p class="text-gray-400 text-sm font-body leading-relaxed">
+                                    從未來接收即時回饋、行為分析和預測性成功指標。
+                                </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="px-4 md:px-40 flex flex-1 justify-center py-5 mt-auto border-t border-white/5 bg-[#0f0c12]">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<footer class="flex flex-col gap-8 px-5 py-10 text-center md:text-left">
+<div class="flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
+<div class="flex flex-col gap-4 items-center md:items-start">
+<div class="flex items-center gap-2 text-white">
+<span class="material-symbols-outlined text-primary">all_inclusive</span>
+<h2 class="text-lg font-display font-bold">MIRRA</h2>
+</div>
+<p class="text-gray-500 text-sm max-w-[300px]">模擬未來，為今日做出更好的決策。</p>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+<a class="text-gray-400 hover:text-primary transition-colors text-sm font-medium font-display" href="#">文件</a>
+<a class="text-gray-400 hover:text-primary transition-colors text-sm font-medium font-display" href="#">API 存取</a>
+<a class="text-gray-400 hover:text-primary transition-colors text-sm font-medium font-display" href="#">服務條款</a>
+</div>
+</div>
+<div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-gray-600 text-xs font-body">© 2024 MIRRA AI. 保留所有權利。</p>
+<div class="flex gap-4">
+<a class="text-gray-600 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-[20px]">public</span></a>
+<a class="text-gray-600 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-[20px]">mail</span></a>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>

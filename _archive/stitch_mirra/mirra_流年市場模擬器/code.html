@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MIRRA Annual Fortune Simulator</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f13ec",
+                        "primary-glow": "#9d4dff",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#191022",
+                        "surface-dark": "#231b2e",
+                        "accent-cyan": "#0bda73",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "Noto Sans TC", "sans-serif"],
+                        "body": ["Space Grotesk", "Noto Sans TC", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #191022; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #473b54; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7f13ec; 
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 20px rgba(127, 19, 236, 0.5);
+        }
+        
+        .chart-glow-primary {
+            filter: drop-shadow(0 0 8px rgba(127, 19, 236, 0.6));
+        }
+        
+        .chart-glow-secondary {
+            filter: drop-shadow(0 0 6px rgba(11, 218, 115, 0.4));
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- Sidebar Navigation -->
+<div class="hidden md:flex flex-col w-64 border-r border-white/10 bg-[#141118]">
+<div class="p-6 flex flex-col gap-1">
+<h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-size: 28px;">all_inclusive</span>
+                MIRRA
+            </h1>
+<p class="text-xs text-slate-400 tracking-wider">AI SIMULATION PLATFORM</p>
+</div>
+<nav class="flex-1 px-4 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/20 text-white border border-primary/20 transition-all hover:bg-primary/30 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary-glow">monitoring</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-medium text-sm">Agent List</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">tune</span>
+<span class="font-medium text-sm">Simulation Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-medium text-sm">Reports</span>
+</a>
+</nav>
+<div class="p-4 border-t border-white/10">
+<div class="flex items-center gap-3 px-2 py-2">
+<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-blue-500 flex items-center justify-center text-xs font-bold">OP</div>
+<div class="flex flex-col">
+<p class="text-sm font-medium text-white">Operator 01</p>
+<p class="text-xs text-slate-500">System Admin</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col overflow-hidden relative">
+<!-- Background Grid Pattern -->
+<div class="absolute inset-0 pointer-events-none opacity-[0.03]" style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 40px 40px;"></div>
+<!-- Header -->
+<header class="flex-none px-8 py-6 border-b border-white/5 bg-background-dark/80 backdrop-blur-md z-10 flex justify-between items-center">
+<div>
+<h2 class="text-3xl font-black tracking-tight text-white flex items-center gap-3">
+                    MIRRA 流年市場模擬器
+                    <span class="px-2 py-1 rounded border border-primary/30 bg-primary/10 text-xs font-medium text-primary-glow tracking-widest uppercase">Beta v2.4</span>
+</h2>
+<div class="flex items-center gap-4 mt-1 text-slate-400">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></span>
+<span class="text-sm">1000 AI Citizens Active</span>
+</div>
+<span class="w-1 h-1 rounded-full bg-slate-600"></span>
+<p class="text-sm">Annual Fortune Simulator</p>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-sm">history</span>
+                    History
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary-glow text-white text-sm font-medium shadow-[0_0_15px_rgba(127,19,236,0.4)] transition-all">
+<span class="material-symbols-outlined text-sm">play_arrow</span>
+                    Run Simulation
+                </button>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-8">
+<div class="max-w-[1600px] mx-auto flex flex-col gap-6">
+<!-- Top Section: Timeline & Chart -->
+<div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+<!-- Main Chart Section (Takes 3 columns) -->
+<div class="xl:col-span-3 flex flex-col gap-6">
+<!-- Horizontal Timeline Stepper -->
+<div class="bg-surface-dark border border-white/5 rounded-xl p-6 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+<div class="flex justify-between items-center relative z-10">
+<!-- 2024 -->
+<div class="flex flex-col items-center gap-2 flex-1 relative group cursor-pointer">
+<div class="text-primary-glow text-lg font-bold">2024 甲辰</div>
+<div class="w-4 h-4 rounded-full bg-primary border-4 border-[#231b2e] shadow-[0_0_0_2px_#7f13ec] z-10"></div>
+<div class="text-slate-400 text-sm font-medium mt-1 group-hover:text-white transition-colors">Wood Dragon</div>
+<div class="absolute top-[1.6rem] left-[50%] w-full h-[2px] bg-primary/30 -z-0"></div>
+</div>
+<!-- 2025 -->
+<div class="flex flex-col items-center gap-2 flex-1 relative group cursor-pointer">
+<div class="text-white text-lg font-bold opacity-80 group-hover:opacity-100 transition-opacity">2025 乙巳</div>
+<div class="w-4 h-4 rounded-full bg-[#231b2e] border-2 border-slate-600 group-hover:border-primary transition-colors z-10"></div>
+<div class="text-slate-500 text-sm font-medium mt-1 group-hover:text-white transition-colors">Wood Snake</div>
+<div class="absolute top-[1.6rem] left-[50%] w-full h-[2px] bg-slate-700 -z-0"></div>
+<div class="absolute top-[1.6rem] right-[50%] w-full h-[2px] bg-primary/30 -z-0"></div>
+</div>
+<!-- 2026 -->
+<div class="flex flex-col items-center gap-2 flex-1 relative group cursor-pointer">
+<div class="text-white text-lg font-bold opacity-60 group-hover:opacity-100 transition-opacity">2026 丙午</div>
+<div class="w-4 h-4 rounded-full bg-[#231b2e] border-2 border-slate-600 group-hover:border-primary transition-colors z-10"></div>
+<div class="text-slate-500 text-sm font-medium mt-1 group-hover:text-white transition-colors">Fire Horse</div>
+<div class="absolute top-[1.6rem] right-[50%] w-full h-[2px] bg-slate-700 -z-0"></div>
+</div>
+</div>
+</div>
+<!-- Chart Container -->
+<div class="bg-surface-dark border border-white/5 rounded-xl p-6 min-h-[420px] flex flex-col relative group">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                        Market Receptivity vs Sales Forecast
+                                        <span class="material-symbols-outlined text-slate-500 text-sm cursor-help">info</span>
+</h3>
+<p class="text-slate-400 text-sm mt-1">Simulated impact based on Bazi energy fluctuations</p>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-primary shadow-[0_0_8px_#7f13ec]"></div>
+<span class="text-sm text-slate-300">Sales Forecast</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-accent-cyan shadow-[0_0_8px_#0bda73]"></div>
+<span class="text-sm text-slate-300">Receptivity</span>
+</div>
+</div>
+</div>
+<!-- SVG Chart -->
+<div class="flex-1 w-full relative">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 1000 300">
+<!-- Grid Lines -->
+<line stroke="#333" stroke-width="1" x1="0" x2="1000" y1="250" y2="250"></line>
+<line stroke="#333" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="1000" y1="150" y2="150"></line>
+<line stroke="#333" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="1000" y1="50" y2="50"></line>
+<!-- X Axis Labels -->
+<text fill="#666" font-family="Space Grotesk" font-size="12" x="50" y="280">2024 Q1</text>
+<text fill="#666" font-family="Space Grotesk" font-size="12" x="216" y="280">2024 Q3</text>
+<text fill="#666" font-family="Space Grotesk" font-size="12" x="382" y="280">2025 Q1</text>
+<text fill="#666" font-family="Space Grotesk" font-size="12" x="548" y="280">2025 Q3</text>
+<text fill="#666" font-family="Space Grotesk" font-size="12" x="714" y="280">2026 Q1</text>
+<text fill="#666" font-family="Space Grotesk" font-size="12" x="880" y="280">2026 Q3</text>
+<!-- Gradient Defs -->
+<defs>
+<lineargradient id="purpleGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#7f13ec" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#7f13ec" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Chart 1: Sales (Purple) -->
+<path d="M0 200 C100 200, 150 120, 333 140 C500 160, 550 80, 666 90 C833 100, 900 30, 1000 40 V 250 H 0 Z" fill="url(#purpleGradient)"></path>
+<path class="chart-glow-primary" d="M0 200 C100 200, 150 120, 333 140 C500 160, 550 80, 666 90 C833 100, 900 30, 1000 40" fill="none" stroke="#7f13ec" stroke-width="3"></path>
+<!-- Chart 2: Receptivity (Green) -->
+<path class="chart-glow-secondary" d="M0 220 C80 230, 160 180, 333 190 C500 200, 520 120, 666 130 C800 140, 850 100, 1000 110" fill="none" stroke="#0bda73" stroke-dasharray="5 5" stroke-width="2"></path>
+<!-- Interactive Point (Mockup) -->
+<circle cx="666" cy="90" fill="#191022" r="6" stroke="#fff" stroke-width="2">
+<animate attributename="r" dur="2s" repeatcount="indefinite" values="6;8;6"></animate>
+</circle>
+<!-- Tooltip Mockup -->
+<g transform="translate(680, 60)">
+<rect fill="#231b2e" height="50" rx="4" stroke="#7f13ec" stroke-width="1" width="140"></rect>
+<text fill="#fff" font-size="12" font-weight="bold" x="10" y="20">2025 Q4 Analysis</text>
+<text fill="#0bda73" font-size="10" x="10" y="38">High Volatility Detected</text>
+</g>
+</svg>
+</div>
+</div>
+<!-- Year Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Card 2024 -->
+<div class="bg-surface-dark border border-white/5 rounded-xl p-5 hover:border-primary/50 transition-colors group flex flex-col gap-4 relative overflow-hidden">
+<div class="absolute -right-4 -top-4 text-white/5">
+<span class="material-symbols-outlined text-[100px]">landscape</span>
+</div>
+<div class="flex items-center gap-3 relative z-10">
+<div class="p-2 bg-slate-800 rounded-lg text-white group-hover:bg-primary group-hover:shadow-[0_0_15px_rgba(127,19,236,0.6)] transition-all">
+<span class="material-symbols-outlined">forest</span>
+</div>
+<div>
+<h4 class="text-white font-bold text-lg leading-none">2024 甲辰</h4>
+<p class="text-slate-500 text-xs">Wood Dragon</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 relative z-10">
+<p class="text-sm text-slate-300">Grand Trend <span class="text-primary font-bold">Creative Stagnation</span></p>
+<div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-slate-500 w-[45%]"></div>
+</div>
+<div class="flex gap-2 mt-2 flex-wrap">
+<span class="text-[10px] px-2 py-1 bg-white/5 rounded text-slate-400">Stability</span>
+<span class="text-[10px] px-2 py-1 bg-white/5 rounded text-slate-400">Conservative</span>
+</div>
+</div>
+</div>
+<!-- Card 2025 -->
+<div class="bg-surface-dark border border-white/5 rounded-xl p-5 hover:border-accent-cyan/50 transition-colors group flex flex-col gap-4 relative overflow-hidden">
+<div class="absolute -right-4 -top-4 text-white/5">
+<span class="material-symbols-outlined text-[100px]">waves</span>
+</div>
+<div class="flex items-center gap-3 relative z-10">
+<div class="p-2 bg-slate-800 rounded-lg text-white group-hover:bg-accent-cyan group-hover:text-black group-hover:shadow-[0_0_15px_rgba(11,218,115,0.6)] transition-all">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<div>
+<h4 class="text-white font-bold text-lg leading-none">2025 乙巳</h4>
+<p class="text-slate-500 text-xs">Wood Snake</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 relative z-10">
+<p class="text-sm text-slate-300">Grand Trend <span class="text-accent-cyan font-bold">Hidden Innovation</span></p>
+<div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-accent-cyan w-[65%]"></div>
+</div>
+<div class="flex gap-2 mt-2 flex-wrap">
+<span class="text-[10px] px-2 py-1 bg-white/5 rounded text-slate-400">R&amp;D Spike</span>
+<span class="text-[10px] px-2 py-1 bg-white/5 rounded text-slate-400">Transformation</span>
+</div>
+</div>
+</div>
+<!-- Card 2026 -->
+<div class="bg-surface-dark border border-white/5 rounded-xl p-5 hover:border-red-500/50 transition-colors group flex flex-col gap-4 relative overflow-hidden">
+<div class="absolute -right-4 -top-4 text-white/5">
+<span class="material-symbols-outlined text-[100px]">local_fire_department</span>
+</div>
+<div class="flex items-center gap-3 relative z-10">
+<div class="p-2 bg-slate-800 rounded-lg text-white group-hover:bg-red-500 group-hover:shadow-[0_0_15px_rgba(239,68,68,0.6)] transition-all">
+<span class="material-symbols-outlined">rocket_launch</span>
+</div>
+<div>
+<h4 class="text-white font-bold text-lg leading-none">2026 丙午</h4>
+<p class="text-slate-500 text-xs">Fire Horse</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 relative z-10">
+<p class="text-sm text-slate-300">Grand Trend <span class="text-red-500 font-bold">Market Explosion</span></p>
+<div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-red-500 w-[85%]"></div>
+</div>
+<div class="flex gap-2 mt-2 flex-wrap">
+<span class="text-[10px] px-2 py-1 bg-white/5 rounded text-slate-400">High Risk</span>
+<span class="text-[10px] px-2 py-1 bg-white/5 rounded text-slate-400">Consumer Frenzy</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Controls (Takes 1 column) -->
+<div class="xl:col-span-1 flex flex-col gap-6">
+<!-- Panel: Universal Events -->
+<div class="bg-surface-dark border border-white/5 rounded-xl p-6 flex flex-col gap-5 sticky top-0">
+<div class="flex items-center gap-2 pb-4 border-b border-white/5">
+<span class="material-symbols-outlined text-primary">public</span>
+<h3 class="font-bold text-white text-sm uppercase tracking-wider">Universal Events</h3>
+</div>
+<!-- Toggle Item 1 -->
+<label class="flex items-start justify-between cursor-pointer group">
+<div class="flex flex-col gap-1">
+<span class="text-sm font-medium text-white group-hover:text-primary transition-colors">Global Recession</span>
+<span class="text-xs text-slate-500">Economic stressor impact</span>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</label>
+<!-- Toggle Item 2 -->
+<label class="flex items-start justify-between cursor-pointer group">
+<div class="flex flex-col gap-1">
+<span class="text-sm font-medium text-white group-hover:text-primary transition-colors">Tech Breakthrough</span>
+<span class="text-xs text-slate-500">+20% Fire Element boost</span>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</label>
+<!-- Toggle Item 3 -->
+<label class="flex items-start justify-between cursor-pointer group">
+<div class="flex flex-col gap-1">
+<span class="text-sm font-medium text-white group-hover:text-primary transition-colors">Pandemic Aftershocks</span>
+<span class="text-xs text-slate-500">Resource scarcity</span>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</label>
+<div class="h-px bg-white/5 my-2"></div>
+<!-- Slider Section -->
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<span class="text-sm font-medium text-slate-300">Bazi Influence Weight</span>
+<span class="text-xs font-bold text-primary">85%</span>
+</div>
+<input class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" max="100" min="0" type="range" value="85"/>
+<p class="text-xs text-slate-500 italic">Determines how strongly cosmic data overrides historical market data.</p>
+</div>
+</div>
+<!-- System Status -->
+<div class="bg-surface-dark border border-white/5 rounded-xl p-6 flex flex-col gap-3">
+<h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Simulation Logs</h4>
+<div class="space-y-3 font-mono text-xs">
+<div class="flex gap-2 text-slate-400">
+<span class="text-slate-600">14:02:22</span>
+<span>Recalculating 2026 trajectories...</span>
+</div>
+<div class="flex gap-2 text-primary-glow">
+<span class="text-slate-600">14:02:20</span>
+<span>Event "Tech Breakthrough" applied.</span>
+</div>
+<div class="flex gap-2 text-slate-400">
+<span class="text-slate-600">14:01:55</span>
+<span>Agent #892 decision node updated.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-TW"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MIRRA - 專案儀表板</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "primary-hover": "#0b4bc9",
+                        "background-dark": "#0f1115",
+                        "surface-dark": "#181b21",
+                        "glass-border": "rgba(255, 255, 255, 0.08)",
+                        "glass-bg": "rgba(30, 35, 45, 0.6)",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "Noto Sans TC", "sans-serif"],
+                        "body": ["Noto Sans TC", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+                    backgroundImage: {
+                        'neon-glow': 'linear-gradient(135deg, rgba(13, 89, 242, 0.15) 0%, rgba(0, 0, 0, 0) 100%)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        h1, h2, h3, h4, h5, h6, .font-display {
+            font-family: 'Space Grotesk', 'Noto Sans TC', sans-serif;
+        }
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111318;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #282e39;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a4252;
+        }
+        .glass-panel {
+            background: rgba(30, 35, 45, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-white overflow-x-hidden antialiased selection:bg-primary selection:text-white">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="hidden w-64 flex-col border-r border-white/5 bg-[#111318] lg:flex">
+<div class="flex h-full flex-col justify-between p-4">
+<div class="flex flex-col gap-8">
+<!-- Brand -->
+<div class="flex items-center gap-3 px-2 pt-2">
+<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue-600 shadow-[0_0_15px_rgba(13,89,242,0.5)]">
+<span class="material-symbols-outlined text-white">all_inclusive</span>
+</div>
+<div class="flex flex-col">
+<h1 class="font-display text-xl font-bold tracking-wider text-white">MIRRA</h1>
+<p class="text-xs font-normal text-gray-400">AI 平行世界模擬</p>
+</div>
+</div>
+<!-- Navigation -->
+<nav class="flex flex-col gap-2">
+<a class="group flex items-center gap-3 rounded-xl bg-primary/10 px-3 py-3 text-primary border border-primary/20 transition-all hover:bg-primary/20" href="#">
+<span class="material-symbols-outlined fill-1">grid_view</span>
+<span class="font-medium text-sm">首頁</span>
+</a>
+<a class="group flex items-center gap-3 rounded-xl px-3 py-3 text-gray-400 transition-all hover:bg-white/5 hover:text-white" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-medium text-sm">建立新模擬</span>
+</a>
+<a class="group flex items-center gap-3 rounded-xl px-3 py-3 text-gray-400 transition-all hover:bg-white/5 hover:text-white" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-medium text-sm">設定</span>
+</a>
+<a class="group flex items-center gap-3 rounded-xl px-3 py-3 text-gray-400 transition-all hover:bg-white/5 hover:text-white" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-medium text-sm">歷史紀錄</span>
+</a>
+</nav>
+</div>
+<!-- User Profile -->
+<div class="flex flex-col gap-4 border-t border-white/5 pt-4">
+<div class="rounded-xl bg-gradient-to-r from-purple-900/20 to-primary/20 p-3 border border-white/5">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-medium text-gray-300">本月額度</span>
+<span class="text-xs font-bold text-primary">85%</span>
+</div>
+<div class="h-1.5 w-full rounded-full bg-gray-700 overflow-hidden">
+<div class="h-full w-[85%] rounded-full bg-gradient-to-r from-primary to-purple-500"></div>
+</div>
+</div>
+<a class="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-white/5" href="#">
+<div class="h-10 w-10 overflow-hidden rounded-full border border-white/10 bg-gray-800" data-alt="User avatar placeholder">
+<img alt="User Avatar" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxyzCn0I5OBsGJPWE1LoavLbIP9yGv7MMLgWQmEYbqDjmXhbDO96nKqaL-1LKQpGwo4R0Udb26KDzRBLESVWLMuuiKdEQlvrCw9Sao2_o76mQ6V9QznBYWfoFrUjlQ65IxIcOUOPzRF1fDGgKTI324m5KAyoe_tPYDw5oE45rwvGp8LpA_vuIt43R9JZjSYL0MvGbl1Ab-MC8UAjK0UD1WMzyGaEyrP8x30SWS_zi8_CHc6Fky-HBrYhW4Wxx2ZWFNa_h6f9FlN4s"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-white">Alex Chen</span>
+<span class="text-xs text-gray-500">Pro Plan</span>
+</div>
+<span class="material-symbols-outlined ml-auto text-gray-500 text-[20px]">more_vert</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex h-full flex-1 flex-col overflow-y-auto bg-background-dark relative">
+<!-- Subtle Background Pattern hint at Bazi/Tech -->
+<div class="absolute inset-0 pointer-events-none opacity-[0.03]" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 32px 32px;"></div>
+<div class="container mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-8 z-10">
+<!-- Page Header -->
+<div class="mb-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+<div class="flex flex-col gap-2">
+<h2 class="font-display text-3xl font-bold text-white tracking-tight">專案儀表板</h2>
+<p class="text-gray-400 font-light">管理您的平行世界模擬歷程與洞察分析</p>
+</div>
+<button class="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-medium text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-hover hover:scale-[1.02] hover:shadow-primary/40 active:scale-95">
+<span class="material-symbols-outlined">add</span>
+<span>建立新模擬</span>
+</button>
+</div>
+<!-- Controls: Search & Filter -->
+<div class="mb-8 grid gap-4 md:grid-cols-[1fr_auto]">
+<!-- Search -->
+<div class="relative group">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="w-full rounded-xl border border-white/10 bg-[#181b21] py-3.5 pl-11 pr-4 text-white placeholder-gray-500 shadow-sm transition-all focus:border-primary focus:bg-[#1c212b] focus:ring-1 focus:ring-primary focus:outline-none" placeholder="搜尋專案名稱、關鍵字..." type="text"/>
+</div>
+<!-- Filters -->
+<div class="flex items-center gap-3 overflow-x-auto pb-1 md:pb-0">
+<div class="flex items-center gap-2 rounded-xl bg-[#181b21] border border-white/10 p-1">
+<button class="flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2.5 text-sm font-medium text-white shadow-sm transition-all">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+                                最新日期
+                            </button>
+<button class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-gray-200 transition-all">
+<span class="material-symbols-outlined text-[18px]">trending_up</span>
+                                評分高低
+                            </button>
+</div>
+<button class="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#181b21] text-gray-400 hover:border-white/20 hover:text-white transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Projects Grid -->
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+<!-- Card 1 -->
+<div class="glass-panel group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-primary/50">
+<!-- Image Area -->
+<div class="relative aspect-video w-full overflow-hidden bg-gray-900">
+<div class="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-md border border-white/10 flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span> 已完成
+                            </div>
+<div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Futuristic smart watch floating in dark space with blue data visualizations" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAS1q1XaumQQIk76Vkq6UvHiqnyt3tIwoSN3bxcgyy_qwMyzA6gSxcO-xvRzxlVZZ2_5uNruqiy6P_otgZyM9p6vAeqsOPJ2ZEljNBkziZF0-ODivyXaEjxxXh-uePZyBXFDryGQCvTF_aRDOW7cwnjhkyX4wXQFr1nQvLoOL8F1I29iHT7aaRcmuRRJFNtb_t57XRNDm3ccAcG-TZBfdgk-xDuwObZj0gdql74-WiwCKXhEmHwvsimmr8QBcFbjUKbRuC0DqRxAbU');">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#181b21] via-transparent to-transparent opacity-80"></div>
+</div>
+<!-- Content -->
+<div class="flex flex-1 flex-col p-5">
+<div class="mb-1 flex items-start justify-between">
+<h3 class="font-display text-lg font-bold text-white group-hover:text-primary transition-colors line-clamp-1">智能手錶 X-200</h3>
+<!-- Score Badge -->
+<div class="flex flex-col items-end">
+<div class="relative flex items-center justify-center">
+<svg class="h-12 w-12 -rotate-90 transform" viewbox="0 0 36 36">
+<!-- Background Circle -->
+<path class="text-gray-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<!-- Value Circle -->
+<path class="text-primary drop-shadow-[0_0_3px_rgba(13,89,242,0.8)]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="92, 100" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="text-sm font-bold text-white font-display">92</span>
+</div>
+</div>
+<span class="mt-1 text-[10px] text-gray-500 font-medium tracking-wide uppercase">購買意願</span>
+</div>
+</div>
+<p class="mb-4 text-xs font-normal text-gray-400">2023-10-25 建立 • 市場模擬 v2.1</p>
+<div class="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
+<div class="flex -space-x-2">
+<div class="h-6 w-6 rounded-full border border-[#181b21] bg-gray-600" title="Persona A"></div>
+<div class="h-6 w-6 rounded-full border border-[#181b21] bg-gray-500" title="Persona B"></div>
+<div class="h-6 w-6 rounded-full border border-[#181b21] bg-gray-400 flex items-center justify-center text-[10px] font-bold text-black">+3</div>
+</div>
+<button class="rounded-lg p-1.5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-panel group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-primary/50">
+<div class="relative aspect-video w-full overflow-hidden bg-gray-900">
+<div class="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-md border border-white/10 flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span> 已完成
+                            </div>
+<div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Futuristic electric car concept with neon lights in a dark cyber city" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBPVFw_SUq16_zIsAvz-a-TPn5-VyyhwXMssadRVS_Baa88ZavALjMWgnjlK2U-kTMmSDoJ2ZJ8BGzPLz6NJjEYvccnWEOmsdVuvppvR-ckb0XExwDygt_ynAl_4P80plS4i09GNQGfmKyRhF_ZbGOCYV9TjDLpZThW0ltjtLXk8y8yyuvBZLgtEyAowyo-wfeHEJbhKxbpX8yJLxICm4JQLjw64lxcK-WpjDlFsKAe3fZADMa764QWfGvmWiMV65fwqbcfNfaYMhY');">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#181b21] via-transparent to-transparent opacity-80"></div>
+</div>
+<div class="flex flex-1 flex-col p-5">
+<div class="mb-1 flex items-start justify-between">
+<h3 class="font-display text-lg font-bold text-white group-hover:text-primary transition-colors line-clamp-1">未來感電動車</h3>
+<div class="flex flex-col items-end">
+<div class="relative flex items-center justify-center">
+<svg class="h-12 w-12 -rotate-90 transform" viewbox="0 0 36 36">
+<path class="text-gray-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-teal-400 drop-shadow-[0_0_3px_rgba(45,212,191,0.6)]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="78, 100" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="text-sm font-bold text-white font-display">78</span>
+</div>
+</div>
+<span class="mt-1 text-[10px] text-gray-500 font-medium tracking-wide uppercase">購買意願</span>
+</div>
+</div>
+<p class="mb-4 text-xs font-normal text-gray-400">2023-10-24 建立 • 城市通勤場景</p>
+<div class="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
+<div class="flex -space-x-2">
+<div class="h-6 w-6 rounded-full border border-[#181b21] bg-gray-600"></div>
+<div class="h-6 w-6 rounded-full border border-[#181b21] bg-gray-500"></div>
+</div>
+<button class="rounded-lg p-1.5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="glass-panel group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-primary/50">
+<div class="relative aspect-video w-full overflow-hidden bg-gray-900">
+<div class="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-md border border-white/10 flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-yellow-500 animate-pulse"></span> 運算中
+                            </div>
+<div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Macro shot of a smart ring on a finger with health monitoring interface overlay" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDEKEITuKANE9apaML18t-Kh0y8q7bI5Alzi1taii1mVKfn_BLBR5zqBcjy5Fclp4OXjUc24LpxI8Utluat8xmvZPOydCNdiaeyAOOD3owpRvJYvaTwSkz1VHwQpJNYA6-hQkNp8FK2mTzLTHcF0ETWGmCL2Hb8Lav79RdyOIs5l3FqArKyoK3XhH3WlmUl77g1z6xc3bzdQrJOQW35wuJxuxLiINKSkB-cdkaeQNK5LpGYZx4wfIQW-hRS6loO1GcoQp6uvfDFuaY');">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#181b21] via-transparent to-transparent opacity-80"></div>
+</div>
+<div class="flex flex-1 flex-col p-5">
+<div class="mb-1 flex items-start justify-between">
+<h3 class="font-display text-lg font-bold text-white group-hover:text-primary transition-colors line-clamp-1">健康監測戒指</h3>
+<div class="flex flex-col items-end">
+<div class="relative flex items-center justify-center">
+<svg class="h-12 w-12 -rotate-90 transform" viewbox="0 0 36 36">
+<path class="text-gray-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-yellow-500 drop-shadow-[0_0_3px_rgba(234,179,8,0.6)]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="65, 100" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="text-sm font-bold text-white font-display">65</span>
+</div>
+</div>
+<span class="mt-1 text-[10px] text-gray-500 font-medium tracking-wide uppercase">購買意願</span>
+</div>
+</div>
+<p class="mb-4 text-xs font-normal text-gray-400">2023-10-20 建立 • 醫療照護</p>
+<div class="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
+<div class="flex -space-x-2">
+<div class="h-6 w-6 rounded-full border border-[#181b21] bg-gray-600"></div>
+</div>
+<button class="rounded-lg p-1.5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="glass-panel group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-primary/50">
+<div class="relative aspect-video w-full overflow-hidden bg-gray-900">
+<div class="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-md border border-white/10 flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span> 已完成
+                            </div>
+<div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Abstract blue digital network representing smart city planning" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWeoo9WWZ7DyhRWGp8eey37z_EFUDOFY1EeJ_lMLgL057b-IKtfpTZB_zId9spsg6GvfiLE0_qEAFS-VtjOTqwzbTb1TUEeAMmUgwyoYkW_Z_AeTXcf6vtMUPYR2tU4CJJfW5HbK2i6KbOB8lBv006l-rSDRRKVLGah359AX6GHRiM44chGyFAw1V2YMsocLdQsi4AO1nzh3eMbTYtfPoj2fcmVJ9_ymGCp0Q22rhVxEqD3mD7auIdpmnBYJI97WptSE5cCgnH6vY');">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#181b21] via-transparent to-transparent opacity-80"></div>
+</div>
+<div class="flex flex-1 flex-col p-5">
+<div class="mb-1 flex items-start justify-between">
+<h3 class="font-display text-lg font-bold text-white group-hover:text-primary transition-colors line-clamp-1">智慧城市規劃</h3>
+<div class="flex flex-col items-end">
+<div class="relative flex items-center justify-center">
+<svg class="h-12 w-12 -rotate-90 transform" viewbox="0 0 36 36">
+<path class="text-gray-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-primary drop-shadow-[0_0_3px_rgba(13,89,242,0.8)]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="88, 100" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="text-sm font-bold text-white font-display">88</span>
+</div>
+</div>
+<span class="mt-1 text-[10px] text-gray-500 font-medium tracking-wide uppercase">購買意願</span>
+</div>
+</div>
+<p class="mb-4 text-xs font-normal text-gray-400">2023-10-18 建立 • 公共建設</p>
+<div class="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
+<div class="flex -space-x-2">
+<div class="h-6 w-6 rounded-full border border-[#181b21] bg-gray-600"></div>
+<div class="h-6 w-6 rounded-full border border-[#181b21] bg-gray-500"></div>
+<div class="h-6 w-6 rounded-full border border-[#181b21] bg-gray-400 flex items-center justify-center text-[10px] font-bold text-black">+5</div>
+</div>
+<button class="rounded-lg p-1.5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="glass-panel group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-primary/50">
+<div class="relative aspect-video w-full overflow-hidden bg-gray-900">
+<div class="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-md border border-white/10 flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span> 暫停中
+                            </div>
+<div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Cute white household robot interacting with a blurred living room background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCEGw64f128Ea6HFcL7KVTkOBXSVFl6JrJU7cVtV5ZDYJIeJklFTfdS7ulHu5MzLbvLSvZmPQiFXVeICCeTqqLpWTNJhhg8oJ8j-OtzliHXEmwlxsH13vN8NkmFH0K2bzQ3wVy1Ev92iPWTUCo2-DuG7pNZj-ve1gBGIxxAHFcYINzy-5QFAaZdE8_JOKXOrY8MRcujFukmjoVIaGaDIVuRtQFt547x8scN3JfyKUxeBOeihT_2o3v5zzMSpxuu92yvGcC999-FJog');">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#181b21] via-transparent to-transparent opacity-80"></div>
+</div>
+<div class="flex flex-1 flex-col p-5">
+<div class="mb-1 flex items-start justify-between">
+<h3 class="font-display text-lg font-bold text-white group-hover:text-primary transition-colors line-clamp-1">家用 AI 機器人</h3>
+<div class="flex flex-col items-end">
+<div class="relative flex items-center justify-center">
+<svg class="h-12 w-12 -rotate-90 transform" viewbox="0 0 36 36">
+<path class="text-gray-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-red-500 drop-shadow-[0_0_3px_rgba(239,68,68,0.6)]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="45, 100" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="text-sm font-bold text-white font-display">45</span>
+</div>
+</div>
+<span class="mt-1 text-[10px] text-gray-500 font-medium tracking-wide uppercase">購買意願</span>
+</div>
+</div>
+<p class="mb-4 text-xs font-normal text-gray-400">2023-10-15 建立 • 家庭助手</p>
+<div class="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
+<div class="flex -space-x-2">
+<div class="h-6 w-6 rounded-full border border-[#181b21] bg-gray-600"></div>
+</div>
+<button class="rounded-lg p-1.5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<!-- New Project Placeholder (Optional, for visual balance) -->
+<button class="group relative flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/5 p-8 transition-all hover:border-primary/50 hover:bg-primary/5">
+<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/5 text-gray-400 transition-colors group-hover:bg-primary group-hover:text-white group-hover:shadow-[0_0_20px_rgba(13,89,242,0.4)]">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</div>
+<h3 class="font-display text-lg font-medium text-white group-hover:text-primary">建立新模擬專案</h3>
+<p class="mt-2 text-center text-sm text-gray-500">開始探索另一個平行時空的市場可能性</p>
+</button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

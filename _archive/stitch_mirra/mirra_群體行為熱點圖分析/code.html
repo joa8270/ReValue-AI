@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MIRRA 群體行為熱點圖分析</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f13ec",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#141118", // Darkened slightly for deep contrast
+                        "surface-dark": "#1e1a24",
+                        "surface-border": "#302839",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans TC", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Space Grotesk", "Noto Sans TC", sans-serif;
+        }
+        
+        /* Custom Heatmap Tooltip Logic */
+        .heatmap-cell {
+            position: relative;
+        }
+        .heatmap-cell:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .tooltip {
+            opacity: 0;
+            visibility: hidden;
+            position: absolute;
+            bottom: 110%; /* Position above */
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            transition: all 0.2s ease;
+            white-space: normal;
+            z-index: 50;
+            width: 200px;
+            pointer-events: none;
+        }
+        
+        /* Custom Scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141118; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #302839; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a3e56; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top Navigation -->
+<div class="border-b border-surface-border bg-background-dark">
+<div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+<header class="flex items-center justify-between h-16">
+<!-- Logo -->
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M42.4379 44C42.4379 44 36.0744 33.9038 41.1692 24C46.8624 12.9336 42.2078 4 42.2078 4L7.01134 4C7.01134 4 11.6577 12.932 5.96912 23.9969C0.876273 33.9029 7.27094 44 7.27094 44L42.4379 44Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-white text-xl font-bold tracking-tight">MIRRA</h2>
+</div>
+<!-- Nav Links -->
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-gray-300 hover:text-white text-sm font-medium transition-colors" href="#">模擬專案</a>
+<a class="text-white text-sm font-medium border-b-2 border-primary pb-0.5" href="#">分析報表</a>
+<a class="text-gray-300 hover:text-white text-sm font-medium transition-colors" href="#">AI 市民</a>
+<a class="text-gray-300 hover:text-white text-sm font-medium transition-colors" href="#">系統設定</a>
+</nav>
+<!-- User/Profile -->
+<div class="flex items-center gap-4">
+<div class="text-right hidden sm:block">
+<div class="text-white text-xs font-bold">Admin User</div>
+<div class="text-gray-400 text-[10px]">MIRRA Corp</div>
+</div>
+<div class="size-9 rounded-full bg-cover bg-center border border-surface-border" data-alt="User profile avatar showing a stylized digital face" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD1steDB0PZiWhWtf93u1f8V-uIfVGfRAi-_sxWEqMYcVi9-x6sHG1EoBudVpglYReafx3CxN736cEc48EPLFYRqAlMgO6emDKHQafmTSr-uafw0LSUHicOd3mcHjG1-qckggvJVIJANjLHy5maxyM-Vzli1r3SunDs-Nvt2EYkguzgQ94CZ8P_zzbwv3WmXSz-vdJWW9QbA_2Dqcwua9le5tFpphHaU2BT6VwB4I1D9SYyAAwuhSapqlqOAEhllvLxOIZTUBKmfFU");'></div>
+</div>
+</header>
+</div>
+</div>
+<!-- Main Content -->
+<main class="flex-1 max-w-[1440px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div class="space-y-2">
+<div class="flex items-center gap-2 text-primary mb-1">
+<span class="material-symbols-outlined text-sm">analytics</span>
+<span class="text-xs font-bold tracking-wider uppercase">Analytics Dashboard</span>
+</div>
+<h1 class="text-3xl md:text-4xl font-display font-bold text-white tracking-tight">群體行為熱點圖分析</h1>
+<p class="text-gray-400 font-body text-sm md:text-base max-w-2xl">
+                    針對提案的五行屬性與職業別 AI 市民反應矩陣。透過 AI 模擬預測不同群體的購買意願與潛在阻力。
+                </p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-surface-border hover:bg-[#3d3349] text-white text-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-lg">tune</span>
+<span>參數設定</span>
+</button>
+<button class="flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-primary hover:bg-[#680fc2] text-white text-sm font-bold transition-colors shadow-[0_0_15px_rgba(127,19,236,0.3)]">
+<span class="material-symbols-outlined text-lg">download</span>
+<span>匯出報表</span>
+</button>
+</div>
+</div>
+<!-- Filters Row -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+<div class="bg-surface-dark border border-surface-border p-3 rounded-lg flex flex-col justify-center">
+<label class="text-xs text-gray-400 font-medium mb-1.5 ml-1">提案版本 (Proposal)</label>
+<div class="relative">
+<select class="w-full bg-[#141118] border border-surface-border text-white text-sm rounded px-3 py-2 appearance-none focus:outline-none focus:border-primary">
+<option>Proposal V2.4 (Current)</option>
+<option>Proposal V2.3</option>
+<option>Proposal V1.0</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-lg">expand_more</span>
+</div>
+</div>
+<div class="bg-surface-dark border border-surface-border p-3 rounded-lg flex flex-col justify-center">
+<label class="text-xs text-gray-400 font-medium mb-1.5 ml-1">價格敏感度 (Price Sensitivity)</label>
+<div class="relative">
+<select class="w-full bg-[#141118] border border-surface-border text-white text-sm rounded px-3 py-2 appearance-none focus:outline-none focus:border-primary">
+<option>標準 (Standard)</option>
+<option>高敏感 (High)</option>
+<option>低敏感 (Low)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-lg">expand_more</span>
+</div>
+</div>
+<div class="bg-surface-dark border border-surface-border p-3 rounded-lg flex flex-col justify-center">
+<label class="text-xs text-gray-400 font-medium mb-1.5 ml-1">模擬次數 (Iterations)</label>
+<div class="flex items-center gap-2 px-1">
+<span class="text-white font-display font-bold text-lg">10,000</span>
+<span class="text-xs text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">check_circle</span> 完成
+                    </span>
+</div>
+</div>
+<div class="bg-surface-dark border border-surface-border p-3 rounded-lg flex flex-col justify-center">
+<label class="text-xs text-gray-400 font-medium mb-1.5 ml-1">預測準確率 (Confidence)</label>
+<div class="flex items-center gap-2 px-1">
+<span class="text-white font-display font-bold text-lg">94.2%</span>
+<span class="text-xs text-gray-500">Based on Bazi Logic</span>
+</div>
+</div>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- LEFT: Heatmap Matrix (8 cols wide) -->
+<div class="lg:col-span-8 flex flex-col gap-4">
+<div class="bg-surface-dark border border-surface-border rounded-xl p-5 shadow-lg h-full">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-white text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">grid_view</span>
+                            反應熱點圖 (Heatmap)
+                        </h3>
+<!-- Legend -->
+<div class="flex items-center gap-3 text-xs text-gray-400">
+<div class="flex items-center gap-1.5">
+<div class="w-3 h-3 rounded-sm bg-red-500"></div> 低意願
+                            </div>
+<div class="flex items-center gap-1.5">
+<div class="w-3 h-3 rounded-sm bg-[#5b3c88]"></div> 中立
+                            </div>
+<div class="flex items-center gap-1.5">
+<div class="w-3 h-3 rounded-sm bg-green-500"></div> 高意願
+                            </div>
+</div>
+</div>
+<!-- Matrix Container -->
+<div class="overflow-x-auto pb-2">
+<div class="min-w-[600px]">
+<!-- Header Row -->
+<div class="grid grid-cols-[140px_repeat(5,1fr)] gap-2 mb-2">
+<div class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-end pb-1">職業 \ 五行</div>
+<div class="text-center">
+<div class="flex flex-col items-center gap-1 mb-1">
+<div class="size-8 rounded-full bg-[#f0fdf4] text-green-800 flex items-center justify-center font-bold">木</div>
+<span class="text-xs text-gray-400 font-display">Wood</span>
+</div>
+</div>
+<div class="text-center">
+<div class="flex flex-col items-center gap-1 mb-1">
+<div class="size-8 rounded-full bg-[#fef2f2] text-red-800 flex items-center justify-center font-bold">火</div>
+<span class="text-xs text-gray-400 font-display">Fire</span>
+</div>
+</div>
+<div class="text-center">
+<div class="flex flex-col items-center gap-1 mb-1">
+<div class="size-8 rounded-full bg-[#fffbeb] text-yellow-800 flex items-center justify-center font-bold">土</div>
+<span class="text-xs text-gray-400 font-display">Earth</span>
+</div>
+</div>
+<div class="text-center">
+<div class="flex flex-col items-center gap-1 mb-1">
+<div class="size-8 rounded-full bg-[#f1f5f9] text-slate-800 flex items-center justify-center font-bold">金</div>
+<span class="text-xs text-gray-400 font-display">Metal</span>
+</div>
+</div>
+<div class="text-center">
+<div class="flex flex-col items-center gap-1 mb-1">
+<div class="size-8 rounded-full bg-[#eff6ff] text-blue-800 flex items-center justify-center font-bold">水</div>
+<span class="text-xs text-gray-400 font-display">Water</span>
+</div>
+</div>
+</div>
+<!-- Row 1: Software Engineer -->
+<div class="grid grid-cols-[140px_repeat(5,1fr)] gap-2 mb-2">
+<div class="flex items-center text-sm font-medium text-white">軟體工程師</div>
+<!-- Wood -->
+<div class="heatmap-cell h-12 rounded bg-green-500/80 hover:bg-green-400 cursor-pointer transition-colors border border-green-500/30">
+<div class="tooltip bg-[#2d2436] border border-surface-border p-3 rounded-lg shadow-xl text-left">
+<p class="text-green-400 font-bold text-xs mb-1">購買意願: 極高</p>
+<p class="text-white text-xs leading-relaxed">木型工程師重視創新與成長，對新功能接受度高。</p>
+</div>
+</div>
+<!-- Fire -->
+<div class="heatmap-cell h-12 rounded bg-green-600 hover:bg-green-500 cursor-pointer transition-colors border border-green-600/30">
+<div class="tooltip bg-[#2d2436] border border-surface-border p-3 rounded-lg shadow-xl text-left">
+<p class="text-green-400 font-bold text-xs mb-1">購買意願: 高</p>
+<p class="text-white text-xs leading-relaxed">火型工程師容易被視覺效果吸引。</p>
+</div>
+</div>
+<!-- Earth -->
+<div class="heatmap-cell h-12 rounded bg-[#5b3c88] hover:bg-[#6d4a9e] cursor-pointer transition-colors border border-[#5b3c88]/30"></div>
+<!-- Metal -->
+<div class="heatmap-cell h-12 rounded bg-red-500/80 hover:bg-red-500 cursor-pointer transition-colors border border-red-500/30"></div>
+<!-- Water -->
+<div class="heatmap-cell h-12 rounded bg-green-500/40 hover:bg-green-500/60 cursor-pointer transition-colors border border-green-500/20"></div>
+</div>
+<!-- Row 2: Teacher -->
+<div class="grid grid-cols-[140px_repeat(5,1fr)] gap-2 mb-2">
+<div class="flex items-center text-sm font-medium text-white">國小教師</div>
+<!-- Wood -->
+<div class="heatmap-cell h-12 rounded bg-green-500 hover:bg-green-400 cursor-pointer transition-colors border border-green-500/30">
+<div class="tooltip bg-[#2d2436] border border-surface-border p-3 rounded-lg shadow-xl text-left">
+<p class="text-green-400 font-bold text-xs mb-1">購買意願: 極高</p>
+<p class="text-white text-xs leading-relaxed">木型教師重視教育意義與可持續性。</p>
+</div>
+</div>
+<!-- Fire -->
+<div class="heatmap-cell h-12 rounded bg-[#5b3c88] hover:bg-[#6d4a9e] cursor-pointer transition-colors border border-[#5b3c88]/30"></div>
+<!-- Earth -->
+<div class="heatmap-cell h-12 rounded bg-green-500/60 hover:bg-green-500/80 cursor-pointer transition-colors border border-green-500/30"></div>
+<!-- Metal -->
+<div class="heatmap-cell h-12 rounded bg-red-600 hover:bg-red-500 cursor-pointer transition-colors border border-red-600/30">
+<div class="tooltip bg-[#2d2436] border border-surface-border p-3 rounded-lg shadow-xl text-left">
+<p class="text-red-400 font-bold text-xs mb-1">購買意願: 低</p>
+<p class="text-white text-xs leading-relaxed">金型教師對價格變動極為敏感，認為CP值不足。</p>
+</div>
+</div>
+<!-- Water -->
+<div class="heatmap-cell h-12 rounded bg-[#463165] hover:bg-[#5b3c88] cursor-pointer transition-colors border border-[#463165]/30"></div>
+</div>
+<!-- Row 3: Delivery Driver -->
+<div class="grid grid-cols-[140px_repeat(5,1fr)] gap-2 mb-2">
+<div class="flex items-center text-sm font-medium text-white">外送員</div>
+<!-- Wood -->
+<div class="heatmap-cell h-12 rounded bg-red-500 hover:bg-red-400 cursor-pointer transition-colors border border-red-500/30"></div>
+<!-- Fire -->
+<div class="heatmap-cell h-12 rounded bg-red-800 hover:bg-red-700 cursor-pointer transition-colors border border-red-800/30"></div>
+<!-- Earth -->
+<div class="heatmap-cell h-12 rounded bg-[#5b3c88] hover:bg-[#6d4a9e] cursor-pointer transition-colors border border-[#5b3c88]/30"></div>
+<!-- Metal -->
+<div class="heatmap-cell h-12 rounded bg-green-500/90 hover:bg-green-400 cursor-pointer transition-colors border border-green-500/30">
+<div class="tooltip bg-[#2d2436] border border-surface-border p-3 rounded-lg shadow-xl text-left">
+<p class="text-green-400 font-bold text-xs mb-1">購買意願: 高</p>
+<p class="text-white text-xs leading-relaxed">金型外送員注重工具的效率與耐用度。</p>
+</div>
+</div>
+<!-- Water -->
+<div class="heatmap-cell h-12 rounded bg-green-600 hover:bg-green-500 cursor-pointer transition-colors border border-green-600/30"></div>
+</div>
+<!-- Row 4: Homemaker -->
+<div class="grid grid-cols-[140px_repeat(5,1fr)] gap-2 mb-2">
+<div class="flex items-center text-sm font-medium text-white">家庭主婦</div>
+<!-- Wood -->
+<div class="heatmap-cell h-12 rounded bg-[#463165] hover:bg-[#5b3c88] cursor-pointer transition-colors border border-[#463165]/30"></div>
+<!-- Fire -->
+<div class="heatmap-cell h-12 rounded bg-red-500/60 hover:bg-red-500/40 cursor-pointer transition-colors border border-red-500/20"></div>
+<!-- Earth -->
+<div class="heatmap-cell h-12 rounded bg-green-500 hover:bg-green-400 cursor-pointer transition-colors border border-green-500/30">
+<div class="tooltip bg-[#2d2436] border border-surface-border p-3 rounded-lg shadow-xl text-left">
+<p class="text-green-400 font-bold text-xs mb-1">購買意願: 極高</p>
+<p class="text-white text-xs leading-relaxed">土型主婦重視家庭安全感與穩定性。</p>
+</div>
+</div>
+<!-- Metal -->
+<div class="heatmap-cell h-12 rounded bg-[#5b3c88] hover:bg-[#6d4a9e] cursor-pointer transition-colors border border-[#5b3c88]/30"></div>
+<!-- Water -->
+<div class="heatmap-cell h-12 rounded bg-red-700 hover:bg-red-600 cursor-pointer transition-colors border border-red-700/30"></div>
+</div>
+<!-- Row 5: Finance Worker -->
+<div class="grid grid-cols-[140px_repeat(5,1fr)] gap-2">
+<div class="flex items-center text-sm font-medium text-white">金融從業員</div>
+<!-- Wood -->
+<div class="heatmap-cell h-12 rounded bg-red-600 hover:bg-red-500 cursor-pointer transition-colors border border-red-600/30"></div>
+<!-- Fire -->
+<div class="heatmap-cell h-12 rounded bg-[#5b3c88] hover:bg-[#6d4a9e] cursor-pointer transition-colors border border-[#5b3c88]/30"></div>
+<!-- Earth -->
+<div class="heatmap-cell h-12 rounded bg-red-500 hover:bg-red-400 cursor-pointer transition-colors border border-red-500/30"></div>
+<!-- Metal -->
+<div class="heatmap-cell h-12 rounded bg-green-400 hover:bg-green-300 cursor-pointer transition-colors border border-green-400/30">
+<div class="tooltip bg-[#2d2436] border border-surface-border p-3 rounded-lg shadow-xl text-left">
+<p class="text-green-400 font-bold text-xs mb-1">購買意願: 爆發</p>
+<p class="text-white text-xs leading-relaxed">金型金融人員對投資回報率極為敏感，判定為高價值。</p>
+</div>
+</div>
+<!-- Water -->
+<div class="heatmap-cell h-12 rounded bg-green-700 hover:bg-green-600 cursor-pointer transition-colors border border-green-700/30"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT: Sidebar (4 cols wide) -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Card 1: Top Personas -->
+<div class="bg-surface-dark border border-surface-border rounded-xl p-5 shadow-lg">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-white text-lg font-bold">最佳響應群體</h3>
+<span class="text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">TOP 5</span>
+</div>
+<div class="space-y-4">
+<!-- Item 1 -->
+<div class="group">
+<div class="flex justify-between items-end mb-1">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-green-400"></div>
+<span class="text-sm font-medium text-white">金型 · 金融從業員</span>
+</div>
+<span class="text-sm font-bold text-green-400 font-display">96%</span>
+</div>
+<div class="h-1.5 w-full bg-[#302839] rounded-full overflow-hidden">
+<div class="h-full bg-green-500 w-[96%] rounded-full"></div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="group">
+<div class="flex justify-between items-end mb-1">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-green-500"></div>
+<span class="text-sm font-medium text-white">木型 · 軟體工程師</span>
+</div>
+<span class="text-sm font-bold text-green-500 font-display">92%</span>
+</div>
+<div class="h-1.5 w-full bg-[#302839] rounded-full overflow-hidden">
+<div class="h-full bg-green-600 w-[92%] rounded-full"></div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="group">
+<div class="flex justify-between items-end mb-1">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-green-600"></div>
+<span class="text-sm font-medium text-white">土型 · 家庭主婦</span>
+</div>
+<span class="text-sm font-bold text-green-600 font-display">88%</span>
+</div>
+<div class="h-1.5 w-full bg-[#302839] rounded-full overflow-hidden">
+<div class="h-full bg-green-700 w-[88%] rounded-full"></div>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="group">
+<div class="flex justify-between items-end mb-1">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-[#5b3c88]"></div>
+<span class="text-sm font-medium text-white">金型 · 外送員</span>
+</div>
+<span class="text-sm font-bold text-[#ab9db9] font-display">74%</span>
+</div>
+<div class="h-1.5 w-full bg-[#302839] rounded-full overflow-hidden">
+<div class="h-full bg-[#7f13ec] w-[74%] rounded-full"></div>
+</div>
+</div>
+<!-- Item 5 -->
+<div class="group">
+<div class="flex justify-between items-end mb-1">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-[#5b3c88]"></div>
+<span class="text-sm font-medium text-white">木型 · 國小教師</span>
+</div>
+<span class="text-sm font-bold text-[#ab9db9] font-display">71%</span>
+</div>
+<div class="h-1.5 w-full bg-[#302839] rounded-full overflow-hidden">
+<div class="h-full bg-[#7f13ec] w-[71%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2: Resistance Radar -->
+<div class="bg-surface-dark border border-surface-border rounded-xl p-5 shadow-lg flex-1 flex flex-col">
+<div class="flex items-start justify-between mb-4">
+<div>
+<h3 class="text-white text-lg font-bold">阻力因素分析</h3>
+<p class="text-xs text-gray-400">Resistance Factors</p>
+</div>
+<button class="text-gray-400 hover:text-white">
+<span class="material-symbols-outlined">info</span>
+</button>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center relative mb-4">
+<!-- Placeholder for complex radar chart -->
+<div class="w-full aspect-square max-h-[250px] bg-contain bg-center bg-no-repeat relative" data-alt="Radar chart visualization showing five axes: Price, Utility, Trust, Ethics, and Necessity. The chart shows a polygon shape indicating high resistance in Price for Teachers but low resistance in Utility for Engineers." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAdtc9PZuJnxA7bAWckEXquqTCmVsIsaReu1LQk3YeD57gJ12dkOeqA3iyPWMdylTTk1wtdJqYgLS_q67qiSGQ6j4mKg_UouRxLLE4181_qF9_ymeKOIt9SMYMsrv7ajikSdKAxsmUghO6771ttQqmbopRnBybIXF1kjqIQ7-bi5h8Z-5dVCyTPCsm92yO5--K_wW6RS8ascJ1bt_aUw2136G82E7xI7C68ansAU3PdEPBSM966EMn_fShD251Hm-Jupb0k8moJ0tc');">
+<!-- Creating a CSS pseudo-chart overlay for better visual simulation if image fails or to enhance -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<svg class="w-full h-full p-4 opacity-80" viewbox="0 0 200 200">
+<!-- Grid -->
+<polygon fill="none" points="100,20 180,60 180,140 100,180 20,140 20,60" stroke="#302839" stroke-width="1"></polygon>
+<polygon fill="none" points="100,40 160,70 160,130 100,160 40,130 40,70" stroke="#302839" stroke-width="1"></polygon>
+<!-- Data Area -->
+<polygon fill="rgba(127,19,236,0.3)" points="100,50 170,75 130,120 100,150 30,100 50,60" stroke="#7f13ec" stroke-width="2"></polygon>
+<!-- Labels -->
+<text fill="#9ca3af" font-size="10" text-anchor="middle" x="100" y="15">價格 (Price)</text>
+<text fill="#9ca3af" font-size="10" text-anchor="middle" x="190" y="60">實用 (Utility)</text>
+<text fill="#9ca3af" font-size="10" text-anchor="middle" x="190" y="150">信任 (Trust)</text>
+<text fill="#9ca3af" font-size="10" text-anchor="middle" x="100" y="195">道德 (Ethics)</text>
+<text fill="#9ca3af" font-size="10" text-anchor="middle" x="10" y="150">需求 (Need)</text>
+<text fill="#9ca3af" font-size="10" text-anchor="middle" x="10" y="60">隱私 (Privacy)</text>
+</svg>
+</div>
+</div>
+</div>
+<div class="bg-background-dark rounded-lg p-3 border border-surface-border">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-red-400 mt-0.5">warning</span>
+<div>
+<p class="text-sm font-bold text-white mb-1">主要阻力：價格與道德</p>
+<p class="text-xs text-gray-400 leading-normal">
+                                    教師與主婦群體對定價過高表示疑慮。金型人格普遍擔憂數據隱私問題。
+                                </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

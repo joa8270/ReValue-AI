@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MIRRA Citizen Profile</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Noto+Sans+TC:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#25d1f4",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                        "glass-dark": "rgba(20, 30, 35, 0.7)",
+                        "glass-border": "rgba(255, 255, 255, 0.08)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans TC", "sans-serif"],
+                        "chinese": ["Noto Sans TC", "sans-serif"],
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                    backgroundImage: {
+                        'cloud-pattern': "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2325d1f4' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+        }
+        /* Custom scrollbar for the feedback section */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(37, 209, 244, 0.3);
+            border-radius: 2px;
+        }
+        .text-glow {
+            text-shadow: 0 0 10px rgba(37, 209, 244, 0.5);
+        }
+        .border-glow {
+            box-shadow: 0 0 15px rgba(37, 209, 244, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-white min-h-screen flex flex-col overflow-hidden relative selection:bg-primary selection:text-background-dark">
+<!-- Decorative background elements -->
+<div class="absolute inset-0 bg-cloud-pattern pointer-events-none z-0"></div>
+<div class="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="layout-container flex h-full grow flex-col z-10 p-4 md:p-8 justify-center items-center">
+<!-- Main Modal Container -->
+<div class="w-full max-w-[1400px] h-auto max-h-[95vh] flex flex-col bg-glass-dark backdrop-blur-xl border border-glass-border rounded-xl shadow-2xl overflow-hidden border-glow">
+<!-- Modal Header -->
+<div class="flex items-center justify-between px-6 py-5 border-b border-white/5 bg-white/5">
+<div class="flex flex-col gap-1">
+<h1 class="text-white text-xl md:text-2xl font-bold tracking-tight flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">id_card</span>
+                        市民詳細檔案 <span class="text-white/40 font-normal">#0832</span>
+</h1>
+<p class="text-xs text-primary/60 font-mono tracking-widest uppercase pl-9">MIRRA SIMULATION // NODE A7</p>
+</div>
+<button class="group flex items-center justify-center w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 transition-colors border border-white/5">
+<span class="material-symbols-outlined text-white/60 group-hover:text-white">close</span>
+</button>
+</div>
+<!-- Content Grid -->
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:divide-x divide-white/5 min-h-[600px]">
+<!-- COLUMN 1: Identity (Left) -->
+<div class="lg:col-span-3 p-6 flex flex-col items-center gap-6 bg-gradient-to-b from-white/5 to-transparent">
+<!-- Avatar -->
+<div class="relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-primary to-blue-600 rounded-full opacity-30 blur group-hover:opacity-50 transition duration-500"></div>
+<div class="relative w-48 h-48 rounded-full overflow-hidden border-2 border-white/10 ring-4 ring-black/50">
+<img alt="Portrait of a young Asian woman with a friendly expression" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWNUINVvqmLhgz1n4gXQQ_fYD8keO967SnQ8T8XJbW2rm79YkM1bB-kPXU0L2dA50ozsCZkrIkt554iEAb3d7BTo88f-znj6borCTFvoKiihgdrIxyU0owEMlcaFE1RevXRUztBobC2gMWwrStPMyoMmSNhmWrqtuZVqDX9LEJyaS06tf5CF9nfd1Gv0UCXDvfcMKvv1mJxUVKo5tvK7o5HMWbCL0qwOfyWwpyasQ4vONOGwpgL_oHbdBtL1jiMVkHtnEPRCbvykw"/>
+</div>
+<div class="absolute bottom-2 right-2 bg-background-dark border border-primary/30 p-1.5 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">verified</span>
+</div>
+</div>
+<!-- Basic Info -->
+<div class="text-center w-full">
+<h2 class="text-3xl font-bold text-white mb-2 font-chinese tracking-wide">林雅婷</h2>
+<p class="text-primary/80 font-mono text-sm mb-4">ID: 9482-A7-GL</p>
+<!-- Tags -->
+<div class="flex flex-wrap justify-center gap-2 mb-6">
+<span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">work</span> 外送員
+                                </span>
+<span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">cake</span> 28歲
+                                </span>
+<span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> 台北市
+                                </span>
+</div>
+<div class="w-full h-px bg-white/10 mb-6"></div>
+<!-- Bio Snippet -->
+<div class="text-left bg-black/20 rounded-lg p-4 border border-white/5">
+<p class="text-sm text-gray-400 leading-relaxed font-chinese">
+                                    "努力工作的現實主義者，喜歡在送單空檔觀察城市角落。對電子產品有高度興趣，但消費極為謹慎。"
+                                </p>
+</div>
+</div>
+</div>
+<!-- COLUMN 2: Bazi Engine (Center) -->
+<div class="lg:col-span-5 p-6 flex flex-col gap-6 relative">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-lg font-bold text-white flex items-center gap-2 font-chinese">
+<span class="w-1 h-5 bg-primary rounded-full"></span>
+                                八字命盤分析
+                            </h3>
+<span class="text-xs text-primary/60 border border-primary/20 px-2 py-0.5 rounded uppercase">Core Engine</span>
+</div>
+<!-- Bazi Grid -->
+<div class="w-full bg-black/20 rounded-xl border border-white/10 overflow-hidden relative">
+<div class="absolute top-0 right-0 p-2 opacity-10">
+<span class="material-symbols-outlined text-6xl">balance</span>
+</div>
+<!-- Header Row -->
+<div class="grid grid-cols-4 border-b border-white/10 bg-white/5">
+<div class="py-3 text-center text-sm text-gray-400 font-medium">時柱 (Hour)</div>
+<div class="py-3 text-center text-sm text-white font-bold relative bg-primary/10 border-x border-primary/20 shadow-[0_0_15px_rgba(37,209,244,0.1)_inset]">
+<div class="absolute -top-1 left-1/2 -translate-x-1/2 w-16 h-[2px] bg-primary shadow-[0_0_8px_#25d1f4]"></div>
+                                    日柱 (Day)
+                                </div>
+<div class="py-3 text-center text-sm text-gray-400 font-medium">月柱 (Month)</div>
+<div class="py-3 text-center text-sm text-gray-400 font-medium">年柱 (Year)</div>
+</div>
+<!-- Stems Row -->
+<div class="grid grid-cols-4 divide-x divide-white/5">
+<div class="h-24 flex flex-col items-center justify-center gap-1 group hover:bg-white/5 transition">
+<span class="text-2xl font-bold text-gray-300 font-chinese">庚</span>
+<span class="text-[10px] text-gray-500 uppercase">Metal</span>
+</div>
+<div class="h-24 flex flex-col items-center justify-center gap-1 bg-primary/5 border-x border-primary/10 relative">
+<span class="text-xs text-primary mb-1 font-medium">日主</span>
+<span class="text-3xl font-bold text-white text-glow font-chinese">戊</span>
+<span class="text-[10px] text-primary/70 uppercase">Earth</span>
+<div class="absolute bottom-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+</div>
+<div class="h-24 flex flex-col items-center justify-center gap-1 group hover:bg-white/5 transition">
+<span class="text-2xl font-bold text-red-400 font-chinese">丙</span>
+<span class="text-[10px] text-red-400/50 uppercase">Fire</span>
+</div>
+<div class="h-24 flex flex-col items-center justify-center gap-1 group hover:bg-white/5 transition">
+<span class="text-2xl font-bold text-green-400 font-chinese">甲</span>
+<span class="text-[10px] text-green-400/50 uppercase">Wood</span>
+</div>
+</div>
+<!-- Divider -->
+<div class="h-px bg-white/10 w-full"></div>
+<!-- Branches Row -->
+<div class="grid grid-cols-4 divide-x divide-white/5">
+<div class="h-24 flex flex-col items-center justify-center gap-1 group hover:bg-white/5 transition">
+<span class="text-2xl font-bold text-gray-300 font-chinese">申</span>
+<span class="text-[10px] text-gray-500 uppercase">Metal</span>
+</div>
+<div class="h-24 flex flex-col items-center justify-center gap-1 bg-primary/5 border-x border-primary/10">
+<span class="text-2xl font-bold text-red-400 font-chinese">午</span>
+<span class="text-[10px] text-red-400/50 uppercase">Fire</span>
+</div>
+<div class="h-24 flex flex-col items-center justify-center gap-1 group hover:bg-white/5 transition">
+<span class="text-2xl font-bold text-green-400 font-chinese">寅</span>
+<span class="text-[10px] text-green-400/50 uppercase">Wood</span>
+</div>
+<div class="h-24 flex flex-col items-center justify-center gap-1 group hover:bg-white/5 transition">
+<span class="text-2xl font-bold text-blue-400 font-chinese">子</span>
+<span class="text-[10px] text-blue-400/50 uppercase">Water</span>
+</div>
+</div>
+</div>
+<!-- Ten Gods Chart -->
+<div class="flex-1 bg-black/20 rounded-xl border border-white/10 p-5 flex flex-col">
+<div class="flex justify-between items-end mb-4">
+<div>
+<h4 class="text-sm font-bold text-white mb-1">十神能量分布</h4>
+<p class="text-xs text-gray-400">Ten Gods Energy Distribution</p>
+</div>
+<div class="text-right">
+<span class="text-2xl font-bold text-primary">Balanced</span>
+<p class="text-[10px] text-gray-500 uppercase">Status</p>
+</div>
+</div>
+<!-- Custom Chart Visualization -->
+<div class="flex-1 flex items-end justify-between gap-2 px-2 pb-2 h-40">
+<!-- Bar 1 -->
+<div class="flex flex-col items-center gap-2 h-full justify-end w-full group">
+<div class="text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity mb-1">80%</div>
+<div class="w-full bg-white/5 rounded-t-sm relative h-full overflow-hidden">
+<div class="absolute bottom-0 w-full bg-gradient-to-t from-primary/20 to-primary/60 transition-all duration-1000" style="height: 80%;"></div>
+</div>
+<span class="text-[11px] text-gray-400 font-chinese">比肩</span>
+</div>
+<!-- Bar 2 -->
+<div class="flex flex-col items-center gap-2 h-full justify-end w-full group">
+<div class="text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity mb-1">65%</div>
+<div class="w-full bg-white/5 rounded-t-sm relative h-full overflow-hidden">
+<div class="absolute bottom-0 w-full bg-gradient-to-t from-primary/20 to-primary/60 transition-all duration-1000" style="height: 65%;"></div>
+</div>
+<span class="text-[11px] text-gray-400 font-chinese">食神</span>
+</div>
+<!-- Bar 3 -->
+<div class="flex flex-col items-center gap-2 h-full justify-end w-full group">
+<div class="text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity mb-1">90%</div>
+<div class="w-full bg-white/5 rounded-t-sm relative h-full overflow-hidden">
+<div class="absolute bottom-0 w-full bg-gradient-to-t from-primary/40 to-primary transition-all duration-1000 border-t-2 border-primary/50" style="height: 90%;"></div>
+</div>
+<span class="text-[11px] text-white font-bold font-chinese text-glow">正財</span>
+</div>
+<!-- Bar 4 -->
+<div class="flex flex-col items-center gap-2 h-full justify-end w-full group">
+<div class="text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity mb-1">30%</div>
+<div class="w-full bg-white/5 rounded-t-sm relative h-full overflow-hidden">
+<div class="absolute bottom-0 w-full bg-gradient-to-t from-primary/20 to-primary/60 transition-all duration-1000" style="height: 30%;"></div>
+</div>
+<span class="text-[11px] text-gray-400 font-chinese">七殺</span>
+</div>
+<!-- Bar 5 -->
+<div class="flex flex-col items-center gap-2 h-full justify-end w-full group">
+<div class="text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity mb-1">10%</div>
+<div class="w-full bg-white/5 rounded-t-sm relative h-full overflow-hidden">
+<div class="absolute bottom-0 w-full bg-gradient-to-t from-primary/20 to-primary/60 transition-all duration-1000" style="height: 10%;"></div>
+</div>
+<span class="text-[11px] text-gray-400 font-chinese">偏印</span>
+</div>
+</div>
+</div>
+</div>
+<!-- COLUMN 3: Insights (Right) -->
+<div class="lg:col-span-4 p-6 flex flex-col gap-6 bg-gradient-to-b from-transparent to-black/20">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-lg font-bold text-white flex items-center gap-2 font-chinese">
+<span class="material-symbols-outlined text-primary text-xl">psychology</span>
+                                性格概覽
+                            </h3>
+</div>
+<!-- Personality Card -->
+<div class="bg-gradient-to-br from-white/10 to-white/5 rounded-xl p-5 border border-white/10 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-20 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition duration-500">
+<span class="material-symbols-outlined text-6xl text-primary">diamond</span>
+</div>
+<h4 class="text-primary font-bold text-lg mb-1 font-chinese">食神生財</h4>
+<p class="text-sm text-gray-300 mb-4 font-chinese">追求性價比與生活品質</p>
+<div class="bg-black/30 rounded-lg p-3 text-sm text-gray-400 leading-relaxed font-chinese border border-white/5">
+                                個性溫和且講究實際，喜歡在有限預算內追求最大效益。對「細節」敏感，容易被產品的具體規格和耐用性打動。
+                            </div>
+</div>
+<!-- Purchase Intent -->
+<div class="bg-black/20 rounded-xl p-5 border border-white/10">
+<div class="flex justify-between items-center mb-3">
+<span class="text-sm font-medium text-white font-chinese">購買意願: 智能咖啡機</span>
+<span class="text-sm font-bold text-primary">78%</span>
+</div>
+<div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-blue-500 to-primary w-[78%] rounded-full shadow-[0_0_10px_#25d1f4]"></div>
+</div>
+<p class="text-xs text-gray-500 mt-2 text-right">High Intent • Price Sensitive</p>
+</div>
+<!-- Product Feedback -->
+<div class="flex-1 bg-black/20 rounded-xl border border-white/10 flex flex-col overflow-hidden">
+<div class="p-4 border-b border-white/5 bg-white/5 flex items-center justify-between">
+<span class="text-sm font-bold text-white font-chinese">產品反饋紀錄</span>
+<span class="material-symbols-outlined text-gray-500 text-sm">history_edu</span>
+</div>
+<div class="p-4 overflow-y-auto custom-scrollbar flex-1 max-h-[200px] lg:max-h-none">
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-sm">format_quote</span>
+</div>
+<div class="flex-1">
+<p class="text-sm text-gray-300 leading-relaxed font-chinese italic">
+                                            "對於忙碌的外送生活來說很方便，特別是預約沖煮功能。但目前定價 NT$4,500 稍微偏高，若有分期付款或搭配咖啡豆訂閱制會更有吸引力。"
+                                        </p>
+<div class="mt-3 flex gap-2">
+<span class="px-2 py-1 rounded bg-red-500/10 border border-red-500/20 text-[10px] text-red-400">價格敏感</span>
+<span class="px-2 py-1 rounded bg-green-500/10 border border-green-500/20 text-[10px] text-green-400">功能導向</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex gap-3 mt-auto">
+<button class="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white font-medium transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">chat</span>
+                                模擬對話
+                            </button>
+<button class="flex-1 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-sm text-background-dark font-bold transition-colors shadow-[0_0_15px_rgba(37,209,244,0.4)] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">add_chart</span>
+                                完整報告
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Status Bar -->
+<div class="bg-black/40 border-t border-white/5 px-6 py-2 flex justify-between items-center text-[10px] text-gray-500 uppercase tracking-wider">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    Simulation Active
+                </div>
+<div>Last Updated: 2023-10-27 14:30:22</div>
+</div>
+</div>
+</div>
+</body></html>

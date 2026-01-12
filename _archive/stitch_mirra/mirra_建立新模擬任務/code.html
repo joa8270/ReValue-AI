@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-TW"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MIRRA // 建立新模擬任務</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#25d1f4",
+                        "primary-glow": "#25d1f440",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#0B1015", // Deep space dark
+                        "surface-dark": "#131b23",
+                        "border-dark": "#2a3b47",
+                        "neon-accent": "#00f0ff",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans TC", "sans-serif"],
+                    },
+                    backgroundImage: {
+                        'cyber-grid': "linear-gradient(to right, #1f2937 1px, transparent 1px), linear-gradient(to bottom, #1f2937 1px, transparent 1px)",
+                        'scan-line': "linear-gradient(to bottom, transparent 50%, rgba(37, 209, 244, 0.1) 50%)",
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Space Grotesk', 'Noto Sans TC', sans-serif;
+        }
+        
+        .glass-panel {
+            background: rgba(19, 27, 35, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(37, 209, 244, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 10px rgba(37, 209, 244, 0.3), 0 0 20px rgba(37, 209, 244, 0.1);
+        }
+
+        .cyber-grid-bg {
+            background-size: 40px 40px;
+            mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+        }
+        
+        /* Input glow focus */
+        .cyber-input:focus {
+            box-shadow: 0 0 0 2px rgba(37, 209, 244, 0.3);
+            border-color: #25d1f4;
+        }
+
+        /* Scanline animation */
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scan-overlay::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 0%, rgba(37, 209, 244, 0.1) 50%, transparent 100%);
+            background-size: 100% 3px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .animate-scan {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: #25d1f4;
+            box-shadow: 0 0 10px #25d1f4;
+            opacity: 0.5;
+            animation: scan 3s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col overflow-x-hidden selection:bg-primary selection:text-black">
+<!-- Background Grid Effect -->
+<div class="fixed inset-0 z-0 pointer-events-none opacity-20 bg-cyber-grid cyber-grid-bg"></div>
+<!-- Top Navigation -->
+<header class="relative z-50 flex items-center justify-between border-b border-border-dark bg-[#0B1015]/90 backdrop-blur-md px-6 py-4 lg:px-10">
+<div class="flex items-center gap-4 text-white">
+<div class="size-6 text-primary animate-pulse">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" fill="currentColor"></path>
+<rect fill="#fff" height="8" opacity="0.8" width="8" x="20" y="20"></rect>
+</svg>
+</div>
+<h2 class="text-white text-xl font-bold tracking-widest font-display">MIRRA // <span class="text-primary font-normal">米拉</span></h2>
+<span class="hidden md:inline-flex items-center rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20 tracking-wider ml-4">SYSTEM READY</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-end mr-2 hidden sm:flex">
+<span class="text-xs text-gray-400 font-display tracking-wider">CREDITS</span>
+<span class="text-sm font-bold text-primary font-display">8,450 MC</span>
+</div>
+<button class="group relative flex size-10 items-center justify-center overflow-hidden rounded-lg bg-surface-dark border border-border-dark hover:border-primary transition-all duration-300">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-primary transition-colors">notifications</span>
+<div class="absolute top-2 right-2 size-2 rounded-full bg-primary animate-ping"></div>
+<div class="absolute top-2 right-2 size-2 rounded-full bg-primary"></div>
+</button>
+<button class="flex size-10 items-center justify-center overflow-hidden rounded-lg bg-surface-dark border border-border-dark hover:border-primary transition-all duration-300">
+<span class="material-symbols-outlined text-gray-400 hover:text-white transition-colors">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="relative z-10 flex-1 flex flex-col lg:flex-row h-full max-w-[1600px] w-full mx-auto p-4 lg:p-8 gap-6">
+<!-- Left Panel: Form & Upload -->
+<div class="flex-1 flex flex-col gap-6">
+<!-- Page Heading -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 text-primary text-sm font-bold tracking-[0.2em] uppercase mb-1 opacity-80">
+<span class="material-symbols-outlined text-sm">terminal</span>
+                    Simulation Protocol v4.2
+                </div>
+<h1 class="text-4xl md:text-5xl font-black text-white tracking-tight font-display mb-1">建立新模擬任務</h1>
+<p class="text-slate-400 font-body">Initiate New Parallel World Simulation Task</p>
+</div>
+<!-- Upload Zone (Creation Core) -->
+<div class="group relative w-full rounded-xl overflow-hidden border border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary transition-all duration-500 min-h-[280px] flex flex-col items-center justify-center cursor-pointer">
+<!-- Scan Animation Line -->
+<div class="animate-scan top-0 pointer-events-none group-hover:opacity-100 opacity-30"></div>
+<div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMzcsIDIwOSwgMjQ0LCAwLjEpIi8+PC9zdmc+')] opacity-20"></div>
+<div class="relative z-10 flex flex-col items-center gap-4 p-8 text-center">
+<div class="relative size-20 flex items-center justify-center rounded-full bg-surface-dark border border-primary/50 neon-glow group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-primary text-4xl">deployed_code</span>
+</div>
+<div class="space-y-2 max-w-md">
+<h3 class="text-xl font-bold text-white font-display">上傳核心數據</h3>
+<p class="text-gray-400 text-sm">拖放產品圖片或商業計劃書，系統將自動解析八字五行屬性</p>
+<p class="text-xs text-primary/60 uppercase tracking-widest pt-2">[ SUPPORTED: JPG, PNG, PDF, JSON ]</p>
+</div>
+<button class="mt-4 px-6 py-2 bg-surface-dark border border-primary text-primary hover:bg-primary hover:text-black font-bold text-sm tracking-wide uppercase transition-all duration-300 rounded">
+                        瀏覽文件 (Browse Files)
+                    </button>
+</div>
+<!-- Corner Decorations -->
+<div class="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-primary"></div>
+<div class="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-primary"></div>
+<div class="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-primary"></div>
+<div class="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-primary"></div>
+</div>
+<!-- Input Fields -->
+<div class="glass-panel p-6 rounded-xl flex flex-col gap-6">
+<div class="flex items-center gap-2 mb-2 border-b border-white/10 pb-4">
+<span class="material-symbols-outlined text-primary">tune</span>
+<h3 class="text-lg font-bold text-white font-display uppercase tracking-wider">產品參數設定</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<label class="flex flex-col gap-2">
+<span class="text-xs font-bold text-primary uppercase tracking-wider ml-1">產品名稱 (Product Name)</span>
+<div class="relative">
+<input class="w-full bg-surface-dark border border-border-dark rounded-md h-12 px-4 text-white placeholder-gray-600 cyber-input focus:outline-none focus:ring-0 transition-all font-body" placeholder="e.g., 量子能量手環 v2" type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-3 text-gray-500 text-lg">edit</span>
+</div>
+</label>
+<label class="flex flex-col gap-2">
+<span class="text-xs font-bold text-primary uppercase tracking-wider ml-1">定價策略 (Pricing)</span>
+<div class="relative flex">
+<select class="bg-surface-dark border border-border-dark border-r-0 rounded-l-md h-12 px-3 text-gray-300 focus:outline-none focus:border-primary focus:ring-0">
+<option>TWD</option>
+<option>USD</option>
+<option>CNY</option>
+</select>
+<input class="w-full bg-surface-dark border border-border-dark rounded-r-md h-12 px-4 text-white placeholder-gray-600 cyber-input focus:outline-none focus:ring-0 transition-all font-display" placeholder="8800" type="number"/>
+</div>
+</label>
+</div>
+<label class="flex flex-col gap-2">
+<span class="text-xs font-bold text-primary uppercase tracking-wider ml-1">核心功能 / 關鍵字 (Core Features)</span>
+<div class="relative">
+<textarea class="w-full bg-surface-dark border border-border-dark rounded-md p-4 text-white placeholder-gray-600 cyber-input focus:outline-none focus:ring-0 transition-all min-h-[100px] resize-none font-body" placeholder="描述關鍵賣點，例如：可持續材質、AI 輔助、五行平衡..."></textarea>
+<div class="absolute bottom-3 right-3 flex gap-2">
+<span class="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded border border-primary/20">AI 解析中...</span>
+</div>
+</div>
+</label>
+</div>
+</div>
+<!-- Right Panel: Sidebar Parameters -->
+<aside class="w-full lg:w-[360px] flex flex-col gap-6">
+<!-- Parameters Card -->
+<div class="glass-panel rounded-xl p-1 h-full flex flex-col">
+<div class="bg-surface-dark/50 p-4 border-b border-white/5 flex justify-between items-center rounded-t-xl">
+<h3 class="text-sm font-bold text-white font-display uppercase tracking-widest flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        World Parameters
+                    </h3>
+<span class="material-symbols-outlined text-gray-500 text-sm">settings</span>
+</div>
+<div class="p-6 flex-1 flex flex-col gap-6">
+<!-- Stat 1 -->
+<div class="flex flex-col gap-1 group">
+<div class="flex justify-between text-xs text-gray-400 mb-1">
+<span>SIMULATION POPULATION</span>
+<span class="text-primary font-mono">1,000</span>
+</div>
+<div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[35%] group-hover:w-[40%] transition-all duration-500 ease-out shadow-[0_0_10px_#25d1f4]"></div>
+</div>
+<p class="text-[10px] text-gray-500 mt-1 text-right">Standard Cohort Size</p>
+</div>
+<!-- Stat 2 -->
+<div class="border border-border-dark bg-surface-dark p-3 rounded-lg flex items-start gap-3">
+<div class="p-2 bg-primary/10 rounded text-primary">
+<span class="material-symbols-outlined text-lg">public</span>
+</div>
+<div>
+<p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Cultural Context</p>
+<p class="text-white font-bold text-sm">East Asian / Bazi Logic</p>
+<p class="text-[10px] text-green-400 mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">check_circle</span> Active
+                            </p>
+</div>
+</div>
+<!-- Stat 3 -->
+<div class="border border-border-dark bg-surface-dark p-3 rounded-lg flex items-start gap-3">
+<div class="p-2 bg-purple-500/10 rounded text-purple-400">
+<span class="material-symbols-outlined text-lg">calendar_month</span>
+</div>
+<div>
+<p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Time Span</p>
+<p class="text-white font-bold text-sm font-display">2024 - 2025</p>
+<p class="text-[10px] text-gray-500 mt-0.5">12 Months Projection</p>
+</div>
+</div>
+<!-- Decorative Hex Graph -->
+<div class="mt-4 relative aspect-square w-full max-w-[200px] mx-auto opacity-80">
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-full h-full border border-primary/20 rounded-full animate-[spin_10s_linear_infinite]"></div>
+<div class="absolute w-[80%] h-[80%] border border-primary/10 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
+</div>
+<!-- Abstract Radar Chart Representation -->
+<div class="absolute inset-0 flex items-center justify-center">
+<svg class="w-full h-full drop-shadow-[0_0_5px_rgba(37,209,244,0.5)]" viewbox="0 0 100 100">
+<polygon fill="rgba(37, 209, 244, 0.2)" points="50,10 90,40 80,80 20,80 10,40" stroke="#25d1f4" stroke-width="1"></polygon>
+<line stroke="rgba(37, 209, 244, 0.3)" x1="50" x2="50" y1="50" y2="10"></line>
+<line stroke="rgba(37, 209, 244, 0.3)" x1="50" x2="90" y1="50" y2="40"></line>
+<line stroke="rgba(37, 209, 244, 0.3)" x1="50" x2="80" y1="50" y2="80"></line>
+<line stroke="rgba(37, 209, 244, 0.3)" x1="50" x2="20" y1="50" y2="80"></line>
+<line stroke="rgba(37, 209, 244, 0.3)" x1="50" x2="10" y1="50" y2="40"></line>
+</svg>
+</div>
+<div class="absolute bottom-0 w-full text-center text-[10px] text-primary/70 tracking-widest">ELEMENTAL BALANCE</div>
+</div>
+<!-- Info -->
+<div class="mt-auto pt-4 border-t border-white/5 text-[10px] text-gray-500 leading-relaxed">
+<p>Simulating market dynamics based on the Five Elements interactions. Fire supports Earth, generating demand spikes in Q3.</p>
+</div>
+</div>
+</div>
+<!-- Launch Button -->
+<button class="relative group w-full overflow-hidden rounded-lg bg-primary p-[1px] shadow-[0_0_20px_rgba(37,209,244,0.3)] hover:shadow-[0_0_40px_rgba(37,209,244,0.6)] transition-all duration-300">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+<div class="relative h-16 bg-surface-dark group-hover:bg-[#0B1015] rounded-md flex items-center justify-center gap-3 transition-colors">
+<div class="absolute left-0 top-0 h-full w-1 bg-primary"></div>
+<div class="absolute right-0 top-0 h-full w-1 bg-primary"></div>
+<span class="material-symbols-outlined text-primary group-hover:text-white transition-colors text-2xl animate-pulse">rocket_launch</span>
+<div class="flex flex-col items-start">
+<span class="text-lg font-black text-white uppercase tracking-widest font-display group-hover:text-primary transition-colors">啟動平行世界模擬</span>
+<span class="text-[10px] text-primary/70 uppercase tracking-[0.2em] group-hover:text-white/70">Initiate Simulation Sequence</span>
+</div>
+</div>
+</button>
+</aside>
+</main>
+<!-- Decorative Footer Elements -->
+<div class="fixed bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent pointer-events-none z-20"></div>
+<div class="fixed bottom-4 left-6 text-[10px] text-gray-600 font-mono hidden lg:block z-0 pointer-events-none">
+        CORE: ONLINE<br/>
+        LATENCY: 12ms
+    </div>
+<div class="fixed bottom-4 right-6 text-[10px] text-gray-600 font-mono hidden lg:block z-0 pointer-events-none text-right">
+        SECURE CONNECTION<br/>
+        ENCRYPTED V.4096
+    </div>
+</body></html>

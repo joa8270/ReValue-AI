@@ -1,0 +1,14 @@
+fastapi
+python-multipart
+uvicorn
+python-dotenv
+line-bot-sdk
+google-generativeai
+pydantic
+pydantic-settings
+requests
+# Database drivers
+sqlalchemy
+psycopg2-binary
+# Fake data generator
+faker

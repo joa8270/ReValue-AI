@@ -1,0 +1,9002 @@
+[
+  {
+    "id": "agent_0000",
+    "name": "Citizen_0000",
+    "city": "台南",
+    "age": 44,
+    "job": "行銷總監",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/44歲/行銷總監 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0001",
+    "name": "Citizen_0001",
+    "city": "新竹",
+    "age": 57,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/57歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0002",
+    "name": "Citizen_0002",
+    "city": "新北",
+    "age": 47,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/47歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0003",
+    "name": "Citizen_0003",
+    "city": "高雄",
+    "age": 45,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/45歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0004",
+    "name": "Citizen_0004",
+    "city": "花蓮",
+    "age": 61,
+    "job": "退休公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/61歲/退休公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0005",
+    "name": "Citizen_0005",
+    "city": "台北",
+    "age": 49,
+    "job": "行銷總監",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/49歲/行銷總監 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0006",
+    "name": "Citizen_0006",
+    "city": "花蓮",
+    "age": 41,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/41歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0007",
+    "name": "Citizen_0007",
+    "city": "花蓮",
+    "age": 38,
+    "job": "UI設計師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/38歲/UI設計師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0008",
+    "name": "Citizen_0008",
+    "city": "台中",
+    "age": 59,
+    "job": "公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/59歲/公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0009",
+    "name": "Citizen_0009",
+    "city": "高雄",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/23歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0010",
+    "name": "Citizen_0010",
+    "city": "花蓮",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/22歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0011",
+    "name": "Citizen_0011",
+    "city": "桃園",
+    "age": 40,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/40歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0012",
+    "name": "Citizen_0012",
+    "city": "高雄",
+    "age": 40,
+    "job": "資深工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/40歲/資深工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0013",
+    "name": "Citizen_0013",
+    "city": "台南",
+    "age": 23,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/23歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0014",
+    "name": "Citizen_0014",
+    "city": "台南",
+    "age": 30,
+    "job": "行銷企劃",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/30歲/行銷企劃 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0015",
+    "name": "Citizen_0015",
+    "city": "台北",
+    "age": 74,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/74歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0016",
+    "name": "Citizen_0016",
+    "city": "新竹",
+    "age": 71,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/71歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0017",
+    "name": "Citizen_0017",
+    "city": "高雄",
+    "age": 54,
+    "job": "公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/54歲/公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0018",
+    "name": "Citizen_0018",
+    "city": "桃園",
+    "age": 63,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/63歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0019",
+    "name": "Citizen_0019",
+    "city": "桃園",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/26歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0020",
+    "name": "Citizen_0020",
+    "city": "高雄",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/23歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0021",
+    "name": "Citizen_0021",
+    "city": "台南",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/26歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0022",
+    "name": "Citizen_0022",
+    "city": "台北",
+    "age": 48,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/48歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0023",
+    "name": "Citizen_0023",
+    "city": "台南",
+    "age": 46,
+    "job": "公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/46歲/公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0024",
+    "name": "Citizen_0024",
+    "city": "新北",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/25歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0025",
+    "name": "Citizen_0025",
+    "city": "台南",
+    "age": 48,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/48歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0026",
+    "name": "Citizen_0026",
+    "city": "桃園",
+    "age": 34,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/34歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0027",
+    "name": "Citizen_0027",
+    "city": "台南",
+    "age": 40,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/40歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0028",
+    "name": "Citizen_0028",
+    "city": "桃園",
+    "age": 40,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/40歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0029",
+    "name": "Citizen_0029",
+    "city": "高雄",
+    "age": 34,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/34歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0030",
+    "name": "Citizen_0030",
+    "city": "桃園",
+    "age": 33,
+    "job": "全端工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/33歲/全端工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0031",
+    "name": "Citizen_0031",
+    "city": "花蓮",
+    "age": 52,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/52歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0032",
+    "name": "Citizen_0032",
+    "city": "新竹",
+    "age": 35,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/35歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0033",
+    "name": "Citizen_0033",
+    "city": "新北",
+    "age": 30,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/30歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0034",
+    "name": "Citizen_0034",
+    "city": "台北",
+    "age": 44,
+    "job": "全端工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/44歲/全端工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0035",
+    "name": "Citizen_0035",
+    "city": "高雄",
+    "age": 28,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/28歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0036",
+    "name": "Citizen_0036",
+    "city": "高雄",
+    "age": 35,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/35歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0037",
+    "name": "Citizen_0037",
+    "city": "高雄",
+    "age": 36,
+    "job": "資深工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/36歲/資深工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0038",
+    "name": "Citizen_0038",
+    "city": "新北",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/23歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0039",
+    "name": "Citizen_0039",
+    "city": "桃園",
+    "age": 33,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/33歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0040",
+    "name": "Citizen_0040",
+    "city": "台南",
+    "age": 31,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/31歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0041",
+    "name": "Citizen_0041",
+    "city": "新竹",
+    "age": 26,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/26歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0042",
+    "name": "Citizen_0042",
+    "city": "新北",
+    "age": 41,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/41歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0043",
+    "name": "Citizen_0043",
+    "city": "新北",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/26歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0044",
+    "name": "Citizen_0044",
+    "city": "花蓮",
+    "age": 41,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/41歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0045",
+    "name": "Citizen_0045",
+    "city": "台北",
+    "age": 40,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/40歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0046",
+    "name": "Citizen_0046",
+    "city": "新竹",
+    "age": 27,
+    "job": "行銷企劃",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/27歲/行銷企劃 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0047",
+    "name": "Citizen_0047",
+    "city": "新竹",
+    "age": 37,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/37歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0048",
+    "name": "Citizen_0048",
+    "city": "桃園",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/23歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0049",
+    "name": "Citizen_0049",
+    "city": "台中",
+    "age": 29,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/29歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0050",
+    "name": "Citizen_0050",
+    "city": "台北",
+    "age": 45,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/45歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0051",
+    "name": "Citizen_0051",
+    "city": "台中",
+    "age": 69,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/69歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0052",
+    "name": "Citizen_0052",
+    "city": "台中",
+    "age": 34,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/34歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0053",
+    "name": "Citizen_0053",
+    "city": "新竹",
+    "age": 45,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/45歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0054",
+    "name": "Citizen_0054",
+    "city": "台南",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/23歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0055",
+    "name": "Citizen_0055",
+    "city": "新北",
+    "age": 40,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/40歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0056",
+    "name": "Citizen_0056",
+    "city": "台北",
+    "age": 23,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/23歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0057",
+    "name": "Citizen_0057",
+    "city": "新北",
+    "age": 69,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/69歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0058",
+    "name": "Citizen_0058",
+    "city": "台南",
+    "age": 28,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/28歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0059",
+    "name": "Citizen_0059",
+    "city": "台北",
+    "age": 37,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/37歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0060",
+    "name": "Citizen_0060",
+    "city": "桃園",
+    "age": 35,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/35歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0061",
+    "name": "Citizen_0061",
+    "city": "桃園",
+    "age": 33,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/33歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0062",
+    "name": "Citizen_0062",
+    "city": "桃園",
+    "age": 39,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/39歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0063",
+    "name": "Citizen_0063",
+    "city": "高雄",
+    "age": 36,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/36歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0064",
+    "name": "Citizen_0064",
+    "city": "桃園",
+    "age": 46,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/46歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0065",
+    "name": "Citizen_0065",
+    "city": "台中",
+    "age": 59,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/59歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0066",
+    "name": "Citizen_0066",
+    "city": "台北",
+    "age": 35,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/35歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0067",
+    "name": "Citizen_0067",
+    "city": "桃園",
+    "age": 48,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/48歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0068",
+    "name": "Citizen_0068",
+    "city": "台中",
+    "age": 38,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/38歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0069",
+    "name": "Citizen_0069",
+    "city": "台北",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/19歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0070",
+    "name": "Citizen_0070",
+    "city": "台北",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/25歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0071",
+    "name": "Citizen_0071",
+    "city": "台北",
+    "age": 36,
+    "job": "行銷總監",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/36歲/行銷總監 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0072",
+    "name": "Citizen_0072",
+    "city": "台北",
+    "age": 44,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/44歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0073",
+    "name": "Citizen_0073",
+    "city": "桃園",
+    "age": 51,
+    "job": "自營商",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/51歲/自營商 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0074",
+    "name": "Citizen_0074",
+    "city": "台南",
+    "age": 54,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/54歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0075",
+    "name": "Citizen_0075",
+    "city": "高雄",
+    "age": 25,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/25歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0076",
+    "name": "Citizen_0076",
+    "city": "高雄",
+    "age": 24,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/24歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0077",
+    "name": "Citizen_0077",
+    "city": "新竹",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/21歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0078",
+    "name": "Citizen_0078",
+    "city": "桃園",
+    "age": 59,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/59歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0079",
+    "name": "Citizen_0079",
+    "city": "台南",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/23歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0080",
+    "name": "Citizen_0080",
+    "city": "新竹",
+    "age": 29,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/29歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0081",
+    "name": "Citizen_0081",
+    "city": "花蓮",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/22歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0082",
+    "name": "Citizen_0082",
+    "city": "桃園",
+    "age": 37,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/37歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0083",
+    "name": "Citizen_0083",
+    "city": "桃園",
+    "age": 38,
+    "job": "UI設計師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/38歲/UI設計師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0084",
+    "name": "Citizen_0084",
+    "city": "新竹",
+    "age": 36,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/36歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0085",
+    "name": "Citizen_0085",
+    "city": "新北",
+    "age": 28,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/28歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0086",
+    "name": "Citizen_0086",
+    "city": "新竹",
+    "age": 70,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/70歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0087",
+    "name": "Citizen_0087",
+    "city": "新北",
+    "age": 30,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/30歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0088",
+    "name": "Citizen_0088",
+    "city": "花蓮",
+    "age": 46,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/46歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0089",
+    "name": "Citizen_0089",
+    "city": "台中",
+    "age": 35,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/35歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0090",
+    "name": "Citizen_0090",
+    "city": "新北",
+    "age": 33,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/33歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0091",
+    "name": "Citizen_0091",
+    "city": "花蓮",
+    "age": 50,
+    "job": "資深工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/50歲/資深工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0092",
+    "name": "Citizen_0092",
+    "city": "台南",
+    "age": 50,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/50歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0093",
+    "name": "Citizen_0093",
+    "city": "桃園",
+    "age": 50,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/50歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0094",
+    "name": "Citizen_0094",
+    "city": "桃園",
+    "age": 43,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/43歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0095",
+    "name": "Citizen_0095",
+    "city": "新北",
+    "age": 66,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/66歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0096",
+    "name": "Citizen_0096",
+    "city": "新竹",
+    "age": 39,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/39歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0097",
+    "name": "Citizen_0097",
+    "city": "桃園",
+    "age": 27,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/27歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0098",
+    "name": "Citizen_0098",
+    "city": "台中",
+    "age": 42,
+    "job": "全端工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/42歲/全端工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0099",
+    "name": "Citizen_0099",
+    "city": "台北",
+    "age": 31,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/31歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0100",
+    "name": "Citizen_0100",
+    "city": "台北",
+    "age": 74,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/74歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0101",
+    "name": "Citizen_0101",
+    "city": "台中",
+    "age": 27,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/27歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0102",
+    "name": "Citizen_0102",
+    "city": "高雄",
+    "age": 28,
+    "job": "行銷企劃",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/28歲/行銷企劃 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0103",
+    "name": "Citizen_0103",
+    "city": "桃園",
+    "age": 44,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/44歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0104",
+    "name": "Citizen_0104",
+    "city": "台北",
+    "age": 68,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/68歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0105",
+    "name": "Citizen_0105",
+    "city": "新北",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/20歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0106",
+    "name": "Citizen_0106",
+    "city": "新竹",
+    "age": 28,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/28歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0107",
+    "name": "Citizen_0107",
+    "city": "台中",
+    "age": 29,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/29歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0108",
+    "name": "Citizen_0108",
+    "city": "高雄",
+    "age": 63,
+    "job": "退休公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/63歲/退休公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0109",
+    "name": "Citizen_0109",
+    "city": "花蓮",
+    "age": 37,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/37歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0110",
+    "name": "Citizen_0110",
+    "city": "新竹",
+    "age": 68,
+    "job": "退休教師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/68歲/退休教師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0111",
+    "name": "Citizen_0111",
+    "city": "台北",
+    "age": 45,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/45歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0112",
+    "name": "Citizen_0112",
+    "city": "高雄",
+    "age": 47,
+    "job": "家庭主婦",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/47歲/家庭主婦 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0113",
+    "name": "Citizen_0113",
+    "city": "新竹",
+    "age": 44,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/44歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0114",
+    "name": "Citizen_0114",
+    "city": "新竹",
+    "age": 64,
+    "job": "退休公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/64歲/退休公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0115",
+    "name": "Citizen_0115",
+    "city": "高雄",
+    "age": 35,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/35歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0116",
+    "name": "Citizen_0116",
+    "city": "桃園",
+    "age": 38,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/38歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0117",
+    "name": "Citizen_0117",
+    "city": "花蓮",
+    "age": 40,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/40歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0118",
+    "name": "Citizen_0118",
+    "city": "花蓮",
+    "age": 35,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/35歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0119",
+    "name": "Citizen_0119",
+    "city": "高雄",
+    "age": 57,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/57歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0120",
+    "name": "Citizen_0120",
+    "city": "高雄",
+    "age": 34,
+    "job": "行銷企劃",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/34歲/行銷企劃 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0121",
+    "name": "Citizen_0121",
+    "city": "桃園",
+    "age": 48,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/48歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0122",
+    "name": "Citizen_0122",
+    "city": "新竹",
+    "age": 35,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/35歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0123",
+    "name": "Citizen_0123",
+    "city": "新北",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/21歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0124",
+    "name": "Citizen_0124",
+    "city": "台南",
+    "age": 32,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/32歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0125",
+    "name": "Citizen_0125",
+    "city": "新竹",
+    "age": 60,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/60歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0126",
+    "name": "Citizen_0126",
+    "city": "高雄",
+    "age": 34,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/34歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0127",
+    "name": "Citizen_0127",
+    "city": "台中",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/26歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0128",
+    "name": "Citizen_0128",
+    "city": "台中",
+    "age": 31,
+    "job": "UI設計師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/31歲/UI設計師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0129",
+    "name": "Citizen_0129",
+    "city": "台中",
+    "age": 69,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/69歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0130",
+    "name": "Citizen_0130",
+    "city": "新竹",
+    "age": 47,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/47歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0131",
+    "name": "Citizen_0131",
+    "city": "台南",
+    "age": 40,
+    "job": "資深工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/40歲/資深工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0132",
+    "name": "Citizen_0132",
+    "city": "新竹",
+    "age": 36,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/36歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0133",
+    "name": "Citizen_0133",
+    "city": "台北",
+    "age": 54,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/54歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0134",
+    "name": "Citizen_0134",
+    "city": "高雄",
+    "age": 67,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/67歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0135",
+    "name": "Citizen_0135",
+    "city": "台北",
+    "age": 59,
+    "job": "公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/59歲/公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0136",
+    "name": "Citizen_0136",
+    "city": "台北",
+    "age": 35,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/35歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0137",
+    "name": "Citizen_0137",
+    "city": "新北",
+    "age": 47,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/47歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0138",
+    "name": "Citizen_0138",
+    "city": "台中",
+    "age": 33,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/33歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0139",
+    "name": "Citizen_0139",
+    "city": "新北",
+    "age": 47,
+    "job": "公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/47歲/公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0140",
+    "name": "Citizen_0140",
+    "city": "新北",
+    "age": 34,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/34歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0141",
+    "name": "Citizen_0141",
+    "city": "台中",
+    "age": 42,
+    "job": "行銷總監",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/42歲/行銷總監 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0142",
+    "name": "Citizen_0142",
+    "city": "台中",
+    "age": 34,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/34歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0143",
+    "name": "Citizen_0143",
+    "city": "台中",
+    "age": 26,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/26歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0144",
+    "name": "Citizen_0144",
+    "city": "台北",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/20歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0145",
+    "name": "Citizen_0145",
+    "city": "高雄",
+    "age": 23,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/23歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0146",
+    "name": "Citizen_0146",
+    "city": "花蓮",
+    "age": 32,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/32歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0147",
+    "name": "Citizen_0147",
+    "city": "花蓮",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/20歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0148",
+    "name": "Citizen_0148",
+    "city": "桃園",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/23歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0149",
+    "name": "Citizen_0149",
+    "city": "新竹",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/22歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0150",
+    "name": "Citizen_0150",
+    "city": "台南",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/22歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0151",
+    "name": "Citizen_0151",
+    "city": "台北",
+    "age": 66,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/66歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0152",
+    "name": "Citizen_0152",
+    "city": "新竹",
+    "age": 32,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/32歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0153",
+    "name": "Citizen_0153",
+    "city": "花蓮",
+    "age": 29,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/29歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0154",
+    "name": "Citizen_0154",
+    "city": "花蓮",
+    "age": 52,
+    "job": "家庭主婦",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/52歲/家庭主婦 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0155",
+    "name": "Citizen_0155",
+    "city": "台南",
+    "age": 33,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/33歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0156",
+    "name": "Citizen_0156",
+    "city": "台南",
+    "age": 67,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/67歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0157",
+    "name": "Citizen_0157",
+    "city": "新竹",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/23歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0158",
+    "name": "Citizen_0158",
+    "city": "新北",
+    "age": 29,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/29歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0159",
+    "name": "Citizen_0159",
+    "city": "高雄",
+    "age": 40,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/40歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0160",
+    "name": "Citizen_0160",
+    "city": "新北",
+    "age": 33,
+    "job": "公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/33歲/公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0161",
+    "name": "Citizen_0161",
+    "city": "新北",
+    "age": 46,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/46歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0162",
+    "name": "Citizen_0162",
+    "city": "新北",
+    "age": 29,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/29歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0163",
+    "name": "Citizen_0163",
+    "city": "高雄",
+    "age": 38,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/38歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0164",
+    "name": "Citizen_0164",
+    "city": "台南",
+    "age": 32,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/32歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0165",
+    "name": "Citizen_0165",
+    "city": "高雄",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/21歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0166",
+    "name": "Citizen_0166",
+    "city": "高雄",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/22歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0167",
+    "name": "Citizen_0167",
+    "city": "桃園",
+    "age": 48,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/48歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0168",
+    "name": "Citizen_0168",
+    "city": "台北",
+    "age": 35,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/35歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0169",
+    "name": "Citizen_0169",
+    "city": "新北",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/23歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0170",
+    "name": "Citizen_0170",
+    "city": "花蓮",
+    "age": 79,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/79歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0171",
+    "name": "Citizen_0171",
+    "city": "桃園",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/23歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0172",
+    "name": "Citizen_0172",
+    "city": "新竹",
+    "age": 41,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/41歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0173",
+    "name": "Citizen_0173",
+    "city": "新竹",
+    "age": 49,
+    "job": "行銷總監",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/49歲/行銷總監 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0174",
+    "name": "Citizen_0174",
+    "city": "新竹",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/20歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0175",
+    "name": "Citizen_0175",
+    "city": "台中",
+    "age": 35,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/35歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0176",
+    "name": "Citizen_0176",
+    "city": "台中",
+    "age": 35,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/35歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0177",
+    "name": "Citizen_0177",
+    "city": "新北",
+    "age": 25,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/25歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0178",
+    "name": "Citizen_0178",
+    "city": "新竹",
+    "age": 51,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/51歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0179",
+    "name": "Citizen_0179",
+    "city": "新竹",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/26歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0180",
+    "name": "Citizen_0180",
+    "city": "新北",
+    "age": 40,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/40歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0181",
+    "name": "Citizen_0181",
+    "city": "台北",
+    "age": 27,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/27歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0182",
+    "name": "Citizen_0182",
+    "city": "桃園",
+    "age": 31,
+    "job": "行銷企劃",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/31歲/行銷企劃 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0183",
+    "name": "Citizen_0183",
+    "city": "新竹",
+    "age": 66,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/66歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0184",
+    "name": "Citizen_0184",
+    "city": "花蓮",
+    "age": 47,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/47歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0185",
+    "name": "Citizen_0185",
+    "city": "花蓮",
+    "age": 46,
+    "job": "行銷總監",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/46歲/行銷總監 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0186",
+    "name": "Citizen_0186",
+    "city": "新北",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/23歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0187",
+    "name": "Citizen_0187",
+    "city": "台南",
+    "age": 55,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/55歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0188",
+    "name": "Citizen_0188",
+    "city": "台中",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/24歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0189",
+    "name": "Citizen_0189",
+    "city": "台北",
+    "age": 35,
+    "job": "行銷企劃",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/35歲/行銷企劃 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0190",
+    "name": "Citizen_0190",
+    "city": "新竹",
+    "age": 76,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/76歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0191",
+    "name": "Citizen_0191",
+    "city": "台中",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/25歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0192",
+    "name": "Citizen_0192",
+    "city": "新北",
+    "age": 40,
+    "job": "資深工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/40歲/資深工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0193",
+    "name": "Citizen_0193",
+    "city": "新北",
+    "age": 58,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/58歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0194",
+    "name": "Citizen_0194",
+    "city": "高雄",
+    "age": 46,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/46歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0195",
+    "name": "Citizen_0195",
+    "city": "高雄",
+    "age": 23,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/23歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0196",
+    "name": "Citizen_0196",
+    "city": "桃園",
+    "age": 33,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/33歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0197",
+    "name": "Citizen_0197",
+    "city": "花蓮",
+    "age": 30,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/30歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0198",
+    "name": "Citizen_0198",
+    "city": "台中",
+    "age": 64,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/64歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0199",
+    "name": "Citizen_0199",
+    "city": "桃園",
+    "age": 49,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/49歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0200",
+    "name": "Citizen_0200",
+    "city": "台中",
+    "age": 28,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/28歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0201",
+    "name": "Citizen_0201",
+    "city": "花蓮",
+    "age": 38,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/38歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0202",
+    "name": "Citizen_0202",
+    "city": "高雄",
+    "age": 27,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/27歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0203",
+    "name": "Citizen_0203",
+    "city": "高雄",
+    "age": 60,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/60歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0204",
+    "name": "Citizen_0204",
+    "city": "新竹",
+    "age": 71,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/71歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0205",
+    "name": "Citizen_0205",
+    "city": "新北",
+    "age": 23,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/23歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0206",
+    "name": "Citizen_0206",
+    "city": "花蓮",
+    "age": 38,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/38歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0207",
+    "name": "Citizen_0207",
+    "city": "台北",
+    "age": 39,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/39歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0208",
+    "name": "Citizen_0208",
+    "city": "高雄",
+    "age": 40,
+    "job": "全端工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/40歲/全端工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0209",
+    "name": "Citizen_0209",
+    "city": "桃園",
+    "age": 43,
+    "job": "行銷總監",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/43歲/行銷總監 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0210",
+    "name": "Citizen_0210",
+    "city": "高雄",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/26歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0211",
+    "name": "Citizen_0211",
+    "city": "台南",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/22歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0212",
+    "name": "Citizen_0212",
+    "city": "台南",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/22歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0213",
+    "name": "Citizen_0213",
+    "city": "台南",
+    "age": 47,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/47歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0214",
+    "name": "Citizen_0214",
+    "city": "新竹",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/24歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0215",
+    "name": "Citizen_0215",
+    "city": "花蓮",
+    "age": 54,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/54歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0216",
+    "name": "Citizen_0216",
+    "city": "高雄",
+    "age": 64,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/64歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0217",
+    "name": "Citizen_0217",
+    "city": "台中",
+    "age": 76,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/76歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0218",
+    "name": "Citizen_0218",
+    "city": "台中",
+    "age": 35,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/35歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0219",
+    "name": "Citizen_0219",
+    "city": "高雄",
+    "age": 29,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/29歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0220",
+    "name": "Citizen_0220",
+    "city": "新北",
+    "age": 29,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/29歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0221",
+    "name": "Citizen_0221",
+    "city": "台北",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/20歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0222",
+    "name": "Citizen_0222",
+    "city": "新竹",
+    "age": 74,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/74歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0223",
+    "name": "Citizen_0223",
+    "city": "台南",
+    "age": 28,
+    "job": "UI設計師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/28歲/UI設計師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0224",
+    "name": "Citizen_0224",
+    "city": "新北",
+    "age": 28,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/28歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0225",
+    "name": "Citizen_0225",
+    "city": "桃園",
+    "age": 37,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/37歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0226",
+    "name": "Citizen_0226",
+    "city": "台中",
+    "age": 46,
+    "job": "資深工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/46歲/資深工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0227",
+    "name": "Citizen_0227",
+    "city": "台中",
+    "age": 47,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/47歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0228",
+    "name": "Citizen_0228",
+    "city": "台北",
+    "age": 47,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/47歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0229",
+    "name": "Citizen_0229",
+    "city": "高雄",
+    "age": 32,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/32歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0230",
+    "name": "Citizen_0230",
+    "city": "高雄",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/26歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0231",
+    "name": "Citizen_0231",
+    "city": "桃園",
+    "age": 38,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/38歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0232",
+    "name": "Citizen_0232",
+    "city": "台中",
+    "age": 66,
+    "job": "退休教師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/66歲/退休教師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0233",
+    "name": "Citizen_0233",
+    "city": "台南",
+    "age": 39,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/39歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0234",
+    "name": "Citizen_0234",
+    "city": "花蓮",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/21歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0235",
+    "name": "Citizen_0235",
+    "city": "台北",
+    "age": 80,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/80歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0236",
+    "name": "Citizen_0236",
+    "city": "台北",
+    "age": 68,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/68歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0237",
+    "name": "Citizen_0237",
+    "city": "台南",
+    "age": 73,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/73歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0238",
+    "name": "Citizen_0238",
+    "city": "高雄",
+    "age": 47,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/47歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0239",
+    "name": "Citizen_0239",
+    "city": "桃園",
+    "age": 36,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/36歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0240",
+    "name": "Citizen_0240",
+    "city": "花蓮",
+    "age": 49,
+    "job": "行銷總監",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/49歲/行銷總監 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0241",
+    "name": "Citizen_0241",
+    "city": "高雄",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/23歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0242",
+    "name": "Citizen_0242",
+    "city": "台北",
+    "age": 74,
+    "job": "退休教師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/74歲/退休教師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0243",
+    "name": "Citizen_0243",
+    "city": "台南",
+    "age": 53,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/53歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0244",
+    "name": "Citizen_0244",
+    "city": "桃園",
+    "age": 38,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/38歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0245",
+    "name": "Citizen_0245",
+    "city": "桃園",
+    "age": 52,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/52歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0246",
+    "name": "Citizen_0246",
+    "city": "新北",
+    "age": 71,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/71歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0247",
+    "name": "Citizen_0247",
+    "city": "台南",
+    "age": 31,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/31歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0248",
+    "name": "Citizen_0248",
+    "city": "新竹",
+    "age": 24,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/24歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0249",
+    "name": "Citizen_0249",
+    "city": "台中",
+    "age": 41,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/41歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0250",
+    "name": "Citizen_0250",
+    "city": "台南",
+    "age": 26,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/26歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0251",
+    "name": "Citizen_0251",
+    "city": "花蓮",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/25歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0252",
+    "name": "Citizen_0252",
+    "city": "桃園",
+    "age": 36,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/36歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0253",
+    "name": "Citizen_0253",
+    "city": "桃園",
+    "age": 42,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/42歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0254",
+    "name": "Citizen_0254",
+    "city": "新北",
+    "age": 30,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/30歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0255",
+    "name": "Citizen_0255",
+    "city": "台中",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/25歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0256",
+    "name": "Citizen_0256",
+    "city": "桃園",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/26歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0257",
+    "name": "Citizen_0257",
+    "city": "花蓮",
+    "age": 36,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/36歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0258",
+    "name": "Citizen_0258",
+    "city": "台南",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/20歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0259",
+    "name": "Citizen_0259",
+    "city": "高雄",
+    "age": 57,
+    "job": "自營商",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/57歲/自營商 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0260",
+    "name": "Citizen_0260",
+    "city": "新北",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/19歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0261",
+    "name": "Citizen_0261",
+    "city": "桃園",
+    "age": 60,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/60歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0262",
+    "name": "Citizen_0262",
+    "city": "高雄",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/22歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0263",
+    "name": "Citizen_0263",
+    "city": "桃園",
+    "age": 35,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/35歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0264",
+    "name": "Citizen_0264",
+    "city": "台南",
+    "age": 37,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/37歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0265",
+    "name": "Citizen_0265",
+    "city": "高雄",
+    "age": 63,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/63歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0266",
+    "name": "Citizen_0266",
+    "city": "台中",
+    "age": 46,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/46歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0267",
+    "name": "Citizen_0267",
+    "city": "台中",
+    "age": 41,
+    "job": "行銷總監",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/41歲/行銷總監 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0268",
+    "name": "Citizen_0268",
+    "city": "新北",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/23歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0269",
+    "name": "Citizen_0269",
+    "city": "台北",
+    "age": 31,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/31歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0270",
+    "name": "Citizen_0270",
+    "city": "桃園",
+    "age": 62,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/62歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0271",
+    "name": "Citizen_0271",
+    "city": "新竹",
+    "age": 49,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/49歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0272",
+    "name": "Citizen_0272",
+    "city": "台中",
+    "age": 39,
+    "job": "自營商",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/39歲/自營商 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0273",
+    "name": "Citizen_0273",
+    "city": "台北",
+    "age": 32,
+    "job": "自營商",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/32歲/自營商 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0274",
+    "name": "Citizen_0274",
+    "city": "台中",
+    "age": 49,
+    "job": "行銷總監",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/49歲/行銷總監 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0275",
+    "name": "Citizen_0275",
+    "city": "新北",
+    "age": 37,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/37歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0276",
+    "name": "Citizen_0276",
+    "city": "高雄",
+    "age": 42,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/42歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0277",
+    "name": "Citizen_0277",
+    "city": "台北",
+    "age": 55,
+    "job": "家庭主婦",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/55歲/家庭主婦 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0278",
+    "name": "Citizen_0278",
+    "city": "高雄",
+    "age": 41,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/41歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0279",
+    "name": "Citizen_0279",
+    "city": "台南",
+    "age": 39,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/39歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0280",
+    "name": "Citizen_0280",
+    "city": "桃園",
+    "age": 32,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/32歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0281",
+    "name": "Citizen_0281",
+    "city": "花蓮",
+    "age": 44,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/44歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0282",
+    "name": "Citizen_0282",
+    "city": "台南",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/25歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0283",
+    "name": "Citizen_0283",
+    "city": "台中",
+    "age": 23,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/23歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0284",
+    "name": "Citizen_0284",
+    "city": "新北",
+    "age": 35,
+    "job": "資深工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/35歲/資深工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0285",
+    "name": "Citizen_0285",
+    "city": "台中",
+    "age": 40,
+    "job": "公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/40歲/公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0286",
+    "name": "Citizen_0286",
+    "city": "桃園",
+    "age": 41,
+    "job": "自營商",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/41歲/自營商 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0287",
+    "name": "Citizen_0287",
+    "city": "台北",
+    "age": 39,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/39歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0288",
+    "name": "Citizen_0288",
+    "city": "新竹",
+    "age": 33,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/33歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0289",
+    "name": "Citizen_0289",
+    "city": "新北",
+    "age": 41,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/41歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0290",
+    "name": "Citizen_0290",
+    "city": "花蓮",
+    "age": 70,
+    "job": "退休教師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/70歲/退休教師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0291",
+    "name": "Citizen_0291",
+    "city": "高雄",
+    "age": 74,
+    "job": "退休教師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/74歲/退休教師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0292",
+    "name": "Citizen_0292",
+    "city": "台中",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/24歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0293",
+    "name": "Citizen_0293",
+    "city": "新北",
+    "age": 47,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/47歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0294",
+    "name": "Citizen_0294",
+    "city": "台北",
+    "age": 66,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/66歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0295",
+    "name": "Citizen_0295",
+    "city": "新北",
+    "age": 51,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/51歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0296",
+    "name": "Citizen_0296",
+    "city": "台中",
+    "age": 43,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/43歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0297",
+    "name": "Citizen_0297",
+    "city": "桃園",
+    "age": 28,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/28歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0298",
+    "name": "Citizen_0298",
+    "city": "高雄",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/19歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0299",
+    "name": "Citizen_0299",
+    "city": "桃園",
+    "age": 34,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/34歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0300",
+    "name": "Citizen_0300",
+    "city": "新北",
+    "age": 28,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/28歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0301",
+    "name": "Citizen_0301",
+    "city": "新竹",
+    "age": 67,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/67歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0302",
+    "name": "Citizen_0302",
+    "city": "高雄",
+    "age": 68,
+    "job": "退休公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/68歲/退休公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0303",
+    "name": "Citizen_0303",
+    "city": "花蓮",
+    "age": 37,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/37歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0304",
+    "name": "Citizen_0304",
+    "city": "台南",
+    "age": 38,
+    "job": "行銷總監",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/38歲/行銷總監 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0305",
+    "name": "Citizen_0305",
+    "city": "新竹",
+    "age": 36,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/36歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0306",
+    "name": "Citizen_0306",
+    "city": "台北",
+    "age": 37,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/37歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0307",
+    "name": "Citizen_0307",
+    "city": "高雄",
+    "age": 42,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/42歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0308",
+    "name": "Citizen_0308",
+    "city": "台中",
+    "age": 35,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/35歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0309",
+    "name": "Citizen_0309",
+    "city": "花蓮",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/24歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0310",
+    "name": "Citizen_0310",
+    "city": "高雄",
+    "age": 34,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/34歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0311",
+    "name": "Citizen_0311",
+    "city": "新竹",
+    "age": 45,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/45歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0312",
+    "name": "Citizen_0312",
+    "city": "台中",
+    "age": 62,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/62歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0313",
+    "name": "Citizen_0313",
+    "city": "台北",
+    "age": 34,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/34歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0314",
+    "name": "Citizen_0314",
+    "city": "台南",
+    "age": 63,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/63歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0315",
+    "name": "Citizen_0315",
+    "city": "台中",
+    "age": 42,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/42歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0316",
+    "name": "Citizen_0316",
+    "city": "台南",
+    "age": 72,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/72歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0317",
+    "name": "Citizen_0317",
+    "city": "花蓮",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/26歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0318",
+    "name": "Citizen_0318",
+    "city": "台南",
+    "age": 38,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/38歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0319",
+    "name": "Citizen_0319",
+    "city": "台中",
+    "age": 33,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/33歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0320",
+    "name": "Citizen_0320",
+    "city": "台北",
+    "age": 37,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/37歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0321",
+    "name": "Citizen_0321",
+    "city": "新北",
+    "age": 35,
+    "job": "行銷總監",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/35歲/行銷總監 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0322",
+    "name": "Citizen_0322",
+    "city": "桃園",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/19歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0323",
+    "name": "Citizen_0323",
+    "city": "台南",
+    "age": 28,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/28歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0324",
+    "name": "Citizen_0324",
+    "city": "台南",
+    "age": 49,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/49歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0325",
+    "name": "Citizen_0325",
+    "city": "高雄",
+    "age": 73,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/73歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0326",
+    "name": "Citizen_0326",
+    "city": "台南",
+    "age": 50,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/50歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0327",
+    "name": "Citizen_0327",
+    "city": "桃園",
+    "age": 30,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/30歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0328",
+    "name": "Citizen_0328",
+    "city": "新竹",
+    "age": 52,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/52歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0329",
+    "name": "Citizen_0329",
+    "city": "新竹",
+    "age": 35,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/35歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0330",
+    "name": "Citizen_0330",
+    "city": "台中",
+    "age": 41,
+    "job": "公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/41歲/公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0331",
+    "name": "Citizen_0331",
+    "city": "新竹",
+    "age": 42,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/42歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0332",
+    "name": "Citizen_0332",
+    "city": "花蓮",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/19歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0333",
+    "name": "Citizen_0333",
+    "city": "高雄",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/23歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0334",
+    "name": "Citizen_0334",
+    "city": "新竹",
+    "age": 24,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/24歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0335",
+    "name": "Citizen_0335",
+    "city": "桃園",
+    "age": 52,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/52歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0336",
+    "name": "Citizen_0336",
+    "city": "新竹",
+    "age": 26,
+    "job": "公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/26歲/公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0337",
+    "name": "Citizen_0337",
+    "city": "台南",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/26歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0338",
+    "name": "Citizen_0338",
+    "city": "新竹",
+    "age": 49,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/49歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0339",
+    "name": "Citizen_0339",
+    "city": "桃園",
+    "age": 35,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/35歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0340",
+    "name": "Citizen_0340",
+    "city": "新竹",
+    "age": 28,
+    "job": "行銷企劃",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/28歲/行銷企劃 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0341",
+    "name": "Citizen_0341",
+    "city": "新竹",
+    "age": 23,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/23歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0342",
+    "name": "Citizen_0342",
+    "city": "新北",
+    "age": 35,
+    "job": "行銷企劃",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/35歲/行銷企劃 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0343",
+    "name": "Citizen_0343",
+    "city": "桃園",
+    "age": 54,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/54歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0344",
+    "name": "Citizen_0344",
+    "city": "台北",
+    "age": 33,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/33歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0345",
+    "name": "Citizen_0345",
+    "city": "台中",
+    "age": 36,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/36歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0346",
+    "name": "Citizen_0346",
+    "city": "新竹",
+    "age": 24,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/24歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0347",
+    "name": "Citizen_0347",
+    "city": "台中",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/24歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0348",
+    "name": "Citizen_0348",
+    "city": "高雄",
+    "age": 47,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/47歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0349",
+    "name": "Citizen_0349",
+    "city": "花蓮",
+    "age": 23,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/23歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0350",
+    "name": "Citizen_0350",
+    "city": "台南",
+    "age": 37,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/37歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0351",
+    "name": "Citizen_0351",
+    "city": "新竹",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/25歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0352",
+    "name": "Citizen_0352",
+    "city": "新竹",
+    "age": 32,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/32歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0353",
+    "name": "Citizen_0353",
+    "city": "台北",
+    "age": 76,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/76歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0354",
+    "name": "Citizen_0354",
+    "city": "台中",
+    "age": 35,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/35歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0355",
+    "name": "Citizen_0355",
+    "city": "新竹",
+    "age": 52,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/52歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0356",
+    "name": "Citizen_0356",
+    "city": "桃園",
+    "age": 24,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/24歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0357",
+    "name": "Citizen_0357",
+    "city": "台南",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/23歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0358",
+    "name": "Citizen_0358",
+    "city": "台北",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/20歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0359",
+    "name": "Citizen_0359",
+    "city": "新竹",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/24歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0360",
+    "name": "Citizen_0360",
+    "city": "台北",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/23歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0361",
+    "name": "Citizen_0361",
+    "city": "高雄",
+    "age": 33,
+    "job": "公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/33歲/公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0362",
+    "name": "Citizen_0362",
+    "city": "桃園",
+    "age": 48,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/48歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0363",
+    "name": "Citizen_0363",
+    "city": "台中",
+    "age": 40,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/40歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0364",
+    "name": "Citizen_0364",
+    "city": "新北",
+    "age": 44,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/44歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0365",
+    "name": "Citizen_0365",
+    "city": "台中",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/21歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0366",
+    "name": "Citizen_0366",
+    "city": "新竹",
+    "age": 37,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/37歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0367",
+    "name": "Citizen_0367",
+    "city": "桃園",
+    "age": 26,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/26歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0368",
+    "name": "Citizen_0368",
+    "city": "新竹",
+    "age": 40,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/40歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0369",
+    "name": "Citizen_0369",
+    "city": "台北",
+    "age": 35,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/35歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0370",
+    "name": "Citizen_0370",
+    "city": "新竹",
+    "age": 23,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/23歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0371",
+    "name": "Citizen_0371",
+    "city": "新竹",
+    "age": 26,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/26歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0372",
+    "name": "Citizen_0372",
+    "city": "台南",
+    "age": 35,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/35歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0373",
+    "name": "Citizen_0373",
+    "city": "新竹",
+    "age": 35,
+    "job": "行銷總監",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/35歲/行銷總監 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0374",
+    "name": "Citizen_0374",
+    "city": "台中",
+    "age": 58,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/58歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0375",
+    "name": "Citizen_0375",
+    "city": "高雄",
+    "age": 27,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/27歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0376",
+    "name": "Citizen_0376",
+    "city": "新北",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/23歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0377",
+    "name": "Citizen_0377",
+    "city": "新竹",
+    "age": 30,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/30歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0378",
+    "name": "Citizen_0378",
+    "city": "高雄",
+    "age": 57,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/57歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0379",
+    "name": "Citizen_0379",
+    "city": "台中",
+    "age": 27,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/27歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0380",
+    "name": "Citizen_0380",
+    "city": "台南",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/19歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0381",
+    "name": "Citizen_0381",
+    "city": "桃園",
+    "age": 44,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/44歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0382",
+    "name": "Citizen_0382",
+    "city": "台中",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/21歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0383",
+    "name": "Citizen_0383",
+    "city": "花蓮",
+    "age": 54,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/54歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0384",
+    "name": "Citizen_0384",
+    "city": "花蓮",
+    "age": 24,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/24歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0385",
+    "name": "Citizen_0385",
+    "city": "台南",
+    "age": 40,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/40歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0386",
+    "name": "Citizen_0386",
+    "city": "新竹",
+    "age": 30,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/30歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0387",
+    "name": "Citizen_0387",
+    "city": "桃園",
+    "age": 49,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/49歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0388",
+    "name": "Citizen_0388",
+    "city": "高雄",
+    "age": 57,
+    "job": "公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/57歲/公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0389",
+    "name": "Citizen_0389",
+    "city": "台中",
+    "age": 46,
+    "job": "行銷總監",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/46歲/行銷總監 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0390",
+    "name": "Citizen_0390",
+    "city": "台中",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/21歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0391",
+    "name": "Citizen_0391",
+    "city": "花蓮",
+    "age": 30,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/30歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0392",
+    "name": "Citizen_0392",
+    "city": "台南",
+    "age": 33,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/33歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0393",
+    "name": "Citizen_0393",
+    "city": "台南",
+    "age": 30,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/30歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0394",
+    "name": "Citizen_0394",
+    "city": "台南",
+    "age": 77,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/77歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0395",
+    "name": "Citizen_0395",
+    "city": "台南",
+    "age": 34,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/34歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0396",
+    "name": "Citizen_0396",
+    "city": "台北",
+    "age": 25,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/25歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0397",
+    "name": "Citizen_0397",
+    "city": "台南",
+    "age": 44,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/44歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0398",
+    "name": "Citizen_0398",
+    "city": "台南",
+    "age": 74,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/74歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0399",
+    "name": "Citizen_0399",
+    "city": "台北",
+    "age": 36,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/36歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0400",
+    "name": "Citizen_0400",
+    "city": "桃園",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/24歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0401",
+    "name": "Citizen_0401",
+    "city": "台北",
+    "age": 40,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/40歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0402",
+    "name": "Citizen_0402",
+    "city": "台北",
+    "age": 60,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/60歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0403",
+    "name": "Citizen_0403",
+    "city": "桃園",
+    "age": 40,
+    "job": "資深工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/40歲/資深工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0404",
+    "name": "Citizen_0404",
+    "city": "高雄",
+    "age": 34,
+    "job": "全端工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/34歲/全端工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0405",
+    "name": "Citizen_0405",
+    "city": "新北",
+    "age": 32,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/32歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0406",
+    "name": "Citizen_0406",
+    "city": "新竹",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/22歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0407",
+    "name": "Citizen_0407",
+    "city": "花蓮",
+    "age": 27,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/27歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0408",
+    "name": "Citizen_0408",
+    "city": "新竹",
+    "age": 71,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/71歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0409",
+    "name": "Citizen_0409",
+    "city": "高雄",
+    "age": 27,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/27歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0410",
+    "name": "Citizen_0410",
+    "city": "新北",
+    "age": 42,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/42歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0411",
+    "name": "Citizen_0411",
+    "city": "花蓮",
+    "age": 52,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/52歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0412",
+    "name": "Citizen_0412",
+    "city": "台南",
+    "age": 37,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/37歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0413",
+    "name": "Citizen_0413",
+    "city": "新竹",
+    "age": 44,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/44歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0414",
+    "name": "Citizen_0414",
+    "city": "高雄",
+    "age": 68,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/68歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0415",
+    "name": "Citizen_0415",
+    "city": "台北",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/21歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0416",
+    "name": "Citizen_0416",
+    "city": "花蓮",
+    "age": 50,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/50歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0417",
+    "name": "Citizen_0417",
+    "city": "台中",
+    "age": 31,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/31歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0418",
+    "name": "Citizen_0418",
+    "city": "花蓮",
+    "age": 44,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/44歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0419",
+    "name": "Citizen_0419",
+    "city": "台中",
+    "age": 25,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/25歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0420",
+    "name": "Citizen_0420",
+    "city": "花蓮",
+    "age": 29,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/29歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0421",
+    "name": "Citizen_0421",
+    "city": "高雄",
+    "age": 37,
+    "job": "行銷總監",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/37歲/行銷總監 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0422",
+    "name": "Citizen_0422",
+    "city": "台中",
+    "age": 78,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/78歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0423",
+    "name": "Citizen_0423",
+    "city": "台南",
+    "age": 69,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/69歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0424",
+    "name": "Citizen_0424",
+    "city": "新北",
+    "age": 41,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/41歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0425",
+    "name": "Citizen_0425",
+    "city": "花蓮",
+    "age": 24,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/24歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0426",
+    "name": "Citizen_0426",
+    "city": "台南",
+    "age": 30,
+    "job": "行銷企劃",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/30歲/行銷企劃 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0427",
+    "name": "Citizen_0427",
+    "city": "台中",
+    "age": 34,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/34歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0428",
+    "name": "Citizen_0428",
+    "city": "台中",
+    "age": 63,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/63歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0429",
+    "name": "Citizen_0429",
+    "city": "新北",
+    "age": 66,
+    "job": "退休教師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/66歲/退休教師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0430",
+    "name": "Citizen_0430",
+    "city": "新北",
+    "age": 42,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/42歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0431",
+    "name": "Citizen_0431",
+    "city": "台北",
+    "age": 37,
+    "job": "全端工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/37歲/全端工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0432",
+    "name": "Citizen_0432",
+    "city": "新北",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/24歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0433",
+    "name": "Citizen_0433",
+    "city": "高雄",
+    "age": 35,
+    "job": "行銷總監",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/35歲/行銷總監 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0434",
+    "name": "Citizen_0434",
+    "city": "台北",
+    "age": 25,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/25歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0435",
+    "name": "Citizen_0435",
+    "city": "新竹",
+    "age": 47,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/47歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0436",
+    "name": "Citizen_0436",
+    "city": "台南",
+    "age": 69,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/69歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0437",
+    "name": "Citizen_0437",
+    "city": "台南",
+    "age": 77,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/77歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0438",
+    "name": "Citizen_0438",
+    "city": "花蓮",
+    "age": 44,
+    "job": "公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/44歲/公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0439",
+    "name": "Citizen_0439",
+    "city": "新北",
+    "age": 46,
+    "job": "資深工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/46歲/資深工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0440",
+    "name": "Citizen_0440",
+    "city": "新北",
+    "age": 46,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/46歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0441",
+    "name": "Citizen_0441",
+    "city": "新北",
+    "age": 37,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/37歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0442",
+    "name": "Citizen_0442",
+    "city": "台北",
+    "age": 54,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/54歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0443",
+    "name": "Citizen_0443",
+    "city": "花蓮",
+    "age": 42,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/42歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0444",
+    "name": "Citizen_0444",
+    "city": "新北",
+    "age": 25,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/25歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0445",
+    "name": "Citizen_0445",
+    "city": "新北",
+    "age": 30,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/30歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0446",
+    "name": "Citizen_0446",
+    "city": "台中",
+    "age": 34,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/34歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0447",
+    "name": "Citizen_0447",
+    "city": "高雄",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/25歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0448",
+    "name": "Citizen_0448",
+    "city": "台北",
+    "age": 36,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/36歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0449",
+    "name": "Citizen_0449",
+    "city": "台南",
+    "age": 71,
+    "job": "退休教師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/71歲/退休教師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0450",
+    "name": "Citizen_0450",
+    "city": "高雄",
+    "age": 39,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/39歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0451",
+    "name": "Citizen_0451",
+    "city": "花蓮",
+    "age": 37,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/37歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0452",
+    "name": "Citizen_0452",
+    "city": "桃園",
+    "age": 65,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/65歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0453",
+    "name": "Citizen_0453",
+    "city": "高雄",
+    "age": 43,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/43歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0454",
+    "name": "Citizen_0454",
+    "city": "花蓮",
+    "age": 55,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/55歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0455",
+    "name": "Citizen_0455",
+    "city": "新北",
+    "age": 26,
+    "job": "行銷企劃",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/26歲/行銷企劃 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0456",
+    "name": "Citizen_0456",
+    "city": "台北",
+    "age": 76,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/76歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0457",
+    "name": "Citizen_0457",
+    "city": "花蓮",
+    "age": 39,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/39歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0458",
+    "name": "Citizen_0458",
+    "city": "花蓮",
+    "age": 52,
+    "job": "家庭主婦",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/52歲/家庭主婦 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0459",
+    "name": "Citizen_0459",
+    "city": "台中",
+    "age": 60,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/60歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0460",
+    "name": "Citizen_0460",
+    "city": "台南",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/24歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0461",
+    "name": "Citizen_0461",
+    "city": "台中",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/19歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0462",
+    "name": "Citizen_0462",
+    "city": "高雄",
+    "age": 37,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/37歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0463",
+    "name": "Citizen_0463",
+    "city": "花蓮",
+    "age": 35,
+    "job": "全端工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/35歲/全端工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0464",
+    "name": "Citizen_0464",
+    "city": "花蓮",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/19歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0465",
+    "name": "Citizen_0465",
+    "city": "台北",
+    "age": 29,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/29歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0466",
+    "name": "Citizen_0466",
+    "city": "桃園",
+    "age": 41,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/41歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0467",
+    "name": "Citizen_0467",
+    "city": "台南",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/24歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0468",
+    "name": "Citizen_0468",
+    "city": "台北",
+    "age": 27,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/27歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0469",
+    "name": "Citizen_0469",
+    "city": "花蓮",
+    "age": 26,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/26歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0470",
+    "name": "Citizen_0470",
+    "city": "台北",
+    "age": 75,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/75歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0471",
+    "name": "Citizen_0471",
+    "city": "高雄",
+    "age": 51,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/51歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0472",
+    "name": "Citizen_0472",
+    "city": "台北",
+    "age": 60,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/60歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0473",
+    "name": "Citizen_0473",
+    "city": "桃園",
+    "age": 24,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/24歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0474",
+    "name": "Citizen_0474",
+    "city": "台北",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/22歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0475",
+    "name": "Citizen_0475",
+    "city": "新竹",
+    "age": 28,
+    "job": "行銷企劃",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/28歲/行銷企劃 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0476",
+    "name": "Citizen_0476",
+    "city": "桃園",
+    "age": 71,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/71歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0477",
+    "name": "Citizen_0477",
+    "city": "高雄",
+    "age": 30,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/30歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0478",
+    "name": "Citizen_0478",
+    "city": "台北",
+    "age": 74,
+    "job": "退休教師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/74歲/退休教師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0479",
+    "name": "Citizen_0479",
+    "city": "新北",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/20歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0480",
+    "name": "Citizen_0480",
+    "city": "花蓮",
+    "age": 42,
+    "job": "資深工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/42歲/資深工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0481",
+    "name": "Citizen_0481",
+    "city": "桃園",
+    "age": 32,
+    "job": "全端工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/32歲/全端工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0482",
+    "name": "Citizen_0482",
+    "city": "高雄",
+    "age": 33,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/33歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0483",
+    "name": "Citizen_0483",
+    "city": "台北",
+    "age": 33,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/33歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0484",
+    "name": "Citizen_0484",
+    "city": "新竹",
+    "age": 44,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/44歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0485",
+    "name": "Citizen_0485",
+    "city": "新竹",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/26歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0486",
+    "name": "Citizen_0486",
+    "city": "高雄",
+    "age": 43,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/43歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0487",
+    "name": "Citizen_0487",
+    "city": "高雄",
+    "age": 29,
+    "job": "全端工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/29歲/全端工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0488",
+    "name": "Citizen_0488",
+    "city": "桃園",
+    "age": 68,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/68歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0489",
+    "name": "Citizen_0489",
+    "city": "新北",
+    "age": 33,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/33歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0490",
+    "name": "Citizen_0490",
+    "city": "新北",
+    "age": 78,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/78歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0491",
+    "name": "Citizen_0491",
+    "city": "台南",
+    "age": 62,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/62歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0492",
+    "name": "Citizen_0492",
+    "city": "桃園",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/19歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0493",
+    "name": "Citizen_0493",
+    "city": "高雄",
+    "age": 67,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/67歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0494",
+    "name": "Citizen_0494",
+    "city": "台南",
+    "age": 43,
+    "job": "全端工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/43歲/全端工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0495",
+    "name": "Citizen_0495",
+    "city": "台南",
+    "age": 40,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/40歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0496",
+    "name": "Citizen_0496",
+    "city": "高雄",
+    "age": 29,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/29歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0497",
+    "name": "Citizen_0497",
+    "city": "新竹",
+    "age": 32,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/32歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0498",
+    "name": "Citizen_0498",
+    "city": "台中",
+    "age": 59,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/59歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0499",
+    "name": "Citizen_0499",
+    "city": "台南",
+    "age": 44,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/44歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0500",
+    "name": "Citizen_0500",
+    "city": "新竹",
+    "age": 41,
+    "job": "資深工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/41歲/資深工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0501",
+    "name": "Citizen_0501",
+    "city": "台中",
+    "age": 35,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/35歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0502",
+    "name": "Citizen_0502",
+    "city": "新北",
+    "age": 69,
+    "job": "退休教師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/69歲/退休教師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0503",
+    "name": "Citizen_0503",
+    "city": "台南",
+    "age": 47,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/47歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0504",
+    "name": "Citizen_0504",
+    "city": "新竹",
+    "age": 37,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/37歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0505",
+    "name": "Citizen_0505",
+    "city": "台中",
+    "age": 58,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/58歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0506",
+    "name": "Citizen_0506",
+    "city": "台南",
+    "age": 45,
+    "job": "行銷總監",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/45歲/行銷總監 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0507",
+    "name": "Citizen_0507",
+    "city": "花蓮",
+    "age": 43,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/43歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0508",
+    "name": "Citizen_0508",
+    "city": "桃園",
+    "age": 48,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/48歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0509",
+    "name": "Citizen_0509",
+    "city": "桃園",
+    "age": 49,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/49歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0510",
+    "name": "Citizen_0510",
+    "city": "花蓮",
+    "age": 46,
+    "job": "公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/46歲/公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0511",
+    "name": "Citizen_0511",
+    "city": "台南",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/25歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0512",
+    "name": "Citizen_0512",
+    "city": "高雄",
+    "age": 45,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/45歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0513",
+    "name": "Citizen_0513",
+    "city": "台南",
+    "age": 26,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/26歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0514",
+    "name": "Citizen_0514",
+    "city": "台南",
+    "age": 25,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/25歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0515",
+    "name": "Citizen_0515",
+    "city": "高雄",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/25歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0516",
+    "name": "Citizen_0516",
+    "city": "台北",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/24歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0517",
+    "name": "Citizen_0517",
+    "city": "桃園",
+    "age": 39,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/39歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0518",
+    "name": "Citizen_0518",
+    "city": "花蓮",
+    "age": 28,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/28歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0519",
+    "name": "Citizen_0519",
+    "city": "新竹",
+    "age": 47,
+    "job": "行銷總監",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/47歲/行銷總監 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0520",
+    "name": "Citizen_0520",
+    "city": "台南",
+    "age": 38,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/38歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0521",
+    "name": "Citizen_0521",
+    "city": "高雄",
+    "age": 30,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/30歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0522",
+    "name": "Citizen_0522",
+    "city": "桃園",
+    "age": 35,
+    "job": "全端工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/35歲/全端工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0523",
+    "name": "Citizen_0523",
+    "city": "花蓮",
+    "age": 28,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/28歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0524",
+    "name": "Citizen_0524",
+    "city": "桃園",
+    "age": 30,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/30歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0525",
+    "name": "Citizen_0525",
+    "city": "花蓮",
+    "age": 46,
+    "job": "資深工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/46歲/資深工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0526",
+    "name": "Citizen_0526",
+    "city": "台中",
+    "age": 65,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/65歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0527",
+    "name": "Citizen_0527",
+    "city": "高雄",
+    "age": 37,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/37歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0528",
+    "name": "Citizen_0528",
+    "city": "台中",
+    "age": 28,
+    "job": "行銷企劃",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/28歲/行銷企劃 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0529",
+    "name": "Citizen_0529",
+    "city": "高雄",
+    "age": 70,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/70歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0530",
+    "name": "Citizen_0530",
+    "city": "台北",
+    "age": 70,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/70歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0531",
+    "name": "Citizen_0531",
+    "city": "台中",
+    "age": 34,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/34歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0532",
+    "name": "Citizen_0532",
+    "city": "台南",
+    "age": 27,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/27歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0533",
+    "name": "Citizen_0533",
+    "city": "高雄",
+    "age": 75,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/75歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0534",
+    "name": "Citizen_0534",
+    "city": "台南",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/26歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0535",
+    "name": "Citizen_0535",
+    "city": "新竹",
+    "age": 34,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/34歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0536",
+    "name": "Citizen_0536",
+    "city": "台南",
+    "age": 45,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/45歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0537",
+    "name": "Citizen_0537",
+    "city": "高雄",
+    "age": 38,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/38歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0538",
+    "name": "Citizen_0538",
+    "city": "台南",
+    "age": 50,
+    "job": "資深工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/50歲/資深工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0539",
+    "name": "Citizen_0539",
+    "city": "花蓮",
+    "age": 47,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/47歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0540",
+    "name": "Citizen_0540",
+    "city": "台南",
+    "age": 27,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/27歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0541",
+    "name": "Citizen_0541",
+    "city": "花蓮",
+    "age": 49,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/49歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0542",
+    "name": "Citizen_0542",
+    "city": "台南",
+    "age": 42,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/42歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0543",
+    "name": "Citizen_0543",
+    "city": "台南",
+    "age": 48,
+    "job": "行銷總監",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/48歲/行銷總監 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0544",
+    "name": "Citizen_0544",
+    "city": "台中",
+    "age": 33,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/33歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0545",
+    "name": "Citizen_0545",
+    "city": "桃園",
+    "age": 59,
+    "job": "公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/59歲/公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0546",
+    "name": "Citizen_0546",
+    "city": "台北",
+    "age": 75,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/75歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0547",
+    "name": "Citizen_0547",
+    "city": "台中",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/25歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0548",
+    "name": "Citizen_0548",
+    "city": "台北",
+    "age": 42,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/42歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0549",
+    "name": "Citizen_0549",
+    "city": "花蓮",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/19歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0550",
+    "name": "Citizen_0550",
+    "city": "新北",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/21歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0551",
+    "name": "Citizen_0551",
+    "city": "新竹",
+    "age": 43,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/43歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0552",
+    "name": "Citizen_0552",
+    "city": "台北",
+    "age": 30,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/30歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0553",
+    "name": "Citizen_0553",
+    "city": "新北",
+    "age": 39,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/39歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0554",
+    "name": "Citizen_0554",
+    "city": "台南",
+    "age": 34,
+    "job": "行銷企劃",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/34歲/行銷企劃 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0555",
+    "name": "Citizen_0555",
+    "city": "台北",
+    "age": 69,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/69歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0556",
+    "name": "Citizen_0556",
+    "city": "新竹",
+    "age": 33,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/33歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0557",
+    "name": "Citizen_0557",
+    "city": "新北",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/20歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0558",
+    "name": "Citizen_0558",
+    "city": "高雄",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/22歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0559",
+    "name": "Citizen_0559",
+    "city": "高雄",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/19歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0560",
+    "name": "Citizen_0560",
+    "city": "台南",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/26歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0561",
+    "name": "Citizen_0561",
+    "city": "新北",
+    "age": 24,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/24歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0562",
+    "name": "Citizen_0562",
+    "city": "高雄",
+    "age": 68,
+    "job": "退休公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/68歲/退休公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0563",
+    "name": "Citizen_0563",
+    "city": "台中",
+    "age": 33,
+    "job": "全端工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/33歲/全端工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0564",
+    "name": "Citizen_0564",
+    "city": "台中",
+    "age": 26,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/26歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0565",
+    "name": "Citizen_0565",
+    "city": "花蓮",
+    "age": 34,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/34歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0566",
+    "name": "Citizen_0566",
+    "city": "高雄",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/24歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0567",
+    "name": "Citizen_0567",
+    "city": "花蓮",
+    "age": 34,
+    "job": "UI設計師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/34歲/UI設計師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0568",
+    "name": "Citizen_0568",
+    "city": "桃園",
+    "age": 39,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/39歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0569",
+    "name": "Citizen_0569",
+    "city": "新北",
+    "age": 43,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/43歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0570",
+    "name": "Citizen_0570",
+    "city": "台中",
+    "age": 48,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/48歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0571",
+    "name": "Citizen_0571",
+    "city": "高雄",
+    "age": 67,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/67歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0572",
+    "name": "Citizen_0572",
+    "city": "新竹",
+    "age": 58,
+    "job": "自營商",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/58歲/自營商 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0573",
+    "name": "Citizen_0573",
+    "city": "台南",
+    "age": 28,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/28歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0574",
+    "name": "Citizen_0574",
+    "city": "新竹",
+    "age": 52,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/52歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0575",
+    "name": "Citizen_0575",
+    "city": "新竹",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/25歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0576",
+    "name": "Citizen_0576",
+    "city": "台北",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/26歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0577",
+    "name": "Citizen_0577",
+    "city": "台南",
+    "age": 49,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/49歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0578",
+    "name": "Citizen_0578",
+    "city": "新竹",
+    "age": 35,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/35歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0579",
+    "name": "Citizen_0579",
+    "city": "台中",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/23歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0580",
+    "name": "Citizen_0580",
+    "city": "台南",
+    "age": 44,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/44歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0581",
+    "name": "Citizen_0581",
+    "city": "台北",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/20歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0582",
+    "name": "Citizen_0582",
+    "city": "桃園",
+    "age": 29,
+    "job": "全端工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/29歲/全端工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0583",
+    "name": "Citizen_0583",
+    "city": "桃園",
+    "age": 68,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/68歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0584",
+    "name": "Citizen_0584",
+    "city": "高雄",
+    "age": 41,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/41歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0585",
+    "name": "Citizen_0585",
+    "city": "新北",
+    "age": 33,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/33歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0586",
+    "name": "Citizen_0586",
+    "city": "高雄",
+    "age": 47,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/47歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0587",
+    "name": "Citizen_0587",
+    "city": "台南",
+    "age": 73,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/73歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0588",
+    "name": "Citizen_0588",
+    "city": "高雄",
+    "age": 38,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/38歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0589",
+    "name": "Citizen_0589",
+    "city": "台中",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/22歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0590",
+    "name": "Citizen_0590",
+    "city": "台北",
+    "age": 32,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/32歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0591",
+    "name": "Citizen_0591",
+    "city": "花蓮",
+    "age": 50,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/50歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0592",
+    "name": "Citizen_0592",
+    "city": "桃園",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/24歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0593",
+    "name": "Citizen_0593",
+    "city": "高雄",
+    "age": 31,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/31歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0594",
+    "name": "Citizen_0594",
+    "city": "新北",
+    "age": 40,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/40歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0595",
+    "name": "Citizen_0595",
+    "city": "花蓮",
+    "age": 28,
+    "job": "行銷企劃",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/28歲/行銷企劃 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0596",
+    "name": "Citizen_0596",
+    "city": "新北",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/20歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0597",
+    "name": "Citizen_0597",
+    "city": "高雄",
+    "age": 45,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/45歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0598",
+    "name": "Citizen_0598",
+    "city": "新竹",
+    "age": 43,
+    "job": "行銷總監",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/43歲/行銷總監 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0599",
+    "name": "Citizen_0599",
+    "city": "高雄",
+    "age": 33,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/33歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0600",
+    "name": "Citizen_0600",
+    "city": "桃園",
+    "age": 35,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/35歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0601",
+    "name": "Citizen_0601",
+    "city": "新北",
+    "age": 41,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/41歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0602",
+    "name": "Citizen_0602",
+    "city": "花蓮",
+    "age": 26,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/26歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0603",
+    "name": "Citizen_0603",
+    "city": "桃園",
+    "age": 34,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/34歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0604",
+    "name": "Citizen_0604",
+    "city": "台中",
+    "age": 67,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/67歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0605",
+    "name": "Citizen_0605",
+    "city": "花蓮",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/24歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0606",
+    "name": "Citizen_0606",
+    "city": "新竹",
+    "age": 44,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/44歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0607",
+    "name": "Citizen_0607",
+    "city": "台南",
+    "age": 50,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/50歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0608",
+    "name": "Citizen_0608",
+    "city": "新竹",
+    "age": 62,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/62歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0609",
+    "name": "Citizen_0609",
+    "city": "台北",
+    "age": 62,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/62歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0610",
+    "name": "Citizen_0610",
+    "city": "台南",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/21歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0611",
+    "name": "Citizen_0611",
+    "city": "新竹",
+    "age": 27,
+    "job": "行銷企劃",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/27歲/行銷企劃 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0612",
+    "name": "Citizen_0612",
+    "city": "台中",
+    "age": 32,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/32歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0613",
+    "name": "Citizen_0613",
+    "city": "新北",
+    "age": 37,
+    "job": "家庭主婦",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/37歲/家庭主婦 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0614",
+    "name": "Citizen_0614",
+    "city": "高雄",
+    "age": 35,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/35歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0615",
+    "name": "Citizen_0615",
+    "city": "新竹",
+    "age": 76,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/76歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0616",
+    "name": "Citizen_0616",
+    "city": "台中",
+    "age": 41,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/41歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0617",
+    "name": "Citizen_0617",
+    "city": "台北",
+    "age": 31,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/31歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0618",
+    "name": "Citizen_0618",
+    "city": "高雄",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/19歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0619",
+    "name": "Citizen_0619",
+    "city": "台南",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/20歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0620",
+    "name": "Citizen_0620",
+    "city": "新北",
+    "age": 38,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/38歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0621",
+    "name": "Citizen_0621",
+    "city": "花蓮",
+    "age": 47,
+    "job": "家庭主婦",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/47歲/家庭主婦 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0622",
+    "name": "Citizen_0622",
+    "city": "台中",
+    "age": 44,
+    "job": "行銷總監",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/44歲/行銷總監 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0623",
+    "name": "Citizen_0623",
+    "city": "台中",
+    "age": 50,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/50歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0624",
+    "name": "Citizen_0624",
+    "city": "新竹",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/24歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0625",
+    "name": "Citizen_0625",
+    "city": "新北",
+    "age": 37,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/37歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0626",
+    "name": "Citizen_0626",
+    "city": "台南",
+    "age": 24,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/24歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0627",
+    "name": "Citizen_0627",
+    "city": "桃園",
+    "age": 31,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/31歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0628",
+    "name": "Citizen_0628",
+    "city": "新北",
+    "age": 69,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/69歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0629",
+    "name": "Citizen_0629",
+    "city": "桃園",
+    "age": 69,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/69歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0630",
+    "name": "Citizen_0630",
+    "city": "新北",
+    "age": 58,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/58歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0631",
+    "name": "Citizen_0631",
+    "city": "新北",
+    "age": 40,
+    "job": "UI設計師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/40歲/UI設計師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0632",
+    "name": "Citizen_0632",
+    "city": "台中",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/25歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0633",
+    "name": "Citizen_0633",
+    "city": "桃園",
+    "age": 25,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/25歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0634",
+    "name": "Citizen_0634",
+    "city": "台北",
+    "age": 52,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/52歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0635",
+    "name": "Citizen_0635",
+    "city": "台南",
+    "age": 45,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/45歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0636",
+    "name": "Citizen_0636",
+    "city": "台南",
+    "age": 36,
+    "job": "全端工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/36歲/全端工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0637",
+    "name": "Citizen_0637",
+    "city": "高雄",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/24歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0638",
+    "name": "Citizen_0638",
+    "city": "台南",
+    "age": 36,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/36歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0639",
+    "name": "Citizen_0639",
+    "city": "台北",
+    "age": 32,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/32歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0640",
+    "name": "Citizen_0640",
+    "city": "新北",
+    "age": 40,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/40歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0641",
+    "name": "Citizen_0641",
+    "city": "新竹",
+    "age": 44,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/44歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0642",
+    "name": "Citizen_0642",
+    "city": "新竹",
+    "age": 75,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/75歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0643",
+    "name": "Citizen_0643",
+    "city": "台中",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/24歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0644",
+    "name": "Citizen_0644",
+    "city": "新北",
+    "age": 27,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/27歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0645",
+    "name": "Citizen_0645",
+    "city": "桃園",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/19歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0646",
+    "name": "Citizen_0646",
+    "city": "新北",
+    "age": 44,
+    "job": "全端工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/44歲/全端工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0647",
+    "name": "Citizen_0647",
+    "city": "桃園",
+    "age": 40,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/40歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0648",
+    "name": "Citizen_0648",
+    "city": "花蓮",
+    "age": 43,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/43歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0649",
+    "name": "Citizen_0649",
+    "city": "新竹",
+    "age": 47,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/47歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0650",
+    "name": "Citizen_0650",
+    "city": "桃園",
+    "age": 62,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/62歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0651",
+    "name": "Citizen_0651",
+    "city": "台北",
+    "age": 38,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/38歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0652",
+    "name": "Citizen_0652",
+    "city": "高雄",
+    "age": 42,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/42歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0653",
+    "name": "Citizen_0653",
+    "city": "新竹",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/23歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0654",
+    "name": "Citizen_0654",
+    "city": "台中",
+    "age": 44,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/44歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0655",
+    "name": "Citizen_0655",
+    "city": "台中",
+    "age": 77,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/77歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0656",
+    "name": "Citizen_0656",
+    "city": "台北",
+    "age": 28,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/28歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0657",
+    "name": "Citizen_0657",
+    "city": "新竹",
+    "age": 75,
+    "job": "退休教師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/75歲/退休教師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0658",
+    "name": "Citizen_0658",
+    "city": "新竹",
+    "age": 70,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/70歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0659",
+    "name": "Citizen_0659",
+    "city": "新竹",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/22歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0660",
+    "name": "Citizen_0660",
+    "city": "花蓮",
+    "age": 51,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/51歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0661",
+    "name": "Citizen_0661",
+    "city": "台南",
+    "age": 33,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/33歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0662",
+    "name": "Citizen_0662",
+    "city": "台南",
+    "age": 23,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/23歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0663",
+    "name": "Citizen_0663",
+    "city": "花蓮",
+    "age": 40,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/40歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0664",
+    "name": "Citizen_0664",
+    "city": "台中",
+    "age": 26,
+    "job": "公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/26歲/公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0665",
+    "name": "Citizen_0665",
+    "city": "高雄",
+    "age": 36,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/36歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0666",
+    "name": "Citizen_0666",
+    "city": "桃園",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/22歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0667",
+    "name": "Citizen_0667",
+    "city": "高雄",
+    "age": 33,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/33歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0668",
+    "name": "Citizen_0668",
+    "city": "台北",
+    "age": 64,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/64歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0669",
+    "name": "Citizen_0669",
+    "city": "台北",
+    "age": 65,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/65歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0670",
+    "name": "Citizen_0670",
+    "city": "台南",
+    "age": 35,
+    "job": "家庭主婦",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/35歲/家庭主婦 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0671",
+    "name": "Citizen_0671",
+    "city": "花蓮",
+    "age": 42,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/42歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0672",
+    "name": "Citizen_0672",
+    "city": "桃園",
+    "age": 28,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/28歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0673",
+    "name": "Citizen_0673",
+    "city": "台北",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/24歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0674",
+    "name": "Citizen_0674",
+    "city": "花蓮",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/25歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0675",
+    "name": "Citizen_0675",
+    "city": "新竹",
+    "age": 47,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/47歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0676",
+    "name": "Citizen_0676",
+    "city": "台中",
+    "age": 38,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/38歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0677",
+    "name": "Citizen_0677",
+    "city": "台北",
+    "age": 71,
+    "job": "退休教師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/71歲/退休教師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0678",
+    "name": "Citizen_0678",
+    "city": "新竹",
+    "age": 28,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/28歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0679",
+    "name": "Citizen_0679",
+    "city": "台南",
+    "age": 46,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/46歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0680",
+    "name": "Citizen_0680",
+    "city": "新北",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/21歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0681",
+    "name": "Citizen_0681",
+    "city": "新竹",
+    "age": 38,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/38歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0682",
+    "name": "Citizen_0682",
+    "city": "新竹",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/21歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0683",
+    "name": "Citizen_0683",
+    "city": "台南",
+    "age": 69,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/69歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0684",
+    "name": "Citizen_0684",
+    "city": "台中",
+    "age": 33,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/33歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0685",
+    "name": "Citizen_0685",
+    "city": "高雄",
+    "age": 31,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/31歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0686",
+    "name": "Citizen_0686",
+    "city": "高雄",
+    "age": 70,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/70歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0687",
+    "name": "Citizen_0687",
+    "city": "桃園",
+    "age": 58,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/58歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0688",
+    "name": "Citizen_0688",
+    "city": "高雄",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/19歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0689",
+    "name": "Citizen_0689",
+    "city": "桃園",
+    "age": 66,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/66歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0690",
+    "name": "Citizen_0690",
+    "city": "台南",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/25歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0691",
+    "name": "Citizen_0691",
+    "city": "新北",
+    "age": 46,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/46歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0692",
+    "name": "Citizen_0692",
+    "city": "台中",
+    "age": 37,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/37歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0693",
+    "name": "Citizen_0693",
+    "city": "花蓮",
+    "age": 45,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/45歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0694",
+    "name": "Citizen_0694",
+    "city": "桃園",
+    "age": 35,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/35歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0695",
+    "name": "Citizen_0695",
+    "city": "新北",
+    "age": 58,
+    "job": "退休教師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/58歲/退休教師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0696",
+    "name": "Citizen_0696",
+    "city": "台中",
+    "age": 62,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/62歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0697",
+    "name": "Citizen_0697",
+    "city": "新竹",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/25歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0698",
+    "name": "Citizen_0698",
+    "city": "新北",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/23歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0699",
+    "name": "Citizen_0699",
+    "city": "台南",
+    "age": 28,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/28歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0700",
+    "name": "Citizen_0700",
+    "city": "新竹",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/23歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0701",
+    "name": "Citizen_0701",
+    "city": "台南",
+    "age": 24,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/24歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0702",
+    "name": "Citizen_0702",
+    "city": "新北",
+    "age": 34,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/34歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0703",
+    "name": "Citizen_0703",
+    "city": "台南",
+    "age": 32,
+    "job": "行銷企劃",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/32歲/行銷企劃 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0704",
+    "name": "Citizen_0704",
+    "city": "桃園",
+    "age": 63,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/63歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0705",
+    "name": "Citizen_0705",
+    "city": "台南",
+    "age": 38,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/38歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0706",
+    "name": "Citizen_0706",
+    "city": "台中",
+    "age": 31,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/31歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0707",
+    "name": "Citizen_0707",
+    "city": "花蓮",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/24歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0708",
+    "name": "Citizen_0708",
+    "city": "新竹",
+    "age": 28,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/28歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0709",
+    "name": "Citizen_0709",
+    "city": "台南",
+    "age": 36,
+    "job": "行銷總監",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/36歲/行銷總監 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0710",
+    "name": "Citizen_0710",
+    "city": "台南",
+    "age": 41,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/41歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0711",
+    "name": "Citizen_0711",
+    "city": "新北",
+    "age": 25,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/25歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0712",
+    "name": "Citizen_0712",
+    "city": "花蓮",
+    "age": 32,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/32歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0713",
+    "name": "Citizen_0713",
+    "city": "新竹",
+    "age": 50,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/50歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0714",
+    "name": "Citizen_0714",
+    "city": "台中",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/20歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0715",
+    "name": "Citizen_0715",
+    "city": "台中",
+    "age": 25,
+    "job": "UI設計師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/25歲/UI設計師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0716",
+    "name": "Citizen_0716",
+    "city": "高雄",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/19歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0717",
+    "name": "Citizen_0717",
+    "city": "新北",
+    "age": 37,
+    "job": "自營商",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/37歲/自營商 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0718",
+    "name": "Citizen_0718",
+    "city": "台中",
+    "age": 38,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/38歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0719",
+    "name": "Citizen_0719",
+    "city": "花蓮",
+    "age": 77,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/77歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0720",
+    "name": "Citizen_0720",
+    "city": "台北",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/19歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0721",
+    "name": "Citizen_0721",
+    "city": "台北",
+    "age": 32,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/32歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0722",
+    "name": "Citizen_0722",
+    "city": "台北",
+    "age": 44,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/44歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0723",
+    "name": "Citizen_0723",
+    "city": "桃園",
+    "age": 63,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/63歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0724",
+    "name": "Citizen_0724",
+    "city": "台北",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/25歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0725",
+    "name": "Citizen_0725",
+    "city": "新竹",
+    "age": 39,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/39歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0726",
+    "name": "Citizen_0726",
+    "city": "台北",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/21歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0727",
+    "name": "Citizen_0727",
+    "city": "花蓮",
+    "age": 46,
+    "job": "公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/46歲/公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0728",
+    "name": "Citizen_0728",
+    "city": "台中",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/20歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0729",
+    "name": "Citizen_0729",
+    "city": "高雄",
+    "age": 27,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/27歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0730",
+    "name": "Citizen_0730",
+    "city": "台北",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/25歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0731",
+    "name": "Citizen_0731",
+    "city": "台南",
+    "age": 46,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/46歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0732",
+    "name": "Citizen_0732",
+    "city": "台北",
+    "age": 46,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/46歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0733",
+    "name": "Citizen_0733",
+    "city": "花蓮",
+    "age": 32,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/32歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0734",
+    "name": "Citizen_0734",
+    "city": "台南",
+    "age": 62,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/62歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0735",
+    "name": "Citizen_0735",
+    "city": "台中",
+    "age": 33,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/33歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0736",
+    "name": "Citizen_0736",
+    "city": "花蓮",
+    "age": 26,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/26歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0737",
+    "name": "Citizen_0737",
+    "city": "台中",
+    "age": 63,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/63歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0738",
+    "name": "Citizen_0738",
+    "city": "台北",
+    "age": 39,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/39歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0739",
+    "name": "Citizen_0739",
+    "city": "新竹",
+    "age": 51,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/51歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0740",
+    "name": "Citizen_0740",
+    "city": "新北",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/19歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0741",
+    "name": "Citizen_0741",
+    "city": "高雄",
+    "age": 36,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/36歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0742",
+    "name": "Citizen_0742",
+    "city": "桃園",
+    "age": 47,
+    "job": "家庭主婦",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/47歲/家庭主婦 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0743",
+    "name": "Citizen_0743",
+    "city": "花蓮",
+    "age": 35,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/35歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0744",
+    "name": "Citizen_0744",
+    "city": "台北",
+    "age": 67,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/67歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0745",
+    "name": "Citizen_0745",
+    "city": "台北",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/24歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0746",
+    "name": "Citizen_0746",
+    "city": "新北",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/23歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0747",
+    "name": "Citizen_0747",
+    "city": "台北",
+    "age": 25,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/25歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0748",
+    "name": "Citizen_0748",
+    "city": "花蓮",
+    "age": 69,
+    "job": "退休教師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/69歲/退休教師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0749",
+    "name": "Citizen_0749",
+    "city": "台北",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/26歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0750",
+    "name": "Citizen_0750",
+    "city": "台南",
+    "age": 37,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/37歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0751",
+    "name": "Citizen_0751",
+    "city": "花蓮",
+    "age": 65,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/65歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0752",
+    "name": "Citizen_0752",
+    "city": "台中",
+    "age": 36,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/36歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0753",
+    "name": "Citizen_0753",
+    "city": "桃園",
+    "age": 31,
+    "job": "行銷企劃",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/31歲/行銷企劃 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0754",
+    "name": "Citizen_0754",
+    "city": "台中",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/25歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0755",
+    "name": "Citizen_0755",
+    "city": "新北",
+    "age": 65,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/65歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0756",
+    "name": "Citizen_0756",
+    "city": "高雄",
+    "age": 45,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/45歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0757",
+    "name": "Citizen_0757",
+    "city": "台中",
+    "age": 44,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/44歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0758",
+    "name": "Citizen_0758",
+    "city": "台中",
+    "age": 34,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/34歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0759",
+    "name": "Citizen_0759",
+    "city": "新竹",
+    "age": 65,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/65歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0760",
+    "name": "Citizen_0760",
+    "city": "台南",
+    "age": 44,
+    "job": "全端工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/44歲/全端工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0761",
+    "name": "Citizen_0761",
+    "city": "台南",
+    "age": 47,
+    "job": "行銷總監",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/47歲/行銷總監 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0762",
+    "name": "Citizen_0762",
+    "city": "新北",
+    "age": 52,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/52歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0763",
+    "name": "Citizen_0763",
+    "city": "新北",
+    "age": 23,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/23歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0764",
+    "name": "Citizen_0764",
+    "city": "台北",
+    "age": 56,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/56歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0765",
+    "name": "Citizen_0765",
+    "city": "台中",
+    "age": 33,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/33歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0766",
+    "name": "Citizen_0766",
+    "city": "新竹",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/22歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0767",
+    "name": "Citizen_0767",
+    "city": "台中",
+    "age": 19,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/19歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0768",
+    "name": "Citizen_0768",
+    "city": "高雄",
+    "age": 37,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/37歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0769",
+    "name": "Citizen_0769",
+    "city": "台中",
+    "age": 34,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/34歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0770",
+    "name": "Citizen_0770",
+    "city": "花蓮",
+    "age": 30,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/30歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0771",
+    "name": "Citizen_0771",
+    "city": "高雄",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/26歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0772",
+    "name": "Citizen_0772",
+    "city": "花蓮",
+    "age": 57,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/57歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0773",
+    "name": "Citizen_0773",
+    "city": "台南",
+    "age": 26,
+    "job": "行銷企劃",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/26歲/行銷企劃 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0774",
+    "name": "Citizen_0774",
+    "city": "新竹",
+    "age": 24,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/24歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0775",
+    "name": "Citizen_0775",
+    "city": "高雄",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/21歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0776",
+    "name": "Citizen_0776",
+    "city": "新北",
+    "age": 31,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/31歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0777",
+    "name": "Citizen_0777",
+    "city": "新北",
+    "age": 47,
+    "job": "行銷總監",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/47歲/行銷總監 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0778",
+    "name": "Citizen_0778",
+    "city": "高雄",
+    "age": 44,
+    "job": "全端工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/44歲/全端工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0779",
+    "name": "Citizen_0779",
+    "city": "高雄",
+    "age": 36,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/36歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0780",
+    "name": "Citizen_0780",
+    "city": "台中",
+    "age": 37,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/37歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0781",
+    "name": "Citizen_0781",
+    "city": "新竹",
+    "age": 54,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/54歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0782",
+    "name": "Citizen_0782",
+    "city": "台南",
+    "age": 65,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台南/65歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0783",
+    "name": "Citizen_0783",
+    "city": "台南",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/24歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0784",
+    "name": "Citizen_0784",
+    "city": "高雄",
+    "age": 74,
+    "job": "退休教師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/74歲/退休教師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0785",
+    "name": "Citizen_0785",
+    "city": "新北",
+    "age": 57,
+    "job": "退休教師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/57歲/退休教師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0786",
+    "name": "Citizen_0786",
+    "city": "花蓮",
+    "age": 44,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/44歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0787",
+    "name": "Citizen_0787",
+    "city": "台北",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/20歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0788",
+    "name": "Citizen_0788",
+    "city": "花蓮",
+    "age": 37,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/37歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0789",
+    "name": "Citizen_0789",
+    "city": "桃園",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/25歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0790",
+    "name": "Citizen_0790",
+    "city": "台北",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/24歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0791",
+    "name": "Citizen_0791",
+    "city": "高雄",
+    "age": 31,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/31歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0792",
+    "name": "Citizen_0792",
+    "city": "新北",
+    "age": 57,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/57歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0793",
+    "name": "Citizen_0793",
+    "city": "台中",
+    "age": 55,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/55歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0794",
+    "name": "Citizen_0794",
+    "city": "台北",
+    "age": 28,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/28歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0795",
+    "name": "Citizen_0795",
+    "city": "新竹",
+    "age": 35,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/35歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0796",
+    "name": "Citizen_0796",
+    "city": "桃園",
+    "age": 48,
+    "job": "資深工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/48歲/資深工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0797",
+    "name": "Citizen_0797",
+    "city": "台北",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/23歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0798",
+    "name": "Citizen_0798",
+    "city": "台北",
+    "age": 36,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/36歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0799",
+    "name": "Citizen_0799",
+    "city": "台中",
+    "age": 33,
+    "job": "UI設計師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/33歲/UI設計師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0800",
+    "name": "Citizen_0800",
+    "city": "桃園",
+    "age": 27,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/27歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0801",
+    "name": "Citizen_0801",
+    "city": "桃園",
+    "age": 35,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/35歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0802",
+    "name": "Citizen_0802",
+    "city": "台南",
+    "age": 39,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/39歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0803",
+    "name": "Citizen_0803",
+    "city": "桃園",
+    "age": 57,
+    "job": "退休教師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/57歲/退休教師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0804",
+    "name": "Citizen_0804",
+    "city": "新竹",
+    "age": 53,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/53歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0805",
+    "name": "Citizen_0805",
+    "city": "台北",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/22歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0806",
+    "name": "Citizen_0806",
+    "city": "台中",
+    "age": 32,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/32歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0807",
+    "name": "Citizen_0807",
+    "city": "新北",
+    "age": 50,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/50歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0808",
+    "name": "Citizen_0808",
+    "city": "高雄",
+    "age": 37,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/37歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0809",
+    "name": "Citizen_0809",
+    "city": "新竹",
+    "age": 24,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/24歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0810",
+    "name": "Citizen_0810",
+    "city": "台南",
+    "age": 49,
+    "job": "資深工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/49歲/資深工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0811",
+    "name": "Citizen_0811",
+    "city": "花蓮",
+    "age": 47,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/47歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0812",
+    "name": "Citizen_0812",
+    "city": "桃園",
+    "age": 31,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/31歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0813",
+    "name": "Citizen_0813",
+    "city": "台南",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/25歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0814",
+    "name": "Citizen_0814",
+    "city": "新北",
+    "age": 43,
+    "job": "全端工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/43歲/全端工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0815",
+    "name": "Citizen_0815",
+    "city": "高雄",
+    "age": 26,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/26歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0816",
+    "name": "Citizen_0816",
+    "city": "花蓮",
+    "age": 52,
+    "job": "自營商",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/52歲/自營商 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0817",
+    "name": "Citizen_0817",
+    "city": "高雄",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/23歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0818",
+    "name": "Citizen_0818",
+    "city": "新竹",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/21歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0819",
+    "name": "Citizen_0819",
+    "city": "台北",
+    "age": 74,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/74歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0820",
+    "name": "Citizen_0820",
+    "city": "台南",
+    "age": 60,
+    "job": "退休公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/60歲/退休公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0821",
+    "name": "Citizen_0821",
+    "city": "花蓮",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/26歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0822",
+    "name": "Citizen_0822",
+    "city": "高雄",
+    "age": 45,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/45歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0823",
+    "name": "Citizen_0823",
+    "city": "新北",
+    "age": 35,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/35歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0824",
+    "name": "Citizen_0824",
+    "city": "台南",
+    "age": 35,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/35歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0825",
+    "name": "Citizen_0825",
+    "city": "新北",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/24歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0826",
+    "name": "Citizen_0826",
+    "city": "台南",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/22歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0827",
+    "name": "Citizen_0827",
+    "city": "新北",
+    "age": 28,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新北/28歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0828",
+    "name": "Citizen_0828",
+    "city": "桃園",
+    "age": 51,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/51歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0829",
+    "name": "Citizen_0829",
+    "city": "桃園",
+    "age": 40,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/40歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0830",
+    "name": "Citizen_0830",
+    "city": "新竹",
+    "age": 49,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/49歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0831",
+    "name": "Citizen_0831",
+    "city": "桃園",
+    "age": 51,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/51歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0832",
+    "name": "Citizen_0832",
+    "city": "花蓮",
+    "age": 74,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/74歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0833",
+    "name": "Citizen_0833",
+    "city": "花蓮",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/26歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0834",
+    "name": "Citizen_0834",
+    "city": "花蓮",
+    "age": 56,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/56歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0835",
+    "name": "Citizen_0835",
+    "city": "台南",
+    "age": 67,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/67歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0836",
+    "name": "Citizen_0836",
+    "city": "新竹",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新竹/26歲/研究生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0837",
+    "name": "Citizen_0837",
+    "city": "台中",
+    "age": 30,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/30歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0838",
+    "name": "Citizen_0838",
+    "city": "台中",
+    "age": 57,
+    "job": "自營商",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/57歲/自營商 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0839",
+    "name": "Citizen_0839",
+    "city": "花蓮",
+    "age": 39,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/39歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0840",
+    "name": "Citizen_0840",
+    "city": "台中",
+    "age": 41,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/41歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0841",
+    "name": "Citizen_0841",
+    "city": "台南",
+    "age": 23,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/23歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0842",
+    "name": "Citizen_0842",
+    "city": "台北",
+    "age": 51,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/51歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0843",
+    "name": "Citizen_0843",
+    "city": "花蓮",
+    "age": 65,
+    "job": "退休教師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/65歲/退休教師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0844",
+    "name": "Citizen_0844",
+    "city": "台北",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/26歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0845",
+    "name": "Citizen_0845",
+    "city": "花蓮",
+    "age": 47,
+    "job": "公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/47歲/公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0846",
+    "name": "Citizen_0846",
+    "city": "花蓮",
+    "age": 65,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/65歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0847",
+    "name": "Citizen_0847",
+    "city": "台北",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台北/22歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0848",
+    "name": "Citizen_0848",
+    "city": "台中",
+    "age": 43,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/43歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0849",
+    "name": "Citizen_0849",
+    "city": "高雄",
+    "age": 40,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/40歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0850",
+    "name": "Citizen_0850",
+    "city": "桃園",
+    "age": 27,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/27歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0851",
+    "name": "Citizen_0851",
+    "city": "台中",
+    "age": 70,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/70歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0852",
+    "name": "Citizen_0852",
+    "city": "台中",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/26歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0853",
+    "name": "Citizen_0853",
+    "city": "台中",
+    "age": 80,
+    "job": "退休公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/80歲/退休公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0854",
+    "name": "Citizen_0854",
+    "city": "花蓮",
+    "age": 50,
+    "job": "資深工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/50歲/資深工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0855",
+    "name": "Citizen_0855",
+    "city": "高雄",
+    "age": 49,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/49歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0856",
+    "name": "Citizen_0856",
+    "city": "桃園",
+    "age": 24,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/24歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0857",
+    "name": "Citizen_0857",
+    "city": "新竹",
+    "age": 54,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/54歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0858",
+    "name": "Citizen_0858",
+    "city": "高雄",
+    "age": 42,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/42歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0859",
+    "name": "Citizen_0859",
+    "city": "花蓮",
+    "age": 38,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/38歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0860",
+    "name": "Citizen_0860",
+    "city": "高雄",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/23歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0861",
+    "name": "Citizen_0861",
+    "city": "台中",
+    "age": 27,
+    "job": "行銷企劃",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/27歲/行銷企劃 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0862",
+    "name": "Citizen_0862",
+    "city": "新北",
+    "age": 33,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/33歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0863",
+    "name": "Citizen_0863",
+    "city": "桃園",
+    "age": 38,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/38歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0864",
+    "name": "Citizen_0864",
+    "city": "花蓮",
+    "age": 47,
+    "job": "資深工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/47歲/資深工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0865",
+    "name": "Citizen_0865",
+    "city": "新北",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/26歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0866",
+    "name": "Citizen_0866",
+    "city": "花蓮",
+    "age": 34,
+    "job": "UI設計師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/34歲/UI設計師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0867",
+    "name": "Citizen_0867",
+    "city": "高雄",
+    "age": 29,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/29歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0868",
+    "name": "Citizen_0868",
+    "city": "桃園",
+    "age": 37,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/37歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0869",
+    "name": "Citizen_0869",
+    "city": "花蓮",
+    "age": 73,
+    "job": "退休教師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/73歲/退休教師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0870",
+    "name": "Citizen_0870",
+    "city": "台中",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/23歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0871",
+    "name": "Citizen_0871",
+    "city": "高雄",
+    "age": 23,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/23歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0872",
+    "name": "Citizen_0872",
+    "city": "新北",
+    "age": 66,
+    "job": "退休教師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/66歲/退休教師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0873",
+    "name": "Citizen_0873",
+    "city": "高雄",
+    "age": 49,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/49歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0874",
+    "name": "Citizen_0874",
+    "city": "新北",
+    "age": 65,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/65歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0875",
+    "name": "Citizen_0875",
+    "city": "桃園",
+    "age": 60,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/60歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0876",
+    "name": "Citizen_0876",
+    "city": "新北",
+    "age": 69,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/69歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0877",
+    "name": "Citizen_0877",
+    "city": "桃園",
+    "age": 39,
+    "job": "資深工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/39歲/資深工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0878",
+    "name": "Citizen_0878",
+    "city": "台北",
+    "age": 62,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台北/62歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0879",
+    "name": "Citizen_0879",
+    "city": "台中",
+    "age": 47,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/47歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0880",
+    "name": "Citizen_0880",
+    "city": "桃園",
+    "age": 47,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/47歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0881",
+    "name": "Citizen_0881",
+    "city": "台南",
+    "age": 28,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/28歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0882",
+    "name": "Citizen_0882",
+    "city": "桃園",
+    "age": 57,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/57歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0883",
+    "name": "Citizen_0883",
+    "city": "桃園",
+    "age": 78,
+    "job": "退休公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/78歲/退休公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0884",
+    "name": "Citizen_0884",
+    "city": "台南",
+    "age": 30,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/30歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0885",
+    "name": "Citizen_0885",
+    "city": "新竹",
+    "age": 36,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/36歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0886",
+    "name": "Citizen_0886",
+    "city": "桃園",
+    "age": 41,
+    "job": "行銷總監",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/41歲/行銷總監 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0887",
+    "name": "Citizen_0887",
+    "city": "台南",
+    "age": 41,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/41歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0888",
+    "name": "Citizen_0888",
+    "city": "桃園",
+    "age": 41,
+    "job": "自營商",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/41歲/自營商 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0889",
+    "name": "Citizen_0889",
+    "city": "台南",
+    "age": 45,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/45歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0890",
+    "name": "Citizen_0890",
+    "city": "花蓮",
+    "age": 40,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/40歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0891",
+    "name": "Citizen_0891",
+    "city": "花蓮",
+    "age": 29,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/29歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0892",
+    "name": "Citizen_0892",
+    "city": "花蓮",
+    "age": 24,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/24歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0893",
+    "name": "Citizen_0893",
+    "city": "桃園",
+    "age": 40,
+    "job": "公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/40歲/公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0894",
+    "name": "Citizen_0894",
+    "city": "台中",
+    "age": 39,
+    "job": "行銷總監",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/39歲/行銷總監 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0895",
+    "name": "Citizen_0895",
+    "city": "花蓮",
+    "age": 49,
+    "job": "行銷總監",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/49歲/行銷總監 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0896",
+    "name": "Citizen_0896",
+    "city": "台中",
+    "age": 54,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/54歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0897",
+    "name": "Citizen_0897",
+    "city": "台南",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/20歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0898",
+    "name": "Citizen_0898",
+    "city": "台中",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/25歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0899",
+    "name": "Citizen_0899",
+    "city": "新北",
+    "age": 57,
+    "job": "公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/57歲/公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0900",
+    "name": "Citizen_0900",
+    "city": "新竹",
+    "age": 29,
+    "job": "行銷企劃",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/29歲/行銷企劃 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0901",
+    "name": "Citizen_0901",
+    "city": "新竹",
+    "age": 47,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/47歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0902",
+    "name": "Citizen_0902",
+    "city": "新竹",
+    "age": 45,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/45歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0903",
+    "name": "Citizen_0903",
+    "city": "台中",
+    "age": 68,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/68歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0904",
+    "name": "Citizen_0904",
+    "city": "台中",
+    "age": 24,
+    "job": "全端工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/24歲/全端工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0905",
+    "name": "Citizen_0905",
+    "city": "新竹",
+    "age": 50,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/50歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0906",
+    "name": "Citizen_0906",
+    "city": "台中",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/25歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0907",
+    "name": "Citizen_0907",
+    "city": "台中",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台中/26歲/研究生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0908",
+    "name": "Citizen_0908",
+    "city": "高雄",
+    "age": 68,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/68歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0909",
+    "name": "Citizen_0909",
+    "city": "高雄",
+    "age": 37,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/37歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0910",
+    "name": "Citizen_0910",
+    "city": "新竹",
+    "age": 74,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/74歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0911",
+    "name": "Citizen_0911",
+    "city": "新北",
+    "age": 25,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新北/25歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0912",
+    "name": "Citizen_0912",
+    "city": "台中",
+    "age": 66,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/66歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0913",
+    "name": "Citizen_0913",
+    "city": "台中",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台中/23歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0914",
+    "name": "Citizen_0914",
+    "city": "台南",
+    "age": 51,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/51歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0915",
+    "name": "Citizen_0915",
+    "city": "新北",
+    "age": 57,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/57歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0916",
+    "name": "Citizen_0916",
+    "city": "高雄",
+    "age": 28,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/28歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0917",
+    "name": "Citizen_0917",
+    "city": "新北",
+    "age": 43,
+    "job": "公務員",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新北/43歲/公務員 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0918",
+    "name": "Citizen_0918",
+    "city": "高雄",
+    "age": 35,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "高雄/35歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0919",
+    "name": "Citizen_0919",
+    "city": "台北",
+    "age": 22,
+    "job": "大學生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台北/22歲/大學生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0920",
+    "name": "Citizen_0920",
+    "city": "台南",
+    "age": 35,
+    "job": "行銷企劃",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/35歲/行銷企劃 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0921",
+    "name": "Citizen_0921",
+    "city": "台中",
+    "age": 38,
+    "job": "公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/38歲/公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0922",
+    "name": "Citizen_0922",
+    "city": "高雄",
+    "age": 58,
+    "job": "退休教師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/58歲/退休教師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0923",
+    "name": "Citizen_0923",
+    "city": "台南",
+    "age": 44,
+    "job": "全端工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/44歲/全端工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0924",
+    "name": "Citizen_0924",
+    "city": "花蓮",
+    "age": 36,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "花蓮/36歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0925",
+    "name": "Citizen_0925",
+    "city": "新竹",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/23歲/研究生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0926",
+    "name": "Citizen_0926",
+    "city": "新北",
+    "age": 46,
+    "job": "行銷總監",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新北/46歲/行銷總監 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0927",
+    "name": "Citizen_0927",
+    "city": "台南",
+    "age": 53,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/53歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0928",
+    "name": "Citizen_0928",
+    "city": "新竹",
+    "age": 73,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/73歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0929",
+    "name": "Citizen_0929",
+    "city": "新竹",
+    "age": 38,
+    "job": "家庭主婦",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/38歲/家庭主婦 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0930",
+    "name": "Citizen_0930",
+    "city": "台中",
+    "age": 28,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/28歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0931",
+    "name": "Citizen_0931",
+    "city": "桃園",
+    "age": 38,
+    "job": "資深工程師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/38歲/資深工程師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0932",
+    "name": "Citizen_0932",
+    "city": "台南",
+    "age": 39,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/39歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0933",
+    "name": "Citizen_0933",
+    "city": "台中",
+    "age": 60,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/60歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0934",
+    "name": "Citizen_0934",
+    "city": "新北",
+    "age": 42,
+    "job": "資深工程師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/42歲/資深工程師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0935",
+    "name": "Citizen_0935",
+    "city": "新竹",
+    "age": 34,
+    "job": "行銷企劃",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/34歲/行銷企劃 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0936",
+    "name": "Citizen_0936",
+    "city": "新竹",
+    "age": 42,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/42歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0937",
+    "name": "Citizen_0937",
+    "city": "新竹",
+    "age": 52,
+    "job": "家庭主婦",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/52歲/家庭主婦 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0938",
+    "name": "Citizen_0938",
+    "city": "台南",
+    "age": 72,
+    "job": "退休公務員",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/72歲/退休公務員 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0939",
+    "name": "Citizen_0939",
+    "city": "新北",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/21歲/大學生 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0940",
+    "name": "Citizen_0940",
+    "city": "高雄",
+    "age": 31,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/31歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0941",
+    "name": "Citizen_0941",
+    "city": "高雄",
+    "age": 40,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/40歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0942",
+    "name": "Citizen_0942",
+    "city": "台南",
+    "age": 39,
+    "job": "UI設計師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台南/39歲/UI設計師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0943",
+    "name": "Citizen_0943",
+    "city": "台中",
+    "age": 34,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/34歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0944",
+    "name": "Citizen_0944",
+    "city": "桃園",
+    "age": 40,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/40歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0945",
+    "name": "Citizen_0945",
+    "city": "桃園",
+    "age": 57,
+    "job": "退休教師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/57歲/退休教師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0946",
+    "name": "Citizen_0946",
+    "city": "高雄",
+    "age": 36,
+    "job": "UI設計師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/36歲/UI設計師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0947",
+    "name": "Citizen_0947",
+    "city": "高雄",
+    "age": 71,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/71歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0948",
+    "name": "Citizen_0948",
+    "city": "桃園",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "桃園/23歲/大學生 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0949",
+    "name": "Citizen_0949",
+    "city": "高雄",
+    "age": 39,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/39歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0950",
+    "name": "Citizen_0950",
+    "city": "桃園",
+    "age": 48,
+    "job": "行銷總監",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/48歲/行銷總監 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0951",
+    "name": "Citizen_0951",
+    "city": "花蓮",
+    "age": 76,
+    "job": "退休公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "花蓮/76歲/退休公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0952",
+    "name": "Citizen_0952",
+    "city": "花蓮",
+    "age": 39,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/39歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0953",
+    "name": "Citizen_0953",
+    "city": "花蓮",
+    "age": 68,
+    "job": "退休教師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "花蓮/68歲/退休教師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0954",
+    "name": "Citizen_0954",
+    "city": "台南",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/26歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0955",
+    "name": "Citizen_0955",
+    "city": "台中",
+    "age": 37,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/37歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0956",
+    "name": "Citizen_0956",
+    "city": "新竹",
+    "age": 39,
+    "job": "UI設計師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/39歲/UI設計師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0957",
+    "name": "Citizen_0957",
+    "city": "花蓮",
+    "age": 39,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/39歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0958",
+    "name": "Citizen_0958",
+    "city": "台南",
+    "age": 33,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/33歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0959",
+    "name": "Citizen_0959",
+    "city": "台南",
+    "age": 41,
+    "job": "資深工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台南/41歲/資深工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0960",
+    "name": "Citizen_0960",
+    "city": "高雄",
+    "age": 62,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "高雄/62歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0961",
+    "name": "Citizen_0961",
+    "city": "新竹",
+    "age": 37,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/37歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0962",
+    "name": "Citizen_0962",
+    "city": "新竹",
+    "age": 57,
+    "job": "自營商",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "新竹/57歲/自營商 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0963",
+    "name": "Citizen_0963",
+    "city": "新竹",
+    "age": 42,
+    "job": "資深工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/42歲/資深工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0964",
+    "name": "Citizen_0964",
+    "city": "新北",
+    "age": 25,
+    "job": "全端工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/25歲/全端工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0965",
+    "name": "Citizen_0965",
+    "city": "桃園",
+    "age": 40,
+    "job": "全端工程師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/40歲/全端工程師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0966",
+    "name": "Citizen_0966",
+    "city": "台中",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/21歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0967",
+    "name": "Citizen_0967",
+    "city": "台中",
+    "age": 32,
+    "job": "全端工程師",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/32歲/全端工程師 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0968",
+    "name": "Citizen_0968",
+    "city": "台北",
+    "age": 35,
+    "job": "行銷企劃",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/35歲/行銷企劃 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0969",
+    "name": "Citizen_0969",
+    "city": "桃園",
+    "age": 77,
+    "job": "退休公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/77歲/退休公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0970",
+    "name": "Citizen_0970",
+    "city": "花蓮",
+    "age": 39,
+    "job": "公務員",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "花蓮/39歲/公務員 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0971",
+    "name": "Citizen_0971",
+    "city": "台北",
+    "age": 40,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "台北/40歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0972",
+    "name": "Citizen_0972",
+    "city": "桃園",
+    "age": 30,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/30歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0973",
+    "name": "Citizen_0973",
+    "city": "台南",
+    "age": 48,
+    "job": "自營商",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "台南/48歲/自營商 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0974",
+    "name": "Citizen_0974",
+    "city": "台中",
+    "age": 40,
+    "job": "UI設計師",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "台中/40歲/UI設計師 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0975",
+    "name": "Citizen_0975",
+    "city": "桃園",
+    "age": 59,
+    "job": "退休教師",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "桃園/59歲/退休教師 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0976",
+    "name": "Citizen_0976",
+    "city": "新北",
+    "age": 33,
+    "job": "公務員",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新北/33歲/公務員 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0977",
+    "name": "Citizen_0977",
+    "city": "桃園",
+    "age": 63,
+    "job": "退休公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/63歲/退休公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0978",
+    "name": "Citizen_0978",
+    "city": "新竹",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "新竹/21歲/大學生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0979",
+    "name": "Citizen_0979",
+    "city": "高雄",
+    "age": 38,
+    "job": "自營商",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "高雄/38歲/自營商 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0980",
+    "name": "Citizen_0980",
+    "city": "桃園",
+    "age": 34,
+    "job": "UI設計師",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "桃園/34歲/UI設計師 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0981",
+    "name": "Citizen_0981",
+    "city": "花蓮",
+    "age": 69,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "花蓮/69歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0982",
+    "name": "Citizen_0982",
+    "city": "台中",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台中/23歲/研究生 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0983",
+    "name": "Citizen_0983",
+    "city": "台中",
+    "age": 47,
+    "job": "家庭主婦",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台中/47歲/家庭主婦 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0984",
+    "name": "Citizen_0984",
+    "city": "台中",
+    "age": 44,
+    "job": "公務員",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台中/44歲/公務員 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0985",
+    "name": "Citizen_0985",
+    "city": "台北",
+    "age": 30,
+    "job": "自營商",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台北/30歲/自營商 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0986",
+    "name": "Citizen_0986",
+    "city": "桃園",
+    "age": 46,
+    "job": "行銷總監",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "桃園/46歲/行銷總監 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0987",
+    "name": "Citizen_0987",
+    "city": "桃園",
+    "age": 45,
+    "job": "家庭主婦",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "桃園/45歲/家庭主婦 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0988",
+    "name": "Citizen_0988",
+    "city": "高雄",
+    "age": 27,
+    "job": "全端工程師",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "高雄/27歲/全端工程師 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0989",
+    "name": "Citizen_0989",
+    "city": "花蓮",
+    "age": 33,
+    "job": "行銷企劃",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "花蓮/33歲/行銷企劃 ▸ 正財格 (務實比價)"
+  },
+  {
+    "id": "agent_0990",
+    "name": "Citizen_0990",
+    "city": "桃園",
+    "age": 23,
+    "job": "大學生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "桃園/23歲/大學生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0991",
+    "name": "Citizen_0991",
+    "city": "新竹",
+    "age": 30,
+    "job": "UI設計師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "新竹/30歲/UI設計師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0992",
+    "name": "Citizen_0992",
+    "city": "台南",
+    "age": 42,
+    "job": "資深工程師",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "台南/42歲/資深工程師 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0993",
+    "name": "Citizen_0993",
+    "city": "新竹",
+    "age": 23,
+    "job": "研究生",
+    "bazi": "正官格 (品牌導向)",
+    "bazi_summary": "新竹/23歲/研究生 ▸ 正官格 (品牌導向)"
+  },
+  {
+    "id": "agent_0994",
+    "name": "Citizen_0994",
+    "city": "高雄",
+    "age": 26,
+    "job": "研究生",
+    "bazi": "七殺格 (衝動購買)",
+    "bazi_summary": "高雄/26歲/研究生 ▸ 七殺格 (衝動購買)"
+  },
+  {
+    "id": "agent_0995",
+    "name": "Citizen_0995",
+    "city": "新竹",
+    "age": 31,
+    "job": "家庭主婦",
+    "bazi": "傷官格 (挑剔美感)",
+    "bazi_summary": "新竹/31歲/家庭主婦 ▸ 傷官格 (挑剔美感)"
+  },
+  {
+    "id": "agent_0996",
+    "name": "Citizen_0996",
+    "city": "台南",
+    "age": 20,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "台南/20歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0997",
+    "name": "Citizen_0997",
+    "city": "高雄",
+    "age": 21,
+    "job": "大學生",
+    "bazi": "偏印格 (分析規格)",
+    "bazi_summary": "高雄/21歲/大學生 ▸ 偏印格 (分析規格)"
+  },
+  {
+    "id": "agent_0998",
+    "name": "Citizen_0998",
+    "city": "新北",
+    "age": 63,
+    "job": "退休公務員",
+    "bazi": "食神格 (講究體驗)",
+    "bazi_summary": "新北/63歲/退休公務員 ▸ 食神格 (講究體驗)"
+  },
+  {
+    "id": "agent_0999",
+    "name": "Citizen_0999",
+    "city": "台北",
+    "age": 39,
+    "job": "自營商",
+    "bazi": "正財格 (務實比價)",
+    "bazi_summary": "台北/39歲/自營商 ▸ 正財格 (務實比價)"
+  }
+]

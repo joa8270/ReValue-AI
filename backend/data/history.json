@@ -1,0 +1,448 @@
+{
+  "test001": {
+    "status": "completed",
+    "metadata": {
+      "product_image": "/static/uploads/595090885763924414.jpg",
+      "input_type": "image"
+    },
+    "result": {
+      "simulation_id": "test001",
+      "market_score": 81.96477803223671,
+      "agents_analyzed": 1000,
+      "total_agents": 1000,
+      "sample_reviews": [
+        {
+          "user": "Citizen_007 (台北/設計師)",
+          "score": 95,
+          "comment": "外觀設計很有質感，這種透明科技感現在很流行，想買！",
+          "sentiment": "positive"
+        },
+        {
+          "user": "Citizen_042 (高雄/自營商)",
+          "score": 88,
+          "comment": "規格看起來很耐用，如果有大容量版本會更好，放店裡用。",
+          "sentiment": "positive"
+        },
+        {
+          "user": "Citizen_556 (新竹/工程師)",
+          "score": 92,
+          "comment": "技術參數寫得不夠詳細，想知道濾芯壽命和更換成本。",
+          "sentiment": "neutral"
+        },
+        {
+          "user": "Citizen_011 (台南/主婦)",
+          "score": 50,
+          "comment": "看起來好貴喔，而且不知道怎麼洗，怕玻璃容易破。",
+          "sentiment": "negative"
+        },
+        {
+          "user": "Citizen_888 (花蓮/退休族)",
+          "score": 85,
+          "comment": "按鈕字體可以大一點嗎？老人家看不清楚。",
+          "sentiment": "neutral"
+        },
+        {
+          "user": "Citizen_099 (台中/大學生)",
+          "score": 90,
+          "comment": "這個帶去健身房感覺很潮！如果有粉色或黑色就更好了。",
+          "sentiment": "positive"
+        },
+        {
+          "user": "Citizen_101 (台北/產品經理)",
+          "score": 60,
+          "comment": "市場定位有點模糊，是主打健康還是主打時尚？競品很多。",
+          "sentiment": "negative"
+        },
+        {
+          "user": "Citizen_204 (桃園/業務)",
+          "score": 82,
+          "comment": "開車放在置杯架不知道穩不穩？希望有防滑設計。",
+          "sentiment": "positive"
+        },
+        {
+          "user": "Citizen_333 (嘉義/護理師)",
+          "score": 75,
+          "comment": "如果真的能生成富氫水，對我們常熬夜的人應該有幫助，但需要檢驗證明。",
+          "sentiment": "neutral"
+        },
+        {
+          "user": "Citizen_777 (宜蘭/民宿老闆)",
+          "score": 88,
+          "comment": "想買一批放在民宿房間給客人用，很有高級感。",
+          "sentiment": "positive"
+        }
+      ],
+      "suggestions": [
+        "🎯 定價策略優化：針對價格敏感度高的「正財格」族群 (如台南/主婦)，建議推出「首購試用價」或搭配濾芯的訂閱制方案，降低入手門檻。",
+        "🎨 視覺包裝升級：「傷官格」族群 (設計師/大學生) 對外觀反應熱烈，建議增加「莫蘭迪色系」或「消光黑」款式，提升社群打卡意願。",
+        "🔬 信任感建立：工程師與醫護族群希望能看到更詳細的水質檢測報告 (SGS)，建議在產品頁面顯著位置補上第三方檢驗證書。"
+      ]
+    },
+    "logs": [
+      {
+        "phase": "VISION",
+        "agent_id": "SYS",
+        "agent_name": "Gemini Vision",
+        "bazi_summary": "視覺特徵提取: image 解析完成",
+        "timestamp": 0
+      },
+      {
+        "phase": "CONTEXT",
+        "agent_id": "SYS",
+        "agent_name": "商業邏輯解析",
+        "bazi_summary": "行銷重點: 1.產品名稱為：養生玻璃富氫水...",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0299",
+        "agent_name": "Citizen_0299",
+        "bazi_summary": "桃園/34歲/UI設計師 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0448",
+        "agent_name": "Citizen_0448",
+        "bazi_summary": "台北/36歲/資深工程師 ▸ 食神格 (講究體驗)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0727",
+        "agent_name": "Citizen_0727",
+        "bazi_summary": "花蓮/46歲/公務員 ▸ 七殺格 (衝動購買)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0915",
+        "agent_name": "Citizen_0915",
+        "bazi_summary": "新北/57歲/退休教師 ▸ 食神格 (講究體驗)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0702",
+        "agent_name": "Citizen_0702",
+        "bazi_summary": "新北/34歲/自營商 ▸ 正官格 (品牌導向)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0683",
+        "agent_name": "Citizen_0683",
+        "bazi_summary": "台南/69歲/退休教師 ▸ 食神格 (講究體驗)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0314",
+        "agent_name": "Citizen_0314",
+        "bazi_summary": "台南/63歲/退休公務員 ▸ 正官格 (品牌導向)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0677",
+        "agent_name": "Citizen_0677",
+        "bazi_summary": "台北/71歲/退休教師 ▸ 七殺格 (衝動購買)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0525",
+        "agent_name": "Citizen_0525",
+        "bazi_summary": "花蓮/46歲/資深工程師 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0452",
+        "agent_name": "Citizen_0452",
+        "bazi_summary": "桃園/65歲/退休教師 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0770",
+        "agent_name": "Citizen_0770",
+        "bazi_summary": "花蓮/30歲/家庭主婦 ▸ 七殺格 (衝動購買)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0765",
+        "agent_name": "Citizen_0765",
+        "bazi_summary": "台中/33歲/全端工程師 ▸ 正財格 (務實比價)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0082",
+        "agent_name": "Citizen_0082",
+        "bazi_summary": "桃園/37歲/公務員 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0078",
+        "agent_name": "Citizen_0078",
+        "bazi_summary": "桃園/59歲/退休教師 ▸ 正官格 (品牌導向)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0106",
+        "agent_name": "Citizen_0106",
+        "bazi_summary": "新竹/28歲/UI設計師 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0786",
+        "agent_name": "Citizen_0786",
+        "bazi_summary": "花蓮/44歲/全端工程師 ▸ 正財格 (務實比價)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0074",
+        "agent_name": "Citizen_0074",
+        "bazi_summary": "台南/54歲/自營商 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0841",
+        "agent_name": "Citizen_0841",
+        "bazi_summary": "台南/23歲/行銷企劃 ▸ 七殺格 (衝動購買)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0813",
+        "agent_name": "Citizen_0813",
+        "bazi_summary": "台南/25歲/研究生 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0399",
+        "agent_name": "Citizen_0399",
+        "bazi_summary": "台北/36歲/UI設計師 ▸ 正財格 (務實比價)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0589",
+        "agent_name": "Citizen_0589",
+        "bazi_summary": "台中/22歲/大學生 ▸ 食神格 (講究體驗)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0323",
+        "agent_name": "Citizen_0323",
+        "bazi_summary": "台南/28歲/行銷企劃 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0391",
+        "agent_name": "Citizen_0391",
+        "bazi_summary": "花蓮/30歲/自營商 ▸ 正官格 (品牌導向)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0180",
+        "agent_name": "Citizen_0180",
+        "bazi_summary": "新北/40歲/家庭主婦 ▸ 正財格 (務實比價)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0695",
+        "agent_name": "Citizen_0695",
+        "bazi_summary": "新北/58歲/退休教師 ▸ 正財格 (務實比價)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0892",
+        "agent_name": "Citizen_0892",
+        "bazi_summary": "花蓮/24歲/研究生 ▸ 七殺格 (衝動購買)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0927",
+        "agent_name": "Citizen_0927",
+        "bazi_summary": "台南/53歲/公務員 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0644",
+        "agent_name": "Citizen_0644",
+        "bazi_summary": "新北/27歲/UI設計師 ▸ 七殺格 (衝動購買)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0434",
+        "agent_name": "Citizen_0434",
+        "bazi_summary": "台北/25歲/行銷企劃 ▸ 正財格 (務實比價)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0982",
+        "agent_name": "Citizen_0982",
+        "bazi_summary": "台中/23歲/研究生 ▸ 正財格 (務實比價)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0264",
+        "agent_name": "Citizen_0264",
+        "bazi_summary": "台南/37歲/UI設計師 ▸ 七殺格 (衝動購買)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0712",
+        "agent_name": "Citizen_0712",
+        "bazi_summary": "花蓮/32歲/行銷企劃 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0181",
+        "agent_name": "Citizen_0181",
+        "bazi_summary": "台北/27歲/UI設計師 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0243",
+        "agent_name": "Citizen_0243",
+        "bazi_summary": "台南/53歲/自營商 ▸ 正官格 (品牌導向)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0218",
+        "agent_name": "Citizen_0218",
+        "bazi_summary": "台中/35歲/自營商 ▸ 食神格 (講究體驗)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0396",
+        "agent_name": "Citizen_0396",
+        "bazi_summary": "台北/25歲/全端工程師 ▸ 正財格 (務實比價)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0696",
+        "agent_name": "Citizen_0696",
+        "bazi_summary": "台中/62歲/退休公務員 ▸ 正官格 (品牌導向)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0829",
+        "agent_name": "Citizen_0829",
+        "bazi_summary": "桃園/40歲/家庭主婦 ▸ 偏印格 (分析規格)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0888",
+        "agent_name": "Citizen_0888",
+        "bazi_summary": "桃園/41歲/自營商 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0235",
+        "agent_name": "Citizen_0235",
+        "bazi_summary": "台北/80歲/退休公務員 ▸ 正官格 (品牌導向)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0961",
+        "agent_name": "Citizen_0961",
+        "bazi_summary": "新竹/37歲/UI設計師 ▸ 正財格 (務實比價)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0781",
+        "agent_name": "Citizen_0781",
+        "bazi_summary": "新竹/54歲/公務員 ▸ 食神格 (講究體驗)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0043",
+        "agent_name": "Citizen_0043",
+        "bazi_summary": "新北/26歲/研究生 ▸ 食神格 (講究體驗)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0437",
+        "agent_name": "Citizen_0437",
+        "bazi_summary": "台南/77歲/退休公務員 ▸ 正財格 (務實比價)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0698",
+        "agent_name": "Citizen_0698",
+        "bazi_summary": "新北/23歲/大學生 ▸ 傷官格 (挑剔美感)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0430",
+        "agent_name": "Citizen_0430",
+        "bazi_summary": "新北/42歲/家庭主婦 ▸ 食神格 (講究體驗)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0473",
+        "agent_name": "Citizen_0473",
+        "bazi_summary": "桃園/24歲/UI設計師 ▸ 正官格 (品牌導向)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0989",
+        "agent_name": "Citizen_0989",
+        "bazi_summary": "花蓮/33歲/行銷企劃 ▸ 正財格 (務實比價)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0715",
+        "agent_name": "Citizen_0715",
+        "bazi_summary": "台中/25歲/UI設計師 ▸ 食神格 (講究體驗)",
+        "timestamp": 0
+      },
+      {
+        "phase": "GENESIS",
+        "agent_id": "agent_0237",
+        "agent_name": "Citizen_0237",
+        "bazi_summary": "台南/73歲/退休教師 ▸ 食神格 (講究體驗)",
+        "timestamp": 0
+      }
+    ]
+  }
+}

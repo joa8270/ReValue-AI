@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html class="dark" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MIRRA 市民圖譜 - 平民百態</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f13ec",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#191022",
+                        "card-dark": "#241a30",
+                        "border-dark": "#362b45",
+                        // Five Elements Colors
+                        "element-metal": "#94a3b8", // Gold/Metal (Silver/Gray)
+                        "element-wood": "#10b981",  // Wood (Green)
+                        "element-water": "#3b82f6", // Water (Blue)
+                        "element-fire": "#ef4444",  // Fire (Red)
+                        "element-earth": "#d97706", // Earth (Yellow/Brown)
+                    },
+                    fontFamily: {
+                        "display": ["Noto Sans TC", "sans-serif"], // Changed to TC for primary display
+                        "mono": ["Space Grotesk", "monospace"],
+                    },
+                    backgroundImage: {
+                        'oriental-pattern': "url('data:image/svg+xml,%3Csvg width=\\'60\\' height=\\'60\\' viewBox=\\'0 0 60 60\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cg fill=\\'none\\' fill-rule=\\'evenodd\\'%3E%3Cg fill=\\'%239C92AC\\' fill-opacity=\\'0.05\\'%3E%3Cpath d=\\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')",
+                    }
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #191022; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #362b45; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7f13ec; 
+        }
+        .bazi-pillar {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            letter-spacing: 0.2em;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display overflow-x-hidden selection:bg-primary selection:text-white bg-oriental-pattern">
+<header class="sticky top-0 z-50 w-full border-b border-[#302839] bg-[#141118]/95 backdrop-blur-md">
+<div class="px-6 lg:px-10 py-3 flex items-center justify-between whitespace-nowrap">
+<div class="flex items-center gap-4 text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M42.4379 44C42.4379 44 36.0744 33.9038 41.1692 24C46.8624 12.9336 42.2078 4 42.2078 4L7.01134 4C7.01134 4 11.6577 12.932 5.96912 23.9969C0.876273 33.9029 7.27094 44 7.27094 44L42.4379 44Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-wide">MIRRA <span class="text-xs font-normal text-gray-400 ml-1">米拉</span></h2>
+</div>
+<div class="hidden md:flex flex-1 justify-center gap-8">
+<a class="text-gray-400 hover:text-white text-sm font-medium leading-normal transition-colors" href="#">儀表板</a>
+<a class="text-white text-sm font-medium leading-normal border-b-2 border-primary pb-0.5" href="#">市民</a>
+<a class="text-gray-400 hover:text-white text-sm font-medium leading-normal transition-colors" href="#">地圖</a>
+<a class="text-gray-400 hover:text-white text-sm font-medium leading-normal transition-colors" href="#">設定</a>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex gap-2">
+<button class="flex size-9 cursor-pointer items-center justify-center rounded-lg bg-[#302839] hover:bg-primary/20 hover:text-primary text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="flex size-9 cursor-pointer items-center justify-center rounded-lg bg-[#302839] hover:bg-primary/20 hover:text-primary text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-9 ring-2 ring-[#302839]" data-alt="User profile avatar gradient" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCVGg6HAy2ijQRP67wERMxr9sXO-8YlBwHrA8GiscwAaEqMOflL21xCZ0IbVN8O_dGpOFxAE_JuTxadmIZcTVzsdcig2wcfnivmeN0bGkqns2u1NEJICbL_7r2AJSo1Sk8ySfHskWnILVc5HRrlJLyu10_uESPx23-bZ-OiUFs0r4V-fY8cf7jVcVpxpnUuxdZaY9tDWYjJmx9hfUaY_6dH9ydzGZfMylBuzQVF7myHWqkkzOixtEGFSACiF3zN3At-1Vnj3KRX5do");'></div>
+</div>
+</div>
+</header>
+<div class="flex flex-col lg:flex-row min-h-[calc(100vh-64px)]">
+<aside class="w-full lg:w-80 shrink-0 border-r border-[#302839] bg-[#141118] p-6 flex flex-col gap-8 overflow-y-auto lg:h-[calc(100vh-64px)] lg:sticky lg:top-16">
+<div>
+<h3 class="text-white tracking-widest text-xs font-bold mb-4 uppercase text-gray-500">系統狀態</h3>
+<div class="flex items-center gap-3 bg-[#1e1726] p-3 rounded-lg border border-primary/20 shadow-[0_0_15px_rgba(127,19,236,0.1)]">
+<div class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+</div>
+<div>
+<p class="text-sm font-bold text-white leading-none">模擬穩定</p>
+<p class="text-xs text-green-400 mt-1">99.8% 運行時間</p>
+</div>
+</div>
+</div>
+<div>
+<h3 class="text-white tracking-widest text-xs font-bold mb-4 uppercase text-gray-500">五行分佈 (Five Elements)</h3>
+<div class="flex items-center gap-4 mb-6">
+<div class="relative size-24 rounded-full flex items-center justify-center" style="background: conic-gradient(#94a3b8 20%, #10b981 20% 45%, #3b82f6 45% 65%, #ef4444 65% 80%, #d97706 80%);">
+<div class="size-16 bg-[#141118] rounded-full flex items-center justify-center flex-col">
+<span class="text-xs font-bold text-white">1000</span>
+<span class="text-[9px] text-gray-500">市民</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5 w-full">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-1.5">
+<span class="size-2 rounded-full bg-element-metal"></span>
+<span class="text-xs text-gray-300">金 (20%)</span>
+</div>
+</div>
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-1.5">
+<span class="size-2 rounded-full bg-element-wood"></span>
+<span class="text-xs text-gray-300">木 (25%)</span>
+</div>
+</div>
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-1.5">
+<span class="size-2 rounded-full bg-element-water"></span>
+<span class="text-xs text-gray-300">水 (20%)</span>
+</div>
+</div>
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-1.5">
+<span class="size-2 rounded-full bg-element-fire"></span>
+<span class="text-xs text-gray-300">火 (15%)</span>
+</div>
+</div>
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-1.5">
+<span class="size-2 rounded-full bg-element-earth"></span>
+<span class="text-xs text-gray-300">土 (20%)</span>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="text-gray-400">平均命盤平衡度</span>
+<span class="text-white font-bold">94%</span>
+</div>
+<div class="w-full bg-[#302839] rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 94%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="text-gray-400">運勢指數 (幸福度)</span>
+<span class="text-white font-bold">8.2/10</span>
+</div>
+<div class="w-full bg-[#302839] rounded-full h-1.5">
+<div class="bg-cyan-500 h-1.5 rounded-full" style="width: 82%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1">
+<h3 class="text-white tracking-widest text-xs font-bold mb-4 uppercase text-gray-500">近期活動</h3>
+<div class="space-y-3 relative before:absolute before:left-[5px] before:top-2 before:bottom-2 before:w-[1px] before:bg-[#302839]">
+<div class="pl-5 relative">
+<div class="absolute left-0 top-1.5 size-2.5 rounded-full bg-[#302839] border border-gray-600"></div>
+<p class="text-xs text-gray-300"><span class="text-primary font-bold">#8921</span> 職業轉換完成 <span class="text-white">外送員</span></p>
+<p class="text-[10px] text-gray-600 mt-0.5">2 分鐘前</p>
+</div>
+<div class="pl-5 relative">
+<div class="absolute left-0 top-1.5 size-2.5 rounded-full bg-[#302839] border border-gray-600"></div>
+<p class="text-xs text-gray-300"><span class="text-cyan-400 font-bold">新市民</span> 於中正區生成 (日主: 癸水)</p>
+<p class="text-[10px] text-gray-600 mt-0.5">14 分鐘前</p>
+</div>
+<div class="pl-5 relative">
+<div class="absolute left-0 top-1.5 size-2.5 rounded-full bg-[#302839] border border-gray-600"></div>
+<p class="text-xs text-gray-300"><span class="text-pink-400 font-bold">警報</span> 信義區火元素能量過剩</p>
+<p class="text-[10px] text-gray-600 mt-0.5">1 小時前</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col min-w-0">
+<div class="p-6 md:p-8 border-b border-[#302839]">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div class="flex flex-col gap-2">
+<p class="text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">MIRRA 市民圖譜 - 平民百態 <span class="text-lg font-light opacity-50 block md:inline md:ml-2">CITIZEN DATABASE</span></p>
+<p class="text-[#ab9db9] text-sm md:text-base font-normal flex items-center gap-2">
+<span class="inline-block size-2 rounded-full bg-primary"></span>
+                            1000/1000 虛擬市民在線
+                        </p>
+</div>
+<div class="flex gap-2">
+<button class="bg-primary text-white hover:bg-primary/90 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(127,19,236,0.3)]">
+<span class="material-symbols-outlined text-[20px]">auto_fix_high</span>
+                            注入新命盤
+                         </button>
+</div>
+</div>
+<div class="flex flex-col xl:flex-row gap-4">
+<div class="flex-1">
+<div class="flex w-full items-stretch rounded-lg h-12 bg-[#2a2233] border border-[#302839] focus-within:border-primary transition-colors group">
+<div class="text-[#ab9db9] group-focus-within:text-primary flex items-center justify-center pl-4 pr-2">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</div>
+<input class="w-full bg-transparent border-none focus:ring-0 text-white placeholder:text-[#ab9db9] text-base font-normal h-full" placeholder="搜尋姓名、ID (#8921) 或職業..."/>
+</div>
+</div>
+<div class="flex gap-2 overflow-x-auto pb-2 xl:pb-0 no-scrollbar">
+<button class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#2a2233] hover:bg-[#362b45] border border-[#302839] px-4 transition-colors">
+<p class="text-white text-sm font-medium whitespace-nowrap">行業五行</p>
+<span class="material-symbols-outlined text-white text-[20px]">keyboard_arrow_down</span>
+</button>
+<button class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#2a2233] hover:bg-[#362b45] border border-[#302839] px-4 transition-colors">
+<p class="text-white text-sm font-medium whitespace-nowrap">財運等級</p>
+<span class="material-symbols-outlined text-white text-[20px]">keyboard_arrow_down</span>
+</button>
+<button class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary/20 border border-primary text-primary px-4 transition-colors">
+<p class="text-sm font-medium whitespace-nowrap">命格: 全部</p>
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+<button class="flex h-12 shrink-0 items-center justify-center rounded-lg bg-[#2a2233] hover:bg-[#362b45] border border-[#302839] px-3 transition-colors" title="Grid View">
+<span class="material-symbols-outlined text-white text-[20px]">grid_view</span>
+</button>
+<button class="flex h-12 shrink-0 items-center justify-center rounded-lg bg-[#2a2233] hover:bg-[#362b45] border border-[#302839] px-3 transition-colors" title="List View">
+<span class="material-symbols-outlined text-[#ab9db9] text-[20px]">view_list</span>
+</button>
+</div>
+</div>
+</div>
+<div class="p-6 md:p-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<div class="group relative bg-[#241a30] rounded-xl overflow-hidden border border-[#362b45] hover:border-element-metal/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-element-metal/10">
+<div class="absolute top-3 right-3 z-10 flex flex-col items-end">
+<span class="text-[10px] text-gray-400 font-mono mb-1">日主</span>
+<div class="size-8 rounded-full bg-element-metal text-[#191022] font-bold flex items-center justify-center border-2 border-white/20">庚</div>
+</div>
+<div class="h-32 bg-[#1a1324] relative overflow-hidden">
+<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#241a30] to-transparent"></div>
+<div class="absolute top-2 left-3 opacity-20 text-[10px] font-mono text-white leading-tight">
+                                庚 戊 庚 丁<br/>
+                                申 寅 午 亥
+                            </div>
+</div>
+<div class="px-5 pb-5 -mt-12 relative z-10">
+<div class="flex items-end justify-between mb-3">
+<div class="size-20 rounded-xl overflow-hidden border-2 border-[#241a30] shadow-md bg-black">
+<img class="w-full h-full object-cover" data-alt="Futuristic female portrait with purple lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvkV3KIjcOolSkbncKNyqUorVPFpXBIZGCaHZwubsinWcaCblPUc2T_83xaDGsDH_mZMWulqND7tGICcln5QlBhrbudCF4AW6cHj0KZPLO2n8k6-VK4Uj-gvk2yZ0mh0XwnYygaAcpPTpIi7icusLLxryHIh1WrzqvIP4WAMv3AMI1mJe8Woyuc7O2jqdwBG73fDH0qYgabwwKADd3vf89Yk8xIArKpo9XI1Qcy8F-apdz6YTzRQJZrDpl62c3qzrE1mKurmQqJJg"/>
+</div>
+<div class="text-right">
+<span class="text-xs font-mono text-gray-500 block">#8921</span>
+<span class="text-[10px] text-gray-600">台北市</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-white mb-0.5">林美玲</h3>
+<p class="text-primary text-sm font-medium mb-1 uppercase tracking-wide">便利商店店員</p>
+<p class="text-[10px] text-gray-500 mb-3">出生: 2024.10.05 卯時</p>
+<div class="grid grid-cols-4 gap-1 text-center bg-[#1a1324] rounded-md p-2 mb-3 border border-[#302839]">
+<div class="flex flex-col text-[10px] text-gray-500"><span>年</span><span class="text-white text-sm font-serif">甲辰</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>月</span><span class="text-white text-sm font-serif">丙寅</span></div>
+<div class="flex flex-col text-[10px] text-primary font-bold bg-primary/10 rounded"><span>日</span><span class="text-lg font-serif">庚午</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>時</span><span class="text-white text-sm font-serif">丁亥</span></div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">傷官見官</span>
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">身強</span>
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">驛馬星動</span>
+</div>
+</div>
+</div>
+<div class="group relative bg-[#241a30] rounded-xl overflow-hidden border border-[#362b45] hover:border-element-wood/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-element-wood/10">
+<div class="absolute top-3 right-3 z-10 flex flex-col items-end">
+<span class="text-[10px] text-gray-400 font-mono mb-1">日主</span>
+<div class="size-8 rounded-full bg-element-wood text-[#191022] font-bold flex items-center justify-center border-2 border-white/20">乙</div>
+</div>
+<div class="h-32 bg-[#1a1324] relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-green-900/20 to-transparent"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#241a30] to-transparent"></div>
+<div class="absolute top-2 left-3 opacity-20 text-[10px] font-mono text-white leading-tight">
+                                甲 丙 乙 己<br/>
+                                辰 子 未 卯
+                            </div>
+</div>
+<div class="px-5 pb-5 -mt-12 relative z-10">
+<div class="flex items-end justify-between mb-3">
+<div class="size-20 rounded-xl overflow-hidden border-2 border-[#241a30] shadow-md bg-black">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Portrait of a young man with glasses smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw_mDfNmfd9_TBWEIyIlbma1aIPi2VnIMReahrPUcUNFRv8wZvvVRWaqfAsoHPFcr1LeT2RM9F84mVDwP3FTj4tb6yup6spDDou-c5ZFb0HpB2cZJvh3wTklAd_jATTEok55H22Pz7sW3ljFvyhQ4_wKazZ8tEUkK0qq_Jj5fZL4BRgJhlZXnw62EStvjgvuiQ5_ds6RJIfVi5jDMJVNp6HCsktuhfnVlpQDSH_4EvvaIxzA1Yovpf7S1uGskDCm2kbwSbA12QN7k"/>
+</div>
+<div class="text-right">
+<span class="text-xs font-mono text-gray-500 block">#4022</span>
+<span class="text-[10px] text-gray-600">新北市</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-white mb-0.5">陳志明</h3>
+<p class="text-element-wood text-sm font-medium mb-1 uppercase tracking-wide">外送員</p>
+<p class="text-[10px] text-gray-500 mb-3">出生: 2025.02.14 辰時</p>
+<div class="grid grid-cols-4 gap-1 text-center bg-[#1a1324] rounded-md p-2 mb-3 border border-[#302839]">
+<div class="flex flex-col text-[10px] text-gray-500"><span>年</span><span class="text-white text-sm font-serif">乙巳</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>月</span><span class="text-white text-sm font-serif">戊寅</span></div>
+<div class="flex flex-col text-[10px] text-element-wood font-bold bg-element-wood/10 rounded"><span>日</span><span class="text-lg font-serif">乙卯</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>時</span><span class="text-white text-sm font-serif">庚辰</span></div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">財氣通門</span>
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">印星護身</span>
+</div>
+</div>
+</div>
+<div class="group relative bg-[#241a30] rounded-xl overflow-hidden border border-[#362b45] hover:border-element-fire/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-element-fire/10">
+<div class="absolute top-3 right-3 z-10 flex flex-col items-end">
+<span class="text-[10px] text-gray-400 font-mono mb-1">日主</span>
+<div class="size-8 rounded-full bg-element-fire text-white font-bold flex items-center justify-center border-2 border-white/20">丙</div>
+</div>
+<div class="h-32 bg-[#1a1324] relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-red-900/20 to-transparent"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#241a30] to-transparent"></div>
+<div class="absolute top-2 left-3 opacity-20 text-[10px] font-mono text-white leading-tight">
+                                丙 甲 丙 壬<br/>
+                                午 午 申 辰
+                            </div>
+</div>
+<div class="px-5 pb-5 -mt-12 relative z-10">
+<div class="flex items-end justify-between mb-3">
+<div class="size-20 rounded-xl overflow-hidden border-2 border-[#241a30] shadow-md bg-black">
+<img class="w-full h-full object-cover" data-alt="Digital art style portrait of a woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7E-vQZakAndQMrBmIF0YPElcD0TvgKgr0TXaD9QW5KcTfUTu_kIvrEXq48nvlDK-r8ssGAStpCpCna_kPY6-u0Sw6OE8z9Ma574XeMdHiBAHtVm9EnBZ4x2QlcfhERyE46iuqT5XLt-0U150QtDu9jYVKtKjjWFrUYcfrP-EIx3JcU6S8q0rHprUb7aZCFDGlU5aQJ-MP4desjjED1AsZEbU5wGhpHYzthvZbLhxQ0VsZVMlNcUu7KGLoNQtp_QuI_4iJ8IDXmjM"/>
+</div>
+<div class="text-right">
+<span class="text-xs font-mono text-gray-500 block">#1109</span>
+<span class="text-[10px] text-gray-600">桃園市</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-white mb-0.5">張家豪</h3>
+<p class="text-element-fire text-sm font-medium mb-1 uppercase tracking-wide">保險業務員</p>
+<p class="text-[10px] text-gray-500 mb-3">出生: 2023.06.21 午時</p>
+<div class="grid grid-cols-4 gap-1 text-center bg-[#1a1324] rounded-md p-2 mb-3 border border-[#302839]">
+<div class="flex flex-col text-[10px] text-gray-500"><span>年</span><span class="text-white text-sm font-serif">癸卯</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>月</span><span class="text-white text-sm font-serif">戊午</span></div>
+<div class="flex flex-col text-[10px] text-element-fire font-bold bg-element-fire/10 rounded"><span>日</span><span class="text-lg font-serif">丙申</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>時</span><span class="text-white text-sm font-serif">甲午</span></div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">炎上格</span>
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">食神生財</span>
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">桃花旺</span>
+</div>
+</div>
+</div>
+<div class="group relative bg-[#241a30] rounded-xl overflow-hidden border border-[#362b45] hover:border-element-water/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-element-water/10">
+<div class="absolute top-3 right-3 z-10 flex flex-col items-end">
+<span class="text-[10px] text-gray-400 font-mono mb-1">日主</span>
+<div class="size-8 rounded-full bg-element-water text-white font-bold flex items-center justify-center border-2 border-white/20">壬</div>
+</div>
+<div class="h-32 bg-[#1a1324] relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-[#241a30] to-transparent"></div>
+<div class="absolute inset-0 bg-blue-900/10"></div>
+</div>
+<div class="px-5 pb-5 -mt-12 relative z-10">
+<div class="flex items-end justify-between mb-3">
+<div class="size-20 rounded-xl overflow-hidden border-2 border-[#241a30] shadow-md bg-black">
+<img class="w-full h-full object-cover grayscale opacity-70 group-hover:opacity-100 transition-opacity" data-alt="Portrait of a serious man with intense gaze" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsexEIdSIiBdjwfru9YoRTiq6_jUVO7xus_R_rm6AmyHlHic6hSmptBZsOt8ZSGygKH5Qe7j3ovmSs3WVYE5iyUu1KuTTE9za5TmkZihMl6oc-Sb795HTEg256O4Jep7Llr5PoQvYVJZ-QzRv-L_57yxDClT-xOE7AHcx0LH45c3KfOo91Thc8X0k9I3O3HWbpVbYbPE0mQ7ebLhIUehkuqeSgi23aBVxLOCiQK3-EEow-uuTUcG_4bJwlUlNF3PBcK2jV845c9Lg"/>
+</div>
+<div class="text-right">
+<span class="text-xs font-mono text-gray-500 block">#9921</span>
+<span class="text-[10px] text-gray-600">台中市</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-gray-300 mb-0.5">李建國</h3>
+<p class="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wide">退休人員</p>
+<p class="text-[10px] text-gray-500 mb-3">生成: 2020.11.11 子時</p>
+<div class="grid grid-cols-4 gap-1 text-center bg-[#1a1324] rounded-md p-2 mb-3 border border-[#302839]">
+<div class="flex flex-col text-[10px] text-gray-500"><span>年</span><span class="text-white text-sm font-serif">庚子</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>月</span><span class="text-white text-sm font-serif">丁亥</span></div>
+<div class="flex flex-col text-[10px] text-element-water font-bold bg-element-water/10 rounded"><span>日</span><span class="text-lg font-serif">壬申</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>時</span><span class="text-white text-sm font-serif">庚子</span></div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-400 font-medium border border-[#3e344a]">金水相涵</span>
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-400 font-medium border border-[#3e344a]">潤下格</span>
+</div>
+</div>
+</div>
+<div class="group relative bg-[#241a30] rounded-xl overflow-hidden border border-[#362b45] hover:border-element-earth/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-element-earth/10">
+<div class="absolute top-3 right-3 z-10 flex flex-col items-end">
+<span class="text-[10px] text-gray-400 font-mono mb-1">日主</span>
+<div class="size-8 rounded-full bg-element-earth text-white font-bold flex items-center justify-center border-2 border-white/20">戊</div>
+</div>
+<div class="h-32 bg-[#1a1324] relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-amber-900/20 to-transparent"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#241a30] to-transparent"></div>
+</div>
+<div class="px-5 pb-5 -mt-12 relative z-10">
+<div class="flex items-end justify-between mb-3">
+<div class="size-20 rounded-xl overflow-hidden border-2 border-[#241a30] shadow-md bg-black">
+<img class="w-full h-full object-cover" data-alt="Portrait of a woman with a confident expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTDySgSaGUN_xsmbqLZSD5Q0nFs3J3rCykwdIEP3EXqS_tswVtuTZiP0pyCR_f7_l6wFHpJBOo11qK8KDnnCfi0O1DcbK021YKuIN0HHD5Zl-Fq39rHxlS_qhQA3gsri1jTw7vuBGT61ASVqPQkLVHgn6dCNPtFXokG73aSJ3JU4Dku1ctuJb9cGQKbkE17U2Dy6eS7P1mo1kMpcxyc7nVH4ACv15pIugbl64gcfyZdQ6G-8aep5FIUbkIaidd8739TkgtXkRQXNg"/>
+</div>
+<div class="text-right">
+<span class="text-xs font-mono text-gray-500 block">#0032</span>
+<span class="text-[10px] text-gray-600">台南市</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-white mb-0.5">王淑芬</h3>
+<p class="text-element-earth text-sm font-medium mb-1 uppercase tracking-wide">早餐店老闆</p>
+<p class="text-[10px] text-gray-500 mb-3">出生: 2018.04.15 丑時</p>
+<div class="grid grid-cols-4 gap-1 text-center bg-[#1a1324] rounded-md p-2 mb-3 border border-[#302839]">
+<div class="flex flex-col text-[10px] text-gray-500"><span>年</span><span class="text-white text-sm font-serif">戊戌</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>月</span><span class="text-white text-sm font-serif">丙辰</span></div>
+<div class="flex flex-col text-[10px] text-element-earth font-bold bg-element-earth/10 rounded"><span>日</span><span class="text-lg font-serif">戊子</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>時</span><span class="text-white text-sm font-serif">癸丑</span></div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">稼穡格</span>
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">殺印相生</span>
+</div>
+</div>
+</div>
+<div class="group relative bg-[#241a30] rounded-xl overflow-hidden border border-[#362b45] hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10">
+<div class="absolute top-3 right-3 z-10 flex flex-col items-end">
+<span class="text-[10px] text-gray-400 font-mono mb-1">日主</span>
+<div class="size-8 rounded-full bg-element-metal text-[#191022] font-bold flex items-center justify-center border-2 border-white/20">辛</div>
+</div>
+<div class="h-32 bg-[#1a1324] relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-transparent"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#241a30] to-transparent"></div>
+</div>
+<div class="px-5 pb-5 -mt-12 relative z-10">
+<div class="flex items-end justify-between mb-3">
+<div class="size-20 rounded-xl overflow-hidden border-2 border-[#241a30] shadow-md bg-black">
+<img class="w-full h-full object-cover" data-alt="Portrait of a man with beard" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkVQUupzhw8Qh5saRKrZy3l6WC7MasV46l0cJAYQj8ZaZcPPL2U-af2P7V3vUgoQYNP6aRopEyojivX9JbI0A7knKfMc7qDkgE9adNmNBS7Z8Oknxe53bGbanrqN-yH0ArnmnN7aa0C5AGwr8IMTfYPQ3dy_5tIseS8Nhi_BAsCwVe1gzNpxWzNVLfCYE3VZ-AcOE1DnemnG8PEZKeEs1sTS74mua3Mh2v7iyNSZfJfkA7e92MrSI2u33uztPiwdbaTHdgSG_DQb0"/>
+</div>
+<div class="text-right">
+<span class="text-xs font-mono text-gray-500 block">#5510</span>
+<span class="text-[10px] text-gray-600">新竹市</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-white mb-0.5">吳俊傑</h3>
+<p class="text-primary text-sm font-medium mb-1 uppercase tracking-wide">軟體工程師</p>
+<p class="text-[10px] text-gray-500 mb-3">出生: 2021.09.08 酉時</p>
+<div class="grid grid-cols-4 gap-1 text-center bg-[#1a1324] rounded-md p-2 mb-3 border border-[#302839]">
+<div class="flex flex-col text-[10px] text-gray-500"><span>年</span><span class="text-white text-sm font-serif">辛丑</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>月</span><span class="text-white text-sm font-serif">丁酉</span></div>
+<div class="flex flex-col text-[10px] text-element-metal font-bold bg-element-metal/10 rounded"><span>日</span><span class="text-lg font-serif">辛亥</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>時</span><span class="text-white text-sm font-serif">丁酉</span></div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">金白水清</span>
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">七殺坐命</span>
+</div>
+</div>
+</div>
+<div class="group relative bg-[#241a30] rounded-xl overflow-hidden border border-[#362b45] hover:border-element-fire/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-element-fire/10">
+<div class="absolute top-3 right-3 z-10 flex flex-col items-end">
+<span class="text-[10px] text-gray-400 font-mono mb-1">日主</span>
+<div class="size-8 rounded-full bg-element-fire text-white font-bold flex items-center justify-center border-2 border-white/20">丁</div>
+</div>
+<div class="h-32 bg-[#1a1324] relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-orange-900/20 to-transparent"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#241a30] to-transparent"></div>
+</div>
+<div class="px-5 pb-5 -mt-12 relative z-10">
+<div class="flex items-end justify-between mb-3">
+<div class="size-20 rounded-xl overflow-hidden border-2 border-[#241a30] shadow-md bg-black">
+<img class="w-full h-full object-cover" data-alt="Portrait of a smiling woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaDSD-QyL8Eg9WiGroWlmhXrfeppBj-ENBOvLKbXMFf7uR2CGRw-mUuU9zT-0icAkcJo62uH-WcOKgbcjVHdoKjn_peZ9R1ccnglzGth-LUbXc7ldM8eoM1A2eZuAF8VEzT5elTeinlzMAR-6vAsUouaaPR7C6-9CygNI3p3z6MFY34kuS17S6gULhCfFKjXZlQ1eks9EUP9sNkuJMmaTDbuaBKnHmUSvwQ7IeFkNrQCCo2kY9VeTUi3NSZCTRhHdvAD0U4JntayM"/>
+</div>
+<div class="text-right">
+<span class="text-xs font-mono text-gray-500 block">#7734</span>
+<span class="text-[10px] text-gray-600">高雄市</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-white mb-0.5">楊雅婷</h3>
+<p class="text-orange-400 text-sm font-medium mb-1 uppercase tracking-wide">家庭主婦</p>
+<p class="text-[10px] text-gray-500 mb-3">出生: 2019.05.20 巳時</p>
+<div class="grid grid-cols-4 gap-1 text-center bg-[#1a1324] rounded-md p-2 mb-3 border border-[#302839]">
+<div class="flex flex-col text-[10px] text-gray-500"><span>年</span><span class="text-white text-sm font-serif">己亥</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>月</span><span class="text-white text-sm font-serif">己巳</span></div>
+<div class="flex flex-col text-[10px] text-element-fire font-bold bg-element-fire/10 rounded"><span>日</span><span class="text-lg font-serif">丁卯</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>時</span><span class="text-white text-sm font-serif">乙巳</span></div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">木火通明</span>
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">食神洩秀</span>
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">為人師表</span>
+</div>
+</div>
+</div>
+<div class="group relative bg-[#241a30] rounded-xl overflow-hidden border border-[#362b45] hover:border-element-water/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-element-water/10">
+<div class="absolute top-3 right-3 z-10 flex flex-col items-end">
+<span class="text-[10px] text-gray-400 font-mono mb-1">日主</span>
+<div class="size-8 rounded-full bg-element-water text-white font-bold flex items-center justify-center border-2 border-white/20">癸</div>
+</div>
+<div class="h-32 bg-[#1a1324] relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-indigo-900/20 to-transparent"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#241a30] to-transparent"></div>
+</div>
+<div class="px-5 pb-5 -mt-12 relative z-10">
+<div class="flex items-end justify-between mb-3">
+<div class="size-20 rounded-xl overflow-hidden border-2 border-[#241a30] shadow-md bg-black">
+<img class="w-full h-full object-cover" data-alt="Portrait of a man in profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZkwGjO9q0AqNsTL58jGLHS_OWBQDYsYldOJ92FvQVTqBHNVCHApXQeO7jmKOGwRex1yrzBgWJZDnBT9nUOHG6oVEQ6qBXq9m_-j25AQMA58ApID65ZHykf2kRQJ2U8fBA8rsht9UYDsp21fObymFZfBKySscvy1AYHl7POxXwtFdkjMrXgUS7cthOoDoQmfHKsJuwKlXa8oRTw4bwgOqwCCVzj_pCJkys9Vl7wVpa7GVnyLEZedx86yIlEWVDbRgBYcyOS69ccdU"/>
+</div>
+<div class="text-right">
+<span class="text-xs font-mono text-gray-500 block">#2881</span>
+<span class="text-[10px] text-gray-600">嘉義市</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-white mb-0.5">黃信宏</h3>
+<p class="text-indigo-400 text-sm font-medium mb-1 uppercase tracking-wide">計程車司機</p>
+<p class="text-[10px] text-gray-500 mb-3">出生: 2022.01.10 寅時</p>
+<div class="grid grid-cols-4 gap-1 text-center bg-[#1a1324] rounded-md p-2 mb-3 border border-[#302839]">
+<div class="flex flex-col text-[10px] text-gray-500"><span>年</span><span class="text-white text-sm font-serif">壬寅</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>月</span><span class="text-white text-sm font-serif">辛丑</span></div>
+<div class="flex flex-col text-[10px] text-element-water font-bold bg-element-water/10 rounded"><span>日</span><span class="text-lg font-serif">癸酉</span></div>
+<div class="flex flex-col text-[10px] text-gray-500"><span>時</span><span class="text-white text-sm font-serif">甲寅</span></div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">傷官生財</span>
+<span class="px-2 py-1 rounded bg-[#302839] text-[10px] text-gray-300 font-medium border border-[#3e344a]">靈活多變</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-12 flex justify-center">
+<div class="flex items-center gap-2">
+<button class="size-10 flex items-center justify-center rounded-lg border border-[#302839] text-gray-400 hover:text-white hover:border-primary transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="size-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold">1</button>
+<button class="size-10 flex items-center justify-center rounded-lg border border-[#302839] text-gray-400 hover:text-white hover:border-gray-500 transition-colors">2</button>
+<button class="size-10 flex items-center justify-center rounded-lg border border-[#302839] text-gray-400 hover:text-white hover:border-gray-500 transition-colors">3</button>
+<span class="text-gray-500 px-2">...</span>
+<button class="size-10 flex items-center justify-center rounded-lg border border-[#302839] text-gray-400 hover:text-white hover:border-gray-500 transition-colors">12</button>
+<button class="size-10 flex items-center justify-center rounded-lg border border-[#302839] text-gray-400 hover:text-white hover:border-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

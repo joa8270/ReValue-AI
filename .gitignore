@@ -1,0 +1,14 @@
+# --- Python 垃圾與機密 ---
+__pycache__/
+*.pyc
+venv/
+.env
+
+# --- Node.js 垃圾 ---
+node_modules/
+.next/
+.DS_Store
+
+# --- 讓 Git 忽略上傳的圖片 (但在雲端保留資料夾) ---
+backend/static/uploads/*
+!backend/static/uploads/.gitkeep

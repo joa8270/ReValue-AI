@@ -1,0 +1,13 @@
+
+> mirra-frontend@0.1.0 dev
+> next dev -p 4000
+
+C:\Users\Joa\Downloads\MIRRA\frontend\node_modules\next\dist\server\config.js:787
+            throw new Error(`Configuring Next.js via '${(0, _path.basename)(nonJsPath)}' is not supported. Please replace the file with 'next.config.js' or 'next.config.mjs'.`);
+                  ^
+
+Error: Configuring Next.js via 'next.config.ts' is not supported. Please replace the file with 'next.config.js' or 'next.config.mjs'.
+    at loadConfig (C:\Users\Joa\Downloads\MIRRA\frontend\node_modules\next\dist\server\config.js:787:19)
+    at async Module.nextDev (C:\Users\Joa\Downloads\MIRRA\frontend\node_modules\next\dist\cli\next-dev.js:175:14)
+
+Node.js v24.12.0

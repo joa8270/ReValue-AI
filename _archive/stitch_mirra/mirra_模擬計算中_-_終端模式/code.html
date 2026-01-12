@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-TW"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MIRRA // TERMINAL</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#25d1f4",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                        "terminal-black": "#050505",
+                        "terminal-dark": "#0a0f10",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["Space Grotesk", "monospace"] // Using Space Grotesk for mono feel as requested by style
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    animation: {
+                        'spin-slow': 'spin 8s linear infinite',
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for terminal look */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #101f22; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #283639; 
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #25d1f4; 
+        }
+        
+        .scanline {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.1) 50%,
+                rgba(0,0,0,0.1)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex flex-col selection:bg-primary selection:text-black">
+<!-- Scanline Overlay -->
+<div class="fixed inset-0 pointer-events-none z-50 opacity-10 scanline"></div>
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#283639] bg-terminal-dark/90 backdrop-blur-sm px-6 py-3 z-40">
+<div class="flex items-center gap-4 text-white">
+<div class="size-6 text-primary animate-pulse">
+<span class="material-symbols-outlined text-[24px]">terminal</span>
+</div>
+<div>
+<h2 class="text-white text-lg font-bold leading-tight tracking-wider uppercase">MIRRA // TERMINAL</h2>
+<div class="flex items-center gap-2 text-xs text-[#9cb5ba] font-mono">
+<span>NODE-01</span>
+<span class="size-1.5 rounded-full bg-primary inline-block"></span>
+<span>ONLINE</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#283639] hover:bg-primary/20 hover:text-primary transition-colors text-white">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#283639] hover:bg-primary/20 hover:text-primary transition-colors text-white">
+<span class="material-symbols-outlined">picture_in_picture_alt</span>
+</button>
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#283639] hover:bg-red-500/20 hover:text-red-500 transition-colors text-white">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</header>
+<!-- Main Layout -->
+<main class="flex-1 flex overflow-hidden relative">
+<!-- Background Grid Decoration -->
+<div class="absolute inset-0 z-0 opacity-5" style="background-image: radial-gradient(#25d1f4 1px, transparent 1px); background-size: 40px 40px;"></div>
+<!-- Content Container -->
+<div class="flex-1 flex flex-col md:flex-row gap-6 p-6 z-10 w-full max-w-[1600px] mx-auto items-center justify-center h-full">
+<!-- LEFT/CENTER: Map Visualization -->
+<div class="relative flex flex-1 w-full h-full items-center justify-center min-h-[400px]">
+<!-- Holo Rings -->
+<div class="absolute size-[400px] md:size-[500px] rounded-full border border-[#283639] animate-spin-slow opacity-30"></div>
+<div class="absolute size-[380px] md:size-[480px] rounded-full border border-dashed border-primary/20 animate-spin-slow" style="animation-direction: reverse; animation-duration: 15s;"></div>
+<!-- Decorative Brackets around map -->
+<div class="absolute top-10 left-10 size-8 border-t-2 border-l-2 border-primary/50 rounded-tl-lg"></div>
+<div class="absolute top-10 right-10 size-8 border-t-2 border-r-2 border-primary/50 rounded-tr-lg"></div>
+<div class="absolute bottom-10 left-10 size-8 border-b-2 border-l-2 border-primary/50 rounded-bl-lg"></div>
+<div class="absolute bottom-10 right-10 size-8 border-b-2 border-r-2 border-primary/50 rounded-br-lg"></div>
+<!-- Central Map Container -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="relative size-[300px] md:size-[400px] flex items-center justify-center">
+<!-- Map Image -->
+<div class="w-full h-full bg-contain bg-center bg-no-repeat opacity-80 drop-shadow-[0_0_15px_rgba(37,209,244,0.3)] grayscale invert brightness-200 contrast-200" data-alt="Dark minimalist silhouette map of Taiwan with neon cyan glowing dots indicating population centers" data-location="Taiwan" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBnLY8E3x282m-Ue6D4-3lah_lkiLObza-koMz6XQA1XLqr0mybSbjC8h1mEN-toZxoK2z9amocjJGEafGL2fFglCIPt_Mlar04ccJt1Fw-Ooxdp1J0hOOfWS9kSrUHoM87ShnrZWIXt-oDHbKcjvZaVxvp1sHBrbISto4sJHGs2fcOmPruNNQeJdX_X3xL7A9ZEHaLB7iO2SWZD8BNoaljhPjIVzM2WcVVZljHJrqePXx4ov1-SeZcMS0dG0pi5ga5a1siPxNiiUQ');">
+</div>
+<!-- Pulse Effects (Fake Agents) -->
+<div class="absolute top-1/4 left-1/3 size-2 bg-primary rounded-full shadow-[0_0_10px_#25d1f4] animate-ping"></div>
+<div class="absolute top-1/3 left-1/2 size-1.5 bg-primary rounded-full shadow-[0_0_10px_#25d1f4] animate-pulse"></div>
+<div class="absolute bottom-1/3 left-1/4 size-3 bg-primary rounded-full shadow-[0_0_15px_#25d1f4] animate-pulse duration-700"></div>
+<div class="absolute top-1/2 right-1/3 size-2 bg-primary rounded-full shadow-[0_0_10px_#25d1f4] animate-ping delay-300"></div>
+<!-- Radar Scan Effect -->
+<div class="absolute inset-0 rounded-full bg-gradient-to-b from-transparent via-primary/5 to-transparent animate-spin-slow opacity-20 pointer-events-none"></div>
+</div>
+<div class="mt-8 text-center space-y-2">
+<div class="text-primary text-xl font-bold tracking-widest drop-shadow-[0_0_8px_rgba(37,209,244,0.6)]">系統處理中</div>
+<div class="text-[#9cb5ba] text-sm font-mono">LAT: 23.6978 N | LONG: 120.9605 E</div>
+</div>
+</div>
+</div>
+<!-- RIGHT: System Log -->
+<div class="w-full md:w-[450px] flex flex-col h-[50vh] md:h-[70vh] bg-terminal-black/80 border border-[#283639] rounded-xl overflow-hidden shadow-2xl backdrop-blur-md">
+<!-- Log Header -->
+<div class="flex items-center justify-between px-4 py-3 bg-[#111718] border-b border-[#283639]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">data_object</span>
+<span class="text-xs font-bold text-white tracking-wider">SYSTEM LOG</span>
+</div>
+<div class="flex gap-1.5">
+<div class="size-2 rounded-full bg-[#283639]"></div>
+<div class="size-2 rounded-full bg-[#283639]"></div>
+<div class="size-2 rounded-full bg-primary animate-pulse"></div>
+</div>
+</div>
+<!-- Scrollable Area -->
+<div class="flex-1 overflow-y-auto p-4 font-mono text-sm space-y-3 relative group" id="terminal-logs">
+<!-- Old logs dimmed -->
+<div class="flex gap-3 text-[#536b70]">
+<span class="shrink-0 opacity-50">&gt;</span>
+<p>[SYSTEM] 連線至 MIRRA-NODE-01 成功</p>
+</div>
+<div class="flex gap-3 text-[#536b70]">
+<span class="shrink-0 opacity-50">&gt;</span>
+<p>載入核心模組: 經濟模型 v4.2 ... 完成</p>
+</div>
+<div class="flex gap-3 text-[#7a969c]">
+<span class="shrink-0 opacity-50">&gt;</span>
+<p>正在初始化平行世界...</p>
+</div>
+<div class="flex gap-3 text-[#9cb5ba]">
+<span class="shrink-0 opacity-50">&gt;</span>
+<p>正在計算 1,000 位市民的八字命盤...</p>
+</div>
+<div class="flex gap-3 text-[#9cb5ba]">
+<span class="shrink-0 opacity-50">&gt;</span>
+<p>正在根據出生地生成人口分佈... [OK]</p>
+</div>
+<div class="flex gap-3 text-white">
+<span class="shrink-0 text-primary">&gt;</span>
+<p>警告: 發現異常變數 (已修正)</p>
+</div>
+<div class="flex gap-3 text-white">
+<span class="shrink-0 text-primary">&gt;</span>
+<p>正在模擬市場摩擦係數...</p>
+</div>
+<!-- Active line with typing cursor effect -->
+<div class="flex gap-3 text-primary font-bold shadow-lg shadow-primary/5 bg-primary/5 p-2 rounded border-l-2 border-primary mt-4">
+<span class="shrink-0 animate-pulse">&gt;</span>
+<p class="drop-shadow-[0_0_5px_rgba(37,209,244,0.5)]">正在計算五行流年影響...<span class="inline-block w-2 h-4 bg-primary ml-1 align-middle animate-pulse"></span></p>
+</div>
+<!-- Scroll anchor -->
+<div class="h-4"></div>
+</div>
+<!-- Footer of Log -->
+<div class="p-3 bg-[#111718] border-t border-[#283639] flex justify-between items-center text-[10px] text-[#536b70] uppercase tracking-widest">
+<span>Mem: 64TB / 128TB</span>
+<span>CPU: 89%</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Status Bar -->
+<footer class="bg-terminal-dark border-t border-[#283639] px-6 py-3 flex flex-wrap gap-4 items-center justify-between z-40">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="text-primary text-sm font-bold tracking-wider">1000個活躍代理人：已就緒</span>
+</div>
+<!-- Progress Bar Mini -->
+<div class="hidden md:flex items-center gap-3 w-64">
+<div class="flex-1 h-1.5 bg-[#283639] rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%] shadow-[0_0_10px_#25d1f4]"></div>
+</div>
+<span class="text-xs text-primary font-mono">85%</span>
+</div>
+</div>
+<div class="flex items-center gap-4 text-xs text-[#536b70] font-mono">
+<span class="hidden sm:block">SESSION_ID: 0x8F3A21</span>
+<span class="hidden sm:block">|</span>
+<span>PING: 12ms</span>
+<span class="hidden sm:block">|</span>
+<span class="text-[#9cb5ba]">ENCRYPTION: AES-256</span>
+</div>
+</footer>
+</body></html>
