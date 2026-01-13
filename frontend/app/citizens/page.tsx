@@ -470,7 +470,9 @@ function CitizensContent() {
                                                 ${dayMasterElement === 'Earth' ? 'ring-4 ring-amber-300/30' : ''}
                                             `} />
                                         </div>
-                                    </div>* Header Visual */}
+                                    </div>
+
+                                    {/* Header Visual */}
                                     <div className="h-32 bg-[#1a1324] relative overflow-hidden">
                                         <div className="absolute inset-0 bg-gradient-to-t from-[#241a30] to-transparent"></div>
                                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
