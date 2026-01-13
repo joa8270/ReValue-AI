@@ -245,14 +245,20 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                 <h2 className="text-3xl font-black text-white tracking-tight">{citizen.name}</h2>
                 <span className="text-xs font-mono text-slate-500 px-2 py-1 bg-white/5 rounded-full border border-white/5">ID: {citizen.id ? String(citizen.id).padStart(8, '0').slice(0, 8) : '????'}</span>
               </div>
-              <div className="flex items-center gap-3 mt-2 text-sm">
-                <span className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30 font-bold">
-                  {citizen.occupation || 'AI Citizen'}
-                </span>
-                <span className="text-slate-400">•</span>
-                <span className="text-slate-300 font-medium">{citizen.displayAge || citizen.age} 歲</span>
-                <span className="text-slate-400">•</span>
-                <span className="text-slate-400">{citizen.location || 'Taiwan'}</span>
+              <div className="flex flex-col gap-1.5 mt-2">
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30 font-bold">
+                    {citizen.occupation || 'AI Citizen'}
+                  </span>
+                  <span className="text-slate-400">•</span>
+                  <span className="text-slate-300 font-medium">{citizen.displayAge || citizen.age} 歲</span>
+                  <span className="text-slate-400">•</span>
+                  <span className="text-slate-400">{citizen.location || 'Taiwan'}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
+                  <span className="material-symbols-outlined text-[14px]">calendar_month</span>
+                  <span>{citizen.fullBirthday || '生日未知'}</span>
+                </div>
               </div>
             </div>
           </div>
