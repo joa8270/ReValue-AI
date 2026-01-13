@@ -247,9 +247,9 @@ export default function SimulationForm() {
                                         type="button"
                                         onClick={handleAiGenerate}
                                         disabled={aiLoading || !file || !productName}
-                                        className={`text-[10px] px-2 py-1 rounded-full border border-purple-500/30 flex items-center gap-1 transition-all ${aiLoading || !file || !productName
+                                        className={`text-[10px] px-2 py-1 rounded-full border flex items-center gap-1 transition-all ${aiLoading || !file || !productName
                                             ? 'text-slate-600 border-slate-700 cursor-not-allowed'
-                                            : 'text-purple-400 hover:bg-purple-500/20 hover:border-purple-400'
+                                            : 'text-purple-400 border-purple-500/50 hover:bg-purple-500/20 hover:border-purple-400 animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.5)]'
                                             }`}
                                     >
                                         <Sparkles className="w-3 h-3" />
