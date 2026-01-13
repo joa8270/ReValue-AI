@@ -597,7 +597,7 @@ class LineBotService:
             "sentiment": "neutral",
             "text": "(...)"
         }}
-        // 請生成 5-8 則評論，涵蓋不同五行與格局
+        // 請務必生成 8 則評論，涵蓋不同五行與格局，每則評論都必須根據該市民的八字特質撰寫
     ]
 }}
 
@@ -901,22 +901,50 @@ class LineBotService:
                     }
                 })
 
-        # Fallback comments if empty
-        if not arena_comments and sampled_citizens:
-             default_positive = ["這個產品很不錯！", "價格合理，會考慮購買。"]
-             for i, citizen in enumerate(sampled_citizens[:3]):
-                 bazi = citizen["bazi_profile"]
-                 arena_comments.append({
-                     "sentiment": "positive",
-                     "text": default_positive[i % len(default_positive)],
-                     "persona": {
-                         "name": citizen["name"],
-                         "age": str(citizen["age"]),
-                         "pattern": bazi.get("structure", "未知格局"),
-                         "element": bazi.get("element", "Fire"),
-                         "occupation": citizen.get("occupation", "未知職業")
-                     }
-                 })
+        # Fallback comments if not enough (ensure at least 8)
+        bazi_comment_templates = {
+            "食神格": ["這產品看起來挺有質感的，用起來應該很享受~", "哇，這個設計蠻有品味的，很適合日常使用！"],
+            "傷官格": ["設計還不錯，但我覺得可以更有創意一點", "嗯...我有一些改進的想法，不過整體還行"],
+            "正財格": ["CP值如何？我比較在意性價比", "價格和品質的平衡很重要，這個看起來還可以"],
+            "偏財格": ["感覺有潛力！可以考慮投資看看", "這個切入點不錯，商機蠻大的"],
+            "正官格": ["品質和規格都符合標準嗎？我比較謹慎", "需要多了解一下細節，再做決定"],
+            "七殺格": ["效率怎麼樣？我時間很寶貴", "直接說重點，這個能解決什麼問題？"],
+            "正印格": ["這對長期發展有幫助嗎？我比較看重長遠價值", "品牌信譽很重要，這個公司可靠嗎？"],
+            "偏印格": ["這個概念挺特別的，跟市面上的不太一樣", "有點意思，但我需要更多時間思考"],
+        }
+        default_templates = ["這個產品看起來不錯！", "價格合理，會考慮購買。", "設計蠻有特色的。", "整體來說還可以接受。"]
+        
+        while len(arena_comments) < 8 and sampled_citizens:
+            # 找一個還沒評論過的市民
+            commented_names = {c["persona"]["name"] for c in arena_comments}
+            remaining = [c for c in sampled_citizens if c["name"] not in commented_names]
+            if not remaining:
+                break
+            citizen = remaining[0]
+            bazi = citizen["bazi_profile"]
+            structure = bazi.get("structure", "")
+            
+            # 根據八字結構選擇評論模板
+            templates = default_templates
+            for pattern, texts in bazi_comment_templates.items():
+                if pattern in structure:
+                    templates = texts
+                    break
+            
+            sentiment = ["positive", "neutral", "negative"][len(arena_comments) % 3]
+            arena_comments.append({
+                "sentiment": sentiment,
+                "text": templates[len(arena_comments) % len(templates)],
+                "persona": {
+                    "name": citizen["name"],
+                    "age": str(citizen["age"]),
+                    "pattern": bazi.get("structure", "未知格局"),
+                    "element": bazi.get("element", "Fire"),
+                    "icon": {"Fire": "🔥", "Water": "💧", "Metal": "🔩", "Wood": "🌳", "Earth": "🏔️"}.get(bazi.get("element", "Fire"), "🔥"),
+                    "occupation": citizen.get("occupation", "未知職業"),
+                    "location": citizen.get("location", "台灣")
+                }
+            })
 
         result_data = {
             "status": "ready",
