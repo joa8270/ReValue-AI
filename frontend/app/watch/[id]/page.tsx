@@ -104,7 +104,7 @@ interface SimulationData {
   }>
   result?: { summary: string }
   intent?: any
-  suggestions?: Array<{ target: string; advice: string; execution_plan: string[]; score_improvement?: string }>
+  suggestions?: Array<{ target: string; advice: string; action_plan: string[]; score_improvement?: string }>
   objections?: Array<{ reason: string; percentage: string }>
   buying_intent?: string
 }
