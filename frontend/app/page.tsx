@@ -139,7 +139,7 @@ export default function Home() {
                                     <span className="text-xl">🤖</span>
                                 </div>
                                 <div className="flex flex-col gap-3">
-                                    <h3 className="text-white text-xl font-bold leading-tight">2. 命理取樣</h3>
+                                    <h3 className="text-white text-xl font-bold leading-tight">2. 八字科學取樣</h3>
                                     <p className="text-gray-400 text-sm leading-relaxed">
                                         從 1000 位具有八字命理性格的 AI 市民中，隨機抽取代表進行預演評估。
                                     </p>
