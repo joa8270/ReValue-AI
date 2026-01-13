@@ -10,21 +10,16 @@ if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # 3. 建立連線引擎
-# 3. 建立連線引擎
-# # if not DATABASE_URL:
-#     # 本地開發防呆：如果沒設環境變數，就用一個暫時的 SQLite
-#     engine = create_engine("sqlite:///./test.db", connect_args={"check_same_thread": False})
-# else:
-#     engine = create_engine(DATABASE_URL)
-
-# Determine the directory of the current file (app/core/database.py)
-current_file_dir = os.path.dirname(os.path.abspath(__file__))
-# Go up 2 levels to get to 'backend' directory
-backend_dir = os.path.dirname(os.path.dirname(current_file_dir))
-db_path = os.path.join(backend_dir, "test.db")
-
-print(f"[DB] FORCING Local SQLite ({db_path}) for troubleshooting")
-engine = create_engine(f"sqlite:///{db_path}", connect_args={"check_same_thread": False})
+if not DATABASE_URL:
+    # 本地開發防呆：如果沒設環境變數，就用一個暫時的 SQLite
+    current_file_dir = os.path.dirname(os.path.abspath(__file__))
+    backend_dir = os.path.dirname(os.path.dirname(current_file_dir))
+    db_path = os.path.join(backend_dir, "test.db")
+    print(f"[DB] No DATABASE_URL found, using local SQLite ({db_path})")
+    engine = create_engine(f"sqlite:///{db_path}", connect_args={"check_same_thread": False})
+else:
+    print(f"[DB] Connecting to PostgreSQL: {DATABASE_URL[:50]}...")
+    engine = create_engine(DATABASE_URL)
 
 # 4. 建立 Session 工廠
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -274,28 +269,6 @@ def get_simulation(sim_id: str) -> dict | None:
     except Exception as e:
         print(f"❌ [SQL] 查詢模擬失敗: {e}")
         return None
-
-
-def get_all_simulations(limit: int = 50, offset: int = 0) -> list[dict]:
-    """取得所有模擬記錄"""
-    try:
-        db = SessionLocal()
-        simulations = db.query(Simulation).order_by(Simulation.id.desc()).offset(offset).limit(limit).all()
-        db.close()
-        
-        result = []
-        for s in simulations:
-            item = s.data or {}
-            item["sim_id"] = s.sim_id
-            item["status"] = s.status
-            # 確保有基本資訊，避免前端出錯
-            if "product_name" not in item:
-                item["product_name"] = "未命名專案"
-            result.append(item)
-        return result
-    except Exception as e:
-        print(f"❌ [SQL] 查詢所有模擬失敗: {e}")
-        return []
 
 
 def clear_citizens():
