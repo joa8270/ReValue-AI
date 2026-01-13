@@ -886,13 +886,24 @@ class LineBotService:
         # Build comments
         gemini_comments = data.get("comments", [])
         arena_comments = []
-        citizen_map = {c["id"]: c for c in sampled_citizens}
+        # 強制 Key 為 String 以防萬一
+        citizen_map = {str(c["id"]): c for c in sampled_citizens}
         
         for comment in gemini_comments:
-            c_id = comment.get("citizen_id")
+            raw_id = comment.get("citizen_id")
+            c_id = str(raw_id) if raw_id is not None else ""
+            
+            # 1. 嘗試用 ID 直接匹配
             citizen = citizen_map.get(c_id)
-            if not citizen and isinstance(c_id, int) and 0 <= c_id < len(sampled_citizens):
-                citizen = sampled_citizens[c_id]
+            
+            # 2. 如果找不到，且 ID 是數字，嘗試用 Index 匹配 (針對 Gemini 返回 0, 1, 2... 的情況)
+            if not citizen and c_id.isdigit():
+                idx = int(c_id)
+                # Gemini 有時是 1-based index
+                if 0 <= idx < len(sampled_citizens):
+                    citizen = sampled_citizens[idx]
+                elif 0 < idx <= len(sampled_citizens): # Handle 1-based
+                    citizen = sampled_citizens[idx-1]
             
             if citizen:
                 bazi = citizen["bazi_profile"]
