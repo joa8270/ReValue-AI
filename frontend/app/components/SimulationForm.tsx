@@ -291,7 +291,7 @@ export default function SimulationForm() {
                         </span>
                     ) : (
                         <span className="flex items-center justify-center gap-2">
-                            啟動 MIRRA 平行世界/預演未來 <span className="text-xl">➔</span>
+                            啟動 MIRRA 預演
                         </span>
                     )}
                 </button>
