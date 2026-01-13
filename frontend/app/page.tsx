@@ -114,7 +114,7 @@ export default function Home() {
                                 預演如何運作
                             </h2>
                             <p className="text-gray-400 text-base md:text-lg font-light leading-relaxed max-w-[600px]">
-                                三個簡單步驟，即可在平行世界中預演您的產品成敗。
+                                3個簡單步驟，即可在平行世界中預言您的產品/商業計畫成敗。
                             </p>
                         </div>
 
