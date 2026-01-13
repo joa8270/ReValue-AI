@@ -902,7 +902,13 @@ class LineBotService:
                         "birth_year": bazi.get("birth_year"),
                         "birth_month": bazi.get("birth_month"),
                         "birth_day": bazi.get("birth_day"),
-                        "birth_shichen": bazi.get("birth_shichen")
+                        "birth_shichen": bazi.get("birth_shichen"),
+                        "four_pillars": bazi.get("four_pillars", ""),
+                        "day_master": bazi.get("day_master", ""),
+                        "strength": bazi.get("strength", "中和"),
+                        "favorable": bazi.get("favorable", []),
+                        "current_luck": bazi.get("current_luck", {}),
+                        "luck_timeline": bazi.get("luck_timeline", [])
                     }
                 })
 
@@ -952,7 +958,13 @@ class LineBotService:
                     "birth_year": bazi.get("birth_year"),
                     "birth_month": bazi.get("birth_month"),
                     "birth_day": bazi.get("birth_day"),
-                    "birth_shichen": bazi.get("birth_shichen")
+                    "birth_shichen": bazi.get("birth_shichen"),
+                    "four_pillars": bazi.get("four_pillars", ""),
+                    "day_master": bazi.get("day_master", ""),
+                    "strength": bazi.get("strength", "中和"),
+                    "favorable": bazi.get("favorable", []),
+                    "current_luck": bazi.get("current_luck", {}),
+                    "luck_timeline": bazi.get("luck_timeline", [])
                 }
             })
 
