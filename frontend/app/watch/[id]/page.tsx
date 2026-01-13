@@ -693,9 +693,69 @@ export default function WatchPage() {
         </div>
         <div className="flex items-center gap-4">
           <div className="hidden md:flex gap-2">
-            <button className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#7f13ec] hover:bg-[#9d4af2] transition-colors text-white text-sm font-bold shadow-[0_0_10px_rgba(127,19,236,0.5)]"><span className="mr-2 material-symbols-outlined text-[18px]">share</span>分享報告</button>
-            <button className="flex items-center justify-center rounded-lg h-9 w-9 bg-[#302839] hover:bg-[#473b54] text-white transition-colors"><span className="material-symbols-outlined text-[20px]">download</span></button>
-            <button className="flex items-center justify-center rounded-lg h-9 w-9 bg-[#302839] hover:bg-[#473b54] text-white transition-colors"><span className="material-symbols-outlined text-[20px]">settings</span></button>
+            {/* Share Button */}
+            <button
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(window.location.href);
+                  // Show toast notification
+                  const toast = document.createElement('div');
+                  toast.className = 'fixed bottom-6 right-6 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-in fade-in slide-in-from-bottom-4 flex items-center gap-2';
+                  toast.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span>連結已複製到剪貼簿！';
+                  document.body.appendChild(toast);
+                  setTimeout(() => toast.remove(), 3000);
+                } catch (err) {
+                  console.error('Failed to copy:', err);
+                }
+              }}
+              className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#7f13ec] hover:bg-[#9d4af2] transition-colors text-white text-sm font-bold shadow-[0_0_10px_rgba(127,19,236,0.5)]"
+            >
+              <span className="mr-2 material-symbols-outlined text-[18px]">share</span>分享報告
+            </button>
+
+            {/* Download Button */}
+            <button
+              onClick={async () => {
+                try {
+                  // Dynamic import html2canvas
+                  const html2canvas = (await import('html2canvas')).default;
+                  const mainContent = document.querySelector('main');
+                  if (!mainContent) return;
+
+                  // Show loading toast
+                  const loadingToast = document.createElement('div');
+                  loadingToast.className = 'fixed bottom-6 right-6 bg-[#302839] text-white px-4 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+                  loadingToast.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">sync</span>正在生成報告圖片...';
+                  document.body.appendChild(loadingToast);
+
+                  const canvas = await html2canvas(mainContent as HTMLElement, {
+                    backgroundColor: '#191022',
+                    scale: 2,
+                    useCORS: true,
+                  });
+
+                  // Download
+                  const link = document.createElement('a');
+                  link.download = `MIRRA_Report_${simId.slice(0, 8)}.png`;
+                  link.href = canvas.toDataURL('image/png');
+                  link.click();
+
+                  // Replace with success toast
+                  loadingToast.remove();
+                  const successToast = document.createElement('div');
+                  successToast.className = 'fixed bottom-6 right-6 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-in fade-in slide-in-from-bottom-4 flex items-center gap-2';
+                  successToast.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span>報告已下載！';
+                  document.body.appendChild(successToast);
+                  setTimeout(() => successToast.remove(), 3000);
+                } catch (err) {
+                  console.error('Download failed:', err);
+                }
+              }}
+              className="flex items-center justify-center rounded-lg h-9 w-9 bg-[#302839] hover:bg-[#473b54] text-white transition-colors"
+              title="下載報告"
+            >
+              <span className="material-symbols-outlined text-[20px]">download</span>
+            </button>
           </div>
           <div className="bg-center bg-no-repeat bg-cover rounded-full size-9 border border-[#302839]" style={{ backgroundImage: 'url("https://api.dicebear.com/7.x/avataaars/svg?seed=Alex")' }}></div>
         </div>
