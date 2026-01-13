@@ -143,7 +143,7 @@ export default function SimulationForm() {
                         }`}
                 >
                     <ImageIcon className="w-4 h-4" />
-                    產品圖片預演
+                    產品圖片
                 </button>
                 <button
                     onClick={() => { setMode('pdf'); setFile(null); }}
