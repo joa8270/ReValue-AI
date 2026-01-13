@@ -891,13 +891,18 @@ class LineBotService:
                     "sentiment": comment.get("sentiment", "neutral"),
                     "text": comment.get("text", "（無評論內容）"),
                     "persona": {
+                        "id": str(citizen["id"]),
                         "name": citizen["name"],
                         "age": str(citizen["age"]),
                         "pattern": bazi.get("structure", "未知格局"),
                         "element": bazi.get("element", "Fire"),
                         "icon": {"Fire": "🔥", "Water": "💧", "Metal": "🔩", "Wood": "🌳", "Earth": "🏔️"}.get(bazi.get("element", "Fire"), "🔥"),
                         "occupation": citizen.get("occupation", "未知職業"),
-                        "location": citizen.get("location", "台灣")
+                        "location": citizen.get("location", "台灣"),
+                        "birth_year": bazi.get("birth_year"),
+                        "birth_month": bazi.get("birth_month"),
+                        "birth_day": bazi.get("birth_day"),
+                        "birth_shichen": bazi.get("birth_shichen")
                     }
                 })
 
@@ -936,13 +941,18 @@ class LineBotService:
                 "sentiment": sentiment,
                 "text": templates[len(arena_comments) % len(templates)],
                 "persona": {
+                    "id": str(citizen["id"]),
                     "name": citizen["name"],
                     "age": str(citizen["age"]),
                     "pattern": bazi.get("structure", "未知格局"),
                     "element": bazi.get("element", "Fire"),
                     "icon": {"Fire": "🔥", "Water": "💧", "Metal": "🔩", "Wood": "🌳", "Earth": "🏔️"}.get(bazi.get("element", "Fire"), "🔥"),
                     "occupation": citizen.get("occupation", "未知職業"),
-                    "location": citizen.get("location", "台灣")
+                    "location": citizen.get("location", "台灣"),
+                    "birth_year": bazi.get("birth_year"),
+                    "birth_month": bazi.get("birth_month"),
+                    "birth_day": bazi.get("birth_day"),
+                    "birth_shichen": bazi.get("birth_shichen")
                 }
             })
 
