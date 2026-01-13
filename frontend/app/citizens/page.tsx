@@ -103,61 +103,18 @@ function parseFourPillars(fourPillars: string | undefined) {
     };
 }
 
-// ===== AVATAR MAPPING =====
-const AVATAR_LIBRARY = {
-    young_male: [
-        '/avatars/avatar_young_male_1_1768270041469.png',
-        '/avatars/avatar_young_male_2_1768270058697.png',
-        '/avatars/avatar_young_male_casual_1_1768270367283.png',
-    ],
-    young_female: [
-        '/avatars/avatar_young_female_1_1768270075482.png',
-        '/avatars/avatar_young_female_2_1768270092079.png',
-        '/avatars/avatar_young_female_casual_1_1768270397501.png',
-    ],
-    middle_male: [
-        '/avatars/avatar_middle_male_1_1768270120184.png',
-    ],
-    middle_female: [
-        '/avatars/avatar_middle_female_1_1768270146836.png',
-        '/avatars/avatar_middle_female_casual_1_1768270457658.png',
-    ],
-    mature_male: [
-        '/avatars/avatar_middle_male_2_1768270133326.png',
-        '/avatars/avatar_middle_male_casual_1_1768270425899.png',  // 銀髮，更適合mature組
-    ],
-    mature_female: [
-        '/avatars/avatar_middle_female_2_1768270160072.png',
-    ],
-    senior_male: [
-        '/avatars/avatar_senior_male_1_1768270174737.png',
-        '/avatars/avatar_senior_male_casual_1_1768270502100.png',
-    ],
-    senior_female: [
-        '/avatars/avatar_senior_female_1_1768270188710.png',
-        '/avatars/avatar_senior_female_casual_1_1768270518730.png',
-    ],
-};
+// ===== AVATAR MAPPING (使用 DiceBear API 動態生成頭像) =====
+function getAvatarPath(citizenId: string, age: number, gender: string, name?: string): string {
+    // 使用市民姓名或 ID 作為種子，確保同一人頭像一致
+    const seed = name || citizenId;
 
-function getAvatarPath(citizenId: string, age: number, gender: string): string {
-    // Determine age group with finer granularity
-    let ageGroup: 'young' | 'middle' | 'mature' | 'senior';
-    if (age <= 30) ageGroup = 'young';
-    else if (age <= 45) ageGroup = 'middle';  // 31-45: No gray hair
-    else if (age <= 55) ageGroup = 'mature';  // 46-55: Some gray hair acceptable  
-    else ageGroup = 'senior';                  // 56+: Gray/white hair
+    // 根據性別和年齡選擇適合的風格
+    // adventurer-neutral 適合真實感、多樣化的頭像
+    const style = 'adventurer-neutral';
 
-    // Determine gender category
-    const genderKey = gender === '女' ? 'female' : 'male';
-    const key = `${ageGroup}_${genderKey}` as keyof typeof AVATAR_LIBRARY;
-
-    const avatars = AVATAR_LIBRARY[key] || AVATAR_LIBRARY.young_male;
-
-    // Use citizen ID as deterministic hash
-    const hash = String(citizenId).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const index = hash % avatars.length;
-
-    return avatars[index];
+    // 構建 DiceBear URL，添加性別和年齡相關參數
+    // DiceBear 會根據 seed 生成一致的頭像
+    return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}&backgroundColor=transparent`;
 }
 
 // ===== COMPONENTS =====
@@ -484,7 +441,7 @@ function CitizensContent() {
                                             <div className="size-20 rounded-xl overflow-hidden border-2 border-[#241a30] shadow-md bg-black relative">
                                                 {/* Real Avatar Photo */}
                                                 <img
-                                                    src={getAvatarPath(citizen.id, citizen.age, citizen.gender)}
+                                                    src={getAvatarPath(citizen.id, citizen.age, citizen.gender, citizen.name)}
                                                     alt={citizen.name}
                                                     className="w-full h-full object-cover"
                                                 />
