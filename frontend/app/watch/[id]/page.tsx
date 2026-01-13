@@ -723,43 +723,69 @@ export default function WatchPage() {
           />
         )}
 
-        {/* Sidebar */}
+        {/* Sidebar - Horizontal Collapse */}
         <aside className={`
-          w-64 flex-none flex flex-col justify-between bg-[#141118] border-r border-[#302839] p-4 overflow-y-auto z-40
+          flex-none flex flex-col justify-between bg-[#141118] border-r border-[#302839] overflow-y-auto z-40
           md:relative md:translate-x-0
-          fixed inset-y-0 left-0 transition-transform duration-300
+          fixed inset-y-0 left-0 transition-all duration-300 ease-in-out
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          ${isSidebarCollapsed ? 'w-14 p-2' : 'w-64 p-4'}
         `}>
-          <div className="flex flex-col gap-6">
-            {/* Header with collapse toggle */}
-            <div className="flex items-start justify-between">
-              <div>
-                <h1 className="text-white text-base font-bold uppercase tracking-wider mb-1">人物誌篩選</h1>
-                <p className="text-gray-500 text-xs">篩選 {TOTAL_POPULATION.toLocaleString()} 位 AI 市民</p>
-              </div>
-              <button
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="p-1.5 rounded-lg hover:bg-[#302839] text-gray-400 hover:text-white transition-all group"
-                title={isSidebarCollapsed ? "展開篩選器" : "收起篩選器"}
-              >
-                <span className={`material-symbols-outlined text-lg transition-transform duration-300 ${isSidebarCollapsed ? 'rotate-180' : ''}`}>
-                  expand_less
-                </span>
-              </button>
+          {/* Collapse Toggle Button */}
+          <button
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className={`absolute top-4 z-50 p-1.5 rounded-lg bg-[#302839] hover:bg-[#473b54] text-gray-400 hover:text-white transition-all border border-[#473b54] shadow-lg ${isSidebarCollapsed ? 'right-2' : 'right-3'}`}
+            title={isSidebarCollapsed ? "展開側欄" : "收起側欄"}
+          >
+            <span className={`material-symbols-outlined text-lg transition-transform duration-300 ${isSidebarCollapsed ? 'rotate-180' : ''}`}>
+              chevron_left
+            </span>
+          </button>
+
+          <div className={`flex flex-col gap-6 ${isSidebarCollapsed ? 'items-center' : ''}`}>
+            {/* Header */}
+            <div className={`${isSidebarCollapsed ? 'hidden' : ''}`}>
+              <h1 className="text-white text-base font-bold uppercase tracking-wider mb-1 mt-10">人物誌篩選</h1>
+              <p className="text-gray-500 text-xs">篩選 {TOTAL_POPULATION.toLocaleString()} 位 AI 市民</p>
             </div>
 
-            {/* Collapsible Content */}
-            <div className={`flex flex-col gap-2 overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'max-h-0 opacity-0' : 'max-h-[600px] opacity-100'}`}>
-              <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#7f13ec]/10 text-white border border-[#7f13ec]/50 transition-all">
+            {/* Collapsed Header Icon */}
+            {isSidebarCollapsed && (
+              <div className="mt-12 text-center">
+                <span className="material-symbols-outlined text-2xl text-[#7f13ec]">filter_list</span>
+              </div>
+            )}
+
+            {/* Content */}
+            <div className={`flex flex-col gap-2 ${isSidebarCollapsed ? 'items-center' : ''}`}>
+              {/* All Citizens Button */}
+              <button className={`flex items-center rounded-lg bg-[#7f13ec]/10 text-white border border-[#7f13ec]/50 transition-all ${isSidebarCollapsed ? 'p-2.5 justify-center' : 'gap-3 px-3 py-2.5'}`} title="所有市民">
                 <span className="material-symbols-outlined fill-1 text-[#7f13ec]">groups</span>
-                <div className="flex flex-col items-start"><span className="text-sm font-bold">所有市民</span><span className="text-[10px] opacity-70">{TOTAL_POPULATION} 名 AI 市民</span></div>
+                {!isSidebarCollapsed && (
+                  <div className="flex flex-col items-start"><span className="text-sm font-bold">所有市民</span><span className="text-[10px] opacity-70">{TOTAL_POPULATION} 名 AI 市民</span></div>
+                )}
               </button>
-              <div className="h-px bg-[#302839] my-2"></div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3">原型</p>
+
+              {!isSidebarCollapsed && <div className="h-px bg-[#302839] my-2"></div>}
+              {!isSidebarCollapsed && <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3">原型</p>}
+
+              {/* Persona Buttons */}
               {[{ name: '科技愛好者', bazi: '食神格', icon: 'devices', count: 342 }, { name: '精打細算型', bazi: '正財格', icon: 'savings', count: 215 }, { name: '懷疑論者', bazi: '七殺格', icon: 'sentiment_dissatisfied', count: 140 }, { name: '早期採用者', bazi: '偏財格', icon: 'rocket_launch', count: 188 }, { name: '家長', bazi: '正印格', icon: 'family_restroom', count: 115 }].map((item) => (
-                <button key={item.name} className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg hover:bg-[#302839] text-[#ab9db9] group transition-colors">
-                  <div className="flex items-center gap-3"><span className="material-symbols-outlined group-hover:text-[#7f13ec] transition-colors">{item.icon}</span><div className="flex flex-col items-start gap-0.5"><span className="text-sm font-medium group-hover:text-white transition-colors">{item.name}</span><span className="text-sm text-[#a855f7] font-bold tracking-wide">{item.bazi}</span></div></div>
-                  <span className="text-xs bg-[#231b2e] px-1.5 py-0.5 rounded text-gray-500">{item.count}</span>
+                <button
+                  key={item.name}
+                  className={`flex items-center rounded-lg hover:bg-[#302839] text-[#ab9db9] group transition-colors ${isSidebarCollapsed ? 'p-2.5 justify-center' : 'justify-between gap-3 px-3 py-2'}`}
+                  title={isSidebarCollapsed ? `${item.name} (${item.bazi})` : undefined}
+                >
+                  <div className={`flex items-center ${isSidebarCollapsed ? '' : 'gap-3'}`}>
+                    <span className="material-symbols-outlined group-hover:text-[#7f13ec] transition-colors">{item.icon}</span>
+                    {!isSidebarCollapsed && (
+                      <div className="flex flex-col items-start gap-0.5">
+                        <span className="text-sm font-medium group-hover:text-white transition-colors">{item.name}</span>
+                        <span className="text-sm text-[#a855f7] font-bold tracking-wide">{item.bazi}</span>
+                      </div>
+                    )}
+                  </div>
+                  {!isSidebarCollapsed && <span className="text-xs bg-[#231b2e] px-1.5 py-0.5 rounded text-gray-500">{item.count}</span>}
                 </button>
               ))}
             </div>
