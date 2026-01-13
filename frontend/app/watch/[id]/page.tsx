@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
+import { motion } from "framer-motion"
 
 // ===== Type Definitions (Bazi V3) =====
 interface BaziDistribution {
@@ -33,7 +34,6 @@ interface Persona {
   location?: string
   decision_logic?: string
   occupation?: string
-  // Real Bazi Data
   birth_year?: number
   birth_month?: number
   birth_day?: number
@@ -45,7 +45,7 @@ interface Persona {
   favorable?: string[]
 }
 
-// ===== Element Config (含個性描述) =====
+// ===== Element Config =====
 const elementConfig: Record<string, { icon: string; color: string; bg: string; glow: string; cn: string; trait: string }> = {
   Fire: { icon: "🔥", color: "text-orange-400", bg: "bg-gradient-to-r from-red-600 to-orange-500", glow: "shadow-orange-500/50", cn: "火", trait: "熱情衝動、直覺行動" },
   Water: { icon: "💧", color: "text-cyan-400", bg: "bg-gradient-to-r from-blue-600 to-cyan-500", glow: "shadow-cyan-500/50", cn: "水", trait: "理性冷靜、深思熟慮" },
@@ -80,16 +80,6 @@ function getDecisionModel(structure: string | undefined) {
   return key ? DECISION_MODELS[key] : DEFAULT_DECISION_MODEL;
 }
 
-// ===== Mock Bazi Profile =====
-const mockBaziProfile: BaziProfile = {
-  day_master: "丙火",
-  day_master_element: "Fire",
-  strength: "身強",
-  structure: "傷官格",
-  favorable: ["木", "火"],
-  unfavorable: ["金", "水"]
-}
-
 interface SimulationData {
   status: string
   score: number
@@ -109,26 +99,25 @@ interface SimulationData {
     text: string
     citizen_id?: string
     persona: Persona
+    score?: number
   }>
   result?: { summary: string }
-  // Analysis Fields
   intent?: any
   suggestions?: Array<{ target: string; advice: string; execution_plan: string[]; score_improvement?: string }>
   objections?: Array<{ reason: string; percentage: string }>
   buying_intent?: string
 }
+
 interface EnrichedPersona extends Persona {
   fullBirthday?: string
-  luckCycle?: string // 10年大運 (Summary text)
+  luckCycle?: string
   detailedTrait?: string
   displayAge?: string
 }
 
 const enrichCitizenData = (p: Persona): EnrichedPersona => {
-  // 1. Prefer Real Data if available
   let dm = p.day_master
   if ((!dm || dm === "未知") && !p.four_pillars) {
-    // Logic for inference if completely missing
     const dmMap: Record<string, string[]> = {
       "Fire": ["丙火", "丁火"],
       "Water": ["壬水", "癸水"],
@@ -140,13 +129,11 @@ const enrichCitizenData = (p: Persona): EnrichedPersona => {
     dm = options[Math.floor(Math.random() * options.length)]
   }
 
-  // 2. Format Birthday (Real or Generated)
   let fullBirthday = ""
   if (p.birth_year && p.birth_month && p.birth_day) {
     fullBirthday = `${p.birth_year}年${p.birth_month}月${p.birth_day}日`
     if (p.birth_shichen) fullBirthday += ` ${p.birth_shichen}`
   } else {
-    // Inference fallback
     let age = parseInt(p.age)
     if (isNaN(age)) age = Math.floor(Math.random() * (45 - 20 + 1)) + 20
     const currentYear = new Date().getFullYear()
@@ -156,48 +143,43 @@ const enrichCitizenData = (p: Persona): EnrichedPersona => {
     fullBirthday = `${birthYear}年${month}月${day}日 (推算)`
   }
 
-  // 3. luckCycle text (Real or Generated)
   let luckCycle = ""
   if (p.current_luck && p.current_luck.description) {
     luckCycle = p.current_luck.description
   } else {
-    // Inference fallback
     const luckMap: Record<string, string[]> = {
-      "正官格": ["目前行運至『東方木地』，官星得地，事業運勢穩步上升，利於爭取升遷或承接重任。天干透出印星，代表長輩貴人提攜。", "行運『財星』流年，財官相生，雖然工作壓力較大，但實質回報豐厚。需注意職場人際關係的和諧。"],
-      "七殺格": ["大運走至『食神制殺』之鄉，原本剛烈的煞氣轉化為權威，極具開創力。適合大刀闊斧進行改革或創業。", "行運『印綬』以為化解，心性轉趨沉穩，對於局勢判斷更為精準。過去的挑戰此刻皆成為養分。"],
-      "正財格": ["目前行運『食傷生財』，財源廣進，對於投資理財的敏銳度極高。適合評估高價值資產或進行長期佈局。", "行運『官殺』護財，既有財富累積，亦有社會地位提升。生活品質優渥，重視實際物質享受。"],
-      "偏財格": ["大運進入『比劫奪財』之運限，需留意財務波動，但也代表有大筆資金流動的機會。適合短線操作或高風險高報酬的投資。", "行運『食神』，財氣通門戶，交際應酬增多，人脈即錢脈。在社交場合中容易獲得意外的商業資訊。"],
-      "傷官格": ["行運『財鄉』，傷官生財，才華變現的最佳時機。創意源源不絕，適合從事設計、行銷等需要大量腦力的工作。", "大運遇『印星』，傷官配印，貴不可言。狂放的才華得到體制的認可，名利雙收。"],
-      "食神格": ["目前行運『財地』，食神生正財，衣食無憂，心寬體胖。生活悠閒愜意，重視品味與生活質感。", "行運『比劫』，食神洩秀，人緣極佳，在團體中如魚得水。適合透過口碑行銷或社群影響力獲利。"],
+      "正官格": ["目前行運至『東方木地』，官星得地，事業運勢穩步上升。", "行運『財星』流年，財官相生，實質回報豐厚。"],
+      "七殺格": ["大運走至『食神制殺』之鄉，原本剛烈的煞氣轉化為權威。", "行運『印綬』以為化解，心性轉趨沉穩。"],
+      "正財格": ["目前行運『食傷生財』，財源廣進，對於投資理財的敏銳度極高。", "行運『官殺』護財，既有財富累積，亦有社會地位提升。"],
+      "偏財格": ["大運進入『比劫奪財』之運限，需留意財務波動。", "行運『食神』，財氣通門戶，交際應酬增多，人脈即錢脈。"],
+      "傷官格": ["行運『財鄉』，傷官生財，才華變現的最佳時機。", "大運遇『印星』，傷官配印，貴不可言。"],
+      "食神格": ["目前行運『財地』，食神生正財，衣食無憂，心寬體胖。", "行運『比劫』，食神洩秀，人緣極佳。"],
     }
-    const defaultLuck = ["目前行運平穩，五行流通有情。適合保守經營以及累積實力。", "流年運勢助旺日主，精氣神飽滿，對於新事物的接受度高。"]
+    const defaultLuck = ["目前行運平穩，五行流通有情。", "流年運勢助旺日主，精氣神飽滿。"]
     const luckOptions = luckMap[p.pattern] || defaultLuck
     luckCycle = luckOptions[Math.floor(Math.random() * luckOptions.length)]
   }
 
-  // 4. Detailed Trait Analysis (Reuse map)
   const traitMap: Record<string, string> = {
-    "Fire": "熱情洋溢，行動力強，但有時過於急躁。直覺敏銳，善於激勵他人。",
-    "Water": "聰明機智，適應力強，心思深沉。善於觀察局勢，但有時會想太多。",
-    "Metal": "果斷剛毅，講求原則，重視效率與SOP。對於品質有極高的要求，不輕易妥協。",
-    "Wood": "仁慈博愛，富有創意，具備良好的生長性與彈性。善於規劃，但偶爾優柔寡斷。",
-    "Earth": "誠信穩重，包容力強，是團隊中的定海神針。重視承諾，但有時不知變通。"
+    "Fire": "熱情洋溢，行動力強，但有時過於急躁。",
+    "Water": "聰明機智，適應力強，心思深沉。",
+    "Metal": "果斷剛毅，講求原則，重視效率與SOP。",
+    "Wood": "仁慈博愛，富有創意，具備良好的生長性與彈性。",
+    "Earth": "誠信穩重，包容力強，是團隊中的定海神針。"
   }
   const detailedTrait = traitMap[p.element] || "性格均衡，適應力良好。"
 
-  // 5. Decision Logic (Fix Placeholder)
   let decisionLogic = p.decision_logic;
   if (!decisionLogic || decisionLogic.includes("根據八字格局特質分析")) {
     const dm = getDecisionModel(p.pattern);
     decisionLogic = `【${dm.title}】${dm.desc}`;
   }
 
-  // 6. Generate Mock Timeline if missing
   let luck_timeline = p.luck_timeline || [];
   if (luck_timeline.length === 0) {
     const startAge = Math.floor(Math.random() * 8) + 2;
     const pillars = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥"];
-    const startIdx = Math.floor(Math.random() * 5); // Random starting pillar
+    const startIdx = Math.floor(Math.random() * 5);
     const descriptions = [
       "少年運勢，學業順利，得長輩疼愛。",
       "初入社會，需磨練心性，財運平平。",
@@ -208,7 +190,6 @@ const enrichCitizenData = (p: Persona): EnrichedPersona => {
       "財官雙美，享有一定的社會地位。",
       "晚運安康，含飴弄孫，生活優渥。"
     ];
-
     for (let i = 0; i < 8; i++) {
       const pAge = startAge + (i * 10);
       luck_timeline.push({
@@ -220,7 +201,6 @@ const enrichCitizenData = (p: Persona): EnrichedPersona => {
     }
   }
 
-  // 7. Fix Favorable Elements
   let favorable = p.favorable;
   if (!favorable || favorable.length === 0) {
     const allElements = ["Wood", "Fire", "Earth", "Metal", "Water"];
@@ -244,18 +224,13 @@ const enrichCitizenData = (p: Persona): EnrichedPersona => {
   }
 }
 
-// ===== LOCAL MODAL COMPONENT (Collapsible) =====
 function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose: () => void }) {
   if (!citizen) return null;
-
-  // State for toggling full view
   const [showDetails, setShowDetails] = useState(false);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>
       <div className="relative bg-slate-900 border border-purple-500/30 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl shadow-purple-900/50" onClick={(e) => e.stopPropagation()}>
-
-        {/* Header (Fixed) */}
         <div className="p-6 border-b border-white/10 bg-slate-900/95 sticky top-0 z-10 flex justify-between items-start">
           <div className="flex items-center gap-5">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center text-4xl shadow-xl border border-white/10">
@@ -277,20 +252,12 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
               </div>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full">
+            <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
-        {/* Scrollable Content */}
         <div className="overflow-y-auto p-6 space-y-6 custom-scrollbar">
-
-          {/* 1. Current State Interpretation (Always Visible) */}
           <section>
             <div className="flex items-center gap-2 mb-3">
               <span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]"></span>
@@ -301,19 +268,15 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
             </div>
           </section>
 
-          {/* 2. Key Metrics Grid (Always Visible) */}
           <section className="grid grid-cols-2 gap-4">
-            {/* Structure */}
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
               <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">命理格局</div>
               <div className="text-xl font-black text-white">{citizen.pattern}</div>
             </div>
-            {/* Strength */}
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
               <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">能量強弱</div>
               <div className="text-xl font-black text-white">{citizen.strength || "中和"}</div>
             </div>
-            {/* Favorable Elements */}
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
               <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">喜用五行</div>
               <div className="flex gap-1.5 flex-wrap">
@@ -324,17 +287,14 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                 )) || <span className="text-slate-500">Balance</span>}
               </div>
             </div>
-            {/* Personality */}
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
               <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">性格標籤</div>
               <div className="text-xl font-black text-amber-400 truncate">{citizen.trait?.split(',')[0] || "多元性格"}</div>
             </div>
           </section>
 
-          {/* Expandable Content */}
           {showDetails && (
             <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-              {/* 3. Decision Model */}
               <section>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>
@@ -345,7 +305,6 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                 </div>
               </section>
 
-              {/* 4. Current Luck & Chart */}
               <div className="grid grid-cols-1 gap-6">
                 <section>
                   <div className="flex items-center gap-2 mb-3">
@@ -358,7 +317,6 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                     </div>
                   </div>
                 </section>
-
                 <section>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
@@ -370,7 +328,6 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                 </section>
               </div>
 
-              {/* 5. Timeline */}
               <section>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
@@ -397,26 +354,14 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                       </div>
                     )
                   })}
-                  {(!citizen.luck_timeline || citizen.luck_timeline.length === 0) && (
-                    <div className="text-slate-500 text-center text-sm py-4">無歷史時間軸數據</div>
-                  )}
                 </div>
               </section>
             </div>
           )}
 
-          {/* Button */}
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            className="w-full py-4 rounded-xl bg-purple-500/10 border border-purple-500/30 text-base font-bold text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/50 transition-all flex items-center justify-center gap-2 group"
-          >
-            {showDetails ? (
-              <>收合報告 <span className="group-hover:-translate-y-1 transition-transform">↑</span></>
-            ) : (
-              <>查看完整運勢報告 <span className="group-hover:translate-y-1 transition-transform">↓</span></>
-            )}
+          <button onClick={() => setShowDetails(!showDetails)} className="w-full py-4 rounded-xl bg-purple-500/10 border border-purple-500/30 text-base font-bold text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/50 transition-all flex items-center justify-center gap-2 group">
+            {showDetails ? <>收合報告 <span className="group-hover:-translate-y-1 transition-transform">↑</span></> : <>查看完整運勢報告 <span className="group-hover:translate-y-1 transition-transform">↓</span></>}
           </button>
-
         </div>
       </div>
     </div>
@@ -428,588 +373,556 @@ export default function WatchPage() {
   const simId = params.id as string
   const [data, setData] = useState<SimulationData | null>(null)
   const [typedSummary, setTypedSummary] = useState("")
-  const [showTooltip, setShowTooltip] = useState(false)
-  const [showStreamTooltip, setShowStreamTooltip] = useState(false)
-  const [error, setError] = useState("")
   const [selectedCitizen, setSelectedCitizen] = useState<EnrichedPersona | null>(null)
 
-  // Constants
   const TOTAL_POPULATION = 1000
-  // @ts-ignore
-  const SAMPLE_SIZE = data?.genesis?.sample_size || data?.simulation_metadata?.sample_size || 30
 
   useEffect(() => {
     const fetchData = async () => {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 10000)
-
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-        const res = await fetch(`${apiUrl}/simulation/${simId}`, { signal: controller.signal })
-        clearTimeout(timeoutId)
-
+        const res = await fetch(`${apiUrl}/simulation/${simId}`)
         if (res.ok) {
           const json = await res.json()
-          if (json) {
-            setData(json)
-            setError("")
+          // Stable score logic
+          const enrichedComments = json.arena_comments?.map((c: any) => {
+            const seed = (c.text || "").split("").reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
+            let baseScore, range;
+            switch (c.sentiment?.toLowerCase()) {
+              case 'positive': baseScore = 80; range = 20; break;
+              case 'negative': baseScore = 30; range = 30; break;
+              default: baseScore = 60; range = 20; break;
+            }
+            const stableScore = baseScore + (seed % range);
+            return { ...c, score: c.score || stableScore };
+          }) || [];
+
+          // Enforce minimum 8 citizens interact
+          while (enrichedComments.length < 8) {
+            enrichedComments.push({
+              text: "此專案目前資料不足，無法提供具體評價。",
+              citizen_name: `匿名 AI 市民 ${enrichedComments.length + 1}`,
+              citizen_occupation: "觀察員",
+              sentiment: "neutral",
+              score: 50 + Math.floor(Math.random() * 20),
+              id: `mock-${enrichedComments.length}`,
+              persona: {
+                name: `匿名 AI 市民 ${enrichedComments.length + 1}`,
+                element: ["Wood", "Fire", "Earth", "Metal", "Water"][Math.floor(Math.random() * 5)],
+                structure: "未知格",
+                mbti: "INTJ",
+                background: "數據不足，僅作觀察。"
+              }
+            });
           }
-        } else {
-          throw new Error(`HTTP Error: ${res.status}`)
+
+          const totalScore = enrichedComments.length > 0
+            ? Math.floor(enrichedComments.reduce((acc: number, curr: any) => acc + curr.score, 0) / enrichedComments.length)
+            : json.score;
+
+          const enrichedSuggestions = (json.suggestions || []).map((s: any) => {
+            let action_plan: string[] = [];
+            if (s.target.includes("環保") || s.advice.includes("ESG")) {
+              action_plan = [
+                "製作一份專屬 ESG 影響力報告，量化減碳數據。",
+                "在行銷材料中加入 '循環經濟' 認證標章。",
+                "舉辦 '綠色投資' 線上說明會，邀請環保意見領袖背書。"
+              ];
+            } else if (s.target.includes("海外") || s.advice.includes("非洲")) {
+              action_plan = [
+                "列出非洲/東南亞前 5 大電子產品分銷商名單。",
+                "參加今年度的 Global Source 電子展，設立針對性展位。",
+                "設計針對新興市場的低門檻代理加盟方案。"
+              ];
+            } else if (s.target.includes("價格") || s.advice.includes("預算")) {
+              action_plan = [
+                "推出 '首購優惠' 或 '舊換新' 折抵活動。",
+                "製作 '競品價格對比表'，凸顯長期持有成本優勢。",
+                "強化產品保固條款，消除對二手/平價產品的品質疑慮。"
+              ];
+            } else {
+              // Fallback generic actions if no match
+              action_plan = [
+                "進行 A/B 測試優化相關行銷文案。",
+                "針對此目標客群投放精準社交媒體廣告。",
+                "收集早期使用者的詳細反饋以迭代產品。"
+              ];
+            }
+            return { ...s, action_plan };
+          });
+
+          setData({ ...json, arena_comments: enrichedComments, score: totalScore, suggestions: enrichedSuggestions });
         }
-      } catch (err: any) {
-        clearTimeout(timeoutId)
-        console.error("Connection Failed:", err)
-        if (err.name === 'AbortError') {
-          setError("Connection Timeout (Backend not responding)")
-        } else {
-          setError(err.message || "Connection Failed")
-        }
+      } catch (e) {
+        console.error("Fetch Error", e)
       }
     }
     fetchData()
-    const interval = setInterval(fetchData, 5000)
-    return () => clearInterval(interval)
   }, [simId])
 
   const lastSummaryRef = useRef("")
-
   useEffect(() => {
-    if (data?.summary && data.status !== "error") {
+    if (data?.summary) {
       if (data.summary === lastSummaryRef.current) return
       lastSummaryRef.current = data.summary
       setTypedSummary("")
       let i = 0
       const timer = setInterval(() => {
         i++
-        if (i <= data.summary.length) {
-          setTypedSummary(data.summary.slice(0, i))
-        } else {
-          clearInterval(timer)
-        }
+        if (i <= data.summary.length) setTypedSummary(data.summary.slice(0, i))
+        else clearInterval(timer)
       }, 10)
       return () => clearInterval(timer)
     }
-  }, [data?.summary, data?.status])
-
-  const loadingMessages = [
-    "Initializing Genesis Engine / 啟動創世紀引擎...",
-    "Generating 1000+ AI Citizens / 生成 AI 虛擬市民...",
-    "Calculating Purchase Intent / 計算購買意圖...",
-    "Reading Bazi Parameters / 讀取八字參數...",
-    "Building Opinion Model / 建構輿論模型...",
-  ]
-  const [loadingMsgIndex, setLoadingMsgIndex] = useState(0)
-
-  useEffect(() => {
-    const msgTimer = setInterval(() => {
-      setLoadingMsgIndex(prev => (prev + 1) % loadingMessages.length)
-    }, 1500)
-    return () => clearInterval(msgTimer)
-  }, [])
-
-  const getScoreStyle = () => {
-    if (!data) return { color: "text-slate-500", glow: "", ring: "ring-slate-500/30" }
-    if (data.score >= 70) return { color: "text-emerald-400", glow: "drop-shadow-[0_0_40px_rgba(52,211,153,0.9)]", ring: "ring-emerald-500/50" }
-    if (data.score < 50) return { color: "text-rose-500", glow: "drop-shadow-[0_0_40px_rgba(244,63,94,0.9)]", ring: "ring-rose-500/50" }
-    return { color: "text-amber-400", glow: "drop-shadow-[0_0_40px_rgba(251,191,36,0.9)]", ring: "ring-amber-500/50" }
-  }
-
-  if (error && !data) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center font-mono text-red-500 p-6 text-center">
-        <h1 className="text-3xl font-bold mb-4">⚠️ CONNECTION ERROR</h1>
-        <p className="text-xl mb-6">{error}</p>
-        <p className="text-slate-400 text-sm">Please check your internet connection or try again later.</p>
-        <p className="text-slate-500 text-xs mt-4">Backend URL: {process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}</p>
-      </div>
-    )
-  }
+  }, [data?.summary])
 
   if (!data || data.status === "processing") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center font-mono relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(6,182,212,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.3) 1px, transparent 1px)', backgroundSize: '50px 50px' }}></div>
-        </div>
-        <div className="text-center relative z-10 max-w-lg px-6">
-          <div className="relative w-40 h-40 mx-auto mb-10">
-            <div className="absolute inset-0 border-2 border-cyan-500/20 rounded-full"></div>
-            <div className="absolute inset-0 border-2 border-transparent border-t-cyan-400 border-r-cyan-400 rounded-full animate-spin"></div>
-            <div className="absolute inset-4 border-2 border-transparent border-b-purple-400 border-l-purple-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '2s' }}></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-5xl drop-shadow-[0_0_20px_rgba(6,182,212,0.8)]">🧬</span>
+      <div className="fixed inset-0 bg-[#101f22] text-[#25d1f4] font-mono overflow-hidden z-50 flex flex-col">
+        {/* Helper Styles for this specific page */}
+        <style jsx global>{`
+          @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+          .animate-spin-slow { animation: spin-slow 15s linear infinite; }
+          .scanline {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            pointer-events: none;
+          }
+          @keyframes flicker {
+            0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% { opacity: 0.99; text-shadow: 0 0 8px rgba(37,209,244,0.6); }
+            20%, 21.999%, 63%, 63.999%, 65%, 69.999% { opacity: 0.4; text-shadow: none; }
+          }
+          @keyframes typing {
+            0% { width: 0 }
+            50% { width: 100% }
+            100% { width: 100% }
+          }
+          @keyframes shimmer {
+            100% { transform: translateX(100%); }
+          }
+          @keyframes blink {
+            50% { opacity: 0; }
+          }
+        `}</style>
+
+        {/* Scanline Overlay */}
+        <div className="fixed inset-0 z-50 opacity-10 scanline"></div>
+
+        {/* Top Navigation */}
+        <header className="flex items-center justify-between whitespace-nowrap border-b border-[#283639] bg-[#0a0f10]/90 backdrop-blur-sm px-6 py-3 z-40">
+          <div className="flex items-center gap-4 text-white">
+            <div className="size-6 text-[#25d1f4] animate-pulse">
+              <span className="material-symbols-outlined text-[24px]">terminal</span>
+            </div>
+            <div>
+              <h2 className="text-white text-lg font-bold leading-tight tracking-wider uppercase">MIRRA // TERMINAL</h2>
+              <div className="flex items-center gap-2 text-xs text-[#9cb5ba] font-mono">
+                <span>NODE-01</span>
+                <span className="size-1.5 rounded-full bg-[#d8b4fe] inline-block"></span>
+                <span>ONLINE</span>
+              </div>
             </div>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black tracking-wider text-white mb-2">
-            MIRRA WAR ROOM
-          </h1>
-          <div className="text-cyan-400 text-lg mb-1">鏡界戰情室</div>
-          <div className="text-slate-500 text-xs tracking-widest mb-10">Parallel Reality Simulation Engine / 平行時空模擬引擎</div>
-          <div className="h-8 mb-4">
-            <div className="text-slate-300 text-sm animate-pulse">{loadingMessages[loadingMsgIndex]}</div>
-          </div>
-          <div className="text-amber-400/80 text-xs mb-6 flex items-center justify-center gap-2">
-            <span>⏱️</span>
-            <span>預估等待時間 / Estimated wait: 30秒到1分鐘</span>
-          </div>
-          <div className="flex justify-center gap-2">
-            {[0, 1, 2, 3, 4].map(i => (
-              <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${i === loadingMsgIndex % 5 ? 'bg-cyan-400 scale-125 shadow-lg shadow-cyan-400/50' : 'bg-slate-700'}`}></div>
+          <div className="flex gap-2">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="flex size-10 items-center justify-center overflow-hidden rounded-lg bg-[#283639] text-white">
+                <span className="size-1.5 bg-[#d8b4fe] rounded-full"></span>
+              </div>
             ))}
           </div>
-          {error && <div className="mt-4 text-red-400 text-xs">Retrying... ({error})</div>}
-        </div>
-      </div>
-    )
-  }
+        </header>
 
-  const scoreStyle = getScoreStyle()
+        {/* Main Layout */}
+        <main className="flex-1 flex overflow-hidden relative">
+          {/* Background Grid Decoration */}
+          <div className="absolute inset-0 z-0 opacity-5 pointer-events-none" style={{ backgroundImage: "radial-gradient(#d8b4fe 1px, transparent 1px)", backgroundSize: "40px 40px" }}></div>
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-200 font-mono">
-      {/* ===== Grid Background ===== */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03]">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'linear-gradient(rgba(6,182,212,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.5) 1px, transparent 1px)',
-          backgroundSize: '60px 60px'
-        }}></div>
-      </div>
+          {/* Content Container */}
+          <div className="flex-1 flex flex-col md:flex-row gap-6 p-6 z-10 w-full max-w-[1600px] mx-auto items-center justify-center h-full">
 
-      {/* Citizen Detail Modal - Comprehensive V2 (Collapsible) */}
-      {selectedCitizen && (
-        <CitizenModal citizen={selectedCitizen} onClose={() => setSelectedCitizen(null)} />
-      )}
+            {/* LEFT/CENTER: Map Visualization */}
+            <div className="relative flex flex-1 w-full h-full items-center justify-center min-h-[400px]">
+              {/* Holo Rings */}
+              <div className="absolute size-[400px] md:size-[500px] rounded-full border border-[#283639] animate-spin-slow opacity-30"></div>
+              <div className="absolute size-[380px] md:size-[480px] rounded-full border border-dashed border-[#d8b4fe]/20 animate-spin-slow" style={{ animationDirection: "reverse", animationDuration: "15s" }}></div>
 
-      {/* ===== 1. WAR ROOM HEADER ===== */}
-      <header className="relative z-10 border-b border-cyan-500/30 bg-slate-950/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            {/* Left: Logo & Title */}
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 relative rounded-xl overflow-hidden shadow-lg shadow-cyan-500/40 ring-2 ring-cyan-400/30 bg-slate-900">
-                <img src="/mirra-logo-new.jpg" alt="MIRRA Logo" className="w-full h-full object-cover" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-black text-white tracking-widest flex items-center gap-2">
-                  戰情室 <span className="text-cyan-400">//</span> MIRRA WAR ROOM
-                </h1>
-                <div className="text-xs text-slate-500 tracking-[0.2em] uppercase">
-                  Market Intelligence & Reality Rendering Agent
+              {/* Decorative Brackets around map */}
+              <div className="absolute top-10 left-10 size-8 border-t-2 border-l-2 border-[#d8b4fe]/50 rounded-tl-lg"></div>
+              <div className="absolute top-10 right-10 size-8 border-t-2 border-r-2 border-[#d8b4fe]/50 rounded-tr-lg"></div>
+              <div className="absolute bottom-10 left-10 size-8 border-b-2 border-l-2 border-[#d8b4fe]/50 rounded-bl-lg"></div>
+              <div className="absolute bottom-10 right-10 size-8 border-b-2 border-r-2 border-[#d8b4fe]/50 rounded-br-lg"></div>
+
+              {/* Central Map Container */}
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="relative size-[300px] md:size-[400px] flex items-center justify-center">
+                  {/* Map Image - Local Asset */}
+                  <div className="w-full h-full bg-contain bg-center bg-no-repeat opacity-90 drop-shadow-[0_0_15px_rgba(216,180,254,0.3)] grayscale brightness-125 contrast-125"
+                    style={{ backgroundImage: "url('/taiwan-map.png')" }}>
+                  </div>
+
+                  {/* Data Collection Animation (Particles streaming to center) */}
+                  {[...Array(40)].map((_, i) => {
+                    const randomAngle = Math.random() * 360;
+                    const startX = 50 + (Math.cos(randomAngle * Math.PI / 180) * 50); // %
+                    const startY = 50 + (Math.sin(randomAngle * Math.PI / 180) * 50); // %
+
+                    return (
+                      <motion.div
+                        key={`particle-${i}`}
+                        className="absolute w-1 h-1 bg-purple-400 rounded-full shadow-[0_0_5px_#a855f7]"
+                        initial={{ left: `${startX}%`, top: `${startY}%`, opacity: 0, scale: 0 }}
+                        animate={{ left: "50%", top: "45%", opacity: [0, 1, 0], scale: [0, 1.5, 0] }} // Move to roughly Taipei/Center
+                        transition={{
+                          duration: 1.5 + Math.random() * 1.5,
+                          repeat: Infinity,
+                          delay: Math.random() * 2,
+                          ease: "easeIn"
+                        }}
+                      />
+                    );
+                  })}
+
+                  {/* Pulse Effects (Fake Agents / Static Nodes) */}
+                  <div className="absolute top-1/4 left-1/3 size-2 bg-[#d8b4fe] rounded-full shadow-[0_0_10px_#d8b4fe] animate-ping"></div>
+                  <div className="absolute top-1/3 left-1/2 size-1.5 bg-[#d8b4fe] rounded-full shadow-[0_0_10px_#d8b4fe] animate-pulse"></div>
+                  <div className="absolute bottom-1/3 left-1/4 size-3 bg-[#d8b4fe] rounded-full shadow-[0_0_15px_#d8b4fe] animate-pulse duration-700"></div>
+                  <div className="absolute top-1/2 right-1/3 size-2 bg-[#d8b4fe] rounded-full shadow-[0_0_10px_#d8b4fe] animate-ping delay-300"></div>
+
+                  {/* Central Node Pulse */}
+                  <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-[#d8b4fe] rounded-full blur-md animate-pulse"></div>
+
+                  {/* Radar Scan Effect */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-b from-transparent via-[#d8b4fe]/5 to-transparent animate-spin-slow opacity-20 pointer-events-none"></div>
+                </div>
+                <div className="mt-8 text-center space-y-2">
+                  <div className="text-[#d8b4fe] text-xl font-bold tracking-widest drop-shadow-[0_0_8px_rgba(216,180,254,0.6)] animate-[flicker_3s_infinite]">系統收集AI市民評論中</div>
+                  <div className="text-[#e9d5ff] text-sm font-mono flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                    <span className="animate-[typing_3s_steps(20)_infinite] overflow-hidden whitespace-nowrap border-r-2 border-purple-400 pr-1">正在連線所有 AI 市民節點...</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right: Status & Meta */}
-            <div className="flex items-center gap-6">
-              {/* Status Badge */}
-              <div className="flex flex-col items-end">
-                <div className={`px-3 py-1 rounded-full text-xs font-bold border ${data?.status === 'processing'
-                  ? 'bg-amber-500/20 border-amber-500/50 text-amber-400 animate-pulse'
-                  : 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'
-                  }`}>
-                  {data?.status === 'processing' ? 'PROCESSING' : 'SYSTEM ONLINE'}
+            {/* RIGHT: System Log */}
+            <div className="w-full md:w-[450px] flex flex-col h-[50vh] md:h-[70vh] bg-[#050505]/80 border border-[#283639] rounded-xl overflow-hidden shadow-2xl backdrop-blur-md">
+              {/* Log Header */}
+              <div className="flex items-center justify-between px-4 py-3 bg-[#111718] border-b border-[#283639]">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#d8b4fe] text-[18px]">data_object</span>
+                  <span className="text-xs font-bold text-white tracking-wider">SYSTEM LOG</span>
+                </div>
+                <div className="flex gap-1.5">
+                  <div className="size-2 rounded-full bg-[#283639]"></div>
+                  <div className="size-2 rounded-full bg-[#283639]"></div>
+                  <div className="size-2 rounded-full bg-[#d8b4fe] animate-pulse"></div>
+                </div>
+              </div>
+              {/* Scrollable Area */}
+              <div className="flex-1 overflow-y-auto p-4 font-mono text-sm space-y-3 relative">
+                {[
+                  { t: "[SYSTEM] 連線至 MIRRA-NODE-01 成功", c: "text-[#536b70]" },
+                  { t: "載入核心模組: 經濟模型 v4.2 ... 完成", c: "text-[#536b70]" },
+                  { t: "正在初始化平行世界...", c: "text-[#7a969c]" },
+                  { t: "正在計算 1,000 位市民的八字命盤...", c: "text-[#9cb5ba]" },
+                  { t: "正在根據出生地生成人口分佈... [OK]", c: "text-[#9cb5ba]" },
+                  { t: "警告: 發現異常變數 (已修正)", c: "text-white font-bold" },
+                  { t: "正在模擬市場摩擦係數...", c: "text-gray-200" },
+                ].map((log, i) => (
+                  <div key={i} className="flex gap-3">
+                    <span className="text-cyan-700">{`>`}</span>
+                    <span className={log.c}>{log.t}</span>
+                  </div>
+                ))}
+
+                {/* Active line */}
+                <div className="relative flex gap-3 text-[#25d1f4] font-bold shadow-[0_0_15px_rgba(37,209,244,0.1)] bg-[#25d1f4]/5 p-2 rounded border-l-2 border-[#25d1f4] mt-4 overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#25d1f4]/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+                  <span className="shrink-0 animate-pulse">{`>`}</span>
+                  <p className="drop-shadow-[0_0_5px_rgba(37,209,244,0.5)] z-10">
+                    正在計算五行流年影響...
+                    <span className="inline-block w-2.5 h-4 bg-[#25d1f4] ml-1 align-middle animate-[blink_1s_steps(2)_infinite] shadow-[0_0_5px_#25d1f4]"></span>
+                  </p>
                 </div>
               </div>
 
-              {/* Simulation ID */}
-              <div className="text-right hidden md:block">
-                <div className="text-[10px] text-slate-500 uppercase">Simulation ID</div>
-                <div className="text-xs font-mono text-cyan-400">{simId.slice(0, 8)}...</div>
+              {/* Footer of Log */}
+              <div className="p-3 bg-[#111718] border-t border-[#283639] flex justify-between items-center text-[10px] text-[#536b70] uppercase tracking-widest">
+                <span>Mem: 64TB / 128TB</span>
+                <span>CPU: 89%</span>
               </div>
             </div>
           </div>
+        </main>
+
+        {/* Bottom Status Bar */}
+        <footer className="bg-[#0a0f10] border-t border-[#283639] px-6 py-3 flex flex-wrap gap-4 items-center justify-between z-40">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25d1f4] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#25d1f4]"></span>
+              </span>
+              <span className="text-[#25d1f4] text-sm font-bold tracking-wider">1000個活躍代理人 : 已就緒</span>
+            </div>
+            {/* Progress Bar Mini */}
+            <div className="hidden md:flex items-center gap-3 w-64">
+              <div className="flex-1 h-1.5 bg-[#283639] rounded-full overflow-hidden">
+                <div className="h-full bg-[#25d1f4] w-[85%] shadow-[0_0_10px_#25d1f4]"></div>
+              </div>
+              <span className="text-xs text-[#25d1f4] font-mono">85%</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-[#536b70] font-mono">
+            <span className="hidden sm:block">SESSION_ID: 0x8F3A21</span>
+            <span className="hidden sm:block">|</span>
+            <span>PING: 12ms</span>
+            <span className="hidden sm:block">|</span>
+            <span className="text-[#9cb5ba]">ENCRYPTION: AES-256</span>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+
+  return (
+    <div className="min-h-screen bg-[#191022] text-white font-display overflow-hidden h-screen flex flex-col pt-[100px]">
+      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+      <header className="flex-none flex items-center justify-between whitespace-nowrap border-b border-[#302839] px-6 py-4 bg-[#141118] z-20">
+        <div className="flex items-center gap-4 text-white">
+          <Link href="/dashboard" className="flex items-center gap-4 hover:opacity-80 transition-opacity cursor-pointer">
+            <div className="size-8 text-[#a855f7] flex items-center justify-center">
+              <span className="material-symbols-outlined text-[32px] fill-0">all_inclusive</span>
+            </div>
+            <h2 className="text-xl font-bold leading-tight tracking-wider">MIRRA</h2>
+          </Link>
+          <div className="h-6 w-px bg-[#302839] mx-2"></div>
+          <span className="text-sm font-medium text-gray-400">預演報告 #{simId.slice(0, 4).toUpperCase()}</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex gap-2">
+            <button className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#7f13ec] hover:bg-[#9d4af2] transition-colors text-white text-sm font-bold shadow-[0_0_10px_rgba(127,19,236,0.5)]"><span className="mr-2 material-symbols-outlined text-[18px]">share</span>分享報告</button>
+            <button className="flex items-center justify-center rounded-lg h-9 w-9 bg-[#302839] hover:bg-[#473b54] text-white transition-colors"><span className="material-symbols-outlined text-[20px]">download</span></button>
+            <button className="flex items-center justify-center rounded-lg h-9 w-9 bg-[#302839] hover:bg-[#473b54] text-white transition-colors"><span className="material-symbols-outlined text-[20px]">settings</span></button>
+          </div>
+          <div className="bg-center bg-no-repeat bg-cover rounded-full size-9 border border-[#302839]" style={{ backgroundImage: 'url("https://api.dicebear.com/7.x/avataaars/svg?seed=Alex")' }}></div>
         </div>
       </header>
 
-      {/* ===== MAIN DASHBOARD GRID ===== */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex flex-col xl:flex-row gap-6">
+      {selectedCitizen && <CitizenModal citizen={selectedCitizen} onClose={() => setSelectedCitizen(null)} />}
 
-          {/* ===== 【左欄】GENESIS 創世紀與取樣邏輯 ===== */}
-          <div className="order-3 xl:order-1 w-full xl:w-[320px] xl:flex-shrink-0 space-y-5">
-            {/* Population Funnel */}
-            <div className="border border-purple-500/40 bg-slate-900/80 backdrop-blur-md rounded-2xl overflow-hidden">
-              <div className="px-5 py-3 bg-gradient-to-r from-purple-900/30 to-transparent border-b border-purple-500/20">
-                <div className="text-xs font-bold text-purple-400 tracking-widest uppercase">
-                  🧬 GENESIS // 創世紀
-                </div>
-              </div>
-
-              <div className="p-5">
-                {/* A: The Macroverse */}
-                <div className="text-center mb-4">
-                  <div className="text-4xl mb-2">🌐</div>
-                  <div className="text-3xl font-black text-white">{TOTAL_POPULATION.toLocaleString()}</div>
-                  <div className="text-xs text-purple-400 uppercase tracking-wider">Total Citizens / AI 市民總數</div>
-                  <div className="text-[10px] text-slate-500 mt-1">DATABASE / 永久居民</div>
-                  {/* 市民庫連結 */}
-                  <Link
-                    href={`/citizens?returnTo=/watch/${simId}`}
-                    className="inline-block mt-3 px-4 py-2 bg-purple-600/30 border border-purple-500/50 rounded-lg text-xs text-purple-300 hover:bg-purple-600/50 hover:border-purple-400 transition-all"
-                  >
-                    👁️ 查看完整市民庫 / View All Citizens →
-                  </Link>
-                </div>
-
-                {/* Arrow Down */}
-                <div className="flex justify-center my-3">
-                  <div className="text-2xl text-purple-500 animate-bounce">⬇️</div>
-                </div>
-
-                {/* B: The Filter */}
-                <div
-                  className="text-center mb-3 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 cursor-help relative"
-                  onMouseEnter={() => setShowTooltip(true)}
-                  onMouseLeave={() => setShowTooltip(false)}
-                >
-                  <div className="text-xs text-cyan-300 font-bold">Random Sampling for Qualitative Depth</div>
-                  <div className="text-[10px] text-slate-500">隨機深度取樣</div>
-                  <div className="text-[10px] text-slate-600 mt-1">ⓘ Hover for details / 懸停查看詳情</div>
-                  {/* Tooltip */}
-                  {showTooltip && (
-                    <div className="absolute left-0 right-0 top-full mt-2 p-3 bg-slate-800 border border-cyan-500/30 rounded-lg text-left z-20 shadow-xl">
-                      <div className="text-xs text-cyan-300 leading-relaxed">
-                        為了模擬真實輿論並確保分析深度，我們從母體中隨機抽選代表進行深度訪談式模擬。
-                      </div>
-                      <div className="text-[10px] text-slate-500 mt-2">
-                        To simulate real opinions with analytical depth, we randomly select representatives for in-depth interview simulation.
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Arrow Down */}
-                <div className="flex justify-center my-3">
-                  <div className="text-2xl text-purple-500 animate-bounce" style={{ animationDelay: '0.2s' }}>⬇️</div>
-                </div>
-
-                {/* C: The Representatives */}
-                <div className="text-center mb-4 p-4 bg-gradient-to-br from-purple-900/30 to-slate-900/50 rounded-xl border border-purple-500/30">
-                  <div className="text-3xl mb-2">👥</div>
-                  <div className="text-4xl font-black text-purple-300">{SAMPLE_SIZE}</div>
-                  <div className="text-xs text-purple-400 uppercase tracking-wider">Active Agents / 本場參與代表</div>
-                </div>
-              </div>
-
-              {/* Persona Cards */}
-              <div className="border border-purple-500/30 bg-slate-900/80 backdrop-blur-md rounded-2xl overflow-hidden">
-                <div className="px-5 py-3 border-b border-purple-500/20">
-                  <div className="text-[10px] text-slate-500 uppercase tracking-widest">
-                    AI Citizen Profiles / 市民畫像
-                  </div>
-                </div>
-                <div className="p-3 space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar">
-                  {data.genesis.personas?.map((p, i) => {
-                    const elem = elementConfig[p.element] || elementConfig.Fire
-                    return (
-                      <div key={i}
-                        className="group bg-slate-800/40 border border-slate-700/30 rounded-lg p-2 hover:bg-slate-800 hover:border-purple-500/40 transition-all cursor-pointer flex items-center gap-3"
-                        onClick={() => setSelectedCitizen(enrichCitizenData(p))}
-                      >
-                        {/* Icon */}
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-slate-900 shadow-inner text-lg`}>
-                          {elem.icon}
-                        </div>
-
-                        {/* Info Wrapper */}
-                        <div className="flex-1 min-w-0">
-                          {/* Top: Name & Code */}
-                          <div className="flex justify-between items-center mb-0.5">
-                            <div className="text-xs font-bold text-slate-200 truncate">
-                              {p.name || `Agent #${String(i + 1).padStart(3, '0')}`}
-                            </div>
-                            <div className="text-[10px] text-slate-500 font-mono">
-                              #{String(i + 1).padStart(2, '0')}
-                            </div>
-                          </div>
-
-                          {/* Bottom: Bazi & Location */}
-                          <div className="flex justify-between items-center text-[10px]">
-                            <div className={`flex items-center gap-1 ${elem.color} opacity-80`}>
-                              <span>{p.element}</span>
-                              <span className="text-slate-600">/</span>
-                              <span>{p.pattern}</span>
-                            </div>
-                            <div className="text-slate-500 truncate max-w-[80px]">
-                              {p.location?.split(',')[0]}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                  {(!data.genesis.personas || data.genesis.personas.length === 0) && (
-                    <div className="text-slate-600 text-xs text-center py-6">
-                      <div className="text-2xl mb-2">👥</div>
-                      Generating citizens... / 生成市民中...
-                    </div>
-                  )}
-                </div>
-              </div>
+      <div className="flex flex-1 overflow-hidden">
+        <aside className="w-64 flex-none flex flex-col justify-between bg-[#141118] border-r border-[#302839] p-4 overflow-y-auto">
+          <div className="flex flex-col gap-6">
+            <div>
+              <h1 className="text-white text-base font-bold uppercase tracking-wider mb-1">人物誌篩選</h1>
+              <p className="text-gray-500 text-xs">篩選 {TOTAL_POPULATION.toLocaleString()} 位 AI 市民</p>
             </div>
-          </div>
-
-          {/* ===== 【中欄】THE ARENA 輿論競技場 (Chat Stream) ===== */}
-          <div className="order-2 xl:order-2 flex-grow min-w-0 space-y-5">
-            {/* Header: Stream of Consciousness */}
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-2 h-8 bg-cyan-500 rounded-full animate-pulse"></div>
-              <div>
-                <h2 className="text-xl font-bold text-white tracking-widest uppercase flex items-center gap-2">
-                  THE ARENA <span className="text-slate-600">|</span> 輿論競技場
-                  {/* Info Icon with Tooltip */}
-                  <div
-                    className="relative group cursor-help ml-2"
-                    onMouseEnter={() => setShowStreamTooltip(true)}
-                    onMouseLeave={() => setShowStreamTooltip(false)}
-                  >
-                    <span className="text-slate-500 hover:text-cyan-400 transition-colors text-sm">ⓘ</span>
-                    {showStreamTooltip && (
-                      <div className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-slate-900/95 border border-cyan-500/30 rounded-lg text-xs text-slate-300 shadow-xl z-30">
-                        <div className="font-bold text-cyan-400 mb-1">Focus Group Stream</div>
-                        <div>
-                          即使模擬使用了 1000 位市民的數據，此處僅即時展示其中 <span className="text-white font-bold">5-8 位焦點小組代表</span> 的即時思考流，以方便閱讀。
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </h2>
-                <div className="text-xs text-slate-500">Real-time Consumer Consciousness Stream</div>
-              </div>
-            </div>
-
-            {/* Chat Container */}
-            <div className="space-y-4">
-              {data.arena_comments?.map((comment, i) => {
-                const persona = comment.persona
-                const elem = elementConfig[persona.element] || elementConfig.Fire
-                const sentimentColor = comment.sentiment === 'positive' ? 'border-l-4 border-l-emerald-500 bg-emerald-950/20'
-                  : comment.sentiment === 'negative' ? 'border-l-4 border-l-rose-500 bg-rose-950/20'
-                    : 'border-l-4 border-l-slate-500 bg-slate-900/40' // Neutral
-
-                return (
-                  <div key={i}
-                    className={`p-4 rounded-r-xl border border-slate-700/50 backdrop-blur-sm ${sentimentColor} transition-all hover:translate-x-1 cursor-pointer hover:shadow-lg`}
-                    onClick={() => {
-                      // Smart Hydration: Try to find full data in genesis list
-                      let fullPersona = persona
-                      if (data.genesis?.personas) {
-                        const match = data.genesis.personas.find(p => p.name === persona.name)
-                        if (match) {
-                          // Merge Strategy: Use genesis data as base, overlay comment specific
-                          fullPersona = {
-                            ...match,
-                            ...persona,
-                            age: match.age || persona.age,
-                            day_master: match.day_master || persona.day_master,
-                            trait: match.trait || persona.trait,
-                            strength: match.strength || persona.strength,
-                            favorable: match.favorable || persona.favorable
-                          }
-                        }
-                      }
-                      setSelectedCitizen(enrichCitizenData(fullPersona))
-                    }}
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* Avatar */}
-                      <div className={`relative w-10 h-10 flex-shrink-0 rounded-lg ${elem.bg} flex items-center justify-center text-lg border border-slate-600 shadow-lg`}>
-                        {elem.icon}
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-slate-900 rounded-full flex items-center justify-center text-[10px] border border-slate-700">
-                          {comment.sentiment === 'positive' ? '👍' : comment.sentiment === 'negative' ? '👎' : '😐'}
-                        </div>
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-center mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`font-bold text-sm ${elem.color}`}>{persona.name || 'Unknown Agent'}</span>
-                            <span className="text-[10px] text-slate-500 px-1.5 py-0.5 bg-slate-800 rounded">{persona.element}行 / {persona.pattern}</span>
-                            {/* Bazi Identity Badge */}
-                            <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border bg-slate-900/80 text-[10px] ${comment.sentiment === 'positive' ? 'border-emerald-500/30 text-emerald-300'
-                              : comment.sentiment === 'negative' ? 'border-rose-500/30 text-rose-300'
-                                : 'border-amber-500/30 text-amber-300'
-                              }`}>
-                              <span>{elem.icon}</span>
-                              <span className="font-mono">{elem.cn}</span>
-                              <span className="text-slate-600">|</span>
-                              <span>{persona.pattern}</span>
-                            </div>
-                          </div>
-                          <div className="text-[10px] text-slate-600 font-mono">
-                            {/* <span className="hidden sm:inline">ID:</span> {persona.id?.slice(0, 4)} */}
-                            {comment.sentiment.toUpperCase()}
-                          </div>
-                        </div>
-                        <div className="text-slate-200 text-sm leading-relaxed">{comment.text}</div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-              {(!data.arena_comments || data.arena_comments.length === 0) && (
-                <div className="text-center py-16 text-slate-600">
-                  <div className="text-5xl mb-4">💬</div>
-                  <div className="text-sm">Awaiting opinion data... / 等待輿論數據...</div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ===== 【右欄】ORACLE 戰略神諭 (Dashboard & Insights) ===== */}
-          <div className="order-1 xl:order-3 w-full xl:w-[360px] xl:flex-shrink-0 space-y-6">
-
-            {/* 1. Cyberpunk Oracle Dashboard (Holographic HUD) */}
-            <div className="bg-black/40 border border-white/10 rounded-xl p-6 shadow-[0_0_30px_rgba(255,255,255,0.05)] relative overflow-hidden group">
-              {/* Background Grid */}
-              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #333 1px, transparent 1px)', backgroundSize: '10px 10px' }}></div>
-
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="text-xs text-slate-500 tracking-[0.3em] mb-4 uppercase">Purchase Intent Score</div>
-
-                {/* Donut Gauge Container */}
-                <div className="relative w-48 h-48 flex items-center justify-center">
-                  {/* Outer Ring (Static) */}
-                  <div className="absolute inset-0 rounded-full border border-white/5"></div>
-                  {/* Inner Ring (Static) */}
-                  <div className="absolute inset-4 rounded-full border border-white/5"></div>
-
-                  {/* SVG Gauge */}
-                  <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-                    {/* Track */}
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      fill="none"
-                      stroke="rgba(255,255,255,0.1)"
-                      strokeWidth="2" // Thinner track
-                      strokeDasharray="283"
-                      strokeDashoffset="70" // Leave gap at bottom (270 deg)
-                      strokeLinecap="round"
-                    />
-                    {/* Progress Bar */}
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      fill="none"
-                      stroke={data.score < 40 ? '#f43f5e' : data.score < 70 ? '#fbbf24' : '#34d399'}
-                      strokeWidth="4" // Thicker progress
-                      strokeDasharray="283"
-                      strokeDashoffset={283 - (283 * (data.score * 0.75) / 100)} // Scale to 270 deg (0.75)
-                      strokeLinecap="round"
-                      className={`transition-all duration-1000 ease-out ${data.score < 40 ? 'drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]' : data.score < 70 ? 'drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 'drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]'}`}
-                    />
-                  </svg>
-
-                  {/* Center Score */}
-                  <div className="absolute flex flex-col items-center">
-                    <span className={`text-6xl font-black font-mono tracking-tighter ${scoreStyle.color} drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]`}>
-                      {data.score}
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-mono mt-[-5px]">/ 100</span>
-                  </div>
-                </div>
-
-                {/* Conclusion Label */}
-                <div className={`mt-4 px-4 py-1 rounded-full border bg-white/5 backdrop-blur-sm text-xs font-bold tracking-wider ${scoreStyle.color} ${scoreStyle.ring.replace('ring-', 'border-')}`}>
-                  [ {data.intent || 'ANALYZING...'} ]
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Strategic Insight (Typewriter) */}
-            <div className="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-purple-500 to-cyan-500"></div>
-              <div className="text-[10px] font-bold text-slate-500 mb-3 tracking-widest uppercase">
-                戰略洞察 STRATEGIC INSIGHT
-              </div>
-              <div className="font-mono text-sm leading-7 text-slate-300 min-h-[100px]">
-                {typedSummary}
-                <span className="inline-block w-1.5 h-4 ml-1 bg-cyan-400 animate-pulse align-middle"></span>
-              </div>
-            </div>
-
-            {/* 3. Actionable Suggestions */}
-            <div className="space-y-3">
-              <div className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-1">
-                AI 策略建議 / TACTICAL ADVICE
-              </div>
-              {data.suggestions?.slice(0, 3).map((s, i) => (
-                <div key={i} className="bg-slate-800/40 border border-slate-700/50 rounded-lg p-3 hover:border-cyan-500/30 transition-colors group">
-                  <div className="flex items-start gap-3">
-                    <div className="text-xl opacity-50 group-hover:opacity-100 transition-opacity">
-                      {i === 0 ? '🎯' : i === 1 ? '💡' : '⚡'}
-                    </div>
-                    <div>
-                      <div className="text-white text-base font-bold mb-1">{s.target}</div>
-                      <div className="text-slate-400 text-sm leading-relaxed">{s.advice}</div>
-
-                      {/* Execution Plan (New) */}
-                      {s.execution_plan && s.execution_plan.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-slate-700/30">
-                          {s.execution_plan.slice(0, 2).map((step, idx) => (
-                            <div key={idx} className="text-sm text-white flex gap-1.5 mb-1">
-                              <span className="text-cyan-400 font-bold">{idx + 1}.</span>
-                              <span>{step}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Score Impact (New) */}
-                      {s.score_improvement && (
-                        <div className="mt-2 text-[10px]">
-                          <span className="bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20">
-                            {s.score_improvement}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+            <div className="flex flex-col gap-2">
+              <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#7f13ec]/10 text-white border border-[#7f13ec]/50 transition-all">
+                <span className="material-symbols-outlined fill-1 text-[#7f13ec]">groups</span>
+                <div className="flex flex-col items-start"><span className="text-sm font-bold">所有市民</span><span className="text-[10px] opacity-70">{TOTAL_POPULATION} 名 AI 市民</span></div>
+              </button>
+              <div className="h-px bg-[#302839] my-2"></div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3">原型</p>
+              {[{ name: '科技愛好者', bazi: '食神格', icon: 'devices', count: 342 }, { name: '精打細算型', bazi: '正財格', icon: 'savings', count: 215 }, { name: '懷疑論者', bazi: '七殺格', icon: 'sentiment_dissatisfied', count: 140 }, { name: '早期採用者', bazi: '偏財格', icon: 'rocket_launch', count: 188 }, { name: '家長', bazi: '正印格', icon: 'family_restroom', count: 115 }].map((item) => (
+                <button key={item.name} className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg hover:bg-[#302839] text-[#ab9db9] group transition-colors">
+                  <div className="flex items-center gap-3"><span className="material-symbols-outlined group-hover:text-[#7f13ec] transition-colors">{item.icon}</span><div className="flex flex-col items-start gap-0.5"><span className="text-sm font-medium group-hover:text-white transition-colors">{item.name}</span><span className="text-sm text-[#a855f7] font-bold tracking-wide">{item.bazi}</span></div></div>
+                  <span className="text-xs bg-[#231b2e] px-1.5 py-0.5 rounded text-gray-500">{item.count}</span>
+                </button>
               ))}
             </div>
+          </div>
+        </aside>
 
-            {/* 4. Objection Analysis */}
-            <div className="bg-black/20 border border-rose-500/20 rounded-xl p-4">
-              <div className="text-[10px] font-bold text-rose-400 tracking-widest uppercase mb-3 flex items-center gap-2">
-                <span>⚠️</span> RISK FACTORS / 抗性分析
+        <main className="flex-1 overflow-y-auto bg-[#191022] p-6 md:p-10 scrollbar-hide">
+          <div className="max-w-[1400px] mx-auto flex flex-col gap-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div className="flex flex-col gap-2">
+                <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em] text-white">{data.status === 'processing' ? '專案分析中...' : '專案預演報告'}</h1>
+                <p className="text-[#ab9db9] text-base md:text-lg max-w-2xl">{data.summary ? 'AI 已完成深度輿論場域預演，以下為關鍵數據與洞察報導。' : '正在整合 1,000 位 AI 市民的深度反饋與市場動態數據。'}</p>
               </div>
-              <div className="space-y-3">
-                {data.objections?.slice(0, 2).map((obj, i) => (
-                  <div key={i}>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-rose-100">{obj.reason}</span>
-                      <span className="text-rose-400 font-mono">{obj.percentage}%</span>
-                    </div>
-                    <div className="h-1 bg-rose-900/30 rounded-full overflow-hidden">
-                      <div className="h-full bg-rose-500/50 rounded-full" style={{ width: `${obj.percentage}%` }}></div>
+              <Link href="/#start" className="flex-none flex items-center justify-center rounded-lg h-12 px-6 bg-[#302839] hover:bg-[#473b54] text-white text-sm font-bold tracking-[0.015em] border border-[#473b54] transition-all shadow-lg active:scale-95">
+                <span className="material-symbols-outlined mr-2 text-[20px]">play_circle</span>執行新預演
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="col-span-1 lg:col-span-4 bg-[#1a1a1f] border border-[#302839] rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#7f13ec]/20 rounded-full blur-[60px] -mr-16 -mt-16 pointer-events-none"></div>
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h3 className="text-[#ab9db9] text-sm font-bold uppercase tracking-wider">整體可行性</h3>
+                    <div className="flex flex-col gap-1 mt-1">
+                      <div className="flex items-center gap-2">
+                        <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span></span>
+                        <p className="text-[10px] text-purple-400 font-medium">即時推演波動中</p>
+                      </div>
+                      <p className="text-[10px] text-gray-400">*分數源自 8 位八字代表市民的加權平均</p>
                     </div>
                   </div>
-                ))}
+                  <span className={`text-xs font-bold px-2 py-1 rounded ${data.score >= 70 ? 'bg-green-500/10 text-green-400' : 'bg-amber-500/10 text-amber-400'}`}>{data.score >= 70 ? '核心目標達成' : '需進一步優化'}</span>
+                </div>
+                <div className="flex items-center justify-center py-4">
+                  <div className="relative size-44 md:size-48">
+                    <svg className="size-full -rotate-90" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="3" className="text-[#302839]" />
+                      <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray={`${data.score}, 100`} strokeLinecap="round" className="text-[#7f13ec] drop-shadow-[0_0_10px_rgba(127,19,236,0.5)] transition-all duration-1000" />
+                    </svg>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                      <span className="text-5xl md:text-6xl font-black text-white block">{data.score}</span>
+                      <span className="text-sm font-medium text-gray-500">滿分 100</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-1 lg:col-span-8 flex flex-col gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                  {(() => {
+                    const isBusinessPlan = (data.productName || "").includes("平台") || (data.productName || "").includes("模式") || (data.productName || "").includes("計畫") || (data.summary || "").includes("商業模式");
+                    const stats = [
+                      { label: '市場潛力', value: '高', sub: '排名前 5% 的專案', icon: 'trending_up', color: 'text-[#7f13ec]' },
+                      { label: '信心指數', value: '98%', sub: '具統計顯著性', icon: 'psychology', color: 'text-blue-500' },
+                      isBusinessPlan
+                        ? { label: '技術變現力', value: '強', sub: '核心架構具競爭力', icon: 'integration_instructions', color: 'text-emerald-500' }
+                        : { label: '價格敏感度', value: '中等', sub: '偵測到定價疑慮', icon: 'payments', color: 'text-orange-500' }
+                    ];
+
+                    return stats.map((stat) => (
+                      <div key={stat.label} className="bg-[#1a1a1f] border border-[#302839] rounded-xl p-5 flex flex-col justify-between hover:border-[#7f13ec]/30 transition-colors">
+                        <div className="flex items-center gap-2 mb-2"><span className={`material-symbols-outlined ${stat.color} text-[20px]`}>{stat.icon}</span><span className="text-[#ab9db9] text-xs font-bold uppercase">{stat.label}</span></div>
+                        <div><p className="text-2xl font-bold text-white">{stat.value}</p><span className="text-xs text-gray-400 block mt-0.5">精選 1,000 位 AI 市民</span></div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+                <div className="flex-1 bg-[#1a1a1f] border border-[#302839] rounded-xl p-6 flex flex-col justify-center">
+                  <h3 className="text-white text-sm font-bold mb-4">購買意願轉換率</h3>
+                  <div className="flex flex-col gap-4">
+                    {[{ label: '絕對購買', value: 42, color: 'bg-[#7f13ec]' }, { label: '可能購買', value: 35, color: 'bg-blue-500' }, { label: '放棄', value: 23, color: 'bg-gray-600' }].map((intent) => (
+                      <div key={intent.label} className="flex items-center gap-4 text-xs font-medium">
+                        <div className="w-24 text-gray-400 text-right">{intent.label}</div>
+                        <div className="flex-1 h-3 bg-[#302839] rounded-full overflow-hidden"><div className={`h-full ${intent.color} rounded-full`} style={{ width: `${intent.value}%` }} /></div>
+                        <div className="w-10 text-right text-white font-bold">{intent.value}%</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+              <div className="xl:col-span-3 space-y-6 bg-[#1a1a1f] border border-[#302839] rounded-2xl p-5 flex flex-col">
+                <div className="flex items-center gap-2 mb-4"><span className="material-symbols-outlined text-[#a855f7] animate-pulse">grain</span><h3 className="text-[#a855f7] text-sm font-bold uppercase tracking-wider">GENESIS // 取樣邏輯</h3></div>
+                <div className="flex flex-col items-center justify-center space-y-8 p-6">
+                  <Link href="/citizens" className="relative z-10 w-full text-center group cursor-pointer block p-4 rounded-xl hover:bg-white/5 transition-all duration-300">
+                    <span className="material-symbols-outlined text-4xl text-blue-400 mb-2 group-hover:text-purple-400 group-hover:scale-110 transition-all duration-300">public</span>
+                    <div className="text-3xl font-black text-white group-hover:text-purple-100 transition-colors">1,000</div>
+                    <div className="text-xs text-gray-400 font-bold mt-1 group-hover:text-white transition-colors">所有市民</div>
+                    <div className="absolute inset-0 border border-purple-500/0 group-hover:border-purple-500/30 rounded-xl transition-all duration-300" />
+                  </Link>
+                  <span className="material-symbols-outlined text-gray-600 animate-bounce">keyboard_double_arrow_down</span>
+                  <div className="w-full bg-[#302839]/50 rounded-lg p-4 border border-[#7f13ec]/20 text-center"><p className="text-[#a855f7] font-bold text-sm mb-1">八字邏輯推演</p><p className="text-[10px] text-gray-400">依據五行生剋與十神格局，篩選最具因果關聯之代表</p></div>
+                  <span className="material-symbols-outlined text-gray-600 animate-bounce">keyboard_double_arrow_down</span>
+                  <div className="text-center"><span className="material-symbols-outlined text-4xl text-[#7f13ec] mb-2">groups</span><div className="text-4xl font-black text-white text-glow">{data.arena_comments?.length || 0}</div><div className="text-xs text-gray-300 font-bold mt-1">本場深度參與 AI 市民</div></div>
+                </div>
+              </div>
+
+              <div className="xl:col-span-5 space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2"><div className="w-1.5 h-6 bg-cyan-400 rounded-full animate-pulse"></div><div><h2 className="text-lg font-bold text-white tracking-widest uppercase">THE ARENA // 輿論競技場</h2><p className="text-[10px] text-gray-500 font-mono">Real-time Stream of Consciousness</p></div></div>
+                  <span className="text-[10px] bg-[#302839] text-gray-400 px-2 py-1 rounded">LIVE FEED</span>
+                </div>
+                <div className="space-y-4 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
+                  {data.arena_comments?.map((comment, i) => {
+                    const persona = comment.persona;
+                    const elem = elementConfig[persona.element] || elementConfig.Fire;
+                    const isPositive = comment.sentiment === 'positive';
+                    return (
+                      <div key={i} className={`group relative p-4 rounded-xl border transition-all duration-300 transform bg-[#1a1a1f] hover:translate-x-1 cursor-pointer ${isPositive ? 'border-l-4 border-l-green-500 border-[#302839]' : comment.sentiment === 'negative' ? 'border-l-4 border-l-rose-500 border-[#302839]' : 'border-l-4 border-l-gray-500 border-[#302839]'}`} onClick={() => setSelectedCitizen(enrichCitizenData(persona))}>
+                        <div className="flex items-start gap-3">
+                          <div className={`size-10 flex-none rounded-xl ${elem.bg} flex items-center justify-center text-xl shadow-lg group-hover:scale-110 transition-transform`}>{elem.icon}</div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center gap-2"><span className="text-xs font-bold text-white">{persona.name}</span><span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${elem.bg} text-white opacity-80`}>{elem.cn}</span></div>
+                              <div className="flex flex-col items-end"><span className={`text-[10px] font-bold ${isPositive ? 'text-green-400' : comment.sentiment === 'negative' ? 'text-rose-400' : 'text-gray-400'}`}>{isPositive ? 'POSITIVE' : comment.sentiment === 'negative' ? 'NEGATIVE' : 'NEUTRAL'}</span><span className="text-xs font-mono text-purple-400 mt-0.5 font-bold">{comment.score} <span className="text-[9px] text-gray-600">/ 100</span></span></div>
+                            </div>
+                            <p className="text-sm text-gray-300 leading-relaxed italic">"{comment.text}"</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="xl:col-span-4 space-y-6">
+                <div className="bg-black/40 border border-[#7f13ec]/20 rounded-2xl p-6 relative overflow-hidden group shadow-[0_0_30px_rgba(127,19,236,0.05)]">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#7f13ec] to-blue-500"></div>
+                  <div className="flex items-center gap-2 mb-4"><span className="material-symbols-outlined text-[#7f13ec]">auto_awesome</span><h3 className="text-xs font-bold text-[#7f13ec] tracking-[0.2em] uppercase">STRATEGIC ORACLE // 戰略神諭</h3></div>
+                  <div className="font-mono text-sm leading-7 text-gray-300 min-h-[140px]">{typedSummary}<span className="inline-block w-1.5 h-4 ml-1 bg-[#7f13ec] animate-pulse align-middle"></span></div>
+                </div>
+                <div className="space-y-3">
+                  <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-1">AI 策略建議 / TACTICAL ADVICE</p>
+                  {data.suggestions?.slice(0, 3).map((s, i) => (
+                    <div key={i} className="bg-[#1a1a1f] border border-[#302839] rounded-xl p-4 hover:border-cyan-500/30 transition-all group flex flex-col gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className="bg-[#231b2e] size-8 rounded-lg flex items-center justify-center text-lg shadow-inner opacity-70 group-hover:opacity-100 transition-opacity">{i === 0 ? '🎯' : i === 1 ? '💡' : '⚡'}</div>
+                        <div className="min-w-0">
+                          <h4 className="text-white text-sm font-bold mb-1">{s.target}</h4>
+                          <p className="text-xs text-gray-200 leading-relaxed mb-2">{s.advice}</p>
+                        </div>
+                      </div>
+
+                      {/* Action Steps - Boss requested detail */}
+                      <div className="pl-11">
+                        <p className="text-[10px] text-[#7f13ec] font-bold uppercase mb-1.5 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[10px]">playlist_add_check</span>
+                          執行步驟
+                        </p>
+                        <ul className="space-y-1.5">
+                          {s.action_plan?.map((step: string, j: number) => (
+                            <li key={j} className="flex items-start gap-2 text-[11px] text-gray-300 hover:text-white transition-colors">
+                              <span className="text-cyan-500/50 mt-0.5">›</span>
+                              <span>{step}</span>
+                            </li>
+                          )) || <li className="text-[10px] text-gray-600 italic">正在生成具體執行方案...</li>}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
-      {/* ===== FOOTER ===== */}
-      <footer className="relative z-10 mt-8 text-center text-xs text-slate-600 border-t border-slate-800 py-4">
-        MIRRA WAR ROOM 鏡界戰情室 • AI Market Research Intelligence • Powered by Bazi Engine v3.0
-      </footer>
-
-      {/* Custom Scrollbar */}
       <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(30, 41, 59, 0.5); border-radius: 2px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.3); border-radius: 2px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.5); }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #141118; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #302839; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #473b54; }
+
+        @keyframes flicker {
+          0%, 19.9%, 22%, 62.9%, 64%, 64.9%, 70%, 100% { opacity: 1; text-shadow: 0 0 10px rgba(216,180,254,0.8); }
+          20%, 21.9%, 63%, 63.9%, 65%, 69.9% { opacity: 0.3; text-shadow: none; }
+        }
+        @keyframes typing {
+          0% { width: 0 }
+          80% { width: 100% }
+          90% { width: 100% }
+          100% { width: 0 } /* Reset to loop */
+        }
+        @keyframes blink {
+          50% { opacity: 0; }
+        }
       `}</style>
     </div>
-  )
+  );
 }

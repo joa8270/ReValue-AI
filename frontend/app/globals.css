@@ -2,7 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-    background-color: #0f172a;
-    color: #22d3ee;
+/* Custom Glass Panel Effect */
+.glass-panel {
+    background: rgba(33, 28, 39, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Text Glow Effect */
+.text-glow {
+    text-shadow: 0 0 20px rgba(127, 19, 236, 0.5);
+}
+
+/* Hero Background Glow */
+.bg-hero-glow {
+    background: radial-gradient(circle at 50% 50%, rgba(127, 19, 236, 0.15) 0%, rgba(20, 17, 24, 0) 50%);
+}
+
+/* Noise Texture Overlay */
+.noise-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+}
+
+/* Animation for pulse dot */
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.75; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+.animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
 }

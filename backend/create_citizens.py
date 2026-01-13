@@ -271,14 +271,14 @@ def get_dayun_sequence(gender, year_gan, m_gan_idx, m_zhi_idx, day_master):
         })
     return pillars
 
-# ===== 職業列表 =====
 # ===== 職業資料庫 (分層級) =====
 OCCUPATIONS_DB = {
     "student": ["學生", "大學生", "研究所學生", "實習生"],
     "entry": ["行政助理", "初階工程師", "行銷專員", "銀行行員", "社群小編", "總機人員", "服務生", "咖啡師", "外送員", "保全人員"],
-    "mid": ["資深工程師", "產品經理 (PM)", "UI/UX 設計師", "專案經理", "理財專員", "護理師", "健身教練", "室內設計師", "公務員", "警察", "廚師", "YouTuber", "Podcaster", "網紅/KOL", "自由業者"],
+    "mid": ["資深工程師", "產品經理 (PM)", "UI/UX 設計師", "專案經理", "理財專員", "護理師", "健身教練", "室內設計師", "自由業者"],
+    "mid_physical": ["公務員", "警察", "廚師"],  # Physically demanding or age-restricted jobs
     "senior": ["技術主管 (Tech Lead)", "財務經理", "行銷總監", "大學教授", "主治醫師", "創業家", "資深顧問", "中小企業主", "部門主管"],
-    "retiree": ["退休人員", "資深志工", "退休公務員"]
+    "retiree": ["退休人員", "資深志工", "退休公務員", "退休教師"]
 }
 
 def get_valid_occupation(age):
@@ -295,32 +295,103 @@ def get_valid_occupation(age):
         if age >= 20:
             valid_pools.extend(OCCUPATIONS_DB["entry"])
             
-    # 2. 職場成長期 (23-30)
+    # 2. 職場成長期 (25-30)
     elif 25 <= age <= 30:
         valid_pools.extend(OCCUPATIONS_DB["entry"])
         valid_pools.extend(OCCUPATIONS_DB["mid"])
+        valid_pools.extend(OCCUPATIONS_DB["mid_physical"])  # Can do physical jobs
         
     # 3. 職場成熟期 (31-45)
     elif 31 <= age <= 45:
         valid_pools.extend(OCCUPATIONS_DB["mid"])
+        valid_pools.extend(OCCUPATIONS_DB["mid_physical"])  # Still can do physical jobs
         # 35歲以上有機率進入高階
         if age >= 35:
             valid_pools.extend(OCCUPATIONS_DB["senior"])
             
-    # 4. 職場資深期 (46-60)
-    elif 46 <= age <= 60:
+    # 4. 職場資深期 (46-55)
+    elif 46 <= age <= 55:
         valid_pools.extend(OCCUPATIONS_DB["mid"]) # 仍有不少人維持中階專業職
         valid_pools.extend(OCCUPATIONS_DB["senior"])
+        # 50歲以上不太可能還在做警察等體力工作
         
-    # 5. 退休/高齡期 (61+)
+    # 5. 退休/高齡期 (56+)
     else:
         valid_pools.extend(OCCUPATIONS_DB["senior"]) # 資深專業人士可能延後退休
         valid_pools.extend(OCCUPATIONS_DB["retiree"])
+        # 絕對不會有警察等體力工作
         
     # 防呆：如果範圍外 (極少見)，給予 generic
     if not valid_pools:
         valid_pools = ["自由業者"]
         
+    return random.choice(valid_pools)
+
+# ===== 八字格局對應職業傾向 =====
+BAZI_OCCUPATION_AFFINITY = {
+    "正官格": {"preferred": ["公務員", "行政助理", "銀行行員", "專案經理", "部門主管", "財務經理"], "avoid": ["YouTuber", "網紅/KOL"]},
+    "七殺格": {"preferred": ["警察", "創業家", "業務", "專案經理", "技術主管 (Tech Lead)"], "avoid": ["行政助理", "總機人員"]},
+    "正財格": {"preferred": ["銀行行員", "理財專員", "財務經理", "會計", "行政助理"], "avoid": ["創業家", "外送員"]},
+    "偏財格": {"preferred": ["創業家", "中小企業主", "業務", "投資顧問", "自由業者"], "avoid": ["公務員", "行政助理"]},
+    "正印格": {"preferred": ["大學教授", "教師", "研究員", "資深顧問", "主治醫師"], "avoid": ["外送員", "保全人員"]},
+    "偏印格": {"preferred": ["UI/UX 設計師", "資深工程師", "自由業者", "研究員"], "avoid": ["銀行行員", "行政助理"]},
+    "食神格": {"preferred": ["廚師", "咖啡師", "YouTuber", "Podcaster", "藝術家", "室內設計師"], "avoid": ["警察", "公務員"]},
+    "傷官格": {"preferred": ["資深工程師", "產品經理 (PM)", "UI/UX 設計師", "網紅/KOL", "創業家"], "avoid": ["公務員", "銀行行員"]},
+    "建祿格": {"preferred": ["創業家", "自由業者", "中小企業主", "技術主管 (Tech Lead)"], "avoid": ["行政助理"]},
+    "羊刃格": {"preferred": ["警察", "軍人", "健身教練", "專案經理"], "avoid": ["行政助理", "總機人員"]},
+    "從財格": {"preferred": ["業務", "投資顧問", "理財專員", "中小企業主"], "avoid": ["教師", "公務員"]},
+    "從殺格": {"preferred": ["部門主管", "專案經理", "技術主管 (Tech Lead)"], "avoid": ["自由業者", "藝術家"]},
+    "從兒格": {"preferred": ["YouTuber", "Podcaster", "網紅/KOL", "藝術家", "自由業者"], "avoid": ["公務員", "銀行行員"]},
+    "專旺格": {"preferred": ["大學教授", "主治醫師", "技術主管 (Tech Lead)", "資深顧問"], "avoid": ["外送員", "保全人員"]},
+}
+
+def get_occupation_by_bazi(age: int, structure_name: str) -> str:
+    """
+    根據年齡和八字格局推薦職業
+    """
+    # 首先獲取年齡允許的職業池
+    valid_pools = []
+    
+    if 18 <= age <= 24:
+        valid_pools.extend(OCCUPATIONS_DB["student"])
+        if age >= 20:
+            valid_pools.extend(OCCUPATIONS_DB["entry"])
+    elif 25 <= age <= 30:
+        valid_pools.extend(OCCUPATIONS_DB["entry"])
+        valid_pools.extend(OCCUPATIONS_DB["mid"])
+        valid_pools.extend(OCCUPATIONS_DB["mid_physical"])
+    elif 31 <= age <= 45:
+        valid_pools.extend(OCCUPATIONS_DB["mid"])
+        valid_pools.extend(OCCUPATIONS_DB["mid_physical"])
+        if age >= 35:
+            valid_pools.extend(OCCUPATIONS_DB["senior"])
+    elif 46 <= age <= 55:
+        valid_pools.extend(OCCUPATIONS_DB["mid"])
+        valid_pools.extend(OCCUPATIONS_DB["senior"])
+    else:
+        valid_pools.extend(OCCUPATIONS_DB["senior"])
+        valid_pools.extend(OCCUPATIONS_DB["retiree"])
+    
+    if not valid_pools:
+        return "自由業者"
+    
+    # 根據八字格局篩選偏好職業
+    affinity = BAZI_OCCUPATION_AFFINITY.get(structure_name, {"preferred": [], "avoid": []})
+    
+    # 優先選擇格局偏好且年齡適合的職業
+    preferred_and_valid = [occ for occ in affinity.get("preferred", []) if occ in valid_pools]
+    
+    # 70% 機率選擇格局偏好職業，30% 機率隨機（增加多樣性）
+    if preferred_and_valid and random.random() < 0.7:
+        return random.choice(preferred_and_valid)
+    
+    # 排除格局不適合的職業
+    avoid_list = affinity.get("avoid", [])
+    filtered_pools = [occ for occ in valid_pools if occ not in avoid_list]
+    
+    if filtered_pools:
+        return random.choice(filtered_pools)
+    
     return random.choice(valid_pools)
 
 def generate_citizen(idx):
@@ -349,10 +420,17 @@ def generate_citizen(idx):
         "gender": "男" if g=="male" else "女",
         "age": age,
         "location": weighted_random_choice({"台北, 台灣":20, "新北, 台灣":15, "台中, 台灣":12, "高雄, 台灣":10, "台南, 台灣":8}),
-        "occupation": get_valid_occupation(age),
+        "occupation": get_occupation_by_bazi(age, struct["name"]),  # 使用八字推理職業
         "bazi_profile": {
-            **bz, "four_pillars": f"{bz['year_pillar']} {bz['month_pillar']} {bz['day_pillar']} {bz['hour_pillar']}",
-            "structure": struct["name"], "structure_en": struct["name"], "strength": strength,
+            **bz, 
+            "four_pillars": f"{bz['year_pillar']} {bz['month_pillar']} {bz['day_pillar']} {bz['hour_pillar']}",
+            "birth_year": bd["year"],
+            "birth_month": bd["month"],
+            "birth_day": bd["day"],
+            "birth_shichen": bd["shichen"],
+            "structure": struct["name"], 
+            "structure_en": struct["name"], 
+            "strength": strength,
             "favorable_elements": get_favorable_elements(struct, strength, bz["element"])["favorable"],
             "unfavorable_elements": get_favorable_elements(struct, strength, bz["element"])["unfavorable"],
             "luck_pillars": luck,

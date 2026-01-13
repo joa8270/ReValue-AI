@@ -125,12 +125,12 @@ export default function SimulationForm() {
     }
 
     return (
-        <div className="w-full max-w-2xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-cyan-500/30 rounded-3xl p-6 shadow-2xl shadow-cyan-900/20 overflow-hidden relative group">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />
+        <div className="w-full max-w-2xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6 shadow-2xl shadow-purple-900/20 overflow-hidden relative group">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50" />
 
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <span className="p-2 bg-cyan-500/20 rounded-lg text-cyan-400">⚡</span>
-                啟動「鏡界」模擬
+                <span className="p-2 bg-purple-500/20 rounded-lg text-purple-400">⚡</span>
+                啟動「鏡界」預演
             </h2>
 
             {/* Tabs */}
@@ -138,7 +138,7 @@ export default function SimulationForm() {
                 <button
                     onClick={() => { setMode('image'); setFile(null); }}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === 'image'
-                        ? 'bg-cyan-600 text-white shadow-lg'
+                        ? 'bg-purple-600 text-white shadow-lg'
                         : 'text-slate-400 hover:text-white hover:bg-slate-800'
                         }`}
                 >
@@ -161,7 +161,7 @@ export default function SimulationForm() {
 
                 {/* File Upload Area */}
                 <div
-                    className={`relative border-2 border-dashed rounded-2xl p-8 transition-all text-center cursor-pointer hover:border-cyan-400/50 hover:bg-slate-800/50 ${file ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-slate-700 bg-slate-950/30'
+                    className={`relative border-2 border-dashed rounded-2xl p-8 transition-all text-center cursor-pointer hover:border-purple-400/50 hover:bg-slate-800/50 ${file ? 'border-purple-500/50 bg-purple-900/10' : 'border-slate-700 bg-slate-950/30'
                         }`}
                     onClick={() => !file && fileInputRef.current?.click()}
                 >
@@ -176,7 +176,7 @@ export default function SimulationForm() {
                     {file ? (
                         <div className="flex flex-col items-center gap-2">
                             {mode === 'image' && previewUrl ? (
-                                <div className="relative w-48 h-48 rounded-xl overflow-hidden mb-2 border-2 border-emerald-500/50 shadow-lg shadow-emerald-900/20">
+                                <div className="relative w-48 h-48 rounded-xl overflow-hidden mb-2 border-2 border-purple-500/50 shadow-lg shadow-purple-900/20">
                                     <img
                                         src={previewUrl}
                                         alt="Preview"
@@ -184,11 +184,11 @@ export default function SimulationForm() {
                                     />
                                 </div>
                             ) : (
-                                <div className="p-3 bg-emerald-500 rounded-full text-white mb-2">
+                                <div className="p-3 bg-purple-500 rounded-full text-white mb-2">
                                     {mode === 'image' ? <ImageIcon className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
                                 </div>
                             )}
-                            <p className="text-emerald-400 font-bold">{file.name}</p>
+                            <p className="text-purple-400 font-bold">{file.name}</p>
                             <p className="text-slate-500 text-xs">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                             <button
                                 type="button"
@@ -226,7 +226,7 @@ export default function SimulationForm() {
                                         value={productName}
                                         onChange={(e) => setProductName(e.target.value)}
                                         placeholder="例：智能咖啡機"
-                                        className="w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-cyan-500/50 text-white placeholder-slate-600 transition-all"
+                                        className="w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all"
                                     />
                                 </div>
                                 <div className="space-y-1">
@@ -236,7 +236,7 @@ export default function SimulationForm() {
                                         value={price}
                                         onChange={(e) => setPrice(e.target.value)}
                                         placeholder="例：2990"
-                                        className="w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-cyan-500/50 text-white placeholder-slate-600 transition-all"
+                                        className="w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all"
                                     />
                                 </div>
                             </div>
@@ -247,9 +247,9 @@ export default function SimulationForm() {
                                         type="button"
                                         onClick={handleAiGenerate}
                                         disabled={aiLoading || !file || !productName}
-                                        className={`text-[10px] px-2 py-1 rounded-full border border-cyan-500/30 flex items-center gap-1 transition-all ${aiLoading || !file || !productName
+                                        className={`text-[10px] px-2 py-1 rounded-full border border-purple-500/30 flex items-center gap-1 transition-all ${aiLoading || !file || !productName
                                             ? 'text-slate-600 border-slate-700 cursor-not-allowed'
-                                            : 'text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-400'
+                                            : 'text-purple-400 hover:bg-purple-500/20 hover:border-purple-400'
                                             }`}
                                     >
                                         <Sparkles className="w-3 h-3" />
@@ -261,7 +261,7 @@ export default function SimulationForm() {
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder={aiLoading ? "AI 正在觀察您的圖片並撰寫文案..." : "輸入產品特色，讓 AI 更精準分析..."}
                                     rows={5}
-                                    className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-cyan-500/50 text-white placeholder-slate-600 transition-all resize-none ${aiLoading ? 'animate-pulse' : ''
+                                    className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all resize-none ${aiLoading ? 'animate-pulse' : ''
                                         }`}
                                 />
                             </div>
@@ -282,7 +282,7 @@ export default function SimulationForm() {
                     disabled={loading || aiLoading}
                     className={`w-full py-4 rounded-xl font-bold text-lg tracking-widest transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg ${loading || aiLoading
                         ? "bg-slate-700 text-slate-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-cyan-500/30"
+                        : "bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white shadow-purple-500/30"
                         }`}
                 >
                     {loading ? (
@@ -291,7 +291,7 @@ export default function SimulationForm() {
                         </span>
                     ) : (
                         <span className="flex items-center justify-center gap-2">
-                            啟動 MIRRA 平行世界/驗證未來 <span className="text-xl">➔</span>
+                            啟動 MIRRA 平行世界/預演未來 <span className="text-xl">➔</span>
                         </span>
                     )}
                 </button>

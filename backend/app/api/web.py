@@ -1,5 +1,5 @@
-from fastapi import APIRouter, File, UploadFile, Form, BackgroundTasks
-from app.core.database import create_simulation
+from fastapi import APIRouter, File, UploadFile, Form, BackgroundTasks, Query
+from app.core.database import create_simulation, get_all_simulations
 import uuid
 
 router = APIRouter()
@@ -24,6 +24,9 @@ async def trigger_simulation(
     # 建立初始狀態
     initial_data = {
         "status": "processing",
+        "product_name": product_name or "未命名專案",
+        "price": price or "未提供",
+        "description": description or "",
         "score": 0,
         "intent": "Calculating...",
         "summary": "AI 正在啟動並讀取您的資料...",
@@ -53,6 +56,13 @@ async def trigger_simulation(
         background_tasks.add_task(line_service.run_simulation_with_image_data, file_bytes, sim_id, text_context)
         
     return {"status": "ok", "sim_id": sim_id}
+
+
+@router.get("/simulations")
+async def list_simulations(limit: int = Query(50), offset: int = Query(0)):
+    """獲取所有模擬列表"""
+    sims = get_all_simulations(limit=limit, offset=offset)
+    return sims
 
 @router.post("/generate-description")
 async def generate_description(

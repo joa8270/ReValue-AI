@@ -276,6 +276,28 @@ def get_simulation(sim_id: str) -> dict | None:
         return None
 
 
+def get_all_simulations(limit: int = 50, offset: int = 0) -> list[dict]:
+    """取得所有模擬記錄"""
+    try:
+        db = SessionLocal()
+        simulations = db.query(Simulation).order_by(Simulation.id.desc()).offset(offset).limit(limit).all()
+        db.close()
+        
+        result = []
+        for s in simulations:
+            item = s.data or {}
+            item["sim_id"] = s.sim_id
+            item["status"] = s.status
+            # 確保有基本資訊，避免前端出錯
+            if "product_name" not in item:
+                item["product_name"] = "未命名專案"
+            result.append(item)
+        return result
+    except Exception as e:
+        print(f"❌ [SQL] 查詢所有模擬失敗: {e}")
+        return []
+
+
 def clear_citizens():
     """清空市民資料表"""
     try:
