@@ -22,7 +22,7 @@ export default function Navbar() {
                             運作方式
                         </Link>
                         <Link href="/#why-bazi" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">
-                            八字基礎
+                            八字科學
                         </Link>
                         <Link href="/#pricing" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">
                             方案定價
@@ -68,7 +68,7 @@ export default function Navbar() {
                         className="text-gray-400 hover:text-white transition-colors text-sm font-medium py-2"
                         onClick={() => setIsMenuOpen(false)}
                     >
-                        八字基礎
+                        八字科學
                     </Link>
                     <Link
                         href="/#pricing"
