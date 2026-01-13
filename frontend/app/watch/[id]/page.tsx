@@ -379,6 +379,7 @@ export default function WatchPage() {
   const [typedSummary, setTypedSummary] = useState("")
   const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   const TOTAL_POPULATION = 1000
 
@@ -730,11 +731,25 @@ export default function WatchPage() {
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}>
           <div className="flex flex-col gap-6">
-            <div>
-              <h1 className="text-white text-base font-bold uppercase tracking-wider mb-1">人物誌篩選</h1>
-              <p className="text-gray-500 text-xs">篩選 {TOTAL_POPULATION.toLocaleString()} 位 AI 市民</p>
+            {/* Header with collapse toggle */}
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-white text-base font-bold uppercase tracking-wider mb-1">人物誌篩選</h1>
+                <p className="text-gray-500 text-xs">篩選 {TOTAL_POPULATION.toLocaleString()} 位 AI 市民</p>
+              </div>
+              <button
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="p-1.5 rounded-lg hover:bg-[#302839] text-gray-400 hover:text-white transition-all group"
+                title={isSidebarCollapsed ? "展開篩選器" : "收起篩選器"}
+              >
+                <span className={`material-symbols-outlined text-lg transition-transform duration-300 ${isSidebarCollapsed ? 'rotate-180' : ''}`}>
+                  expand_less
+                </span>
+              </button>
             </div>
-            <div className="flex flex-col gap-2">
+
+            {/* Collapsible Content */}
+            <div className={`flex flex-col gap-2 overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'max-h-0 opacity-0' : 'max-h-[600px] opacity-100'}`}>
               <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#7f13ec]/10 text-white border border-[#7f13ec]/50 transition-all">
                 <span className="material-symbols-outlined fill-1 text-[#7f13ec]">groups</span>
                 <div className="flex flex-col items-start"><span className="text-sm font-bold">所有市民</span><span className="text-[10px] opacity-70">{TOTAL_POPULATION} 名 AI 市民</span></div>
