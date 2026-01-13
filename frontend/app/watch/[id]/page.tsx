@@ -45,6 +45,9 @@ interface Persona {
   favorable?: string[]
 }
 
+// Citizen 類型別名（用於 modal 組件兼容性）
+type Citizen = Persona
+
 // ===== Element Config =====
 const elementConfig: Record<string, { icon: string; color: string; bg: string; glow: string; cn: string; trait: string }> = {
   Fire: { icon: "🔥", color: "text-orange-400", bg: "bg-gradient-to-r from-red-600 to-orange-500", glow: "shadow-orange-500/50", cn: "火", trait: "熱情衝動、直覺行動" },
