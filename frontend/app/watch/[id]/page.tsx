@@ -374,7 +374,8 @@ export default function WatchPage() {
   const simId = params.id as string
   const [data, setData] = useState<SimulationData | null>(null)
   const [typedSummary, setTypedSummary] = useState("")
-  const [selectedCitizen, setSelectedCitizen] = useState<EnrichedPersona | null>(null)
+  const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const TOTAL_POPULATION = 1000
 
@@ -714,8 +715,33 @@ export default function WatchPage() {
 
       {selectedCitizen && <CitizenModal citizen={selectedCitizen} onClose={() => setSelectedCitizen(null)} />}
 
-      <div className="flex flex-1 overflow-hidden">
-        <aside className="w-64 flex-none flex flex-col justify-between bg-[#141118] border-r border-[#302839] p-4 overflow-y-auto">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile Hamburger Button */}
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="md:hidden fixed bottom-6 left-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-[#7f13ec] hover:bg-[#9333ea] shadow-lg shadow-purple-500/30 transition-all active:scale-95"
+          aria-label="Toggle sidebar"
+        >
+          <span className="material-symbols-outlined text-white text-2xl">
+            {isSidebarOpen ? 'close' : 'filter_list'}
+          </span>
+        </button>
+
+        {/* Backdrop for mobile */}
+        {isSidebarOpen && (
+          <div
+            className="md:hidden fixed inset-0 bg-black/60 z-30"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* Sidebar */}
+        <aside className={`
+          w-64 flex-none flex flex-col justify-between bg-[#141118] border-r border-[#302839] p-4 overflow-y-auto z-40
+          md:relative md:translate-x-0
+          fixed inset-y-0 left-0 transition-transform duration-300
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}>
           <div className="flex flex-col gap-6">
             <div>
               <h1 className="text-white text-base font-bold uppercase tracking-wider mb-1">人物誌篩選</h1>
