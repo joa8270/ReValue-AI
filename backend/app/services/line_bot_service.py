@@ -506,6 +506,8 @@ class LineBotService:
 
     async def run_simulation_with_image_data(self, image_bytes, sim_id, text_context=None):
         """核心圖片分析邏輯 (Decoupled)"""
+        logger.info(f"🚀 [Start] Simulation {sim_id} started. Image size: {len(image_bytes)}")
+        
         try:
             # Convert image to base64 for REST API
             image_b64 = base64.b64encode(image_bytes).decode('utf-8')
@@ -514,6 +516,13 @@ class LineBotService:
             # 2. 從資料庫隨機抽取市民
             print(f"🔍 [Core] 從資料庫抽取市民...")
             sampled_citizens = get_random_citizens(sample_size=30)
+            
+            if sampled_citizens:
+                first_c = sampled_citizens[0]
+                logger.info(f"👥 Sampled {len(sampled_citizens)} citizens. First: {first_c.get('name')} (ID: {first_c.get('id')}, Type: {type(first_c.get('id'))})")
+            else:
+                logger.error("❌ No citizens sampled from DB!")
+            
             print(f"✅ [Core] 抽取完成: {len(sampled_citizens)} 位市民")
             
             random.shuffle(sampled_citizens)
