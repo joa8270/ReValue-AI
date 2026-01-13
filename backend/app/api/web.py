@@ -1,8 +1,35 @@
 from fastapi import APIRouter, File, UploadFile, Form, BackgroundTasks
-from app.core.database import create_simulation
+from app.core.database import create_simulation, insert_citizens_batch, get_citizens_count, clear_citizens
 import uuid
+import sys
+import os
+
+# 確保可以導入 create_citizens
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from create_citizens import generate_citizen
 
 router = APIRouter()
+
+@router.get("/admin/reset-citizens")
+async def reset_citizens_endpoint(count: int = 1000):
+    """
+    [Admin] 重置並重新生成 AI 市民數據庫
+    """
+    try:
+        print(f"🔄 開始重置市民數據，目標: {count} 位...")
+        clear_citizens()
+        
+        citizens = [generate_citizen(i) for i in range(count)]
+        
+        batch_size = 100
+        for i in range(0, len(citizens), batch_size):
+            insert_citizens_batch(citizens[i:i+batch_size])
+            
+        final_count = get_citizens_count()
+        return {"status": "success", "message": f"成功重置並生成 {final_count} 位 AI 市民", "count": final_count}
+    except Exception as e:
+        print(f"❌ 重置失敗: {e}")
+        return {"status": "error", "message": str(e)}
 
 # 移除全域 import 和實例化，避免循環引用
 # from app.services.line_bot_service import LineBotService
