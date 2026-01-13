@@ -901,13 +901,16 @@ class LineBotService:
                     bazi["birth_shichen"] = random.choice(["子時", "丑時", "寅時", "卯時", "辰時", "巳時", "午時", "未時", "申時", "酉時", "戌時", "亥時"])
 
                 # 🛡️ 防禦性補全：如果沒有命盤，隨機生成
-                if not bazi.get("four_pillars"):
+                pillars_str = bazi.get("four_pillars")
+                if not pillars_str:
                     logger.warning(f"Citizen {citizen['name']} missing four_pillars, auto-generating...")
                     pillars = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥"]
-                    bazi["four_pillars"] = f"{random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)}"
+                    pillars_str = f"{random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)}"
+                    bazi["four_pillars"] = pillars_str
                 
                 # 🛡️ 防禦性補全：如果沒有大運，生成默認大運
-                if not bazi.get("luck_timeline"):
+                timeline = bazi.get("luck_timeline")
+                if not timeline:
                      start_age = random.randint(2, 9)
                      pillars_pool = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥"]
                      timeline = []
@@ -921,11 +924,14 @@ class LineBotService:
                          })
                      bazi["luck_timeline"] = timeline
 
+                # ID 防禦
+                cid = str(citizen.get("id")) if citizen.get("id") else f"gen-{random.randint(1000,9999)}"
+
                 arena_comments.append({
                     "sentiment": comment.get("sentiment", "neutral"),
                     "text": comment.get("text", "（無評論內容）"),
                     "persona": {
-                        "id": str(citizen["id"]),
+                        "id": cid,
                         "name": citizen["name"],
                         "age": str(citizen["age"]),
                         "pattern": bazi.get("structure", "未知格局"),
@@ -937,12 +943,12 @@ class LineBotService:
                         "birth_month": bazi.get("birth_month"),
                         "birth_day": bazi.get("birth_day"),
                         "birth_shichen": bazi.get("birth_shichen"),
-                        "four_pillars": bazi.get("four_pillars", "無命盤數據"),
+                        "four_pillars": pillars_str, # Use local variable
                         "day_master": bazi.get("day_master", "未知"),
                         "strength": bazi.get("strength", "中和"),
                         "favorable": bazi.get("favorable", ["木", "火"]),
                         "current_luck": bazi.get("current_luck", {}),
-                        "luck_timeline": bazi.get("luck_timeline", [])
+                        "luck_timeline": timeline # Use local variable
                     }
                 })
 
@@ -1086,13 +1092,16 @@ class LineBotService:
                 bazi["birth_shichen"] = random.choice(["子時", "丑時", "寅時", "卯時", "辰時", "巳時", "午時", "未時", "申時", "酉時", "戌時", "亥時"])
             
             # 🛡️ 防禦性補全：如果沒有命盤，隨機生成一個好看的
-            if not bazi.get("four_pillars"):
+            pillars_str = bazi.get("four_pillars")
+            if not pillars_str:
                 logger.warning(f"Citizen {citizen['name']} missing four_pillars, auto-generating...")
                 pillars = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥"]
-                bazi["four_pillars"] = f"{random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)}"
+                pillars_str = f"{random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)}"
+                bazi["four_pillars"] = pillars_str
             
             # 🛡️ 防禦性補全：如果沒有大運，生成默認大運
-            if not bazi.get("luck_timeline"):
+            timeline = bazi.get("luck_timeline")
+            if not timeline:
                  start_age = random.randint(2, 9)
                  pillars_pool = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥"]
                  timeline = []
@@ -1106,11 +1115,14 @@ class LineBotService:
                      })
                  bazi["luck_timeline"] = timeline
 
+            # ID 防禦
+            cid = str(citizen.get("id")) if citizen.get("id") else f"gen-{random.randint(1000,9999)}"
+
             arena_comments.append({
                 "sentiment": sentiment,
                 "text": text,
                 "persona": {
-                    "id": str(citizen["id"]),
+                    "id": cid,
                     "name": citizen["name"],
                     "age": str(citizen["age"]),
                     "pattern": bazi.get("structure", "未知格局"),
@@ -1122,12 +1134,12 @@ class LineBotService:
                     "birth_month": bazi.get("birth_month"),
                     "birth_day": bazi.get("birth_day"),
                     "birth_shichen": bazi.get("birth_shichen"),
-                    "four_pillars": bazi.get("four_pillars", "無命盤數據"),
+                    "four_pillars": pillars_str, # Use local variable directly
                     "day_master": bazi.get("day_master", "未知"),
                     "strength": bazi.get("strength", "中和"),
                     "favorable": bazi.get("favorable", ["木", "火"]),
                     "current_luck": bazi.get("current_luck", {}),
-                    "luck_timeline": bazi.get("luck_timeline", [])
+                    "luck_timeline": timeline # Use local variable directly
                 }
             })
 
