@@ -84,6 +84,7 @@ interface SimulationData {
   status: string
   score: number
   summary: string
+  productName?: string  // Added to fix TypeScript error
   genesis: {
     sample_size: number
     personas: Persona[]
