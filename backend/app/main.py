@@ -14,10 +14,12 @@ from linebot.v3.exceptions import InvalidSignatureError
 
 from app.services.line_bot_service import LineBotService, get_simulation_data
 from app.core.config import settings
-from app.core.database import get_all_citizens, get_citizens_count, get_all_simulations
+from app.core.database import get_all_citizens, get_citizens_count
 from app.api.web import router as web_router
 
 app = FastAPI()
+
+# 🔄 Force Update: 2026-01-14 01:15
 
 app.add_middleware(
     CORSMiddleware,
@@ -50,14 +52,6 @@ async def list_citizens(limit: int = 100, offset: int = 0):
         "offset": offset,
         "citizens": citizens
     }
-
-
-# --- 模擬列表 API ---
-@app.get("/api/simulations")
-async def list_simulations(limit: int = 50, offset: int = 0):
-    """獲取所有模擬列表"""
-    sims = get_all_simulations(limit=limit, offset=offset)
-    return sims
 
 # --- PostgreSQL 模式：從資料庫獲取資料 ---
 @app.get("/simulation/{sim_id}")

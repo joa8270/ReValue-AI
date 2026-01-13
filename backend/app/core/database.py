@@ -21,6 +21,8 @@ else:
     print(f"[DB] Connecting to PostgreSQL: {DATABASE_URL[:50]}...")
     engine = create_engine(DATABASE_URL)
 
+# 🔄 Force Update: 2026-01-14 01:15
+
 # 4. 建立 Session 工廠
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
