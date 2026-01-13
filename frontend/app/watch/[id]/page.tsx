@@ -402,24 +402,8 @@ export default function WatchPage() {
             return { ...c, score: c.score || stableScore };
           }) || [];
 
-          // Enforce minimum 8 citizens interact
-          while (enrichedComments.length < 8) {
-            enrichedComments.push({
-              text: "此專案目前資料不足，無法提供具體評價。",
-              citizen_name: `匿名 AI 市民 ${enrichedComments.length + 1}`,
-              citizen_occupation: "觀察員",
-              sentiment: "neutral",
-              score: 50 + Math.floor(Math.random() * 20),
-              id: `mock-${enrichedComments.length}`,
-              persona: {
-                name: `匿名 AI 市民 ${enrichedComments.length + 1}`,
-                element: ["Wood", "Fire", "Earth", "Metal", "Water"][Math.floor(Math.random() * 5)],
-                structure: "未知格",
-                mbti: "INTJ",
-                background: "數據不足，僅作觀察。"
-              }
-            });
-          }
+          // 不再強制填充匿名市民，只顯示真實的 AI 評論
+          // 如果評論數量太少，可能是 API 返回問題，不應用虛假數據填充
 
           const totalScore = enrichedComments.length > 0
             ? Math.floor(enrichedComments.reduce((acc: number, curr: any) => acc + curr.score, 0) / enrichedComments.length)
