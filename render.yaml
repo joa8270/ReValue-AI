@@ -4,7 +4,7 @@ services:
     name: mirra-backend
     runtime: python
     rootDir: backend
-    buildCommand: pip install -r ../requirements.txt
+    buildCommand: find . -type f -name "*.pyc" -delete && pip install -r ../requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
