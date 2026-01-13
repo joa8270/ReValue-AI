@@ -887,6 +887,19 @@ class LineBotService:
             
             if citizen:
                 bazi = citizen["bazi_profile"]
+                
+                # Auto-fill missing birthday data
+                import random
+                if not bazi.get("birth_year"):
+                    try:
+                        age = int(citizen.get("age", 30))
+                    except:
+                        age = 30
+                    bazi["birth_year"] = 2025 - age
+                    bazi["birth_month"] = random.randint(1, 12)
+                    bazi["birth_day"] = random.randint(1, 28)
+                    bazi["birth_shichen"] = random.choice(["子時", "丑時", "寅時", "卯時", "辰時", "巳時", "午時", "未時", "申時", "酉時", "戌時", "亥時"])
+
                 arena_comments.append({
                     "sentiment": comment.get("sentiment", "neutral"),
                     "text": comment.get("text", "（無評論內容）"),
@@ -1037,6 +1050,20 @@ class LineBotService:
             sentiments = ["positive", "positive", "neutral", "neutral", "negative"]
             sentiment = sentiments[len(arena_comments) % len(sentiments)]
             
+            # Ensure birthday data exists
+            import random
+            birth_year = bazi.get("birth_year")
+            if not birth_year:
+                try:
+                    age = int(citizen.get("age", 30))
+                except:
+                    age = 30
+                birth_year = 2025 - age
+                bazi["birth_year"] = birth_year
+                bazi["birth_month"] = random.randint(1, 12)
+                bazi["birth_day"] = random.randint(1, 28)
+                bazi["birth_shichen"] = random.choice(["子時", "丑時", "寅時", "卯時", "辰時", "巳時", "午時", "未時", "申時", "酉時", "戌時", "亥時"])
+
             arena_comments.append({
                 "sentiment": sentiment,
                 "text": text,
