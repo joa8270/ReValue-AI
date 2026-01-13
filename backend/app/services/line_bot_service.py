@@ -951,6 +951,9 @@ class LineBotService:
                         "luck_timeline": timeline # Use local variable
                     }
                 })
+                
+                # DEBUG LOG
+                logger.info(f"Generated Primary Comment Persona: Name={citizen['name']}, ID={cid}, Pillars={pillars_str}, Birth={bazi.get('birth_year')}")
 
         # Fallback comments if not enough (ensure at least 8)
         # 大幅增加評論模板，更豐富、更符合八字個性
@@ -1142,6 +1145,9 @@ class LineBotService:
                     "luck_timeline": timeline # Use local variable directly
                 }
             })
+            
+            # DEBUG LOG
+            logger.info(f"Generated Fallback Comment Persona: Name={citizen['name']}, ID={cid}, Pillars={pillars_str}, Birth={bazi.get('birth_year')}")
 
         result_data = {
             "status": "ready",
