@@ -119,99 +119,58 @@ interface EnrichedPersona extends Persona {
   displayAge?: string
 }
 
+/**
+ * 直接使用後端傳來的市民資料，不再生成假資料
+ * 所有資料應該已在 line_bot_service.py 的 _build_simulation_result 中完整填充
+ */
 const enrichCitizenData = (p: Persona): EnrichedPersona => {
-  let dm = p.day_master
-  if ((!dm || dm === "未知") && !p.four_pillars) {
-    const dmMap: Record<string, string[]> = {
-      "Fire": ["丙火", "丁火"],
-      "Water": ["壬水", "癸水"],
-      "Metal": ["庚金", "辛金"],
-      "Wood": ["甲木", "乙木"],
-      "Earth": ["戊土", "己土"]
-    }
-    const options = dmMap[p.element] || ["甲木"]
-    dm = options[Math.floor(Math.random() * options.length)]
-  }
+  // 1. 日主：直接使用後端資料
+  const dm = p.day_master || "未知";
 
-  let fullBirthday = ""
+  // 2. 生日：直接使用後端資料，不再推算
+  let fullBirthday = "";
   if (p.birth_year && p.birth_month && p.birth_day) {
-    fullBirthday = `${p.birth_year}年${p.birth_month}月${p.birth_day}日`
-    if (p.birth_shichen) fullBirthday += ` ${p.birth_shichen}`
+    fullBirthday = `${p.birth_year}年${p.birth_month}月${p.birth_day}日`;
+    if (p.birth_shichen) fullBirthday += ` ${p.birth_shichen}`;
   } else {
-    let age = parseInt(p.age)
-    if (isNaN(age)) age = Math.floor(Math.random() * (45 - 20 + 1)) + 20
-    const currentYear = new Date().getFullYear()
-    const birthYear = currentYear - age
-    const month = Math.floor(Math.random() * 12) + 1
-    const day = Math.floor(Math.random() * 28) + 1
-    fullBirthday = `${birthYear}年${month}月${day}日 (推算)`
+    fullBirthday = "生辰資料缺失";
   }
 
-  let luckCycle = ""
+  // 3. 當前大運：直接使用後端資料
+  let luckCycle = "";
   if (p.current_luck && p.current_luck.description) {
-    luckCycle = p.current_luck.description
+    luckCycle = p.current_luck.description;
+  } else if (p.current_luck && p.current_luck.name) {
+    luckCycle = `目前行${p.current_luck.name}`;
   } else {
-    const luckMap: Record<string, string[]> = {
-      "正官格": ["目前行運至『東方木地』，官星得地，事業運勢穩步上升。", "行運『財星』流年，財官相生，實質回報豐厚。"],
-      "七殺格": ["大運走至『食神制殺』之鄉，原本剛烈的煞氣轉化為權威。", "行運『印綬』以為化解，心性轉趨沉穩。"],
-      "正財格": ["目前行運『食傷生財』，財源廣進，對於投資理財的敏銳度極高。", "行運『官殺』護財，既有財富累積，亦有社會地位提升。"],
-      "偏財格": ["大運進入『比劫奪財』之運限，需留意財務波動。", "行運『食神』，財氣通門戶，交際應酬增多，人脈即錢脈。"],
-      "傷官格": ["行運『財鄉』，傷官生財，才華變現的最佳時機。", "大運遇『印星』，傷官配印，貴不可言。"],
-      "食神格": ["目前行運『財地』，食神生正財，衣食無憂，心寬體胖。", "行運『比劫』，食神洩秀，人緣極佳。"],
-    }
-    const defaultLuck = ["目前行運平穩，五行流通有情。", "流年運勢助旺日主，精氣神飽滿。"]
-    const luckOptions = luckMap[p.pattern] || defaultLuck
-    luckCycle = luckOptions[Math.floor(Math.random() * luckOptions.length)]
+    luckCycle = "大運資料載入中...";
   }
 
+  // 4. 性格特質描述
   const traitMap: Record<string, string> = {
     "Fire": "熱情洋溢，行動力強，但有時過於急躁。",
     "Water": "聰明機智，適應力強，心思深沉。",
     "Metal": "果斷剛毅，講求原則，重視效率與SOP。",
     "Wood": "仁慈博愛，富有創意，具備良好的生長性與彈性。",
     "Earth": "誠信穩重，包容力強，是團隊中的定海神針。"
-  }
-  const detailedTrait = traitMap[p.element] || "性格均衡，適應力良好。"
+  };
+  const detailedTrait = traitMap[p.element] || "性格均衡，適應力良好。";
 
+  // 5. 決策邏輯：直接使用或根據格局生成
   let decisionLogic = p.decision_logic;
   if (!decisionLogic || decisionLogic.includes("根據八字格局特質分析")) {
-    const dm = getDecisionModel(p.pattern);
-    decisionLogic = `【${dm.title}】${dm.desc}`;
+    const dmModel = getDecisionModel(p.pattern);
+    decisionLogic = `【${dmModel.title}】${dmModel.desc}`;
   }
 
-  let luck_timeline = p.luck_timeline || [];
-  if (luck_timeline.length === 0) {
-    const startAge = Math.floor(Math.random() * 8) + 2;
-    const pillars = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥"];
-    const startIdx = Math.floor(Math.random() * 5);
-    const descriptions = [
-      "少年運勢，學業順利，得長輩疼愛。",
-      "初入社會，需磨練心性，財運平平。",
-      "事業起步，貴人多助，有升遷機會。",
-      "財運亨通，投資獲利，亦有桃花運。",
-      "壓力較大，需注意健康與職場人際。",
-      "穩步發展，權力與名聲雙收。",
-      "財官雙美，享有一定的社會地位。",
-      "晚運安康，含飴弄孫，生活優渥。"
-    ];
-    for (let i = 0; i < 8; i++) {
-      const pAge = startAge + (i * 10);
-      luck_timeline.push({
-        age_start: pAge,
-        age_end: pAge + 9,
-        name: pillars[(startIdx + i) % pillars.length] + "運",
-        description: descriptions[i % descriptions.length]
-      });
-    }
-  }
+  // 6. 大運時間軸：直接使用後端資料
+  const luck_timeline = p.luck_timeline || [];
 
-  let favorable = p.favorable;
-  if (!favorable || favorable.length === 0) {
-    const allElements = ["Wood", "Fire", "Earth", "Metal", "Water"];
-    const count = Math.random() > 0.5 ? 2 : 1;
-    const shuffled = allElements.sort(() => 0.5 - Math.random());
-    favorable = shuffled.slice(0, count);
-  }
+  // 7. 喜用五行：直接使用後端資料
+  const favorable = p.favorable || [];
+
+  // 8. 身強身弱：直接使用後端資料
+  const strength = p.strength || "中和";
 
   return {
     ...p,
@@ -224,9 +183,10 @@ const enrichCitizenData = (p: Persona): EnrichedPersona => {
     decision_logic: decisionLogic,
     luck_timeline,
     favorable,
-    strength: p.strength || (Math.random() > 0.5 ? "身強" : "身弱")
-  }
-}
+    strength
+  };
+};
+
 
 function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose: () => void }) {
   if (!citizen) return null;
@@ -390,12 +350,20 @@ export default function WatchPage() {
   const TOTAL_POPULATION = 1000
 
   useEffect(() => {
+    let intervalId: NodeJS.Timeout
+
     const fetchData = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
         const res = await fetch(`${apiUrl}/simulation/${simId}`)
         if (res.ok) {
           const json = await res.json()
+
+          // Stop polling if ready or failed
+          if (json.status === 'ready' || json.status === 'failed') {
+            if (intervalId) clearInterval(intervalId)
+          }
+
           // Stable score logic
           const enrichedComments = json.arena_comments?.map((c: any) => {
             const seed = (c.text || "").split("").reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
@@ -453,7 +421,13 @@ export default function WatchPage() {
         console.error("Fetch Error", e)
       }
     }
-    fetchData()
+
+    fetchData() // Initial fetch
+    intervalId = setInterval(fetchData, 3000) // Poll every 3s
+
+    return () => {
+      if (intervalId) clearInterval(intervalId)
+    }
   }, [simId])
 
   const lastSummaryRef = useRef("")
@@ -688,13 +662,6 @@ export default function WatchPage() {
 
       <header className="flex-none flex items-center justify-between whitespace-nowrap border-b border-[#302839] px-6 py-4 bg-[#141118] z-20">
         <div className="flex items-center gap-4 text-white">
-          <Link href="/dashboard" className="flex items-center gap-4 hover:opacity-80 transition-opacity cursor-pointer">
-            <div className="size-8 text-[#a855f7] flex items-center justify-center">
-              <span className="material-symbols-outlined text-[32px] fill-0">all_inclusive</span>
-            </div>
-            <h2 className="text-xl font-bold leading-tight tracking-wider">MIRRA</h2>
-          </Link>
-          <div className="h-6 w-px bg-[#302839] mx-2"></div>
           <span className="text-sm font-medium text-gray-400">預演報告 #{simId.slice(0, 4).toUpperCase()}</span>
         </div>
         <div className="flex items-center gap-4">
@@ -881,12 +848,11 @@ export default function WatchPage() {
                         <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span></span>
                         <p className="text-[10px] text-purple-400 font-medium">即時推演波動中</p>
                       </div>
-                      <p className="text-[10px] text-gray-400">*分數源自 8 位八字代表市民的加權平均</p>
                     </div>
                   </div>
                   <span className={`text-xs font-bold px-2 py-1 rounded ${data.score >= 70 ? 'bg-green-500/10 text-green-400' : 'bg-amber-500/10 text-amber-400'}`}>{data.score >= 70 ? '核心目標達成' : '需進一步優化'}</span>
                 </div>
-                <div className="flex items-center justify-center py-4">
+                <div className="flex flex-col items-center justify-center py-4 gap-4">
                   <div className="relative size-44 md:size-48">
                     <svg className="size-full -rotate-90" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="3" className="text-[#302839]" />
@@ -897,25 +863,153 @@ export default function WatchPage() {
                       <span className="text-sm font-medium text-gray-500">滿分 100</span>
                     </div>
                   </div>
+                  <p className="text-xs text-white font-mono text-center">*分數源自下面 8 位八字代表市民的加權平均</p>
                 </div>
               </div>
 
               <div className="col-span-1 lg:col-span-8 flex flex-col gap-6">
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                   {(() => {
-                    const isBusinessPlan = (data.productName || "").includes("平台") || (data.productName || "").includes("模式") || (data.productName || "").includes("計畫") || (data.summary || "").includes("商業模式");
+                    // 動態計算：正面評價率
+                    const totalComments = data.arena_comments?.length || 0;
+                    const positiveComments = data.arena_comments?.filter((c: any) => c.sentiment === 'positive').length || 0;
+                    const positiveRate = totalComments > 0 ? Math.round((positiveComments / totalComments) * 100) : 0;
+                    const positiveLabel = positiveRate >= 70 ? '高度正面' : positiveRate >= 50 ? '中性偏正' : positiveRate >= 30 ? '中性' : '偏負面';
+
+                    // 動態計算：參與深度（覆蓋率）
+                    const coverageRate = Math.round((totalComments / TOTAL_POPULATION) * 100 * 10) / 10;
+
+                    // 動態計算：價格敏感度（掃描評論中的價格相關關鍵詞）
+                    const priceKeywords = ['貴', '價格', '價錢', '太貴', '便宜', '划算', 'CP值', 'cp值', '預算', '成本', '花費', '值得', '不值', '省錢', '促銷', '折扣', 'expensive', 'price', 'cheap', 'affordable', 'budget'];
+                    const priceRelatedComments = data.arena_comments?.filter((c: any) =>
+                      priceKeywords.some(keyword => (c.text || '').toLowerCase().includes(keyword.toLowerCase()))
+                    ).length || 0;
+                    const priceSensitivityRate = totalComments > 0 ? Math.round((priceRelatedComments / totalComments) * 100) : 0;
+
+                    // 判斷敏感度等級與商家啟示
+                    let sensitivityLevel: string;
+                    let sensitivityAdvice: string;
+                    let sensitivityColor: string;
+                    if (priceSensitivityRate >= 40) {
+                      sensitivityLevel = '高';
+                      sensitivityAdvice = '建議採促銷策略';
+                      sensitivityColor = 'text-rose-500';
+                    } else if (priceSensitivityRate >= 20) {
+                      sensitivityLevel = '中等';
+                      sensitivityAdvice = '需平衡價格與價值';
+                      sensitivityColor = 'text-amber-500';
+                    } else {
+                      sensitivityLevel = '低';
+                      sensitivityAdvice = '可強調品質與價值';
+                      sensitivityColor = 'text-green-500';
+                    }
+
+                    // 生成正面評價率的商家啟示
+                    let positiveAdvice: string;
+                    if (positiveRate >= 70) {
+                      positiveAdvice = '市場反應極佳';
+                    } else if (positiveRate >= 50) {
+                      positiveAdvice = '可強化產品優勢';
+                    } else if (positiveRate >= 30) {
+                      positiveAdvice = '建議優化產品定位';
+                    } else {
+                      positiveAdvice = '需重新審視策略';
+                    }
+
+                    // 生成參與深度的商家啟示
+                    let coverageAdvice: string;
+                    if (coverageRate >= 5) {
+                      coverageAdvice = '樣本充足可信';
+                    } else if (coverageRate >= 1) {
+                      coverageAdvice = '樣本具參考價值';
+                    } else {
+                      coverageAdvice = '建議擴大樣本';
+                    }
+
+                    // Dynamic Score Improvement Logic
+                    const currentScore = data.score || 0;
+                    const scoreGap = Math.max(0, 100 - currentScore);
+
+                    // Assign improvement weights (Higher weight = More room to improve)
+                    // Market Potential (Critical): Low->3, Mid->2, High->1
+                    const w_pot = (positiveRate >= 70 ? 1 : positiveRate >= 40 ? 2 : 3) * 2.0;
+                    // Confidence (Auxiliary): Low->3, Mid->2, High->1
+                    const w_conf = (coverageRate >= 5 ? 1 : coverageRate >= 1 ? 2 : 3) * 1.0;
+                    // Tech Monetization (Critical): Strong(Low Sense)->1, Mid->2, Weak(High Sense)->3
+                    const w_tech = (sensitivityLevel === '低' ? 1 : sensitivityLevel === '中等' ? 2 : 3) * 1.5;
+
+                    const totalWeight = w_pot + w_conf + w_tech;
+
+                    const getBoost = (weight: number) => {
+                      if (scoreGap <= 2) return '+0~1 分'; // Saturation
+                      const share = (weight / totalWeight) * scoreGap;
+                      // Create a realistic range around the share
+                      const min = Math.max(1, Math.floor(share * 0.8));
+                      const max = Math.max(min, Math.ceil(share * 1.2));
+                      return `+${min}~${max} 分`;
+                    };
+
                     const stats = [
-                      { label: '市場潛力', value: '高', sub: '排名前 5% 的專案', icon: 'trending_up', color: 'text-[#7f13ec]' },
-                      { label: '信心指數', value: '98%', sub: '具統計顯著性', icon: 'psychology', color: 'text-blue-500' },
-                      isBusinessPlan
-                        ? { label: '技術變現力', value: '強', sub: '核心架構具競爭力', icon: 'integration_instructions', color: 'text-emerald-500' }
-                        : { label: '價格敏感度', value: '中等', sub: '偵測到定價疑慮', icon: 'payments', color: 'text-orange-500' }
+                      {
+                        label: '市場潛力',
+                        value: positiveRate >= 70 ? '高' : positiveRate >= 40 ? '中' : '低',
+                        sub: '「有多少人看了喜歡？」若大部分市民都給予好評，代表產品本身吸引力極強。',
+                        advice: positiveRate >= 70
+                          ? '💡 建議：趁勝追擊！您可以加大行銷預算來擴大這股熱潮。'
+                          : positiveRate >= 40
+                            ? '💡 建議：表現四平八穩。試試看強化產品的「獨家特色」，讓大家印象更深刻。'
+                            : '💡 建議：警報響起！請重新檢視產品是否真的解決了痛點，或考慮調整定價。',
+                        improvement: getBoost(w_pot),
+                        icon: 'trending_up',
+                        color: positiveRate >= 60 ? 'text-green-500' : 'text-amber-500'
+                      },
+                      {
+                        label: '信心指數',
+                        value: coverageRate < 1 ? `${coverageRate * 10}‰` : `${Math.min(coverageRate * 10, 99)}%`,
+                        sub: '「這次調查的聲音夠大聲嗎？」願意表態的市民越多，這份報告的參考價值就越高。',
+                        advice: coverageRate >= 5
+                          ? '💡 建議：數據非常穩。您可以放心地根據這份報告來制定下一步策略。'
+                          : coverageRate >= 1
+                            ? '💡 建議：數據可參考。若想更保險，可以更改文案後再跑一次預演。'
+                            : '💡 建議：目前為免費版隨機抽樣 (8‰)。若需高信度 (8%↑)，甚至到80%，請升級 Pro 版解鎖千人全量分析。',
+                        improvement: coverageRate >= 5 ? '+1~2%' : coverageRate >= 1 ? '+5~8%' : '升級 Pro 版',
+                        icon: 'verified',
+                        color: 'text-blue-500'
+                      },
+                      {
+                        label: '技術變現力',
+                        value: sensitivityLevel === '低' ? '強' : sensitivityLevel === '中等' ? '中' : '弱',
+                        sub: '「是用技術折服人，還是在拚價格？」越少人嫌貴，代表技術帶來的溢價能力越強。',
+                        advice: sensitivityLevel === '低'
+                          ? '💡 建議：太強了！大家不在乎錢。您可以大膽維持高價，甚至推出更貴的進階版。'
+                          : sensitivityLevel === '中等'
+                            ? '💡 建議：拉鋸戰中。請多強調「買了會省多少錢」或「長期價值」來說服猶豫客。'
+                            : '💡 建議：大家都在喊貴。如果不降價，您必須證明您的技術是「無可取代」的。',
+                        improvement: getBoost(w_tech),
+                        icon: 'monetization_on',
+                        color: sensitivityColor
+                      },
                     ];
 
                     return stats.map((stat) => (
-                      <div key={stat.label} className="bg-[#1a1a1f] border border-[#302839] rounded-xl p-5 flex flex-col justify-between hover:border-[#7f13ec]/30 transition-colors">
-                        <div className="flex items-center gap-2 mb-2"><span className={`material-symbols-outlined ${stat.color} text-[20px]`}>{stat.icon}</span><span className="text-[#ab9db9] text-xs font-bold uppercase">{stat.label}</span></div>
-                        <div><p className="text-2xl font-bold text-white">{stat.value}</p><span className="text-xs text-gray-400 block mt-0.5">精選 1,000 位 AI 市民</span></div>
+                      <div key={stat.label} className="bg-[#1a1a1f] border border-[#302839] rounded-xl p-5 flex flex-col justify-between hover:border-[#7f13ec]/30 transition-colors gap-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className={`material-symbols-outlined ${stat.color} text-[20px]`}>{stat.icon}</span>
+                            <span className="text-[#ab9db9] text-xs font-bold uppercase">{stat.label}</span>
+                          </div>
+                          <p className="text-2xl font-bold text-white">{stat.value}</p>
+                          <span className="text-xs text-gray-400 block mt-1 leading-snug">{stat.sub}</span>
+                        </div>
+                        <div className="pt-3 border-t border-[#302839]/50 flex flex-col gap-2">
+                          <p className="text-xs text-[#d8b4fe] font-medium leading-relaxed">{stat.advice}</p>
+                          <div className="flex justify-end">
+                            <span className="text-[10px] items-center flex gap-1 text-green-400 font-mono font-bold">
+                              <span className="material-symbols-outlined text-[12px]">trending_up</span>
+                              若優化可升 {stat.improvement}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     ));
                   })()}

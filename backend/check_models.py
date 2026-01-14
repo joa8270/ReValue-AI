@@ -1,22 +1,32 @@
-
-import requests
 import os
-from app.core.config import settings
+import requests
+from dotenv import load_dotenv
 
-api_key = settings.GOOGLE_API_KEY
+load_dotenv()
+api_key = os.getenv("GOOGLE_API_KEY")
+
+if not api_key:
+    # Try to find it in settings
+    try:
+        from app.core.config import settings
+        api_key = settings.GOOGLE_API_KEY
+    except:
+        pass
+
+if not api_key:
+    print("NO API KEY FOUND")
+    exit(1)
+
 url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
-
 try:
-    response = requests.get(url)
-    with open("models_log.txt", "w", encoding="utf-8") as f:
-        if response.status_code == 200:
-            models = response.json().get('models', [])
-            f.write("Available Models:\n")
-            for m in models:
-                if 'generateContent' in m.get('supportedGenerationMethods', []):
-                    f.write(f" - {m['name']}\n")
-        else:
-            f.write(f"Failed to list models: {response.status_code} {response.text}\n")
+    resp = requests.get(url)
+    if resp.status_code == 200:
+        data = resp.json()
+        print("AVAILABLE MODELS:")
+        for m in data.get('models', []):
+            if 'generateContent' in m.get('supportedGenerationMethods', []):
+                print(f"- {m['name']}")
+    else:
+        print(f"Error {resp.status_code}: {resp.text}")
 except Exception as e:
-    with open("models_log.txt", "w", encoding="utf-8") as f:
-        f.write(f"Exception: {e}\n")
+    print(f"Exception: {e}")

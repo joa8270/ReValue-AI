@@ -1,0 +1,11 @@
+[41bcd211-feae-4db7-abe6-3b421b1f5c52] Func Start. Image size: 161241
+[17f019ba-f130-4993-b484-9e3dafaa9b7c] Func Start. Image size: 366593
+[c365b78c-84a7-408b-a1fa-5ffd9087db53] Func Start. Image size: 366593
+[ae8660d5-0968-4b13-b1fb-910f70433f9f] Func Start. Image size: 366593
+[3771b5c0-fe27-4aaa-b884-6e516272df6d] Func Start. Image size: 366593
+[b1babdc7-7fa7-4c4a-b4da-d24ee664a417] Func Start
+[eada85df-dac9-46db-90fc-55f2c8542c80] 1. Func Start. Bytes type: <class 'bytes'>
+[eada85df-dac9-46db-90fc-55f2c8542c80] 2. Logger skipped. Encoding base64...
+[eada85df-dac9-46db-90fc-55f2c8542c80] 3. Base64 done.
+[eada85df-dac9-46db-90fc-55f2c8542c80] Getting random citizens...
+[eada85df-dac9-46db-90fc-55f2c8542c80] Got citizens: 30

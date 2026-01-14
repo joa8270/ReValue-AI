@@ -143,6 +143,7 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True) -> list[
     Returns:
         市民資料列表
     """
+    print(f"🎲 [DB] 隨機請求取樣 {sample_size} 位市民 (分層={stratified})")
     import random
     
     try:
