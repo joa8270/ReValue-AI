@@ -958,7 +958,7 @@ export default function WatchPage() {
                           ? '💡 建議：趁勝追擊！您可以加大行銷預算來擴大這股熱潮。'
                           : positiveRate >= 40
                             ? '💡 建議：表現四平八穩。試試看強化產品的「獨家特色」，讓大家印象更深刻。'
-                            : '💡 建議：警報響起！請重新檢視產品是否真的解決了痛點，或考慮調整定價。',
+                            : '💡 建議：市場反應冷淡。可能產品未觸及核心需求，或目標客群設定有誤，建議重新定位賣點。',
                         improvement: getBoost(w_pot),
                         icon: 'trending_up',
                         color: positiveRate >= 60 ? 'text-green-500' : 'text-amber-500'
@@ -971,7 +971,7 @@ export default function WatchPage() {
                           ? '💡 建議：數據非常穩。您可以放心地根據這份報告來制定下一步策略。'
                           : coverageRate >= 1
                             ? '💡 建議：數據可參考。若想更保險，可以更改文案後再跑一次預演。'
-                            : '💡 建議：目前為免費版隨機抽樣 (8‰)。若需高信度 (8%↑)，甚至到80%，請升級 Pro 版解鎖千人全量分析。',
+                            : '💡 建議：目前為免費版隨機抽樣 (8‰)。若需高信度 (8%↑) 甚至 80%，請升級 Pro 版解鎖千人全量分析。',
                         improvement: coverageRate >= 5 ? '+1~2%' : coverageRate >= 1 ? '+5~8%' : '升級 Pro 版',
                         icon: 'verified',
                         color: 'text-blue-500'
@@ -984,7 +984,7 @@ export default function WatchPage() {
                           ? '💡 建議：太強了！大家不在乎錢。您可以大膽維持高價，甚至推出更貴的進階版。'
                           : sensitivityLevel === '中等'
                             ? '💡 建議：拉鋸戰中。請多強調「買了會省多少錢」或「長期價值」來說服猶豫客。'
-                            : '💡 建議：大家都在喊貴。如果不降價，您必須證明您的技術是「無可取代」的。',
+                            : '💡 建議：難以產生技術溢價。消費者對價格敏感，建議建立「不可替代性」來自抬身價，或接受薄利多銷的策略。',
                         improvement: getBoost(w_tech),
                         icon: 'monetization_on',
                         color: sensitivityColor
