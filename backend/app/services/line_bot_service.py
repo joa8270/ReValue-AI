@@ -6,6 +6,10 @@ import uuid
 import re
 import base64
 import requests
+import logging
+
+# Create logger for this module
+logger = logging.getLogger(__name__)
 from linebot.v3.messaging import (
     Configuration,
     ApiClient,
@@ -569,37 +573,61 @@ class LineBotService:
                     product_context = f"📦 使用者補充的產品資訊：\n{text_context}\n請特別考慮上述產品資訊及價格進行分析。"
 
                 prompt_text = f"""
-你是 MIRRA 鏡界系統的核心 AI。請分析這張產品圖片，並「扮演」以下從資料庫隨機抽取的 {len(sampled_citizens)} 位 AI 虛擬市民，模擬他們對產品的反應。
+你是 MIRRA 鏡界系統的核心 AI 策略顧問。請分析這張產品圖片，並「扮演」以下從資料庫隨機抽取的 {len(sampled_citizens)} 位 AI 虛擬市民，模擬他們對產品的反應。你需要提供**深度、具體、可執行**的行銷策略建議。
 {product_context}
 📋 以下是真實市民資料（八字格局已預先計算）：
 
 {citizens_json}
 
+⚠️ **重要指示：策略建議必須非常具體且可執行**
+- 不要給出「進行 A/B 測試」這種人人都知道的泛泛建議
+- 必須根據**這個特定產品**的特點，給出**獨特、有洞察力**的行銷建議
+- 執行步驟要具體到「第一週做什麼、第一個月達成什麼、如何衡量成效」
+- 每個建議都要說明「為什麼這對這個產品特別重要」
+
 🎯 請務必回傳一個**純 JSON 字串 (不要 Markdown)**，結構如下：
 
     "simulation_metadata": {{
-        "product_category": "(產品類別)",
+        "product_category": "(必須從以下選擇一個：tech_electronics | collectible_toy | food_beverage | fashion_accessory | home_lifestyle | other)",
         "marketing_angle": "(行銷切角)",
         "bazi_analysis": "(八字五行與產品的契合度分析)"
     }},
     "result": {{
         "score": (0-100 的購買意圖分數),
-        "summary": "(100字內的繁體中文總結分析)",
+        "summary": "(100字內的繁體中文總結分析，指出產品的最大機會與挑戰)",
         "objections": [
-            {{"reason": "(拒絕理由1)", "percentage": (佔比)}},
+            {{"reason": "(具體拒絕理由，說明為什麼這是問題)", "percentage": (佔比)}},
             {{"reason": "(拒絕理由2)", "percentage": (佔比)}}
         ],
         "suggestions": [
             {{
-                "target": "(目標族群/格局)", 
-                "advice": "(核心策略建議)",
-                "execution_plan": ["步驟1", "步驟2", "步驟3"],
+                "target": "(具體目標族群，例如：25-35歲注重生活品質的都會女性 / 對科技產品有研究的3C發燒友 / 追求CP值的小資上班族)", 
+                "advice": "(100字以上的詳細行銷策略建議，說明為什麼這個策略對這個產品特別有效，不要給出泛泛的建議)",
+                "execution_plan": [
+                    "第1週：(具體行動，例如：在3個目標社群發布開箱文，找2位KOC合作)",
+                    "第2-4週：(具體行動，例如：收集首批用戶反饋，製作使用者見證影片)",
+                    "第1-2月：(具體行動，例如：根據反饋優化產品頁面，擴大投放範圍)",
+                    "第3月：(具體行動，例如：推出限時優惠活動，衝刺銷售量)",
+                    "第4-6月：(具體行動，例如：建立忠誠客戶回購機制，發展口碑行銷)"
+                ],
+                "success_metrics": "(如何衡量這個策略是否成功，例如：首月轉換率達3%，平均訂單金額提升20%)",
+                "potential_risks": "(這個策略可能遇到的挑戰，例如：KOC合作成本可能超出預算)",
                 "score_improvement": "+(預期提升分數，如 5~10分)"
             }},
             {{
-                "target": "(目標族群/格局)", 
-                "advice": "(建議)",
-                "execution_plan": ["步驟1", "步驟2", "步驟3"],
+                "target": "(第二個目標族群)", 
+                "advice": "(100字以上的詳細行銷策略建議)",
+                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
+                "success_metrics": "(成功指標)",
+                "potential_risks": "(潛在風險)",
+                "score_improvement": "+(預期提升分數)"
+            }},
+            {{
+                "target": "(第三個目標族群)", 
+                "advice": "(100字以上的詳細行銷策略建議)",
+                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
+                "success_metrics": "(成功指標)",
+                "potential_risks": "(潛在風險)",
                 "score_improvement": "+(預期提升分數)"
             }}
         ]
@@ -608,7 +636,7 @@ class LineBotService:
         {{
             "citizen_id": (請填入對應市民的 ID),
             "sentiment": "positive",
-            "text": "(使用該市民口吻，根據其八字、職業、年齡寫出評論，繁體中文，口語化。例如食神格重視享受、七殺格講究效率、正財格重視CP值)"
+            "text": "(使用該市民口吻，根據其八字、職業、年齡寫出評論，繁體中文，口語化，至少30字。例如食神格重視享受、七殺格講究效率、正財格重視CP值)"
         }},
         {{
             "citizen_id": (請填入對應市民的 ID),
@@ -629,6 +657,8 @@ class LineBotService:
 2. 評論內容請務必結合市民的**職業**、**地點**與**生活情境**。
 3. `simulation_metadata` 中的分析請基於整體市民樣本。
 4. **若提供建議售價，所有分析與評論必須嚴格基於該價格，不得自行修改、四捨五入或臆測其他價格。**
+5. **suggestions 必須非常具體**：每個建議100字以上，執行計劃5個步驟含時間表，不要泛泛而談
+6. **禁止使用**「進行 A/B 測試」、「優化行銷文案」這類通用建議，必須針對這個特定產品給出獨特見解
 """
             except Exception as e:
                 logger.error(f"[{sim_id}] Prompt construction failed: {e}. Using simplified prompt.")
@@ -848,13 +878,19 @@ class LineBotService:
             
             # 3. Prompt
             prompt_text = f"""
-你是 MIRRA 鏡界系統的核心 AI。你正在審閱一份商業計劃書 PDF。
+你是 MIRRA 鏡界系統的核心 AI 策略顧問。你正在審閱一份商業計劃書 PDF，並需要提供**深度、具體、可執行**的策略建議。
 
 請讓以下從資料庫隨機抽取的 {len(sampled_citizens)} 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
 
 📋 以下是真實市民資料（八字格局已預先計算）：
 
 {citizens_json}
+
+⚠️ **重要指示：策略建議必須非常具體且可執行**
+- 不要給出「進行 A/B 測試」這種人人都知道的泛泛建議
+- 必須根據**這個特定商業模式**的特點，給出**獨特、有洞察力**的建議
+- 執行步驟要具體到「第一週做什麼、第一個月達成什麼、如何衡量成效」
+- 每個建議都要說明「為什麼這對這個商業模式特別重要」
 
 🎯 請務必回傳一個**純 JSON 字串 (不要 Markdown)**，結構如下：
 
@@ -880,29 +916,47 @@ class LineBotService:
     }},
     "arena_comments": [
         (生成 5-8 則市民針對商業模式的評論)
-        {{"sentiment": "positive/negative/neutral", "text": "市民發言內容（繁體中文，需引用商業計劃書具體內容）", "persona": {{"name": "市民姓名", "pattern": "格局", "element": "五行", "icon": "對應 emoji"}}}}
+        {{"sentiment": "positive/negative/neutral", "text": "市民發言內容（繁體中文，需引用商業計劃書具體內容，至少30字）", "persona": {{"name": "市民姓名", "pattern": "格局", "element": "五行", "icon": "對應 emoji"}}}}
     ],
     "result": {{
         "score": (0-100 的商業可行性分數),
         "market_sentiment": "(整體市場情緒，如：審慎樂觀/高度懷疑/強烈看好)",
-        "summary": "(200字內的商業模式優劣分析，包含獲利模式評估)",
+        "summary": "(200字內的商業模式優劣分析，包含獲利模式評估，指出最大的機會與風險)",
         "objections": [
-            {{"reason": "(商業模式的主要質疑點)", "percentage": (質疑比例 %)}},
+            {{"reason": "(具體質疑點，說明為什麼這是問題)", "percentage": (質疑比例 %)}},
             {{"reason": "(質疑點2)", "percentage": %}},
             {{"reason": "(質疑點3)", "percentage": %}}
         ],
         "suggestions": [
             {{
-                "target": "(目標投資者/合作夥伴類型)", 
-                "advice": "(針對該類型的溝通建議)", 
+                "target": "(具體目標對象，例如：區域醫院的資訊部門主管 / 健保署政策制定者 / 醫療器材經銷商)",
+                "advice": "(100字以上的詳細策略建議，說明為什麼這個策略對這個商業模式特別有效，不要給出泛泛的建議)",
                 "element_focus": "(對應五行)",
-                "execution_plan": ["步驟1", "步驟2", "步驟3"],
+                "execution_plan": [
+                    "第1週：(具體行動，例如：聯繫3家目標客戶的決策者，準備技術白皮書)",
+                    "第2-4週：(具體行動，例如：進行1-2個POC驗證，記錄關鍵數據)",
+                    "第1-2月：(具體行動，例如：根據POC結果調整產品，準備商業提案)",
+                    "第3月：(具體行動，例如：正式簽約第一個付費客戶，建立案例研究)",
+                    "第4-6月：(具體行動，例如：擴展至3-5個客戶，建立口碑效應)"
+                ],
+                "success_metrics": "(如何衡量這個策略是否成功，例如：首月獲得2家意向書，POC成功率達80%)",
+                "potential_risks": "(這個策略可能遇到的挑戰，例如：客戶採購流程可能長達6個月)",
                 "score_improvement": "+(預期提升分數)"
             }},
             {{
-                "target": "(類型2)", 
-                "advice": "(建議)",
-                "execution_plan": ["步驟1", "步驟2"],
+                "target": "(第二個目標對象)",
+                "advice": "(100字以上的詳細策略建議)",
+                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
+                "success_metrics": "(成功指標)",
+                "potential_risks": "(潛在風險)",
+                "score_improvement": "+(預期提升分數)"
+            }},
+            {{
+                "target": "(第三個目標對象)",
+                "advice": "(100字以上的詳細策略建議)",
+                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
+                "success_metrics": "(成功指標)",
+                "potential_risks": "(潛在風險)",
                 "score_improvement": "+(預期提升分數)"
             }}
         ]
@@ -911,9 +965,9 @@ class LineBotService:
 
 📌 重要規則：
 1. 這是商業計劃書分析，請聚焦於「商業可行性」、「獲利模式」與「市場痛點」
-2. arena_comments 請生成投資者/創業者角度的評論
-3. suggestions 請聚焦於商業模式的優化建議
-4. 所有評論都需引用計劃書中的具體內容
+2. arena_comments 請生成投資者/創業者角度的評論，必須引用計劃書具體內容
+3. **suggestions 必須非常具體**：每個建議100字以上，執行計劃5個步驟含時間表，不要泛泛而談
+4. 禁止使用「進行 A/B 測試」、「優化行銷文案」這類通用建議，必須針對這個特定商業模式給出獨特見解
 """
 
             # 4. REST API Call
@@ -930,6 +984,9 @@ class LineBotService:
             
             # 6. Build Result Data
             sim_metadata = data.get("simulation_metadata", {})
+            # PDF uploads always use tech_monetization metric
+            sim_metadata["source_type"] = "pdf"
+            sim_metadata["product_category"] = "tech_electronics"
             bazi_dist = sim_metadata.get("bazi_distribution", {"Fire": 20, "Water": 20, "Metal": 20, "Wood": 20, "Earth": 20})
             genesis_data = data.get("genesis", {})
             personas = genesis_data.get("personas", [])
@@ -1063,8 +1120,234 @@ class LineBotService:
 
         except Exception as e:
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] ERROR: {str(e)}\n")
-            print(f"❌ [Core PDF] 分析失敗: {e}")
+            print(f"[Core PDF] Analysis Failed: {e}")
             self._handle_error_db(sim_id, str(e))
+
+    async def run_simulation_with_text_data(self, text_content: str, sim_id: str, source_type: str = "txt"):
+        """處理純文字內容的商業計劃書分析 (Word/PPT/TXT)"""
+        try:
+            from fastapi.concurrency import run_in_threadpool
+            
+            # 1. 從資料庫隨機抽取市民
+            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30)
+            
+            # 2. 準備市民資料給 Gemini
+            citizens_for_prompt = [
+                {
+                    "id": c["id"],
+                    "name": c["name"],
+                    "age": c["age"],
+                    "occupation": c.get("occupation", ""),
+                    "element": c["bazi_profile"].get("element", "Fire"),
+                    "structure": c["bazi_profile"].get("structure", "正官格"),
+                    "traits": c["traits"][:2] if c["traits"] else []
+                }
+                for c in sampled_citizens[:15]
+            ]
+            citizens_json = json.dumps(citizens_for_prompt, ensure_ascii=False)
+            
+            # 3. 建構 Prompt (純文字版本，不需要 base64 編碼)
+            prompt_text = f"""你是 MIRRA 鏡界系統的核心 AI 策略顧問。你正在審閱一份商業計劃書（來自 {source_type.upper()} 文件），並需要提供**深度、具體、可執行**的策略建議。
+
+以下是文件內容：
+---
+{text_content[:8000]}  
+---
+
+請讓以下從資料庫隨機抽取的 {len(sampled_citizens)} 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
+
+📋 以下是真實市民資料（八字格局已預先計算）：
+
+{citizens_json}
+
+⚠️ **重要指示：策略建議必須非常具體且可執行**
+- 不要給出「進行 A/B 測試」這種人人都知道的泛泛建議
+- 必須根據**這個特定商業模式**的特點，給出**獨特、有洞察力**的建議
+- 執行步驟要具體到「第一週做什麼、第一個月達成什麼、如何衡量成效」
+- 每個建議都要說明「為什麼這對這個商業模式特別重要」
+
+🎯 請務必回傳一個**純 JSON 字串 (不要 Markdown)**，結構如下：
+
+{{
+    "simulation_metadata": {{
+        "product_category": "商業計劃書",
+        "target_market": "台灣",
+        "source_type": "{source_type}"
+    }},
+    "result": {{
+        "score": (0-100 的商業可行性分數),
+        "market_sentiment": "(整體市場情緒，如：審慎樂觀/高度懷疑/強烈看好)",
+        "summary": "(200字內的商業模式優劣分析，包含獲利模式評估，指出最大的機會與風險)",
+        "objections": [
+            {{"reason": "(具體質疑點，說明為什麼這是問題)", "percentage": (質疑比例 %)}},
+            {{"reason": "(質疑點2)", "percentage": %}}
+        ],
+        "suggestions": [
+            {{
+                "target": "(具體目標對象，例如：區域醫院的資訊部門主管 / 健保署政策制定者 / 醫療器材經銷商)",
+                "advice": "(100字以上的詳細策略建議，說明為什麼這個策略對這個商業模式特別有效，而不是泛泛的建議)",
+                "execution_plan": [
+                    "第1週：(具體行動，例如：聯繫3家區域醫院的資訊主管，準備技術白皮書)",
+                    "第2-4週：(具體行動，例如：在1家醫院進行POC驗證，記錄分流準確率數據)",
+                    "第1-2月：(具體行動，例如：根據POC結果調整演算法，準備健保申請文件)",
+                    "第3月：(具體行動，例如：正式簽約第一家付費客戶，建立案例研究)",
+                    "第4-6月：(具體行動，例如：擴展至3-5家醫院，建立口碑效應)"
+                ],
+                "success_metrics": "(如何衡量這個策略是否成功，例如：POC階段分流準確率達85%以上，首月獲得2家醫院意向書)",
+                "potential_risks": "(這個策略可能遇到的挑戰，例如：醫院採購流程可能長達6個月，需要預備足夠資金)",
+                "score_improvement": "+(預期提升分數)"
+            }},
+            {{
+                "target": "(第二個目標對象)",
+                "advice": "(另一個角度的策略建議)",
+                "execution_plan": ["步驟1", "步驟2", "步驟3", "步驟4", "步驟5"],
+                "success_metrics": "(成功指標)",
+                "potential_risks": "(潛在風險)",
+                "score_improvement": "+(預期提升分數)"
+            }},
+            {{
+                "target": "(第三個目標對象)",
+                "advice": "(補充策略建議)",
+                "execution_plan": ["步驟1", "步驟2", "步驟3", "步驟4", "步驟5"],
+                "success_metrics": "(成功指標)",
+                "potential_risks": "(潛在風險)",
+                "score_improvement": "+(預期提升分數)"
+            }}
+        ]
+    }},
+    "comments": [
+        {{
+            "citizen_id": (市民ID),
+            "sentiment": "positive/negative/neutral",
+            "text": "(市民發言內容，繁體中文，至少30字，要有具體觀點)"
+        }}
+    ]
+}}
+"""
+            # 4. 呼叫 Gemini AI (純文字，不需圖片/PDF)
+            api_key = settings.GOOGLE_API_KEY
+            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text)
+            
+            if not ai_text:
+                self._handle_error_db(sim_id, f"Gemini Error: {last_error}")
+                return
+            
+            # 5. 解析結果並建構 result_data
+            data = self._clean_and_parse_json(ai_text)
+            
+            # 使用共用的 _build_simulation_result 來建構完整結果
+            sim_metadata_override = {
+                "source_type": source_type,
+                "product_category": "tech_electronics"  # 文件類型預設使用技術變現力指標
+            }
+            result_data = self._build_simulation_result(data, sampled_citizens, sim_metadata_override)
+            
+            # 6. 更新資料庫
+            await run_in_threadpool(update_simulation, sim_id, "ready", result_data)
+            print(f"[Core TEXT] Document analysis completed: {sim_id}")
+
+        except Exception as e:
+            print(f"[Core TEXT] Analysis Failed: {e}")
+            self._handle_error_db(sim_id, str(e))
+
+    async def run_simulation_with_audio_data(self, audio_bytes: bytes, sim_id: str, audio_format: str = "webm"):
+        """處理語音錄音的商業計劃書分析 (錄音 → 轉文字 → 分析)"""
+        try:
+            from fastapi.concurrency import run_in_threadpool
+            
+            # 1. 使用 Gemini 將音訊轉文字
+            audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
+            
+            transcription_prompt = """請聽取這段語音錄音，並將其完整轉錄為繁體中文文字。
+            
+這是一段關於商業計劃或產品想法的錄音。請：
+1. 完整轉錄所有口說內容
+2. 使用繁體中文
+3. 保持原意，適當加入標點符號讓內容更易讀
+4. 如果有口吃或重複的部分，請整理為順暢的文字
+
+直接輸出轉錄後的文字內容，不要有任何額外說明。"""
+
+            api_key = settings.GOOGLE_API_KEY
+            
+            # 音訊 MIME 類型對應
+            audio_mime_map = {
+                "webm": "audio/webm",
+                "mp3": "audio/mp3",
+                "wav": "audio/wav",
+                "m4a": "audio/mp4",
+                "ogg": "audio/ogg"
+            }
+            audio_mime = audio_mime_map.get(audio_format, "audio/webm")
+            
+            # 呼叫 Gemini 進行語音轉文字
+            transcribed_text, error = await asyncio.to_thread(
+                self._run_blocking_gemini_request_audio,
+                api_key,
+                transcription_prompt,
+                audio_b64,
+                audio_mime
+            )
+            
+            if not transcribed_text:
+                self._handle_error_db(sim_id, f"Voice Transcription Failed: {error}")
+                return
+            
+            print(f"[Audio] Transcribed {len(transcribed_text)} characters")
+            
+            # 2. 使用轉錄的文字進行商業分析
+            await self.run_simulation_with_text_data(transcribed_text, sim_id, "voice")
+
+        except Exception as e:
+            print(f"[Core AUDIO] Analysis Failed: {e}")
+            self._handle_error_db(sim_id, str(e))
+
+    def _run_blocking_gemini_request_audio(self, api_key, prompt, audio_b64, audio_mime):
+        """Blocking Gemini API call for audio transcription"""
+        import requests
+        
+        print(f"[DEBUG AUDIO] Starting audio transcription, audio size: {len(audio_b64)} chars, mime: {audio_mime}")
+        
+        # Use Gemini 2.5 Pro as primary, with fallbacks
+        models = ["gemini-2.5-pro-preview-05-06", "gemini-2.0-flash", "gemini-1.5-pro-latest"]
+        last_error = None
+        
+        for model in models:
+            try:
+                print(f"[DEBUG AUDIO] Trying model: {model}")
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                payload = {
+                    "contents": [{
+                        "parts": [
+                            {"text": prompt},
+                            {"inline_data": {"mime_type": audio_mime, "data": audio_b64}}
+                        ]
+                    }],
+                    "generationConfig": {"temperature": 0.1}
+                }
+                
+                response = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=120)
+                print(f"[DEBUG AUDIO] {model} response status: {response.status_code}")
+                
+                if response.status_code == 200:
+                    try:
+                        result_text = response.json()['candidates'][0]['content']['parts'][0]['text']
+                        print(f"[DEBUG AUDIO] Successfully transcribed: {len(result_text)} chars")
+                        return result_text, None
+                    except Exception as parse_err:
+                        print(f"[DEBUG AUDIO] Parse error: {parse_err}, response: {response.text[:500]}")
+                        continue
+                else:
+                    error_msg = f"{model}: {response.status_code} - {response.text[:300]}"
+                    print(f"[DEBUG AUDIO] API Error: {error_msg}")
+                    last_error = error_msg
+            except Exception as e:
+                print(f"[DEBUG AUDIO] Exception: {str(e)}")
+                last_error = str(e)
+        
+        print(f"[DEBUG AUDIO] All models failed. Last error: {last_error}")
+        return None, last_error
+
 
     # ===== Helpers =====
 
@@ -1491,7 +1774,8 @@ class LineBotService:
             "intent": data.get("result", {}).get("market_sentiment", "謹慎樂觀"),
             "summary": data.get("result", {}).get("summary", "分析完成"),
             "simulation_metadata": {
-                "product_category": sim_metadata_override.get("product_category", "未分類") if sim_metadata_override else "未分類",
+                "source_type": sim_metadata_override.get("source_type", "image") if sim_metadata_override else "image",
+                "product_category": data.get("simulation_metadata", {}).get("product_category", sim_metadata_override.get("product_category", "other") if sim_metadata_override else "other"),
                 "sample_size": len(sampled_citizens),
                 "bazi_distribution": bazi_dist
             },
@@ -1589,11 +1873,24 @@ class LineBotService:
         
         return None, last_error
 
-    async def generate_marketing_copy(self, image_bytes, product_name, price):
-        """Web API 專用：生成產品文案"""
+    async def generate_marketing_copy(self, image_bytes, product_name, price, style="professional"):
+        """Web API 專用：生成產品文案，根據指定風格"""
         try:
             image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+            
+            # Style-specific instructions
+            style_prompts = {
+                "professional": "請使用**專業穩重**的商務風格。用詞正式、數據導向，強調產品的專業性與可靠度。適合 B2B 或高端消費者。",
+                "friendly": "請使用**親切活潑**的輕鬆風格。像跟朋友聊天一樣，使用口語化的語句，帶點幽默感，讓人感覺沒有距離。",
+                "luxury": "請使用**高端奢華**的品牌風格。用詞講究、富有質感，營造出稀有、尊貴、非凡的感受，適合精品或高價商品。",
+                "minimalist": "請使用**簡約清爽**的極簡風格。句子精煉有力，去除贅詞，只留精華，讓讀者一眼就能抓住重點。",
+                "storytelling": "請使用**故事敘述**的情境風格。以一個小故事或場景開頭，帶讀者進入產品的使用情境，讓他們在腦海中想像自己正在使用這款產品。"
+            }
+            style_instruction = style_prompts.get(style, style_prompts["professional"])
+            
             prompt = f"""請擔任一位頂級的商業文案策略大師。請深入分析這張產品圖片，並根據提供的資訊，為這款產品創造兩個截然不同的「完美應用場景」與「沉浸式行銷文案」。
+
+🎨 **寫作風格要求**：{style_instruction}
 
 產品名稱：{product_name}
 建議售價：{price}

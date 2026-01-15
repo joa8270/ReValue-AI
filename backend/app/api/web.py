@@ -62,21 +62,44 @@ async def trigger_simulation(
     
     # 讀取檔案
     file_bytes = await file.read()
-    filename = file.filename.lower()
+    filename = file.filename.lower() if file.filename else ""
     
-    # 組合 Text Context (僅對圖片有效，PDF 有自己的 prompt 邏輯但也可以考慮加入 metadata)
+    # 組合 Text Context
     text_context = ""
     if product_name: text_context += f"產品名稱：{product_name}\n"
     if price: text_context += f"建議售價：{price}\n"
     if description: text_context += f"產品描述：{description}\n"
     text_context = text_context.strip() if text_context else None
 
-    # 判斷類型並啟動背景任務
-    if filename.endswith(".pdf"):
-        # PDF 處理
+    # 判斷檔案類型
+    from app.utils.document_parser import parse_document, get_file_extension
+    ext = get_file_extension(filename)
+    
+    # 文件類型處理 (Word, PPT, TXT)
+    document_extensions = ["docx", "pptx", "txt"]
+    audio_extensions = ["webm", "mp3", "wav", "m4a", "ogg"]
+    
+    if ext == "pdf":
+        # PDF 處理 (現有流程)
         background_tasks.add_task(line_service.run_simulation_with_pdf_data, file_bytes, sim_id, filename)
+    elif ext in document_extensions:
+        # Word/PPT/TXT: 解析文字後傳給文字分析流程
+        parsed_text = parse_document(file_bytes, filename)
+        if parsed_text:
+            # 合併解析內容與用戶額外輸入
+            full_context = parsed_text
+            if text_context:
+                full_context = f"{text_context}\n\n---\n\n{parsed_text}"
+            background_tasks.add_task(line_service.run_simulation_with_text_data, full_context, sim_id, ext)
+        else:
+            # 設置錯誤狀態
+            from app.core.database import update_simulation
+            update_simulation(sim_id, "error", {"status": "error", "summary": f"無法解析 {ext.upper()} 文件"})
+    elif ext in audio_extensions:
+        # 音訊檔: 傳給語音轉文字處理
+        background_tasks.add_task(line_service.run_simulation_with_audio_data, file_bytes, sim_id, ext)
     else:
-        # 圖片處理
+        # 預設為圖片處理
         background_tasks.add_task(line_service.run_simulation_with_image_data, file_bytes, sim_id, text_context)
         
     return {"status": "ok", "sim_id": sim_id}
@@ -85,7 +108,8 @@ async def trigger_simulation(
 async def generate_description(
     file: UploadFile = File(...),
     product_name: str = Form(...),
-    price: str = Form(...)
+    price: str = Form(...),
+    style: str = Form("professional")
 ):
     try:
         from app.services.line_bot_service import LineBotService
@@ -93,8 +117,8 @@ async def generate_description(
 
         file_bytes = await file.read()
         
-        # Call LineBotService to generate copy
-        result = await line_service.generate_marketing_copy(file_bytes, product_name, price)
+        # Call LineBotService to generate copy with selected style
+        result = await line_service.generate_marketing_copy(file_bytes, product_name, price, style)
         
         if "error" in result:
             return {"error": result["error"]}

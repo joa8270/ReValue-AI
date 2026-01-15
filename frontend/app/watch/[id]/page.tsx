@@ -96,6 +96,8 @@ interface SimulationData {
   simulation_metadata?: {
     sample_size: number
     bazi_distribution: BaziDistribution
+    source_type?: string  // "pdf" | "image"
+    product_category?: string // "tech_electronics" | "collectible_toy" | "food_beverage" | "fashion_accessory" | "home_lifestyle" | "other"
   }
   bazi_distribution?: BaziDistribution
   arena_comments: Array<{
@@ -110,6 +112,52 @@ interface SimulationData {
   suggestions?: Array<{ target: string; advice: string; action_plan: string[]; score_improvement?: string }>
   objections?: Array<{ reason: string; percentage: string }>
   buying_intent?: string
+}
+
+// ===== Dynamic Metric Config based on Product Category =====
+const METRIC_CONFIG: Record<string, { label: string; subLabel: string; getAdvice: (level: string) => string }> = {
+  tech_electronics: {
+    label: "技術變現力",
+    subLabel: "「是用技術折服人，還是在拼價格？」越少人嫌貴，代表技術帶來的溢價能力越強。",
+    getAdvice: (level) => level === "強" ? "💡 建議：技術優勢受到認可，可考慮強化專利/技術文件作為信任背書。" :
+      level === "中" ? "💡 建議：技術認可度中等。建議以「長期價值」或「無形效益」重新包裝訴求。" :
+        "💡 建議：難以產生技術溢價。消費者對價格敏感，建議建立「不可替代性」來自抬身價，或接受薄利多銷的策略。"
+  },
+  collectible_toy: {
+    label: "收藏價值",
+    subLabel: "「是買來收藏還是玩一玩就丟？」越多人想收藏，代表產品有潛力成為經典。",
+    getAdvice: (level) => level === "強" ? "💡 建議：收藏價值受認可！可考慮推出限量版或編號系列來強化稀有性。" :
+      level === "中" ? "💡 建議：收藏價值中等。建議強調IP故事性或角色情感連結。" :
+        "💡 建議：暫時缺乏收藏吸引力。建議透過包裝設計、授權合作或限定活動來提升價值感。"
+  },
+  food_beverage: {
+    label: "口碑潛力",
+    subLabel: "「值不值得推薦給朋友？」越多人願意分享，代表產品有病毒式傳播的潛力。",
+    getAdvice: (level) => level === "強" ? "💡 建議：口碑潛力極佳！建議設計分享機制（如買一送一、打卡優惠）放大效果。" :
+      level === "中" ? "💡 建議：口碑中等。可透過KOL試吃、使用者評論來累積信任感。" :
+        "💡 建議：口碑動能不足。建議先改善產品體驗，或透過試吃活動讓消費者親身感受。"
+  },
+  fashion_accessory: {
+    label: "風格認同度",
+    subLabel: "「穿戴它會被羨慕還是忽略？」越多人認同其風格，代表品牌調性越精準。",
+    getAdvice: (level) => level === "強" ? "💡 建議：風格精準！建議經營社群穿搭內容，讓產品成為「生活態度」的象徵。" :
+      level === "中" ? "💡 建議：風格定位需加強。可透過造型師聯名或場景行銷來清晰品牌調性。" :
+        "💡 建議：風格辨識度低。建議重新定義目標客群，找到「為誰而設計」的答案。"
+  },
+  home_lifestyle: {
+    label: "實用滿意度",
+    subLabel: "「買回家後會不會後悔？」越少人覺得多餘，代表產品真正解決了生活痛點。",
+    getAdvice: (level) => level === "強" ? "💡 建議：實用性受認可！可強調使用情境與前後對比，讓價值更具體。" :
+      level === "中" ? "💡 建議：實用性有改善空間。建議收集使用者回饋，找出「為什麼不常用」的原因。" :
+        "💡 建議：實用性評價較低。消費者可能覺得「不太需要」，建議精準定位使用場景。"
+  },
+  other: {
+    label: "產品差異化",
+    subLabel: "「跟其他同類產品有什麼不同？」越多人覺得獨特，代表產品有明確的競爭優勢。",
+    getAdvice: (level) => level === "強" ? "💡 建議：差異化明顯！建議以此為核心訴求，強化獨特賣點的傳播。" :
+      level === "中" ? "💡 建議：差異化中等。可思考是否有被忽略的獨特功能或價值主張。" :
+        "💡 建議：同質化嚴重。建議找出「為什麼選你而不是別人」的答案。"
+  }
 }
 
 interface EnrichedPersona extends Persona {
@@ -635,6 +683,11 @@ export default function WatchPage() {
               </span>
               <span className="text-[#25d1f4] text-sm font-bold tracking-wider">1000個活躍代理人 : 已就緒</span>
             </div>
+            {/* 預估等待時間 */}
+            <div className="flex items-center gap-2 text-[#d8b4fe]">
+              <span className="material-symbols-outlined text-[16px]">schedule</span>
+              <span className="text-xs font-medium">預估等待時間：30秒 ~ 1分鐘</span>
+            </div>
             {/* Progress Bar Mini */}
             <div className="hidden md:flex items-center gap-3 w-64">
               <div className="flex-1 h-1.5 bg-[#283639] rounded-full overflow-hidden">
@@ -650,8 +703,8 @@ export default function WatchPage() {
             <span className="hidden sm:block">|</span>
             <span className="text-[#9cb5ba]">ENCRYPTION: AES-256</span>
           </div>
-        </footer>
-      </div>
+        </footer >
+      </div >
     );
   }
 
@@ -976,19 +1029,22 @@ export default function WatchPage() {
                         icon: 'verified',
                         color: 'text-blue-500'
                       },
-                      {
-                        label: '技術變現力',
-                        value: sensitivityLevel === '低' ? '強' : sensitivityLevel === '中等' ? '中' : '弱',
-                        sub: '「是用技術折服人，還是在拚價格？」越少人嫌貴，代表技術帶來的溢價能力越強。',
-                        advice: sensitivityLevel === '低'
-                          ? '💡 建議：太強了！大家不在乎錢。您可以大膽維持高價，甚至推出更貴的進階版。'
-                          : sensitivityLevel === '中等'
-                            ? '💡 建議：拉鋸戰中。請多強調「買了會省多少錢」或「長期價值」來說服猶豫客。'
-                            : '💡 建議：難以產生技術溢價。消費者對價格敏感，建議建立「不可替代性」來自抬身價，或接受薄利多銷的策略。',
-                        improvement: getBoost(w_tech),
-                        icon: 'monetization_on',
-                        color: sensitivityColor
-                      },
+                      (() => {
+                        // Dynamic metric based on product category
+                        const productCategory = data.simulation_metadata?.product_category || 'other';
+                        const metricConfig = METRIC_CONFIG[productCategory] || METRIC_CONFIG.other;
+                        const metricLevel = sensitivityLevel === '低' ? '強' : sensitivityLevel === '中等' ? '中' : '弱';
+
+                        return {
+                          label: metricConfig.label,
+                          value: metricLevel,
+                          sub: metricConfig.subLabel,
+                          advice: metricConfig.getAdvice(metricLevel),
+                          improvement: getBoost(w_tech),
+                          icon: 'monetization_on',
+                          color: sensitivityColor
+                        };
+                      })(),
                     ];
 
                     return stats.map((stat) => (
