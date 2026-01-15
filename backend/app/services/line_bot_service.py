@@ -1692,9 +1692,8 @@ class LineBotService:
             payload["contents"][0]["parts"].append({"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}})
 
         models = [
-            "gemini-2.0-flash-exp",
-            "gemini-2.5-flash",
-            "gemini-1.5-flash"
+            "gemini-1.5-flash",
+            "gemini-2.0-flash-exp"
         ]
         
         last_error = ""
