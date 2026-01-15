@@ -1,7 +1,7 @@
 
 import { Persona, SimulationData, CitizenFilter } from "@/types";
 
-const API_URL = "http://localhost:8000"; // Changed from remote for local dev
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export const api = {
     // Citizens

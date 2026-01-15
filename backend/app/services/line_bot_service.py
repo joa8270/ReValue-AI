@@ -1068,49 +1068,20 @@ class LineBotService:
 
     # ===== Helpers =====
 
-    async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None):
-        """Helper to call Gemini REST API"""
-        payload = {
-            "contents": [{
-                "parts": [
-                    {"text": prompt}
-                ]
-            }],
-            "generationConfig": {
-                "maxOutputTokens": 8192,
-                "temperature": 0.7,
-                "topP": 0.9,
-                "responseMimeType": "application/json"
-            }
-        }
+    async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg"):
+        """Helper to call Gemini REST API (Async Wrapper)"""
+        # Default simulation to PRO model for better reasoning
+        priority = ["gemini-1.5-pro", "gemini-1.5-flash"]
         
-        if image_b64:
-            payload["contents"][0]["parts"].append({"inline_data": {"mime_type": "image/jpeg", "data": image_b64}})
-        if pdf_b64:
-            payload["contents"][0]["parts"].append({"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}})
-
-        models = [
-        "gemini-2.0-flash-exp",
-        "gemini-2.5-flash",
-        "gemini-1.5-flash"
-    ]
-        
-        last_error = ""
-        for model in models:
-            try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-                response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=60)
-                if response.status_code == 200:
-                    try:
-                        return response.json()['candidates'][0]['content']['parts'][0]['text'], None
-                    except:
-                        continue
-                else:
-                    last_error = f"{model}: {response.status_code} {response.text}"
-            except Exception as e:
-                last_error = str(e)
-        
-        return None, last_error
+        return await asyncio.to_thread(
+            self._run_blocking_gemini_request,
+            api_key, 
+            prompt, 
+            image_b64, 
+            pdf_b64, 
+            priority,
+            mime_type
+        )
 
     def _clean_and_parse_json(self, ai_text):
         """Helper to clean and parse JSON"""
@@ -1670,7 +1641,7 @@ class LineBotService:
             print(f"[ERROR] generate_marketing_copy 錯誤: {e}")
             return {"error": str(e)}
 
-    def _run_blocking_gemini_request(self, api_key, prompt, image_b64=None, pdf_b64=None):
+    def _run_blocking_gemini_request(self, api_key, prompt, image_b64=None, pdf_b64=None, model_priority=None, mime_type="image/jpeg"):
         """Helper to run synchronous requests in a thread"""
         payload = {
             "contents": [{
@@ -1687,14 +1658,18 @@ class LineBotService:
         }
         
         if image_b64:
-            payload["contents"][0]["parts"].append({"inline_data": {"mime_type": "image/jpeg", "data": image_b64}})
+            payload["contents"][0]["parts"].append({"inline_data": {"mime_type": mime_type, "data": image_b64}})
         if pdf_b64:
             payload["contents"][0]["parts"].append({"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}})
 
-        models = [
-            "gemini-1.5-flash",
-            "gemini-2.0-flash-exp"
-        ]
+        # Default models if not specified
+        if model_priority:
+            models = model_priority
+        else:
+            models = [
+                "gemini-1.5-flash",
+                "gemini-2.0-flash-exp"
+            ]
         
         last_error = ""
         for model in models:

@@ -31,6 +31,28 @@ export default function SimulationForm() {
     const [price, setPrice] = useState("")
     const [description, setDescription] = useState("")
 
+    // Admin Tools
+    const [isResetting, setIsResetting] = useState(false)
+    const handleResetDB = async () => {
+        if (!confirm("⚠️ 確定要重置並初始化市民資料庫嗎？\n此操作將生成 1,000 位新市民，耗時約 30 秒。\n請確保目前沒有模擬正在進行中。")) return;
+
+        setIsResetting(true)
+        try {
+            const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+            const res = await fetch(`${API_BASE_URL}/api/web/admin/reset-citizens?count=1000`, { method: "POST" })
+            if (res.ok) {
+                alert("✅ 資料庫初始化成功！\n現在您可以開始進行模擬分析。")
+            } else {
+                const txt = await res.text()
+                alert(`❌ 初始化失敗: ${txt}`)
+            }
+        } catch (e) {
+            alert(`❌ 請求錯誤: ${e}`)
+        } finally {
+            setIsResetting(false)
+        }
+    }
+
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -297,8 +319,22 @@ export default function SimulationForm() {
                 </button>
 
                 <p className="text-center text-xs text-slate-500">
-                    系統將自動召喚 1,000+ 位虛擬市民進行即時推演
-                </p>
+                    <p className="flex items-center gap-2 text-xs text-slate-500 mt-4 justify-center">
+                        <Sparkles className="w-3 h-3 text-[#d8b4fe]" />
+                        系統將自動召喚 1,000+ 位虛擬市民進行即時推演
+                    </p>
+
+                    <div className="mt-8 pt-4 border-t border-white/5 flex flex-col items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={handleResetDB}
+                            disabled={isResetting}
+                            className="text-[10px] text-slate-600 hover:text-red-400 disabled:opacity-50 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-white/5 group"
+                        >
+                            {isResetting ? <Loader2 className="w-3 h-3 animate-spin" /> : <span className="material-symbols-outlined text-[14px]">database</span>}
+                            {isResetting ? "正在初始化..." : "初始化資料庫 (Admin)"}
+                        </button>
+                    </div>
             </form>
         </div >
     )
