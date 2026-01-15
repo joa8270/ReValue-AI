@@ -262,7 +262,7 @@ class LineBotService:
                 }
             }
             
-            api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key={api_key}"
+            api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={api_key}"
             
             # 添加重試機制
             max_retries = 2
@@ -1124,29 +1124,35 @@ class LineBotService:
             self._handle_error_db(sim_id, str(e))
 
     async def run_simulation_with_text_data(self, text_content: str, sim_id: str, source_type: str = "txt"):
-        """處理純文字內容的商業計劃書分析 (Word/PPT/TXT)"""
+        """處理純文字內容的商業計劃書分析 (Word/PPT/TXT) - 與 PDF 流程對齊"""
         try:
             from fastapi.concurrency import run_in_threadpool
+            import random
+            
+            print(f"[Core TEXT] Starting text analysis for {sim_id}, source: {source_type}")
             
             # 1. 從資料庫隨機抽取市民
             sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30)
+            print(f"[Core TEXT] Sampled {len(sampled_citizens)} citizens")
             
-            # 2. 準備市民資料給 Gemini
+            # 2. 準備市民資料給 Gemini (與 PDF 流程一致)
             citizens_for_prompt = [
                 {
                     "id": c["id"],
                     "name": c["name"],
                     "age": c["age"],
-                    "occupation": c.get("occupation", ""),
-                    "element": c["bazi_profile"].get("element", "Fire"),
-                    "structure": c["bazi_profile"].get("structure", "正官格"),
-                    "traits": c["traits"][:2] if c["traits"] else []
+                    "gender": c["gender"],
+                    "location": c["location"],
+                    "day_master": c["bazi_profile"].get("day_master", "未知"),
+                    "structure": c["bazi_profile"].get("structure", "未知"),
+                    "element": c["bazi_profile"].get("element", "未知"),
+                    "traits": c["traits"]
                 }
-                for c in sampled_citizens[:15]
+                for c in sampled_citizens
             ]
-            citizens_json = json.dumps(citizens_for_prompt, ensure_ascii=False)
+            citizens_json = json.dumps(citizens_for_prompt, ensure_ascii=False, indent=2)
             
-            # 3. 建構 Prompt (純文字版本，不需要 base64 編碼)
+            # 3. 建構 Prompt (與 PDF 流程對齊，使用 arena_comments 格式)
             prompt_text = f"""你是 MIRRA 鏡界系統的核心 AI 策略顧問。你正在審閱一份商業計劃書（來自 {source_type.upper()} 文件），並需要提供**深度、具體、可執行**的策略建議。
 
 以下是文件內容：
@@ -1172,57 +1178,76 @@ class LineBotService:
     "simulation_metadata": {{
         "product_category": "商業計劃書",
         "target_market": "台灣",
-        "source_type": "{source_type}"
+        "sample_size": {len(sampled_citizens)},
+        "bazi_distribution": {{
+            "Fire": (根據上方市民統計的火象佔比 %),
+            "Water": (水象佔比 %),
+            "Metal": (金象佔比 %),
+            "Wood": (木象佔比 %),
+            "Earth": (土象佔比 %)
+        }}
     }},
+    "genesis": {{
+        "total_population": 1000,
+        "personas": [
+            (挑選 5-8 位代表性市民，包含以下欄位)
+            {{"id": "市民ID", "name": "姓名", "age": "年齡", "element": "五行屬性(Fire/Water/Metal/Wood/Earth)", "day_master": "日主", "pattern": "格局", "trait": "性格特質", "decision_logic": "該市民基於八字的投資/合作決策邏輯"}}
+        ]
+    }},
+    "arena_comments": [
+        (生成 5-8 則市民針對商業模式的評論)
+        {{"sentiment": "positive/negative/neutral", "text": "市民發言內容（繁體中文，需引用商業計劃書具體內容，至少30字）", "persona": {{"name": "市民姓名", "pattern": "格局", "element": "五行", "icon": "對應 emoji"}}}}
+    ],
     "result": {{
         "score": (0-100 的商業可行性分數),
         "market_sentiment": "(整體市場情緒，如：審慎樂觀/高度懷疑/強烈看好)",
         "summary": "(200字內的商業模式優劣分析，包含獲利模式評估，指出最大的機會與風險)",
         "objections": [
             {{"reason": "(具體質疑點，說明為什麼這是問題)", "percentage": (質疑比例 %)}},
-            {{"reason": "(質疑點2)", "percentage": %}}
+            {{"reason": "(質疑點2)", "percentage": (質疑比例 %)}},
+            {{"reason": "(質疑點3)", "percentage": (質疑比例 %)}}
         ],
         "suggestions": [
             {{
                 "target": "(具體目標對象，例如：區域醫院的資訊部門主管 / 健保署政策制定者 / 醫療器材經銷商)",
-                "advice": "(100字以上的詳細策略建議，說明為什麼這個策略對這個商業模式特別有效，而不是泛泛的建議)",
+                "advice": "(100字以上的詳細策略建議，說明為什麼這個策略對這個商業模式特別有效，不要給出泛泛的建議)",
+                "element_focus": "(對應五行)",
                 "execution_plan": [
-                    "第1週：(具體行動，例如：聯繫3家區域醫院的資訊主管，準備技術白皮書)",
-                    "第2-4週：(具體行動，例如：在1家醫院進行POC驗證，記錄分流準確率數據)",
-                    "第1-2月：(具體行動，例如：根據POC結果調整演算法，準備健保申請文件)",
-                    "第3月：(具體行動，例如：正式簽約第一家付費客戶，建立案例研究)",
-                    "第4-6月：(具體行動，例如：擴展至3-5家醫院，建立口碑效應)"
+                    "第1週：(具體行動，例如：聯繫3家目標客戶的決策者，準備技術白皮書)",
+                    "第2-4週：(具體行動，例如：進行1-2個POC驗證，記錄關鍵數據)",
+                    "第1-2月：(具體行動，例如：根據POC結果調整產品，準備商業提案)",
+                    "第3月：(具體行動，例如：正式簽約第一個付費客戶，建立案例研究)",
+                    "第4-6月：(具體行動，例如：擴展至3-5個客戶，建立口碑效應)"
                 ],
-                "success_metrics": "(如何衡量這個策略是否成功，例如：POC階段分流準確率達85%以上，首月獲得2家醫院意向書)",
-                "potential_risks": "(這個策略可能遇到的挑戰，例如：醫院採購流程可能長達6個月，需要預備足夠資金)",
+                "success_metrics": "(如何衡量這個策略是否成功，例如：首月獲得2家意向書，POC成功率達80%)",
+                "potential_risks": "(這個策略可能遇到的挑戰，例如：客戶採購流程可能長達6個月)",
                 "score_improvement": "+(預期提升分數)"
             }},
             {{
                 "target": "(第二個目標對象)",
-                "advice": "(另一個角度的策略建議)",
-                "execution_plan": ["步驟1", "步驟2", "步驟3", "步驟4", "步驟5"],
+                "advice": "(100字以上的詳細策略建議)",
+                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
                 "success_metrics": "(成功指標)",
                 "potential_risks": "(潛在風險)",
                 "score_improvement": "+(預期提升分數)"
             }},
             {{
                 "target": "(第三個目標對象)",
-                "advice": "(補充策略建議)",
-                "execution_plan": ["步驟1", "步驟2", "步驟3", "步驟4", "步驟5"],
+                "advice": "(100字以上的詳細策略建議)",
+                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
                 "success_metrics": "(成功指標)",
                 "potential_risks": "(潛在風險)",
                 "score_improvement": "+(預期提升分數)"
             }}
         ]
-    }},
-    "comments": [
-        {{
-            "citizen_id": (市民ID),
-            "sentiment": "positive/negative/neutral",
-            "text": "(市民發言內容，繁體中文，至少30字，要有具體觀點)"
-        }}
-    ]
+    }}
 }}
+
+📌 重要規則：
+1. 這是商業計劃書分析，請聚焦於「商業可行性」、「獲利模式」與「市場痛點」
+2. arena_comments 請生成投資者/創業者角度的評論，必須引用計劃書具體內容
+3. **suggestions 必須非常具體**：每個建議100字以上，執行計劃5個步驟含時間表，不要泛泛而談
+4. 禁止使用「進行 A/B 測試」、「優化行銷文案」這類通用建議，必須針對這個特定商業模式給出獨特見解
 """
             # 4. 呼叫 Gemini AI (純文字，不需圖片/PDF)
             api_key = settings.GOOGLE_API_KEY
@@ -1232,19 +1257,278 @@ class LineBotService:
                 self._handle_error_db(sim_id, f"Gemini Error: {last_error}")
                 return
             
-            # 5. 解析結果並建構 result_data
+            # 5. 解析結果
             data = self._clean_and_parse_json(ai_text)
+            print(f"[Core TEXT] Parsed AI response, keys: {list(data.keys())}")
             
-            # 使用共用的 _build_simulation_result 來建構完整結果
-            sim_metadata_override = {
-                "source_type": source_type,
-                "product_category": "tech_electronics"  # 文件類型預設使用技術變現力指標
+            # 6. 建構 simulation_metadata (與 PDF 流程一致)
+            sim_metadata = data.get("simulation_metadata", {})
+            sim_metadata["source_type"] = source_type
+            sim_metadata["product_category"] = "tech_electronics"
+            bazi_dist = sim_metadata.get("bazi_distribution", {"Fire": 20, "Water": 20, "Metal": 20, "Wood": 20, "Earth": 20})
+            genesis_data = data.get("genesis", {})
+            personas = genesis_data.get("personas", [])
+            
+            # 7. 補充 arena_comments 中每個 persona 的完整八字資料 (與 PDF 流程完全一致)
+            arena_comments = data.get("arena_comments", [])
+            citizen_name_map = {c["name"]: c for c in sampled_citizens}
+            
+            def build_luck_data(bazi, age):
+                """從 bazi_profile 構建 luck_timeline 和 current_luck"""
+                luck_timeline = bazi.get("luck_timeline", [])
+                current_luck = bazi.get("current_luck", {})
+                
+                if not luck_timeline and bazi.get("luck_pillars"):
+                    for l in bazi["luck_pillars"]:
+                        name = l.get('pillar', '甲子') + "運"
+                        desc = l.get('description', '行運平穩')
+                        luck_timeline.append({
+                            "age_start": l.get('age_start', 0),
+                            "age_end": l.get('age_end', 9),
+                            "name": name,
+                            "description": desc
+                        })
+                        try:
+                            citizen_age = int(age)
+                        except:
+                            citizen_age = 30
+                        if l.get('age_start', 0) <= citizen_age <= l.get('age_end', 99):
+                            current_luck = {"name": name, "description": desc}
+                
+                if not luck_timeline:
+                    start_age = random.randint(2, 9)
+                    pillars_pool = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未"]
+                    descs = ["少年運勢順遂", "初入社會磨練", "事業穩步上升", "財運亨通", "壓力較大需注意", "穩步發展", "財官雙美", "晚運安康"]
+                    for i in range(8):
+                        luck_timeline.append({
+                            "age_start": start_age + i*10,
+                            "age_end": start_age + i*10 + 9,
+                            "name": f"{pillars_pool[i]}運",
+                            "description": descs[i]
+                        })
+                    try:
+                        citizen_age = int(age)
+                    except:
+                        citizen_age = 30
+                    for lt in luck_timeline:
+                        if lt["age_start"] <= citizen_age <= lt["age_end"]:
+                            current_luck = {"name": lt["name"], "description": lt["description"]}
+                            break
+                
+                if not current_luck and luck_timeline:
+                    current_luck = {"name": luck_timeline[0]["name"], "description": luck_timeline[0]["description"]}
+                
+                return luck_timeline, current_luck
+            
+            for comment in arena_comments:
+                persona = comment.get("persona", {})
+                name = persona.get("name", "")
+                
+                citizen = citizen_name_map.get(name)
+                if citizen:
+                    bazi = citizen.get("bazi_profile", {})
+                    age = citizen.get("age", 30)
+                    luck_timeline, current_luck = build_luck_data(bazi, age)
+                    
+                    # 補充完整的八字資料
+                    persona["id"] = str(citizen.get("id", ""))
+                    persona["age"] = str(age)
+                    persona["occupation"] = citizen.get("occupation", "未知職業")
+                    persona["location"] = citizen.get("location", "台灣")
+                    persona["birth_year"] = bazi.get("birth_year")
+                    persona["birth_month"] = bazi.get("birth_month")
+                    persona["birth_day"] = bazi.get("birth_day")
+                    persona["birth_shichen"] = bazi.get("birth_shichen")
+                    persona["four_pillars"] = bazi.get("four_pillars")
+                    persona["day_master"] = bazi.get("day_master", "未知")
+                    persona["strength"] = bazi.get("strength", "中和")
+                    persona["favorable"] = bazi.get("favorable", ["木", "火"])
+                    persona["current_luck"] = current_luck
+                    persona["luck_timeline"] = luck_timeline
+                else:
+                    # 如果找不到對應市民，從 sampled_citizens 中隨機取一個
+                    fallback = random.choice(sampled_citizens) if sampled_citizens else {}
+                    bazi = fallback.get("bazi_profile", {})
+                    age = fallback.get("age", 30)
+                    luck_timeline, current_luck = build_luck_data(bazi, age)
+                    
+                    persona["id"] = str(fallback.get("id", random.randint(1, 1000)))
+                    persona["age"] = str(age)
+                    persona["occupation"] = fallback.get("occupation", "未知職業")
+                    persona["location"] = fallback.get("location", "台灣")
+                    persona["birth_year"] = bazi.get("birth_year")
+                    persona["birth_month"] = bazi.get("birth_month")
+                    persona["birth_day"] = bazi.get("birth_day")
+                    persona["birth_shichen"] = bazi.get("birth_shichen")
+                    persona["four_pillars"] = bazi.get("four_pillars")
+                    persona["day_master"] = bazi.get("day_master", "未知")
+                    persona["strength"] = bazi.get("strength", "中和")
+                    persona["favorable"] = bazi.get("favorable", ["木", "火"])
+                    persona["current_luck"] = current_luck
+                    persona["luck_timeline"] = luck_timeline
+                
+                comment["persona"] = persona
+            
+            # 8. Fallback comments if not enough (ensure at least 8) - 與 PDF/Image 流程一致
+            bazi_comment_templates = {
+                "食神格": [
+                    "這個商業模式看起來挺有意思的，如果真的能落地，市場接受度應該不錯。",
+                    "哇，這概念蠻有品味的！我一向注重生活品質，這種服務我會願意嘗試。",
+                    "作為重視體驗的人，我覺得這個商業計劃有它的獨特之處，值得關注。",
+                    "從用戶體驗角度來看，這個計劃考慮得蠻周到的，我願意支持。"
+                ],
+                "傷官格": [
+                    "商業模式還可以，但我覺得有些地方可以更有創意一點。不過整體方向是對的。",
+                    "嗯...我有一些改進的想法：如果能增加差異化會更完美。概念是好的。",
+                    "說實話，類似的商業模式其實有不少，這個需要找到獨特定位才能勝出。",
+                    "我欣賞創新的嘗試，但商業執行面還需要更多驗證。潛力是有的。"
+                ],
+                "正財格": [
+                    "獲利模式如何？我比較在意投資回報率。如果數據支撐得住，這個值得考慮。",
+                    "成本結構和定價策略很重要，這個計劃書這方面分析得還算清楚。",
+                    "作為一個務實的人，我會先看財務預測的合理性，確保每一筆錢都花得值得。",
+                    "我會做功課研究市場規模再決定。如果風險可控，可以考慮參與。"
+                ],
+                "偏財格": [
+                    "感覺有潛力！可以考慮投資看看。這個市場定位蠻聰明的。",
+                    "這個切入點不錯，商機蠻大的！如果團隊執行力強，我會關注。",
+                    "我看到了機會！這領域現在正是風口，時機點抓得不錯。",
+                    "有意思！這個如果能規模化，未來增值空間很大。"
+                ],
+                "正官格": [
+                    "法規合規性和風險管控做好了嗎？我比較謹慎，需要確認這些細節。",
+                    "需要多了解一下商業細節，再做決定。穩定性和可持續性是我最在意的。",
+                    "這個團隊背景如何？我傾向支持有信譽的團隊。",
+                    "有沒有市場驗證數據？作為理性投資者，我需要客觀數據來支持決策。"
+                ],
+                "七殺格": [
+                    "執行效率怎麼樣？我時間很寶貴，需要看到快速落地的能力。",
+                    "直接說重點，這個能解決什麼市場痛點？別跟我繞圈子。",
+                    "競爭優勢在哪？市場上選擇這麼多，你憑什麼讓我選你？",
+                    "我只關心結果。如果真的有這麼大的市場，我會認真考慮。"
+                ],
+                "正印格": [
+                    "這對長期發展有幫助嗎？我比較看重長遠價值和社會意義。",
+                    "團隊的背景和願景很重要，這個計劃看起來有一定的深度。",
+                    "有沒有行業專家的背書？我希望能真正了解這個領域。",
+                    "我會先請教有經驗的朋友，聽聽他們的意見再決定。"
+                ],
+                "偏印格": [
+                    "這個概念挺特別的，跟市面上的不太一樣。我喜歡有獨特想法的項目。",
+                    "有點意思，但我需要更多時間思考。直覺告訴我這個有些門道。",
+                    "商業理念很有深度，不是一般人能馬上理解的。這反而吸引我。",
+                    "我不跟風投資，這個項目有它獨特的氣質。"
+                ],
+                "比肩格": [
+                    "這個領域我身邊有朋友在做，看來真的有市場。共識很重要。",
+                    "我會問問行業內的朋友，如果他們也看好，我就跟進。",
+                    "這類商業模式我有觀察過，這個計劃在一些細節上有創新。",
+                    "方向正確，執行力看起來也可以，符合我的預期。"
+                ],
+                "劫財格": [
+                    "這個值得跟投資圈朋友分享！好項目就是要一起投才有意思。",
+                    "如果有共同投資的機會，我可以幫忙對接資源。",
+                    "我已經想好要推薦給誰了，這個計劃剛好適合對方的投資方向。",
+                    "合作共贏很重要！這個項目如果能建立生態系統會更有價值。"
+                ],
             }
-            result_data = self._build_simulation_result(data, sampled_citizens, sim_metadata_override)
             
-            # 6. 更新資料庫
+            default_templates = [
+                "這個商業計劃確實有它的特色，我會考慮參與，但還需要再觀察一下市場反應。",
+                "風險可控的話我願意試試看，畢竟這個領域確實有機會。",
+                "計劃書蠻有想法的，如果團隊執行力強，這個價值評估算是合理的。",
+                "整體來說符合我的預期，不算最創新但也沒什麼大問題，可以列入觀察清單。",
+                "我會持續關注這個項目，等更多市場數據出來再決定是否投入。",
+                "第一印象不錯，但我習慣多方驗證，確保這是最佳標的再出手。",
+                "對我來說這是個新領域，需要更多了解，但團隊看起來有誠意。",
+                "行業內有類似成功案例，這個計劃看起來也值得一試。"
+            ]
+            
+            while len(arena_comments) < 8 and sampled_citizens:
+                # 找一個還沒評論過的市民
+                commented_names = {c.get("persona", {}).get("name", "") for c in arena_comments}
+                remaining = [c for c in sampled_citizens if c["name"] not in commented_names]
+                if not remaining:
+                    break
+                citizen = remaining[0]
+                bazi = citizen["bazi_profile"]
+                structure = bazi.get("structure", "")
+                occupation = citizen.get("occupation", "")
+                
+                # 根據八字結構選擇評論模板
+                templates = None
+                for pattern, texts in bazi_comment_templates.items():
+                    if pattern in structure:
+                        templates = texts
+                        break
+                
+                # 最後使用默認模板
+                if not templates:
+                    templates = default_templates
+                
+                # 隨機選擇一條評論
+                text = random.choice(templates)
+                
+                # 混合分配情感
+                sentiments = ["positive", "positive", "neutral", "neutral", "negative"]
+                sentiment = sentiments[len(arena_comments) % len(sentiments)]
+                
+                # 補全市民資料
+                age = citizen.get("age", 30)
+                luck_timeline, current_luck = build_luck_data(bazi, age)
+                
+                # 生成四柱資料
+                pillars_str = bazi.get("four_pillars")
+                if not pillars_str:
+                    pillars = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥"]
+                    pillars_str = f"{random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)}"
+                
+                arena_comments.append({
+                    "sentiment": sentiment,
+                    "text": text,
+                    "persona": {
+                        "id": str(citizen.get("id", random.randint(1, 1000))),
+                        "name": citizen["name"],
+                        "age": str(age),
+                        "pattern": bazi.get("structure", "未知格局"),
+                        "element": bazi.get("element", "Fire"),
+                        "icon": {"Fire": "🔥", "Water": "💧", "Metal": "🔩", "Wood": "🌳", "Earth": "🏔️"}.get(bazi.get("element", "Fire"), "🔥"),
+                        "occupation": citizen.get("occupation", "未知職業"),
+                        "location": citizen.get("location", "台灣"),
+                        "birth_year": bazi.get("birth_year"),
+                        "birth_month": bazi.get("birth_month"),
+                        "birth_day": bazi.get("birth_day"),
+                        "birth_shichen": bazi.get("birth_shichen"),
+                        "four_pillars": pillars_str,
+                        "day_master": bazi.get("day_master", "未知"),
+                        "strength": bazi.get("strength", "中和"),
+                        "favorable": bazi.get("favorable", ["木", "火"]),
+                        "current_luck": current_luck,
+                        "luck_timeline": luck_timeline
+                    }
+                })
+                print(f"[Core TEXT] Added fallback comment #{len(arena_comments)}: {citizen['name']}")
+            
+            # 9. 構建最終結果 (與 PDF 流程一致)
+            result_data = {
+                "status": "ready",
+                "score": data.get("result", {}).get("score", 70),
+                "intent": data.get("result", {}).get("market_sentiment", "分析完成"),
+                "summary": data.get("result", {}).get("summary", "AI 分析完成"),
+                "simulation_metadata": sim_metadata,
+                "genesis": {
+                     "total_population": 1000,
+                     "sample_size": len(personas),
+                     "personas": personas
+                },
+                "arena_comments": arena_comments,
+                "objections": data.get("result", {}).get("objections", []),
+                "suggestions": data.get("result", {}).get("suggestions", [])
+            }
+            
+            # 10. 更新資料庫
             await run_in_threadpool(update_simulation, sim_id, "ready", result_data)
-            print(f"[Core TEXT] Document analysis completed: {sim_id}")
+            print(f"✅ [Core TEXT] Document analysis completed: {sim_id}, comments: {len(arena_comments)}")
 
         except Exception as e:
             print(f"[Core TEXT] Analysis Failed: {e}")
@@ -1309,7 +1593,7 @@ class LineBotService:
         print(f"[DEBUG AUDIO] Starting audio transcription, audio size: {len(audio_b64)} chars, mime: {audio_mime}")
         
         # Use Gemini 2.5 Pro as primary, with fallbacks
-        models = ["gemini-2.5-pro-preview-05-06", "gemini-2.0-flash", "gemini-1.5-pro-latest"]
+        models = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"]
         last_error = None
         
         for model in models:
@@ -1353,8 +1637,8 @@ class LineBotService:
 
     async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg"):
         """Helper to call Gemini REST API (Async Wrapper)"""
-        # Default simulation to PRO model for better reasoning
-        priority = ["gemini-1.5-pro", "gemini-1.5-flash"]
+        # Default simulation to Gemini 2.5 Pro model for better reasoning
+        priority = ["gemini-2.5-pro", "gemini-2.5-flash"]
         
         return await asyncio.to_thread(
             self._run_blocking_gemini_request,
@@ -1838,9 +2122,9 @@ class LineBotService:
             payload["contents"][0]["parts"].append({"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}})
 
         models = [
-        "gemini-2.0-flash-exp",
+        "gemini-2.5-pro",
         "gemini-2.5-flash",
-        "gemini-1.5-flash"
+        "gemini-2.0-flash"
     ]
         
         last_error = ""
@@ -1964,8 +2248,8 @@ class LineBotService:
             models = model_priority
         else:
             models = [
-                "gemini-1.5-flash",
-                "gemini-2.0-flash-exp"
+                "gemini-2.5-pro",
+                "gemini-2.5-flash"
             ]
         
         last_error = ""

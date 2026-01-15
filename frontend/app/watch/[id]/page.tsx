@@ -395,7 +395,19 @@ export default function WatchPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
+  // 確保加載動畫至少顯示一段時間，提供更好的用戶體驗
+  const [hasShownLoading, setHasShownLoading] = useState(false)
+  const [minimumLoadingComplete, setMinimumLoadingComplete] = useState(false)
+
   const TOTAL_POPULATION = 1000
+
+  // 設定最短加載時間（3秒）
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinimumLoadingComplete(true)
+    }, 3000) // 最少顯示 3 秒加載動畫
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout
@@ -494,7 +506,13 @@ export default function WatchPage() {
     }
   }, [data?.summary])
 
-  if (!data || data.status === "processing") {
+  // 決定是否顯示加載動畫：
+  // 1. 資料尚未載入 (!data)
+  // 2. 資料正在處理中 (status === "processing")
+  // 3. 最短加載時間尚未完成 (!minimumLoadingComplete) - 確保用戶看到加載動畫
+  const shouldShowLoading = !data || data.status === "processing" || !minimumLoadingComplete
+
+  if (shouldShowLoading) {
     return (
       <div className="fixed inset-0 bg-[#101f22] text-[#25d1f4] font-mono overflow-hidden z-50 flex flex-col">
         {/* Helper Styles for this specific page */}
