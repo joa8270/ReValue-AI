@@ -60,10 +60,14 @@ class LineBotService:
         # ===== 情境 C: 檔案訊息 (PDF) =====
         elif message_type == "file":
             await self._handle_file_message(event, user_id, reply_token)
+            
+        # ===== 情境 D: 影片訊息 (不支援) =====
+        elif message_type == "video":
+            self.reply_text(reply_token, "⚠️ 抱歉，目前系統僅支援「圖片」預演。\n\n請將影片畫面 **截圖** 後上傳，即可啟動分析！📸")
         
         else:
             # 不支援的訊息類型
-            pass
+            self.reply_text(reply_token, "⚠️ 抱歉，我不支援此格式。\n請上傳圖片 📸 或 PDF 商業計劃書 📄")
 
     async def _handle_image_message(self, event, user_id, reply_token):
         """情境 A: 收到圖片 → 暫存並等待產品名稱和售價"""
