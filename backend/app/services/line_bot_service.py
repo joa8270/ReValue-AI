@@ -378,43 +378,43 @@ class LineBotService:
             }
             style_prompt = style_instructions.get(selected_style, style_instructions["professional"])
             
-            # 優化 Prompt：強制深度識別 + 單篇輸出 + 風格指令
-            prompt = f"""你是一位頂尖的商業文案顧問。請仔細觀察這張圖片，完成以下任務：
+            # 優化 Prompt：使用 GitHub 原版 A/B 架構（確保高品質）
+            prompt = f"""請擔任一位頂級的商業文案策略大師。請深入分析這張產品圖片，並根據提供的資訊，為這款產品創造兩個截然不同的「完美應用場景」與「沉浸式行銷文案」。
 
-**第一步：產品深度識別**
-- 這是什麼產品？（例如：加熱菸煙彈、藍牙耳機、手工皮件...）
-- 它的核心功能或賣點是什麼？
-- 主要消費族群是誰？
-
-**第二步：撰寫沉浸式行銷文案**
-{style_prompt}
-
-⚠️ **重要：只寫「一段」完整文案，不要分成兩段或多段！**
-
-基於你對產品的理解，撰寫 **一段** 150-200 字的繁體中文行銷文案：
-- 開頭用一句吸睛的 Hook（不要用問句）
-- 描繪使用這個產品時的感官體驗或情境
-- 點出產品解決了什麼痛點或創造了什麼價值
-- 結尾加上一句有力的行動呼籲 (CTA)
-- **禁止分成 A/B 兩段、禁止用分隔線分開、只要一個完整的段落！**
+🎨 **寫作風格要求**：{style_prompt}
 
 產品名稱：{product_name}
 建議售價：{product_price}
 
+請不要只寫「優雅」或「實用」這種空泛的形容詞。我需要你能夠：
+1. **深度識別**：完全理解商品的材質、設計語言與潛在商業價值。
+2. **精準匹配**：具體指出這款產品最適合「什麼樣的人」、「在什麼場合」、「做什麼事」時使用。
+3. **沉浸體驗**：用文字營造出氛圍，讓觀看者彷彿置身其中，感受到擁有這件商品後的美好生活圖景。
+
+請生成兩段不同切入點的文案（繁體中文，每段約 100-150 字）：
+
+【A】切入點一：情感共鳴與氛圍營造 (Emotional & Atmospheric)
+- 側重於感性訴求，描繪使用當下的美好畫面、心理滿足感或自我展現。
+- 適合想透過產品提升生活質感或表達個性的客群。
+
+【B】切入點二：精準場景與痛點解決 (Scenario & Solution)
+- 側重於理性與場景訴求，具體描述在工作、社交或特定活動中的完美表現。
+- 即使是商業計劃書，也要描述其商業模式落地的具體場景與解決的實際問題。
+
 請直接回覆 JSON 格式，不要有 Markdown 標記：
 {{
-    "product_type": "你識別出的產品類型 (如：加熱菸煙彈)",
-    "target_audience": "主要消費族群",
-    "copy_title": "文案標題 (10字內)",
-    "copy_content": "完整行銷文案 (150-200字，只寫一段，不要分段！)"
+    "title_a": "文案 A 的標題",
+    "description_a": "文案 A 的內容...",
+    "title_b": "文案 B 的標題",
+    "description_b": "文案 B 的內容..."
 }}
 """
             
-            # API Setup
+            # API Setup - 同步 GitHub 設定 (8192 Tokens, 30s Timeout)
             api_key = settings.GOOGLE_API_KEY
             payload = {
                 "contents": [{"parts": [{"text": prompt}, {"inline_data": {"mime_type": mime_type, "data": image_b64}}]}],
-                "generationConfig": {"maxOutputTokens": 800, "temperature": 0.7, "responseMimeType": "application/json"}
+                "generationConfig": {"maxOutputTokens": 8192, "temperature": 0.8, "responseMimeType": "application/json"}
             }
             
             models = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
@@ -423,50 +423,51 @@ class LineBotService:
             for model in models:
                 try:
                     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-                    print(f"📸 [Copywriting] Trying model: {model}")
-                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=45)
+                    print(f"📸 [LINE Copywriting] Trying model: {model}")
+                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
                     
                     if response.status_code == 200:
                         result = response.json()
                         raw_text = result['candidates'][0]['content']['parts'][0]['text']
-                        if "copy_content" in raw_text or "copy_title" in raw_text:
+                        if len(raw_text) > 50:
                             ai_text = raw_text
                             break
                     elif response.status_code == 429:
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(1)
                     else:
-                        print(f"⚠️ [Copywriting] Error {model}: {response.status_code}")
+                        print(f"⚠️ [LINE Copywriting] Error {model}: {response.status_code}")
                 except Exception as e:
-                    print(f"❌ [Copywriting] Exception {model}: {e}")
+                    print(f"❌ [LINE Copywriting] Exception {model}: {e}")
 
-            # Parse JSON
-            try:
-                clean_text = ai_text.strip().replace('```json', '').replace('```', '')
-                data = json.loads(clean_text)
-            except:
-                match = re.search(r'\{.*\}', ai_text, re.DOTALL)
-                data = json.loads(match.group()) if match else {}
+            # Robust Parsing using helper
+            data = self._clean_and_parse_json(ai_text)
 
-            product_type = data.get("product_type", "")
-            target_audience = data.get("target_audience", "")
-            copy_title = data.get("copy_title", "✨ 專屬文案")
-            copy_content = data.get("copy_content")
+            # 提取文案
+            desc_a = data.get("description_a", "")
+            desc_b = data.get("description_b", "")
+            
+            # 優先使用 Option A (符合用戶需求)
+            copy_content = desc_a if desc_a else desc_b
+            copy_title = data.get("title_a", "✨ 專屬文案")
+            
+            # 這些欄位新 Prompt 沒有，使用預設值
+            product_type = product_name
+            target_audience = "追求品質生活的您"
 
-            # Fallback if AI failed
+            # Fallback
             if not copy_content:
                 print(f"⚠️ Copywriting generation failed. Using default template.")
-                copy_title = "✨ 產品魅力"
-                copy_content = f"這款{product_name}設計精良，是追求品質生活的最佳選擇。無論是自用還是送禮，都能展現您的獨特品味。售價 {product_price} 元，現在正是入手的好時機！"
+                copy_content = f"這款{product_name}設計精良，是追求品質生活的最佳選擇。售價 {product_price} 元，現在正是入手的好時機！"
 
-            # 儲存生成的描述（單篇）
+            # 儲存
             session["product_description"] = copy_content
             session["stage"] = "waiting_for_copy_confirm"
             
-            # 發送確認訊息（使用 push message）
+            # 發送確認訊息
             confirm_msg = (
                 f"🔮 **AI 為您生成了行銷文案：**\n\n"
-                f"📌 產品類型：{product_type or product_name}\n"
-                f"🎯 目標客群：{target_audience or '一般消費者'}\n\n"
+                f"📌 產品類型：{product_type}\n"
+                f"🎯 目標客群：{target_audience}\n\n"
                 f"【{copy_title}】\n{copy_content}\n\n"
                 "━━━━━━━━━━━━━━\n"
                 "✅ 回覆「**Y**」使用此文案\n"
