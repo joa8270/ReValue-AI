@@ -88,6 +88,14 @@ interface SimulationData {
   score: number
   summary: string
   productName?: string  // Added to fix TypeScript error
+  market_prices?: {
+    success: boolean
+    min_price: number
+    max_price: number
+    avg_price: number
+    currency: string
+    sources_count: number
+  }
   genesis: {
     sample_size: number
     personas: Persona[]
