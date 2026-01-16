@@ -1,0 +1,36 @@
+C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\site-packages\linebot\v3\webhooks\api\dummy.py:18: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1 import validate_arguments, ValidationError
+[DB] No DATABASE_URL found, using local SQLite (C:\Users\Joa\Downloads\MIRRA\backend\test.db)
+Initializing LineBotService for Verification...
+
+[STEP 1] Sending Dummy Image...
+[EVENT] user_id=U_TEST_FIX_COMMENTS, type=image
+Traceback (most recent call last):
+  File "C:\Users\Joa\Downloads\MIRRA\backend\app\services\line_bot_service.py", line 87, in _handle_image_message
+    print(f"\U0001f4f8 [SESSION] 已暫存圖片: user_id={user_id}, size={len(image_bytes)} bytes")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'cp950' codec can't encode character '\U0001f4f8' in position 0: illegal multibyte sequence
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Joa\Downloads\MIRRA\backend\test_fix_comments.py", line 106, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\asyncio\runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\asyncio\runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\asyncio\base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "C:\Users\Joa\Downloads\MIRRA\backend\test_fix_comments.py", line 55, in main
+    await service.handle_event(img_event)
+  File "C:\Users\Joa\Downloads\MIRRA\backend\app\services\line_bot_service.py", line 54, in handle_event
+    await self._handle_image_message(event, user_id, reply_token)
+  File "C:\Users\Joa\Downloads\MIRRA\backend\app\services\line_bot_service.py", line 100, in _handle_image_message
+    print(f"\u274c [IMAGE] 下載圖片失敗: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'cp950' codec can't encode character '\u274c' in position 0: illegal multibyte sequence

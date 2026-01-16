@@ -239,6 +239,55 @@ const enrichCitizenData = (p: Persona): EnrichedPersona => {
 function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose: () => void }) {
   if (!citizen) return null;
   const [showDetails, setShowDetails] = useState(false);
+  const [enrichedData, setEnrichedData] = useState<EnrichedPersona>(citizen);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 當 Modal 開啟時，從 API 取得完整的市民資料
+  useEffect(() => {
+    const fetchCompleteData = async () => {
+      if (!citizen.id) return;
+
+      setIsLoading(true);
+      try {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const res = await fetch(`${API_BASE_URL}/api/web/citizen/${citizen.id}`);
+        const data = await res.json();
+
+        if (!data.error) {
+          // 用 API 資料補充/覆蓋現有資料
+          const updatedCitizen: EnrichedPersona = {
+            ...citizen,
+            birth_year: data.birth_year || citizen.birth_year,
+            birth_month: data.birth_month || citizen.birth_month,
+            birth_day: data.birth_day || citizen.birth_day,
+            birth_shichen: data.birth_shichen || citizen.birth_shichen,
+            four_pillars: data.four_pillars || citizen.four_pillars,
+            day_master: data.day_master || citizen.day_master,
+            strength: data.strength || citizen.strength,
+            favorable: data.favorable || citizen.favorable,
+            current_luck: data.current_luck || citizen.current_luck,
+            luck_timeline: data.luck_timeline || citizen.luck_timeline,
+            trait: data.trait || citizen.trait,
+            // 重新計算顯示欄位
+            fullBirthday: data.birth_year && data.birth_month && data.birth_day
+              ? `${data.birth_year}年${data.birth_month}月${data.birth_day}日${data.birth_shichen ? ` ${data.birth_shichen}` : ''}`
+              : citizen.fullBirthday,
+            luckCycle: data.current_luck?.description
+              || (data.current_luck?.name ? `目前行${data.current_luck.name}` : citizen.luckCycle)
+          };
+          setEnrichedData(updatedCitizen);
+        }
+      } catch (err) {
+        console.error("Failed to fetch citizen data:", err);
+      }
+      setIsLoading(false);
+    };
+
+    fetchCompleteData();
+  }, [citizen.id]);
+
+  // 使用 enrichedData 替代 citizen（用於顯示）
+  const displayCitizen = enrichedData;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>
@@ -246,26 +295,26 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
         <div className="p-6 border-b border-white/10 bg-slate-900/95 sticky top-0 z-10 flex justify-between items-start">
           <div className="flex items-center gap-5">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center text-4xl shadow-xl border border-white/10">
-              {elementConfig[citizen.element]?.icon || '👤'}
+              {elementConfig[displayCitizen.element]?.icon || '👤'}
             </div>
             <div>
               <div className="flex items-baseline gap-3">
-                <h2 className="text-3xl font-black text-white tracking-tight">{citizen.name}</h2>
-                <span className="text-xs font-mono text-slate-500 px-2 py-1 bg-white/5 rounded-full border border-white/5">ID: {citizen.id ? String(citizen.id).padStart(8, '0').slice(0, 8) : '????'}</span>
+                <h2 className="text-3xl font-black text-white tracking-tight">{displayCitizen.name}</h2>
+                <span className="text-xs font-mono text-slate-500 px-2 py-1 bg-white/5 rounded-full border border-white/5">ID: {displayCitizen.id ? String(displayCitizen.id).padStart(8, '0').slice(0, 8) : '????'}</span>
               </div>
               <div className="flex flex-col gap-1.5 mt-2">
                 <div className="flex items-center gap-3 text-sm">
                   <span className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30 font-bold">
-                    {citizen.occupation || 'AI Citizen'}
+                    {displayCitizen.occupation || 'AI Citizen'}
                   </span>
                   <span className="text-slate-400">•</span>
-                  <span className="text-slate-300 font-medium">{citizen.displayAge || citizen.age} 歲</span>
+                  <span className="text-slate-300 font-medium">{displayCitizen.displayAge || displayCitizen.age} 歲</span>
                   <span className="text-slate-400">•</span>
-                  <span className="text-slate-400">{citizen.location || 'Taiwan'}</span>
+                  <span className="text-slate-400">{displayCitizen.location || 'Taiwan'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
                   <span className="material-symbols-outlined text-[14px]">calendar_month</span>
-                  <span>{citizen.fullBirthday || '生日未知'}</span>
+                  <span>{isLoading ? '載入中...' : displayCitizen.fullBirthday || '生日未知'}</span>
                 </div>
               </div>
             </div>
@@ -282,23 +331,23 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
               <h3 className="text-sm font-bold text-purple-400 uppercase tracking-widest">當前狀態解讀</h3>
             </div>
             <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-900/20 to-slate-900 border border-purple-500/30 text-slate-200 leading-relaxed text-lg shadow-inner">
-              {citizen.detailedTrait}
+              {displayCitizen.detailedTrait}
             </div>
           </section>
 
           <section className="grid grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
               <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">命理格局</div>
-              <div className="text-xl font-black text-white">{citizen.pattern}</div>
+              <div className="text-xl font-black text-white">{displayCitizen.pattern}</div>
             </div>
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
               <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">能量強弱</div>
-              <div className="text-xl font-black text-white">{citizen.strength || "中和"}</div>
+              <div className="text-xl font-black text-white">{displayCitizen.strength || "中和"}</div>
             </div>
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
               <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">喜用五行</div>
               <div className="flex gap-1.5 flex-wrap">
-                {citizen.favorable?.map(e => (
+                {displayCitizen.favorable?.map(e => (
                   <span key={e} className="text-sm font-bold text-emerald-400 flex items-center">
                     {elementConfig[e]?.icon}{e}
                   </span>
@@ -307,7 +356,7 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
             </div>
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
               <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">性格標籤</div>
-              <div className="text-xl font-black text-amber-400 truncate">{citizen.trait?.split(',')[0] || "多元性格"}</div>
+              <div className="text-xl font-black text-amber-400 truncate">{displayCitizen.trait?.split(',')[0] || "多元性格"}</div>
             </div>
           </section>
 
@@ -319,7 +368,7 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                   <h3 className="text-sm font-bold text-cyan-500 uppercase tracking-widest">決策思維模型</h3>
                 </div>
                 <div className="p-5 rounded-2xl bg-slate-800/30 border border-cyan-500/20 text-slate-200 leading-relaxed text-sm">
-                  {citizen.decision_logic}
+                  {displayCitizen.decision_logic}
                 </div>
               </section>
 
@@ -331,7 +380,7 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                   </div>
                   <div className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20">
                     <div className="text-amber-100/80 leading-relaxed">
-                      {citizen.luckCycle || "暫無詳細運程描述"}
+                      {isLoading ? '載入中...' : displayCitizen.luckCycle || "暫無詳細運程描述"}
                     </div>
                   </div>
                 </section>
@@ -341,7 +390,7 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                     <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">八字命盤</h3>
                   </div>
                   <div className="p-6 rounded-2xl bg-slate-950 border border-white/10 text-center font-mono text-xl md:text-2xl text-white tracking-widest shadow-inner">
-                    {citizen.four_pillars || "無命盤數據"}
+                    {isLoading ? '載入中...' : displayCitizen.four_pillars || "無命盤數據"}
                   </div>
                 </section>
               </div>
@@ -352,8 +401,8 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                   <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">10年大運時間軸</h3>
                 </div>
                 <div className="space-y-3">
-                  {citizen.luck_timeline?.map((pillar, idx) => {
-                    const ageMs = parseInt(citizen.age || "30");
+                  {displayCitizen.luck_timeline?.length > 0 ? displayCitizen.luck_timeline.map((pillar, idx) => {
+                    const ageMs = parseInt(displayCitizen.age || "30");
                     const isCurrent = ageMs >= pillar.age_start && ageMs <= pillar.age_end;
                     return (
                       <div key={idx} className={`p-4 rounded-xl border transition-all ${isCurrent ? 'bg-purple-900/30 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.1)]' : 'bg-slate-800/30 border-white/5 opacity-70 hover:opacity-100'}`}>
@@ -371,7 +420,7 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                         )}
                       </div>
                     )
-                  })}
+                  }) : <div className="text-slate-500 text-center py-4">{isLoading ? '載入中...' : '暫無大運資料'}</div>}
                 </div>
               </section>
             </div>
@@ -398,6 +447,7 @@ export default function WatchPage() {
   // 確保加載動畫至少顯示一段時間，提供更好的用戶體驗
   const [hasShownLoading, setHasShownLoading] = useState(false)
   const [minimumLoadingComplete, setMinimumLoadingComplete] = useState(false)
+  const [countdown, setCountdown] = useState(120) // 新增倒數計時狀態 (改為 120s)
 
   const TOTAL_POPULATION = 1000
 
@@ -408,6 +458,16 @@ export default function WatchPage() {
     }, 3000) // 最少顯示 3 秒加載動畫
     return () => clearTimeout(timer)
   }, [])
+
+  // 倒數計時邏輯
+  useEffect(() => {
+    if (!minimumLoadingComplete || (data && data.status === "processing")) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => (prev > 1 ? prev - 1 : 1))
+      }, 1000)
+      return () => clearInterval(timer)
+    }
+  }, [minimumLoadingComplete, data?.status])
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout
@@ -444,36 +504,7 @@ export default function WatchPage() {
             ? Math.floor(enrichedComments.reduce((acc: number, curr: any) => acc + curr.score, 0) / enrichedComments.length)
             : json.score;
 
-          const enrichedSuggestions = (json.suggestions || []).map((s: any) => {
-            let action_plan: string[] = [];
-            if (s.target.includes("環保") || s.advice.includes("ESG")) {
-              action_plan = [
-                "製作一份專屬 ESG 影響力報告，量化減碳數據。",
-                "在行銷材料中加入 '循環經濟' 認證標章。",
-                "舉辦 '綠色投資' 線上說明會，邀請環保意見領袖背書。"
-              ];
-            } else if (s.target.includes("海外") || s.advice.includes("非洲")) {
-              action_plan = [
-                "列出非洲/東南亞前 5 大電子產品分銷商名單。",
-                "參加今年度的 Global Source 電子展，設立針對性展位。",
-                "設計針對新興市場的低門檻代理加盟方案。"
-              ];
-            } else if (s.target.includes("價格") || s.advice.includes("預算")) {
-              action_plan = [
-                "推出 '首購優惠' 或 '舊換新' 折抵活動。",
-                "製作 '競品價格對比表'，凸顯長期持有成本優勢。",
-                "強化產品保固條款，消除對二手/平價產品的品質疑慮。"
-              ];
-            } else {
-              // Fallback generic actions if no match
-              action_plan = [
-                "進行 A/B 測試優化相關行銷文案。",
-                "針對此目標客群投放精準社交媒體廣告。",
-                "收集早期使用者的詳細反饋以迭代產品。"
-              ];
-            }
-            return { ...s, action_plan };
-          });
+          const enrichedSuggestions = json.suggestions || [];
 
           setData({ ...json, arena_comments: enrichedComments, score: totalScore, suggestions: enrichedSuggestions });
         }
@@ -630,8 +661,17 @@ export default function WatchPage() {
                   {/* Radar Scan Effect */}
                   <div className="absolute inset-0 rounded-full bg-gradient-to-b from-transparent via-[#d8b4fe]/5 to-transparent animate-spin-slow opacity-20 pointer-events-none"></div>
                 </div>
-                <div className="mt-8 text-center space-y-2">
-                  <div className="text-[#d8b4fe] text-xl font-bold tracking-widest drop-shadow-[0_0_8px_rgba(216,180,254,0.6)] animate-[flicker_3s_infinite]">系統收集AI市民評論中</div>
+                <div className="mt-8 text-center space-y-4">
+                  <div className="text-[#d8b4fe] text-xl font-bold tracking-widest drop-shadow-[0_0_8px_rgba(216,180,254,0.6)] animate-[flicker_3s_infinite]">系統深度推演中</div>
+
+                  {/* Large Central Countdown */}
+                  <div className="flex flex-col items-center justify-center py-2">
+                    <span className="text-[64px] leading-none font-black text-white tabular-nums tracking-tighter drop-shadow-[0_0_20px_rgba(216,180,254,0.5)]">
+                      {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
+                    </span>
+                    <span className="text-sm text-[#d8b4fe]/70 tracking-[0.2em] font-mono mt-2">ESTIMATED TIME REMAINING</span>
+                  </div>
+
                   <div className="text-[#e9d5ff] text-sm font-mono flex items-center justify-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
                     <span className="animate-[typing_3s_steps(20)_infinite] overflow-hidden whitespace-nowrap border-r-2 border-purple-400 pr-1">正在連線所有 AI 市民節點...</span>
@@ -699,12 +739,12 @@ export default function WatchPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25d1f4] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#25d1f4]"></span>
               </span>
-              <span className="text-[#25d1f4] text-sm font-bold tracking-wider">1000個活躍代理人 : 已就緒</span>
+              <span className="text-[#25d1f4] text-sm font-bold tracking-wider">1000 個活躍 AI 市民：已就緒</span>
             </div>
-            {/* 預估等待時間 */}
-            <div className="flex items-center gap-2 text-[#d8b4fe]">
-              <span className="material-symbols-outlined text-[16px]">schedule</span>
-              <span className="text-xs font-medium">預估等待時間：30秒 ~ 1分鐘</span>
+            {/* 預估等待時間 (Moved to Center) */}
+            <div className="flex items-center gap-2 text-[#d8b4fe]/50">
+              <span className="material-symbols-outlined text-[16px]">hourglass_empty</span>
+              <span className="text-xs font-medium">Deep Thinking Mode Active</span>
             </div>
             {/* Progress Bar Mini */}
             <div className="hidden md:flex items-center gap-3 w-64">
@@ -934,21 +974,72 @@ export default function WatchPage() {
                       <span className="text-sm font-medium text-gray-500">滿分 100</span>
                     </div>
                   </div>
-                  <p className="text-xs text-white font-mono text-center">*分數源自下面 8 位八字代表市民的加權平均</p>
+                  <p className="text-xs text-white font-mono text-center">*分數源自下面 {Math.max(data.arena_comments?.length || 0, 8)} 位八字代表市民的加權平均</p>
                 </div>
               </div>
 
+              {/* 📊 市場比價資訊 */}
+              {data.market_prices && data.market_prices.success && (
+                <div className="col-span-1 lg:col-span-4 bg-[#1a1a1f] border border-[#302839] rounded-2xl p-5 shadow-xl">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="material-symbols-outlined text-blue-400 text-[20px]">price_check</span>
+                    <h3 className="text-[#ab9db9] text-sm font-bold uppercase tracking-wider">市場比價</h3>
+                    <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">
+                      📊 已比對 {data.market_prices.sources_count} 個平台
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-[#231b2e] rounded-lg">
+                      <span className="text-sm text-gray-400">最低價</span>
+                      <span className="text-lg font-bold text-green-400">${data.market_prices.min_price}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-[#231b2e] rounded-lg">
+                      <span className="text-sm text-gray-400">最高價</span>
+                      <span className="text-lg font-bold text-red-400">${data.market_prices.max_price}</span>
+                    </div>
+                    {data.market_prices.avg_price && (
+                      <div className="flex justify-between items-center p-3 bg-[#231b2e] rounded-lg">
+                        <span className="text-sm text-gray-400">平均價</span>
+                        <span className="text-lg font-bold text-amber-400">${data.market_prices.avg_price}</span>
+                      </div>
+                    )}
+                    {data.market_prices.prices && data.market_prices.prices.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-[#302839]">
+                        <p className="text-[10px] text-gray-500 mb-2">比價來源：</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {data.market_prices.prices.slice(0, 5).map((p: any, idx: number) => (
+                            <span key={idx} className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded">
+                              {p.platform} ${p.price}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {data.market_prices.market_insight && (
+                      <p className="text-xs text-gray-400 mt-2 italic">
+                        💡 {data.market_prices.market_insight}
+                      </p>
+                    )}
+                    <div className="mt-4 pt-3 border-t border-blue-500/20 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-blue-400 text-sm">verified_user</span>
+                      <span className="text-[10px] text-blue-300 font-bold tracking-wider">AI 市民已同步參考以上市場價格進行購買意向評估</span>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="col-span-1 lg:col-span-8 flex flex-col gap-6">
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                   {(() => {
                     // 動態計算：正面評價率
                     const totalComments = data.arena_comments?.length || 0;
+                    // 確保至少以 8 人計算（依據業務規則核心樣本數至少 8‰）
+                    const effectiveComments = Math.max(totalComments, 8);
                     const positiveComments = data.arena_comments?.filter((c: any) => c.sentiment === 'positive').length || 0;
                     const positiveRate = totalComments > 0 ? Math.round((positiveComments / totalComments) * 100) : 0;
                     const positiveLabel = positiveRate >= 70 ? '高度正面' : positiveRate >= 50 ? '中性偏正' : positiveRate >= 30 ? '中性' : '偏負面';
 
-                    // 動態計算：參與深度（覆蓋率）
-                    const coverageRate = Math.round((totalComments / TOTAL_POPULATION) * 100 * 10) / 10;
+                    // 動態計算：參與深度（覆蓋率）- 確保符合 8‰ 基底
+                    const coverageRate = Math.round((effectiveComments / TOTAL_POPULATION) * 100 * 10) / 10;
 
                     // 動態計算：價格敏感度（掃描評論中的價格相關關鍵詞）
                     const priceKeywords = ['貴', '價格', '價錢', '太貴', '便宜', '划算', 'CP值', 'cp值', '預算', '成本', '花費', '值得', '不值', '省錢', '促銷', '折扣', 'expensive', 'price', 'cheap', 'affordable', 'budget'];
@@ -1035,15 +1126,16 @@ export default function WatchPage() {
                         color: positiveRate >= 60 ? 'text-green-500' : 'text-amber-500'
                       },
                       {
-                        label: '信心指數',
-                        value: coverageRate < 1 ? `${coverageRate * 10}‰` : `${Math.min(coverageRate * 10, 99)}%`,
-                        sub: '「這次調查的聲音夠大聲嗎？」願意表態的市民越多，這份報告的參考價值就越高。',
+                        label: '參與覆蓋率',
+                        // 確保至少顯示 8‰ (業務規則：1,000 人中抽取 8 位代表)
+                        value: coverageRate < 1 ? `${Math.max(coverageRate * 10, 8)}‰` : `${Math.min(coverageRate * 10, 99)}%`,
+                        sub: `「從 1,000 位 AI 市民中抽取了多少人參與調查？」目前為 ${effectiveComments} / 1,000 人。覆蓋率越高，預演結果越能反映真實市場反應。`,
                         advice: coverageRate >= 5
-                          ? '💡 建議：數據非常穩。您可以放心地根據這份報告來制定下一步策略。'
+                          ? '💡 建議：覆蓋率優秀！這份報告的市場代表性極高，可作為決策參考。'
                           : coverageRate >= 1
-                            ? '💡 建議：數據可參考。若想更保險，可以更改文案後再跑一次預演。'
-                            : '💡 建議：目前為免費版隨機抽樣 (8‰)。若需高信度 (8%↑) 甚至 80%，請升級 Pro 版解鎖千人全量分析。',
-                        improvement: coverageRate >= 5 ? '+1~2%' : coverageRate >= 1 ? '+5~8%' : '升級 Pro 版',
+                            ? '💡 建議：覆蓋率中等。若想獲得更精準的預測，可以再次進行更大規模的預演。'
+                            : '💡 建議：目前為免費版 (8/1,000 人)。若需擴大母數至 10,000 人或全量分析，請升級 Pro 版。',
+                        improvement: coverageRate >= 5 ? '+1~2%' : coverageRate >= 1 ? '+5~8%' : '若優化可升 Pro 版',
                         icon: 'verified',
                         color: 'text-blue-500'
                       },
@@ -1080,7 +1172,7 @@ export default function WatchPage() {
                           <div className="flex justify-end">
                             <span className="text-[10px] items-center flex gap-1 text-green-400 font-mono font-bold">
                               <span className="material-symbols-outlined text-[12px]">trending_up</span>
-                              若優化可升 {stat.improvement}
+                              {stat.improvement}
                             </span>
                           </div>
                         </div>
@@ -1108,7 +1200,13 @@ export default function WatchPage() {
               <div className="xl:col-span-5 space-y-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2"><div className="w-1.5 h-6 bg-cyan-400 rounded-full animate-pulse"></div><div><h2 className="text-lg font-bold text-white tracking-widest uppercase">THE ARENA // 輿論競技場</h2><p className="text-[10px] text-gray-500 font-mono">Real-time Stream of Consciousness</p></div></div>
-                  <span className="text-[10px] bg-[#302839] text-gray-400 px-2 py-1 rounded">LIVE FEED</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-1 rounded flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[12px]">inventory_2</span>
+                      市場價格已連動
+                    </span>
+                    <span className="text-[10px] bg-[#302839] text-gray-400 px-2 py-1 rounded">LIVE FEED</span>
+                  </div>
                 </div>
                 <div className="space-y-4 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
                   {data.arena_comments?.map((comment, i) => {
@@ -1158,30 +1256,61 @@ export default function WatchPage() {
                 </div>
                 <div className="space-y-3">
                   <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-1">AI 策略建議 / TACTICAL ADVICE</p>
-                  {data.suggestions?.slice(0, 3).map((s, i) => (
+                  {data.suggestions?.slice(0, 3).map((s: any, i: number) => (
                     <div key={i} className="bg-[#1a1a1f] border border-[#302839] rounded-xl p-4 hover:border-cyan-500/30 transition-all group flex flex-col gap-3">
                       <div className="flex items-start gap-3">
                         <div className="bg-[#231b2e] size-8 rounded-lg flex items-center justify-center text-lg shadow-inner opacity-70 group-hover:opacity-100 transition-opacity">{i === 0 ? '🎯' : i === 1 ? '💡' : '⚡'}</div>
-                        <div className="min-w-0">
-                          <h4 className="text-white text-sm font-bold mb-1">{s.target}</h4>
-                          <p className="text-xs text-gray-200 leading-relaxed mb-2">{s.advice}</p>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="text-white text-sm font-bold">{s.target || '策略目標'}</h4>
+                            {s.score_improvement && (
+                              <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">
+                                {s.score_improvement}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-200 leading-relaxed">{s.advice || '載入中...'}</p>
                         </div>
                       </div>
 
-                      {/* Action Steps - Boss requested detail */}
-                      <div className="pl-11">
-                        <p className="text-[10px] text-[#7f13ec] font-bold uppercase mb-1.5 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[10px]">playlist_add_check</span>
-                          執行步驟
-                        </p>
-                        <ul className="space-y-1.5">
-                          {s.action_plan?.map((step: string, j: number) => (
-                            <li key={j} className="flex items-start gap-2 text-[11px] text-gray-300 hover:text-white transition-colors">
-                              <span className="text-cyan-500/50 mt-0.5">›</span>
-                              <span>{step}</span>
-                            </li>
-                          )) || <li className="text-[10px] text-gray-600 italic">正在生成具體執行方案...</li>}
-                        </ul>
+                      {/* 執行時間表 */}
+                      <div className="pl-11 space-y-3">
+                        <div>
+                          <p className="text-[10px] text-[#7f13ec] font-bold uppercase mb-1.5 flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">calendar_month</span>
+                            執行時間表
+                          </p>
+                          <ul className="space-y-1.5">
+                            {(s.execution_plan || s.action_plan)?.map((step: string, j: number) => (
+                              <li key={j} className="flex items-start gap-2 text-[11px] text-gray-300 hover:text-white transition-colors">
+                                <span className="text-cyan-500/70 mt-0.5 font-mono">{j + 1}.</span>
+                                <span>{step}</span>
+                              </li>
+                            )) || <li className="text-[10px] text-gray-600 italic">正在生成具體執行方案...</li>}
+                          </ul>
+                        </div>
+
+                        {/* 成功指標 */}
+                        {s.success_metrics && (
+                          <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-2.5">
+                            <p className="text-[10px] text-green-400 font-bold uppercase mb-1 flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[12px]">flag</span>
+                              成功指標
+                            </p>
+                            <p className="text-[11px] text-green-300">{s.success_metrics}</p>
+                          </div>
+                        )}
+
+                        {/* 潛在風險 */}
+                        {s.potential_risks && (
+                          <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-2.5">
+                            <p className="text-[10px] text-amber-400 font-bold uppercase mb-1 flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[12px]">warning</span>
+                              潛在風險
+                            </p>
+                            <p className="text-[11px] text-amber-300">{s.potential_risks}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

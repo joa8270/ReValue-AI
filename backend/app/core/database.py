@@ -287,3 +287,51 @@ def clear_citizens():
     except Exception as e:
         print(f"❌ 清空市民失敗: {e}")
         return False
+
+
+def get_citizen_by_id(citizen_id: str) -> dict | None:
+    """根據 ID 查詢單一市民的完整資料"""
+    try:
+        db = SessionLocal()
+        
+        # 嘗試用整數 ID 查詢
+        try:
+            int_id = int(citizen_id)
+            citizen = db.query(Citizen).filter(Citizen.id == int_id).first()
+        except ValueError:
+            # 如果 ID 不是整數，可能是 UUID 格式
+            citizen = None
+        
+        db.close()
+        
+        if citizen:
+            bazi = citizen.bazi_profile if isinstance(citizen.bazi_profile, dict) else {}
+            traits = citizen.traits if isinstance(citizen.traits, list) else []
+            return {
+                "id": str(citizen.id),
+                "name": citizen.name,
+                "gender": citizen.gender,
+                "age": citizen.age,
+                "location": citizen.location,
+                "occupation": citizen.occupation or "未知",
+                "bazi_profile": bazi,
+                "traits": traits,
+                # 直接展開常用欄位，方便前端使用
+                "birth_year": bazi.get("birth_year"),
+                "birth_month": bazi.get("birth_month"),
+                "birth_day": bazi.get("birth_day"),
+                "birth_shichen": bazi.get("birth_shichen"),
+                "four_pillars": bazi.get("four_pillars"),
+                "day_master": bazi.get("day_master"),
+                "structure": bazi.get("structure"),
+                "strength": bazi.get("strength"),
+                "element": bazi.get("element"),
+                "favorable": bazi.get("favorable", []),
+                "current_luck": bazi.get("current_luck", {}),
+                "luck_timeline": bazi.get("luck_timeline", []),
+                "trait": bazi.get("trait", "性格均衡")
+            }
+        return None
+    except Exception as e:
+        print(f"❌ 查詢市民 {citizen_id} 失敗: {e}")
+        return None

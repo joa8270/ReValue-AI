@@ -258,7 +258,7 @@ class LineBotService:
                 }
             }
             
-            api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key={api_key}"
+            api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={api_key}"
             
             # 添加重試機制
             max_retries = 2
@@ -811,7 +811,7 @@ class LineBotService:
         models = [
         "gemini-2.0-flash-exp",
         "gemini-2.5-flash",
-        "gemini-1.5-flash"
+        "gemini-2.5-flash"
     ]
         
         last_error = ""
@@ -1289,7 +1289,7 @@ class LineBotService:
         models = [
             "gemini-2.0-flash-exp",
             "gemini-2.5-flash",
-            "gemini-1.5-flash"
+            "gemini-2.5-flash"
         ]
         
         last_error = ""

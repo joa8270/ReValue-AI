@@ -11,6 +11,7 @@ export default function SimulationForm() {
     const [file, setFile] = useState<File | null>(null)
     const [loading, setLoading] = useState(false)
     const [aiLoading, setAiLoading] = useState(false)
+    const [nameLoading, setNameLoading] = useState(false) // AI 識別產品名稱的加載狀態
     const [error, setError] = useState("")
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
@@ -36,6 +37,15 @@ export default function SimulationForm() {
     // Form Fields
     const [productName, setProductName] = useState("")
     const [price, setPrice] = useState("")
+    const [priceSource, setPriceSource] = useState("") // 價格來源說明
+    const [marketPrices, setMarketPrices] = useState<{
+        success: boolean;
+        prices: Array<{ platform: string; price: number; note: string }>;
+        min_price: number;
+        max_price: number;
+        sources_count: number;
+        search_summary: string;
+    } | null>(null) // 市場比價資料
     const [description, setDescription] = useState("")
 
     // AI Writing Style Options
@@ -72,10 +82,51 @@ export default function SimulationForm() {
 
     const fileInputRef = useRef<HTMLInputElement>(null)
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0])
+            const selectedFile = e.target.files[0]
+            setFile(selectedFile)
             setError("")
+
+            // 如果是圖片模式且是圖片檔案，自動識別產品名稱
+            if (mode === 'image' && selectedFile.type.startsWith('image/')) {
+                setNameLoading(true)
+                try {
+                    const formData = new FormData()
+                    formData.append("file", selectedFile)
+
+                    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+                    const res = await fetch(`${API_BASE_URL}/api/web/identify-product`, {
+                        method: "POST",
+                        body: formData,
+                    })
+
+                    const data = await res.json()
+                    if (data.product_name) {
+                        setProductName(data.product_name)
+                    }
+                    // 填入估算價格
+                    if (data.estimated_price) {
+                        setPrice(data.estimated_price.toString())
+                    }
+                    // 設置價格來源說明
+                    if (data.price_source) {
+                        setPriceSource(`💡 ${data.price_source}${data.price_range ? ` (價格範圍: ${data.price_range})` : ''}`)
+                    }
+                    // 🔍 存儲市場比價資料
+                    if (data.market_prices) {
+                        setMarketPrices(data.market_prices)
+                        // 如果有成功取得市場比價，更新價格來源顯示
+                        if (data.market_prices.success && data.market_prices.sources_count > 0) {
+                            setPriceSource(`📊 已比對 ${data.market_prices.sources_count} 個電商平台：${data.market_prices.search_summary}`)
+                        }
+                    }
+                } catch (err) {
+                    console.error("Product identification failed:", err)
+                    // 失敗時不顯示錯誤，讓用戶手動輸入
+                }
+                setNameLoading(false)
+            }
         }
     }
 
@@ -184,6 +235,10 @@ export default function SimulationForm() {
                 formData.append("product_name", productName)
                 formData.append("price", price)
                 formData.append("description", description)
+                // 🔍 傳遞市場比價資料
+                if (marketPrices) {
+                    formData.append("market_prices", JSON.stringify(marketPrices))
+                }
             }
 
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
@@ -344,24 +399,35 @@ export default function SimulationForm() {
                         >
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
-                                    <label className="text-xs text-slate-400 ml-1">產品名稱</label>
+                                    <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
+                                        產品名稱
+                                        {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
+                                    </label>
                                     <input
                                         type="text"
                                         value={productName}
                                         onChange={(e) => setProductName(e.target.value)}
-                                        placeholder="例：智能咖啡機"
-                                        className="w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all"
+                                        placeholder={nameLoading ? "AI 識別中..." : "例：智能咖啡機"}
+                                        disabled={nameLoading}
+                                        className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''}`}
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-xs text-slate-400 ml-1">建議售價 (選填)</label>
+                                    <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
+                                        建議售價 (TWD)
+                                        {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
+                                    </label>
                                     <input
                                         type="text"
                                         value={price}
-                                        onChange={(e) => setPrice(e.target.value)}
-                                        placeholder="例：2990"
-                                        className="w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all"
+                                        onChange={(e) => { setPrice(e.target.value); setPriceSource(""); }}
+                                        placeholder={nameLoading ? "AI 估價中..." : "例：2990"}
+                                        disabled={nameLoading}
+                                        className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''}`}
                                     />
+                                    {priceSource && (
+                                        <p className="text-[10px] text-purple-400/80 ml-1 mt-1">{priceSource}</p>
+                                    )}
                                 </div>
                             </div>
                             <div className="space-y-1 relative">

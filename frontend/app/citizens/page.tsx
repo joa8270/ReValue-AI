@@ -157,6 +157,15 @@ function CitizenModal({ citizen, onClose }: { citizen: Citizen; onClose: () => v
                                 <span className="text-slate-400">•</span>
                                 <span className="text-slate-400">{citizen.location}</span>
                             </div>
+                            {/* 生辰資料顯示 */}
+                            <div className="flex items-center gap-2 mt-2 text-xs text-slate-400 font-mono">
+                                <span>📅</span>
+                                <span>
+                                    {citizen.bazi_profile?.birth_year && citizen.bazi_profile?.birth_month && citizen.bazi_profile?.birth_day
+                                        ? `${citizen.bazi_profile.birth_year}年${citizen.bazi_profile.birth_month}月${citizen.bazi_profile.birth_day}日 ${citizen.bazi_profile.birth_shichen || ''}`
+                                        : '生辰資料缺失'}
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <button

@@ -1,7 +1,6 @@
-All models failed. gemini-1.5-pro: 404 {
-  "error": {
-    "code": 404,
-    "message": "models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",
-    "status": "NOT_FOUND"
-  }
-}
+'str' object has no attribute 'get'
+Traceback (most recent call last):
+  File "C:\Users\Joa\Downloads\MIRRA\backend\app\services\line_bot_service.py", line 763, in run_simulation_with_image_data
+    raw_id = comment.get("citizen_id")
+             ^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'

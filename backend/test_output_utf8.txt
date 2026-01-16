@@ -1,0 +1,52 @@
+C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\site-packages\linebot\v3\webhooks\api\dummy.py:18: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1 import validate_arguments, ValidationError
+[7aa86819-743c-4faa-bfcf-5dc65d117c1f] Gemini failed: gemini-flash-latest: 400 {
+  "error": {
+    "code": 400,
+    "message": "Unable to process input image. Please retry or report in https://developers.generativeai.google/guide/troubleshooting",
+    "status": "INVALID_ARGUMENT"
+  }
+}
+. Proceeding to FALLBACK GENERATION.
+[7aa86819-743c-4faa-bfcf-5dc65d117c1f] Missing Score. Generating fallback score.
+[7aa86819-743c-4faa-bfcf-5dc65d117c1f] Insufficient comments after filter (0). Generating fallback.
+[DB] No DATABASE_URL found, using local SQLite (C:\Users\Joa\Downloads\MIRRA\backend\test.db)
+Initializing LineBotService for Verification...
+
+[STEP 1] Sending Dummy Image...
+[EVENT] user_id=U_TEST_FIX_COMMENTS, type=image
+? [SESSION] 撌脫摮??? user_id=U_TEST_FIX_COMMENTS, size=84 bytes
+
+[STEP 2] Sending Product Details...
+[EVENT] user_id=U_TEST_FIX_COMMENTS, type=text
+?? [SESSION] ?嗅?迂/?桀: Ghost Product / 9999
+
+[STEP 3] Skip description -> Trigger Analysis...
+Waiting for analysis (expecting fallback due to invalid image)...
+[EVENT] user_id=U_TEST_FIX_COMMENTS, type=text
+?? [SESSION] ??璅⊥: name=Ghost Product, price=9999, desc=None...
+?? [SQL] Simulation 7aa86819-743c-4faa-bfcf-5dc65d117c1f 撌脣遣蝡?
+?? [SESSION] Calling run_simulation_with_image_data for 7aa86819-743c-4faa-bfcf-5dc65d117c1f
+? [DB] ?冽?隢??見 30 雿?瘞?(?惜=True)
+?? [?惜?賣見] 蝮質? 30 雿?瘞?
+[DEBUG] Calling Gemini Model: gemini-2.5-pro with Payload Size: 12313 bytes
+[DEBUG] Gemini Model gemini-2.5-pro returned Status: 400
+[DEBUG] Calling Gemini Model: gemini-2.5-flash with Payload Size: 12313 bytes
+[DEBUG] Gemini Model gemini-2.5-flash returned Status: 400
+[DEBUG] Calling Gemini Model: gemini-flash-latest with Payload Size: 12313 bytes
+[DEBUG] Gemini Model gemini-flash-latest returned Status: 400
+??[SQL] Simulation 7aa86819-743c-4faa-bfcf-5dc65d117c1f 撌脫?啁 ready
+
+Simulation trigger complete. checking DB...
+Latest Simulation ID: 7aa86819-743c-4faa-bfcf-5dc65d117c1f
+Comment Count: 8
+   - ?Ｗ?璁艙敺?頞??憒??桀閬芣?銝暺???亥眺?柴?..
+   - 敺ire銵犖??摨虫????車憸冽敺??賡?嚗?閬箔??胯?..
+   - ?桀?撣銝?隡潛??憭?雿狡??寞批?潛敦蝭????..
+   - 撠?8甇脩???隤迎???圾瘙箔?銝?暻餌嚗澆??刻??..
+   - 敺etal銵犖??摨虫????車憸冽敺??賡?嚗?閬箔??胯?..
+   - ?末?餈??冽憿撮?镼選??狡??皜??..
+   - ??寞?閬?嚗??湧??釭???詨???撱箇正?潛?鈭粹虜?餃?甇⊿車閮剛???..
+   - ?瘥??祕?犖嚗???蝣箏祕??銝剜???暺?..
+
+SUCCESS: Found 8 valid comments! Fix verified.

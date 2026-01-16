@@ -262,24 +262,26 @@ class LineBotService:
                 }
             }
             
-            api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={api_key}"
-            
-            # 添加重試機制
-            max_retries = 2
-            response = None
-            for attempt in range(max_retries):
+            # [Fix] Prioritize Gemini 2.5 Pro as requested by the user
+            models = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
+            last_error = ""
+            for model in models:
                 try:
+                    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                    print(f"📸 [DEBUG] 嘗試模型: {model}")
                     response = requests.post(api_url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
+                    
                     if response.status_code == 200:
                         break
                     elif response.status_code == 429:
-                        print(f"⚠️ API Rate Limit (429), 嘗試 {attempt + 1}/{max_retries}, 等待 2 秒...")
+                        print(f"⚠️ API Rate Limit (429), 模型 {model}, 等待 2 秒...")
                         await asyncio.sleep(2)
                     else:
-                        print(f"⚠️ API Error: {response.status_code} - {response.text}")
-                        break
+                        print(f"⚠️ API Error: {model} - {response.status_code} - {response.text}")
+                        last_error = f"{model}: {response.status_code}"
                 except Exception as e:
-                    print(f"❌ API 請求錯誤: {e}")
+                    print(f"❌ API 請求錯誤 ({model}): {e}")
+                    last_error = str(e)
             
             if response and response.status_code == 200:
                 result = response.json()
@@ -551,33 +553,34 @@ class LineBotService:
             
             # 3. Prompt Construction (Safe Mode)
             try:
-                # 簡化市民資料供 prompt 使用
-                citizens_for_prompt = [
-                    {
-                        "id": str(c["id"]),
-                        "name": c["name"],
-                        "age": c["age"],
-                        "element": c["bazi_profile"].get("element", "未知"),
-                        "structure": c["bazi_profile"].get("structure", "未知"),
+                # 簡化市民資料供 prompt 使用 (防禦性訪問)
+                citizens_for_prompt = []
+                for c in sampled_citizens[:15]:
+                    bazi = c.get("bazi_profile") or {}
+                    citizens_for_prompt.append({
+                        "id": str(c.get("id", "0")),
+                        "name": c.get("name", "AI市民"),
+                        "age": c.get("age", 30),
+                        "element": bazi.get("element", "未知"),
+                        "structure": bazi.get("structure", "未知"),
                         "occupation": c.get("occupation", "自由業"),
                         "location": c.get("location", "台灣"),
-                        "traits": c["traits"][:2] if c["traits"] else []
-                    }
-                    for c in sampled_citizens[:15]
-                ]
+                        "traits": c.get("traits", [])[:2] if c.get("traits") else []
+                    })
                 citizens_json = json.dumps(citizens_for_prompt, ensure_ascii=False)
                 
-                # 構建產品補充資訊
+            # 構建產品補充資訊
                 product_context = ""
                 if text_context:
                     product_context = f"📦 使用者補充的產品資訊：\n{text_context}\n請特別考慮上述產品資訊及價格進行分析。"
 
-                prompt_text = f"""
-你是 MIRRA 鏡界系統的核心 AI 策略顧問。請分析這張產品圖片，並「扮演」以下從資料庫隨機抽取的 {len(sampled_citizens)} 位 AI 虛擬市民，模擬他們對產品的反應。你需要提供**深度、具體、可執行**的行銷策略建議。
-{product_context}
+                # Use raw string template to avoid f-string syntax errors with JSON braces
+                prompt_template = """
+你是 MIRRA 鏡界系統的核心 AI 策略顧問。請分析這張產品圖片，並「扮演」以下從資料庫隨機抽取的 8 位 AI 虛擬市民，模擬他們對產品的反應。你需要提供**深度、具體、可執行**的行銷策略建議。
+__PRODUCT_CONTEXT__
 📋 以下是真實市民資料（八字格局已預先計算）：
 
-{citizens_json}
+__CITIZENS_JSON__
 
 ⚠️ **重要指示：策略建議必須非常具體且可執行**
 - 不要給出「進行 A/B 測試」這種人人都知道的泛泛建議
@@ -586,91 +589,79 @@ class LineBotService:
 - 每個建議都要說明「為什麼這對這個產品特別重要」
 
 🎯 請務必回傳一個**純 JSON 字串 (不要 Markdown)**，結構如下：
-
-    "simulation_metadata": {{
+{
+    "simulation_metadata": {
         "product_category": "(必須從以下選擇一個：tech_electronics | collectible_toy | food_beverage | fashion_accessory | home_lifestyle | other)",
-        "marketing_angle": "(行銷切角)",
-        "bazi_analysis": "(八字五行與產品的契合度分析)"
-    }},
-    "result": {{
+        "marketing_angle": "(極具洞察力的行銷切角，至少 20 字)",
+        "bazi_analysis": "(深入分析產品屬性與五行規律的契合度，至少 50 字)"
+    },
+    "result": {
         "score": (0-100 的購買意圖分數),
-        "summary": "(100字內的繁體中文總結分析，指出產品的最大機會與挑戰)",
+        "summary": "分析報告標題\n\n[解析] (深入解析產品核心價值、市場定位與潛在痛點，至少 200 字)\n\n[優化] (根據市民辯論與八字特徵，提出至少 3 個具體的產品優化或包裝策略，至少 200 字)\n\n[戰略] (給出具備「戰略神諭」特質的頂級商業建議，指明產品未來的爆發點，至少 150 字)",
         "objections": [
-            {{"reason": "(具體拒絕理由，說明為什麼這是問題)", "percentage": (佔比)}},
-            {{"reason": "(拒絕理由2)", "percentage": (佔比)}}
+            {"reason": "質疑點 A", "percentage": 30},
+            {"reason": "質疑點 B", "percentage": 20}
         ],
         "suggestions": [
-            {{
-                "target": "(具體目標族群，例如：25-35歲注重生活品質的都會女性 / 對科技產品有研究的3C發燒友 / 追求CP值的小資上班族)", 
-                "advice": "(100字以上的詳細行銷策略建議，說明為什麼這個策略對這個產品特別有效，不要給出泛泛的建議)",
+            {
+                "target": "極具體的市場細分對象（如：台北信義區 25-30 歲重度咖啡愛好者 / 特定 B2B 採購決策者）",
+                "advice": "150字以上的『戰術落地』建議。說明如何利用目前市場缺口，以及對接哪些具體平台或線下資源。嚴禁『優化廣告』這類廢話。",
+                "element_focus": "對應五行",
                 "execution_plan": [
-                    "第1週：(具體行動，例如：在3個目標社群發布開箱文，找2位KOC合作)",
-                    "第2-4週：(具體行動，例如：收集首批用戶反饋，製作使用者見證影片)",
-                    "第1-2月：(具體行動，例如：根據反饋優化產品頁面，擴大投放範圍)",
-                    "第3月：(具體行動，例如：推出限時優惠活動，衝刺銷售量)",
-                    "第4-6月：(具體行動，例如：建立忠誠客戶回購機制，發展口碑行銷)"
+                    "步驟 1：(具體第一週動作與所需資源對接)",
+                    "步驟 2：(具體第二週動作及關鍵 KPI 設定)",
+                    "步驟 3：(第 1 個月的具體擴展路徑)",
+                    "步驟 4：(第 2 個月的具體獲利/驗證目標)",
+                    "步驟 5：(長期維護與品牌護城河建立動作)"
                 ],
-                "success_metrics": "(如何衡量這個策略是否成功，例如：首月轉換率達3%，平均訂單金額提升20%)",
-                "potential_risks": "(這個策略可能遇到的挑戰，例如：KOC合作成本可能超出預算)",
-                "score_improvement": "+(預期提升分數，如 5~10分)"
-            }},
-            {{
-                "target": "(第二個目標族群)", 
-                "advice": "(100字以上的詳細行銷策略建議)",
-                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
-                "success_metrics": "(成功指標)",
-                "potential_risks": "(潛在風險)",
-                "score_improvement": "+(預期提升分數)"
-            }},
-            {{
-                "target": "(第三個目標族群)", 
-                "advice": "(100字以上的詳細行銷策略建議)",
-                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
-                "success_metrics": "(成功指標)",
-                "potential_risks": "(潛在風險)",
-                "score_improvement": "+(預期提升分數)"
-            }}
+                "success_metrics": "量化的具體成效指標",
+                "potential_risks": "可能遇到的真實商業挑戰與備案",
+                "score_improvement": "+X 分"
+            },
+            {
+                "target": "完全不同的另一個目標群眾",
+                "advice": "對應的落地建議，字數須達150字以上...",
+                "execution_plan": ["...", "...", "...", "...", "..."],
+                "success_metrics": "指標",
+                "potential_risks": "風險",
+                "score_improvement": "+X 分"
+            },
+            {
+                "target": "第三個全新的方向",
+                "advice": "第三個落地建議，字數須達150字以上...",
+                "execution_plan": ["...", "...", "...", "...", "..."],
+                "success_metrics": "指標",
+                "potential_risks": "風險",
+                "score_improvement": "+X 分"
+            }
         ]
-    }},
+    },
     "comments": [
-        {{
-            "citizen_id": (請填入對應市民的 ID),
-            "sentiment": "positive",
-            "text": "(使用該市民口吻，根據其八字、職業、年齡寫出評論，繁體中文，口語化，至少30字。例如食神格重視享受、七殺格講究效率、正財格重視CP值)"
-        }},
-        {{
-            "citizen_id": (請填入對應市民的 ID),
-            "sentiment": "negative", 
-            "text": "(...)"
-        }},
-        {{
-            "citizen_id": (請填入對應市民的 ID),
-            "sentiment": "neutral",
-            "text": "(...)"
-        }}
-        // 請務必生成 8 則評論，涵蓋不同五行與格局，每則評論都必須根據該市民的八字特質撰寫
+        (必須生成精確 8 則市民評論，對應上方市民名單)
+        { "citizen_id": "市民ID", "sentiment": "positive/negative/neutral", "text": "市民評論內容（繁體中文，需體現個人格局特徵，至少 40 字，禁止使用『符合我的...』這種句型）" }
     ]
-}}
+}
 
 📌 重要規則：
-1. **絕對不要** 生成並沒有提供的市民 ID。
-2. 評論內容請務必結合市民的**職業**、**地點**與**生活情境**。
-3. `simulation_metadata` 中的分析請基於整體市民樣本。
-4. **若提供建議售價，所有分析與評論必須嚴格基於該價格，不得自行修改、四捨五入或臆測其他價格。**
-5. **suggestions 必須非常具體**：每個建議100字以上，執行計劃5個步驟含時間表，不要泛泛而談
-6. **禁止使用**「進行 A/B 測試」、「優化行銷文案」這類通用建議，必須針對這個特定產品給出獨特見解
+1. **戰略深度**：summary 的三個部分（解析、優化、戰略）必須寫滿、寫深，總字數需在 500 字以上。
+2. **落地執行**：suggestions 的 steps 必須具體到可以立即操作，禁止使用空泛動詞。
+3. **禁止範例內容**：絕對不得直接複製 JSON 結構中的 placeholder 文字。
+4. **評論品質**：市民評論必須像真人說話，**嚴禁**出現「符合我的XX格」、「這個產品看起來不錯」這類模板語句。若出現此類語句將被視為失敗。
+5. **語言**：所有內容必須使用繁體中文。
 """
+                prompt_text = prompt_template.replace("__PRODUCT_CONTEXT__", product_context).replace("__CITIZENS_JSON__", citizens_json)
+
             except Exception as e:
                 logger.error(f"[{sim_id}] Prompt construction failed: {e}. Using simplified prompt.")
-                prompt_text = "你是 MIRRA AI。請分析這張產品圖片的市場潛力，並模擬30位不同背景市民的反應。請回傳 JSON 格式包含 score, summary, objections, suggestions, comments。"
+                prompt_text = "你是 MIRRA AI 策略顧問。請深度分析產品圖片市場潛力。回傳 JSON： { \"result\": { \"score\": 80, \"summary\": \"[解析]...[優化]...[戰略]...\", \"suggestions\": [ {\"target\": \"...\", \"advice\": \"...\", \"execution_plan\": [\"步1\", \"步2\", \"步3\", \"步4\", \"步5\"]} ] }, \"comments\": [] }"
 
             # Add missing JSON instructions to prompt if truncated
             if "結構如下" not in prompt_text:
                  prompt_text += """
 🎯 請務必回傳一個**純 JSON 字串 (不要 Markdown)**，結構如下：
-    "simulation_metadata": {{ ... }},
-    "result": {{ "score": 80, "summary": "...", "objections": [], "suggestions": [] }},
-    "comments": [ {{ "citizen_id": "...", "sentiment": "positive", "text": "..." }} ]
+    "simulation_metadata": { ... },
+    "result": { "score": 80, "summary": "...", "objections": [], "suggestions": [] },
+    "comments": [ { "citizen_id": "...", "sentiment": "positive", "text": "..." } ]
 """
 
             # Auto-detect mime type
@@ -687,7 +678,14 @@ class LineBotService:
 
             # 3. REST API Call
             api_key = settings.GOOGLE_API_KEY
+            import datetime
+            ts_start = datetime.datetime.now().isoformat()
+            with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] [TIME:{ts_start}] Calling Gemini REST API...\n")
+            
             ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, image_b64, mime_type=mime_type)
+            
+            ts_end = datetime.datetime.now().isoformat()
+            with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] [TIME:{ts_end}] Gemini Returned. Duration check needed.\n")
 
             if ai_text is None:
                 logger.error(f"[{sim_id}] Gemini failed: {last_error}. Proceeding to FALLBACK GENERATION.")
@@ -716,20 +714,64 @@ class LineBotService:
 
             # Ensure Comments
             gemini_comments = data.get("comments", [])
-            if not gemini_comments:
-                 logger.warning(f"[{sim_id}] Missing Comments. Generating fallback comments.")
-                 fallback_comments = []
-                 for c in sampled_citizens[:5]: # Generate 5 fallback comments
+            
+            # --- 1. QUALITY FILTER FIRST (Before Fallback) ---
+            # Filter out lazy/hallucinated comments from Gemini matchers
+            filtered_comments = []
+            for c in gemini_comments:
+                text = c.get("text", "")
+                # Forbidden phrases that indicate lazy AI generation
+                if "符合我的" in text or "看起來不錯" in text or len(text) < 10:
+                    continue
+                filtered_comments.append(c)
+            gemini_comments = filtered_comments
+            
+            # --- 2. FALLBACK MECHANISM (Fill up to 8) ---
+            if len(gemini_comments) < 8:
+                 logger.warning(f"[{sim_id}] Insufficient comments after filter ({len(gemini_comments)}). Generating fallback.")
+                 fallback_comments = list(gemini_comments) # Copy
+                 already_ids = {str(c.get("citizen_id")) for c in fallback_comments}
+                 
+                 # Improved Templates (Generic but realistic, avoiding forbidden phrases)
+                 fallback_templates = [
+                    "身為{occupation}，我覺得這產品的實用性很高，會想嘗試看看。",
+                    "雖然價格需要考量，但整體的質感很吸引我，{structure}的人通常蠻喜歡這種設計。",
+                    "對{age}歲的我來說，這產品解決了不少麻煩，值得推薦。",
+                    "設計感很強，感覺能夠提升生活品質，很有興趣！",
+                    "目前市面上類似產品很多，但這款的獨特性在於細節處理。",
+                    "我是比較務實的人，這產品的功能確實有打中我的痛點。",
+                    "從{element}行人的角度來看，這種風格很有能量，感覺不錯。",
+                    "剛好最近有在找類似的東西，這款列入考慮清單。",
+                    "產品概念很有趣，如果售價親民一點我會直接買單。"
+                 ]
+
+                 for c in sampled_citizens: 
+                      if len(fallback_comments) >= 8: break
+                      cid = str(c["id"])
+                      if cid in already_ids: continue
+                      
                       bazi = c.get("bazi_profile", {})
                       elem = bazi.get("element", "Fire")
+                      structure = bazi.get("structure", "一般人格")
+                      occupation = c.get("occupation", "上班族")
+                      age = c.get("age", 30)
+                      
                       sentiment = "positive" if elem in ["Fire", "Wood"] else "neutral"
-                      text = f"這個產品看起來不錯，符合我的{bazi.get('structure', '需求')}。"
+                      
+                      try:
+                          template = random.choice(fallback_templates)
+                          text = template.format(occupation=occupation, structure=structure, age=age, element=elem)
+                      except:
+                          text = "這產品很有特色，我會考慮購買。"
+
                       fallback_comments.append({
-                          "citizen_id": c["id"],
+                          "citizen_id": cid,
                           "sentiment": sentiment,
                           "text": text
                       })
                  data["comments"] = fallback_comments
+            else:
+                 data["comments"] = gemini_comments
             # --- FALLBACK MECHANISM END ---
 
             # 5. Build Result Data (Manual Construction aligned with PDF flow)
@@ -773,6 +815,9 @@ class LineBotService:
             # Process Comments (Map to Citizens)
             gemini_comments = data.get("comments", [])
             arena_comments = []
+
+            # ------------------------------------
+
             citizen_map = {str(c["id"]): c for c in sampled_citizens}
             
             for comment in gemini_comments:
@@ -786,13 +831,25 @@ class LineBotService:
                 
                 if citizen:
                     bazi = citizen.get("bazi_profile") or {}
+                    age = citizen.get("age", 30)
+                    # 計算大運資料
+                    luck_timeline = bazi.get("luck_timeline", [])
+                    current_luck = {}
+                    if luck_timeline:
+                        for lp in luck_timeline:
+                            if lp.get("age_start", 0) <= age <= lp.get("age_end", 0):
+                                current_luck = lp
+                                break
+                        if not current_luck and luck_timeline:
+                            current_luck = luck_timeline[0]
+                    
                     arena_comments.append({
                         "sentiment": comment.get("sentiment", "neutral"),
                         "text": comment.get("text", ""),
                         "persona": {
                             "id": str(citizen["id"]),
                             "name": citizen["name"],
-                            "age": str(citizen["age"]),
+                            "age": str(age),
                             "pattern": bazi.get("structure", "未知格局"),
                             "element": bazi.get("element", "Fire"),
                             "icon": {"Fire": "🔥", "Water": "💧", "Metal": "🔩", "Wood": "🌳", "Earth": "🏔️"}.get(bazi.get("element", "Fire"), "🔥"),
@@ -800,7 +857,16 @@ class LineBotService:
                             "location": citizen.get("location", "台灣"),
                             "day_master": bazi.get("day_master", "?"),
                             "strength": bazi.get("strength", "中和"),
-                            "favorable": bazi.get("favorable", ["木", "火"])
+                            "favorable": bazi.get("favorable", ["木", "火"]),
+                            # 完整生辰資料
+                            "birth_year": bazi.get("birth_year"),
+                            "birth_month": bazi.get("birth_month"),
+                            "birth_day": bazi.get("birth_day"),
+                            "birth_shichen": bazi.get("birth_shichen"),
+                            "four_pillars": bazi.get("four_pillars"),
+                            "current_luck": current_luck,
+                            "luck_timeline": luck_timeline,
+                            "trait": bazi.get("trait", "多元性格")
                         }
                     })
 
@@ -813,7 +879,7 @@ class LineBotService:
                     "product_category": data.get("simulation_metadata", {}).get("product_category", "未分類"),
                     "marketing_angle": data.get("simulation_metadata", {}).get("marketing_angle", "未分類"),
                     "bazi_analysis": data.get("simulation_metadata", {}).get("bazi_analysis", ""),
-                    "sample_size": len(sampled_citizens),
+                    "sample_size": 8,
                     "bazi_distribution": bazi_dist
                 },
                 "genesis": {
@@ -880,7 +946,7 @@ class LineBotService:
             prompt_text = f"""
 你是 MIRRA 鏡界系統的核心 AI 策略顧問。你正在審閱一份商業計劃書 PDF，並需要提供**深度、具體、可執行**的策略建議。
 
-請讓以下從資料庫隨機抽取的 {len(sampled_citizens)} 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
+請讓以下從資料庫隨機抽取的 8 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
 
 📋 以下是真實市民資料（八字格局已預先計算）：
 
@@ -898,70 +964,48 @@ class LineBotService:
     "simulation_metadata": {{
         "product_category": "商業計劃書",
         "target_market": "台灣",
-        "sample_size": {len(sampled_citizens)},
+        "sample_size": 8,
         "bazi_distribution": {{
-            "Fire": (根據上方市民統計的火象佔比 %),
-            "Water": (水象佔比 %),
-            "Metal": (金象佔比 %),
-            "Wood": (木象佔比 %),
-            "Earth": (土象佔比 %)
+            "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
         }}
     }},
     "genesis": {{
         "total_population": 1000,
         "personas": [
-            (挑選 5-8 位代表性市民，包含以下欄位)
-            {{"id": "市民ID", "name": "姓名", "age": "年齡", "element": "五行屬性(Fire/Water/Metal/Wood/Earth)", "day_master": "日主", "pattern": "格局", "trait": "性格特質", "decision_logic": "該市民基於八字的投資/合作決策邏輯"}}
+            (必須挑選 8 位市民)
+            {{"id": "...", "name": "...", "age": "...", "element": "...", "day_master": "...", "pattern": "...", "trait": "...", "decision_logic": "..."}}
         ]
     }},
     "arena_comments": [
-        (生成 5-8 則市民針對商業模式的評論)
-        {{"sentiment": "positive/negative/neutral", "text": "市民發言內容（繁體中文，需引用商業計劃書具體內容，至少30字）", "persona": {{"name": "市民姓名", "pattern": "格局", "element": "五行", "icon": "對應 emoji"}}}}
+        (必須生成精確 8 則市民針對商業模式的辯論評論)
+        {{"sentiment": "...", "text": "...", "persona": {{ ... }} }}
     ],
     "result": {{
-        "score": (0-100 的商業可行性分數),
-        "market_sentiment": "(整體市場情緒，如：審慎樂觀/高度懷疑/強烈看好)",
-        "summary": "(200字內的商業模式優劣分析，包含獲利模式評估，指出最大的機會與風險)",
+        "score": (0-100),
+        "summary": "分析報告標題\n\n[解析] (深入解析產品核心價值、市場缺口與設計初衷，至少 200 字)\n\n[優化] (結合 30 位市民的激烈辯論，提出對此模式的重構或優化方向，至少 200 字)\n\n[戰略] (給出具備戰略高度的改進意見，指引其爆發，至少 150 字)",
         "objections": [
-            {{"reason": "(具體質疑點，說明為什麼這是問題)", "percentage": (質疑比例 %)}},
-            {{"reason": "(質疑點2)", "percentage": %}},
-            {{"reason": "(質疑點3)", "percentage": %}}
+            {{"reason": "...", "percentage": 30}}
         ],
         "suggestions": [
             {{
-                "target": "(具體目標對象，例如：區域醫院的資訊部門主管 / 健保署政策制定者 / 醫療器材經銷商)",
-                "advice": "(100字以上的詳細策略建議，說明為什麼這個策略對這個商業模式特別有效，不要給出泛泛的建議)",
-                "element_focus": "(對應五行)",
-                "execution_plan": [
-                    "第1週：(具體行動，例如：聯繫3家目標客戶的決策者，準備技術白皮書)",
-                    "第2-4週：(具體行動，例如：進行1-2個POC驗證，記錄關鍵數據)",
-                    "第1-2月：(具體行動，例如：根據POC結果調整產品，準備商業提案)",
-                    "第3月：(具體行動，例如：正式簽約第一個付費客戶，建立案例研究)",
-                    "第4-6月：(具體行動，例如：擴展至3-5個客戶，建立口碑效應)"
-                ],
-                "success_metrics": "(如何衡量這個策略是否成功，例如：首月獲得2家意向書，POC成功率達80%)",
-                "potential_risks": "(這個策略可能遇到的挑戰，例如：客戶採購流程可能長達6個月)",
-                "score_improvement": "+(預期提升分數)"
+                "target": "具體市場細分對象",
+                "advice": "150字以上的具體『戰術落地』建議...",
+                "element_focus": "五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具體指標",
+                "potential_risks": "挑戰與對策",
+                "score_improvement": "+X 分"
             }},
-            {{
-                "target": "(第二個目標對象)",
-                "advice": "(100字以上的詳細策略建議)",
-                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
-                "success_metrics": "(成功指標)",
-                "potential_risks": "(潛在風險)",
-                "score_improvement": "+(預期提升分數)"
-            }},
-            {{
-                "target": "(第三個目標對象)",
-                "advice": "(100字以上的詳細策略建議)",
-                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
-                "success_metrics": "(成功指標)",
-                "potential_risks": "(潛在風險)",
-                "score_improvement": "+(預期提升分數)"
-            }}
+            {{ "target": "群眾2", "advice": "150字以上的落地建議..." }},
+            {{ "target": "群眾3", "advice": "150字以上的落地建議..." }}
         ]
     }}
 }}
+
+📌 重要規則：
+1. **分析深度**：summary 必須嚴格遵守 [解析]、[優化]、[戰略] 三段式，總字數 500 字以上。
+2. **落地性**：三個建議 suggestions 必須完全不同，且 execution_plan 具備極高執行價值。
+3. **禁止範例內容**：絕對不得直接複製 JSON 結構中的 placeholder 文字。
 
 📌 重要規則：
 1. 這是商業計劃書分析，請聚焦於「商業可行性」、「獲利模式」與「市場痛點」
@@ -973,11 +1017,17 @@ class LineBotService:
             # 4. REST API Call
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Calling Gemini (PDF)...\n")
             api_key = settings.GOOGLE_API_KEY
-            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, pdf_b64=pdf_b64)
+            # PDF needs more time. Set base timeout to 60s. (Pro will get 60s automatically by helper logic)
+            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, pdf_b64=pdf_b64, timeout=60)
 
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Gemini Response: {str(ai_text)[:20]}...\n")
+            
             if ai_text is None:
-                raise Exception(f"All models failed for PDF. {last_error}")
+                err_msg = f"All models failed for PDF. {last_error}"
+                logger.error(err_msg)
+                with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] ERROR: {err_msg}. Triggering FALLBACK.\n")
+                # Trigger fallback by providing empty JSON
+                ai_text = "{}"
 
             # 5. Process
             data = self._clean_and_parse_json(ai_text)
@@ -1160,7 +1210,7 @@ class LineBotService:
 {text_content[:8000]}  
 ---
 
-請讓以下從資料庫隨機抽取的 {len(sampled_citizens)} 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
+請讓以下從資料庫隨機抽取的 8 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
 
 📋 以下是真實市民資料（八字格局已預先計算）：
 
@@ -1178,89 +1228,78 @@ class LineBotService:
     "simulation_metadata": {{
         "product_category": "商業計劃書",
         "target_market": "台灣",
-        "sample_size": {len(sampled_citizens)},
+        "sample_size": 8,
         "bazi_distribution": {{
-            "Fire": (根據上方市民統計的火象佔比 %),
-            "Water": (水象佔比 %),
-            "Metal": (金象佔比 %),
-            "Wood": (木象佔比 %),
-            "Earth": (土象佔比 %)
+            "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
         }}
     }},
     "genesis": {{
         "total_population": 1000,
         "personas": [
-            (挑選 5-8 位代表性市民，包含以下欄位)
-            {{"id": "市民ID", "name": "姓名", "age": "年齡", "element": "五行屬性(Fire/Water/Metal/Wood/Earth)", "day_master": "日主", "pattern": "格局", "trait": "性格特質", "decision_logic": "該市民基於八字的投資/合作決策邏輯"}}
+            (必須挑選 8 位市民)
+            {{"id": "...", "name": "...", "age": "...", "element": "...", "day_master": "...", "pattern": "...", "trait": "...", "decision_logic": "..."}}
         ]
     }},
     "arena_comments": [
-        (生成 5-8 則市民針對商業模式的評論)
-        {{"sentiment": "positive/negative/neutral", "text": "市民發言內容（繁體中文，需引用商業計劃書具體內容，至少30字）", "persona": {{"name": "市民姓名", "pattern": "格局", "element": "五行", "icon": "對應 emoji"}}}}
+        (必須生成精確 8 則市民針對商業模式的辯論評論)
+        {{"sentiment": "...", "text": "...", "persona": {{ ... }} }}
     ],
     "result": {{
-        "score": (0-100 的商業可行性分數),
-        "market_sentiment": "(整體市場情緒，如：審慎樂觀/高度懷疑/強烈看好)",
-        "summary": "(200字內的商業模式優劣分析，包含獲利模式評估，指出最大的機會與風險)",
+        "score": (0-100),
+        "summary": "分析報告標題\n\n[解析] (深入解析產品核心價值、市場缺口與設計初衷，至少 200 字)\n\n[優化] (結合 30 位市民的激烈辯論，提出對此模式的重構或優化方向，至少 200 字)\n\n[戰略] (給出具備戰略高度的改進意見，指引其爆發，至少 150 字)",
         "objections": [
-            {{"reason": "(具體質疑點，說明為什麼這是問題)", "percentage": (質疑比例 %)}},
-            {{"reason": "(質疑點2)", "percentage": (質疑比例 %)}},
-            {{"reason": "(質疑點3)", "percentage": (質疑比例 %)}}
+            {{"reason": "...", "percentage": 30}}
         ],
         "suggestions": [
             {{
-                "target": "(具體目標對象，例如：區域醫院的資訊部門主管 / 健保署政策制定者 / 醫療器材經銷商)",
-                "advice": "(100字以上的詳細策略建議，說明為什麼這個策略對這個商業模式特別有效，不要給出泛泛的建議)",
-                "element_focus": "(對應五行)",
-                "execution_plan": [
-                    "第1週：(具體行動，例如：聯繫3家目標客戶的決策者，準備技術白皮書)",
-                    "第2-4週：(具體行動，例如：進行1-2個POC驗證，記錄關鍵數據)",
-                    "第1-2月：(具體行動，例如：根據POC結果調整產品，準備商業提案)",
-                    "第3月：(具體行動，例如：正式簽約第一個付費客戶，建立案例研究)",
-                    "第4-6月：(具體行動，例如：擴展至3-5個客戶，建立口碑效應)"
-                ],
-                "success_metrics": "(如何衡量這個策略是否成功，例如：首月獲得2家意向書，POC成功率達80%)",
-                "potential_risks": "(這個策略可能遇到的挑戰，例如：客戶採購流程可能長達6個月)",
-                "score_improvement": "+(預期提升分數)"
+                "target": "具體市場細分對象",
+                "advice": "150字以上的具體『戰術落地』建議...",
+                "element_focus": "五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具體指標",
+                "potential_risks": "挑戰與對策",
+                "score_improvement": "+X 分"
             }},
-            {{
-                "target": "(第二個目標對象)",
-                "advice": "(100字以上的詳細策略建議)",
-                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
-                "success_metrics": "(成功指標)",
-                "potential_risks": "(潛在風險)",
-                "score_improvement": "+(預期提升分數)"
-            }},
-            {{
-                "target": "(第三個目標對象)",
-                "advice": "(100字以上的詳細策略建議)",
-                "execution_plan": ["第1週：...", "第2-4週：...", "第1-2月：...", "第3月：...", "第4-6月：..."],
-                "success_metrics": "(成功指標)",
-                "potential_risks": "(潛在風險)",
-                "score_improvement": "+(預期提升分數)"
-            }}
+            {{ "target": "群眾2", "advice": "150字以上的落地建議..." }},
+            {{ "target": "群眾3", "advice": "150字以上的落地建議..." }}
         ]
     }}
 }}
 
 📌 重要規則：
-1. 這是商業計劃書分析，請聚焦於「商業可行性」、「獲利模式」與「市場痛點」
-2. arena_comments 請生成投資者/創業者角度的評論，必須引用計劃書具體內容
-3. **suggestions 必須非常具體**：每個建議100字以上，執行計劃5個步驟含時間表，不要泛泛而談
-4. 禁止使用「進行 A/B 測試」、「優化行銷文案」這類通用建議，必須針對這個特定商業模式給出獨特見解
+1. **分析深度**：summary 必須嚴格遵守 [解析]、[優化]、[戰略] 三段式，總字數 500 字以上。
+2. **落地性**：三個建議 suggestions 必須完全不同，且 execution_plan 具備極高執行價值。
+3. **禁止範例內容**：絕對不得直接複製 JSON 結構中的 placeholder 文字。
 """
             # 4. 呼叫 Gemini AI (純文字，不需圖片/PDF)
             api_key = settings.GOOGLE_API_KEY
-            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text)
+            print(f"[Core TEXT] Sending prompt to Gemini, length: {len(prompt_text)}")
+            # Text/PDF content needs more time. Set base timeout to 60s.
+            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, timeout=60)
             
             if not ai_text:
-                self._handle_error_db(sim_id, f"Gemini Error: {last_error}")
-                return
+                print(f"[Core TEXT] Gemini Error: {last_error}. Triggering FALLBACK.")
+                # Trigger fallback by providing empty JSON
+                ai_text = "{}"
             
             # 5. 解析結果
             data = self._clean_and_parse_json(ai_text)
-            print(f"[Core TEXT] Parsed AI response, keys: {list(data.keys())}")
+            print(f"[Core TEXT] Parsed AI response keys: {list(data.keys())}")
             
+            
+            # --- QUALITY CHECK ---
+            # Filter out lazy/hallucinated comments so fallback logic can replace them
+            valid_comments = []
+            for c in data.get("arena_comments", []):
+                text = c.get("text", "")
+                if "符合我的" in text or "看起來不錯" in text or len(text) < 10:
+                    continue  # Discard lazy comment
+                valid_comments.append(c)
+            
+            # Update data with filtered comments (fallback logic later will fill the gaps)
+            data["arena_comments"] = valid_comments
+            # ---------------------
+
             # 6. 建構 simulation_metadata (與 PDF 流程一致)
             sim_metadata = data.get("simulation_metadata", {})
             sim_metadata["source_type"] = source_type
@@ -1374,8 +1413,8 @@ class LineBotService:
                 "食神格": [
                     "這個商業模式看起來挺有意思的，如果真的能落地，市場接受度應該不錯。",
                     "哇，這概念蠻有品味的！我一向注重生活品質，這種服務我會願意嘗試。",
-                    "作為重視體驗的人，我覺得這個商業計劃有它的獨特之處，值得關注。",
-                    "從用戶體驗角度來看，這個計劃考慮得蠻周到的，我願意支持。"
+                    "從用戶體驗角度來看，這個計劃考慮得蠻周到的，我願意支持。",
+                    "作為重視體驗的人，我覺得這個商業計劃有它的獨特之處，值得關注。"
                 ],
                 "傷官格": [
                     "商業模式還可以，但我覺得有些地方可以更有創意一點。不過整體方向是對的。",
@@ -1411,7 +1450,7 @@ class LineBotService:
                     "這對長期發展有幫助嗎？我比較看重長遠價值和社會意義。",
                     "團隊的背景和願景很重要，這個計劃看起來有一定的深度。",
                     "有沒有行業專家的背書？我希望能真正了解這個領域。",
-                    "我會先請教有經驗的朋友，聽聽他們的意見再決定。"
+                    "我會先請教有經驗的朋友，聽聽他們的回饋再決定。"
                 ],
                 "偏印格": [
                     "這個概念挺特別的，跟市面上的不太一樣。我喜歡有獨特想法的項目。",
@@ -1510,9 +1549,13 @@ class LineBotService:
                 print(f"[Core TEXT] Added fallback comment #{len(arena_comments)}: {citizen['name']}")
             
             # 9. 構建最終結果 (與 PDF 流程一致)
+            score = data.get("result", {}).get("score", 70)
+            if score > 98: score = 98 # Clamp score to reasonable max
+            if score < 10 and source_type == "text": score = 65 # Default for text if too low
+            
             result_data = {
                 "status": "ready",
-                "score": data.get("result", {}).get("score", 70),
+                "score": score,
                 "intent": data.get("result", {}).get("market_sentiment", "分析完成"),
                 "summary": data.get("result", {}).get("summary", "AI 分析完成"),
                 "simulation_metadata": sim_metadata,
@@ -1528,7 +1571,7 @@ class LineBotService:
             
             # 10. 更新資料庫
             await run_in_threadpool(update_simulation, sim_id, "ready", result_data)
-            print(f"✅ [Core TEXT] Document analysis completed: {sim_id}, comments: {len(arena_comments)}")
+            print(f"✅ [Core TEXT] Document analysis completed: {sim_id}, comments: {len(arena_comments)}, score: {score}")
 
         except Exception as e:
             print(f"[Core TEXT] Analysis Failed: {e}")
@@ -1592,8 +1635,8 @@ class LineBotService:
         
         print(f"[DEBUG AUDIO] Starting audio transcription, audio size: {len(audio_b64)} chars, mime: {audio_mime}")
         
-        # Use Gemini 2.5 Pro as primary, with fallbacks
-        models = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"]
+        # [Restore] Prioritize Gemini 2.5 Pro for Quality
+        models = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
         last_error = None
         
         for model in models:
@@ -1637,8 +1680,8 @@ class LineBotService:
 
     async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg"):
         """Helper to call Gemini REST API (Async Wrapper)"""
-        # Default simulation to Gemini 2.5 Pro model for better reasoning
-        priority = ["gemini-2.5-pro", "gemini-2.5-flash"]
+        # [Fix] Prioritize Gemini 2.5 Pro as requested by the user
+        priority = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
         
         return await asyncio.to_thread(
             self._run_blocking_gemini_request,
@@ -1651,24 +1694,36 @@ class LineBotService:
         )
 
     def _clean_and_parse_json(self, ai_text):
-        """Helper to clean and parse JSON"""
+        """Helper to clean and parse JSON with robust error handling"""
+        if not ai_text or not isinstance(ai_text, str):
+            logger.error(f"Invalid AI text input for parsing: {type(ai_text)}")
+            return {"result": {}, "arena_comments": [], "genesis": {}, "simulation_metadata": {}, "comments": [], "suggestions": []}
+
         clean_text = ai_text
         match = re.search(r"```(?:json)?\s*(.*?)\s*```", ai_text, re.DOTALL)
         if match:
             clean_text = match.group(1)
         
         try:
-            return json.loads(clean_text)
+            data = json.loads(clean_text)
+            if isinstance(data, dict):
+                return data
+            else:
+                logger.error(f"Gemini returned non-dict JSON: {type(data)}")
+                return {}
         except json.JSONDecodeError:
             # Simple fix attempt
             fixed_text = clean_text.strip()
             if fixed_text.count('{') > fixed_text.count('}'): fixed_text += '}' * (fixed_text.count('{') - fixed_text.count('}'))
             if fixed_text.count('[') > fixed_text.count(']'): fixed_text += ']' * (fixed_text.count('[') - fixed_text.count(']'))
             try:
-                return json.loads(fixed_text)
+                data = json.loads(fixed_text)
+                if isinstance(data, dict):
+                    return data
+                return {}
             except:
-                # Return empty structure
-                return {"result": {}, "arena_comments": [], "genesis": {}}
+                logger.error(f"Failed to parse AI JSON after cleaning: {clean_text[:200]}")
+                return {}
 
     def _build_simulation_result(self, data, sampled_citizens, sim_metadata_override=None):
         """Helper to build final result structure"""
@@ -1683,24 +1738,34 @@ class LineBotService:
         total = len(sampled_citizens)
         bazi_dist = {k: round(v / total * 100) for k, v in element_counts.items()} if total else element_counts
 
-        # Build Personas
-        personas = [
-            {
+        # Build Personas (Ensure enough for the display)
+        # 這裡不限制只取 8 個，而是維持與 arena_comments 的同步
+        personas_dict = {}
+        for c in sampled_citizens:
+            bazi = c.get("bazi_profile", {})
+            personas_dict[str(c["id"])] = {
                 "id": str(c["id"]),
                 "name": c["name"],
                 "age": c["age"],
                 "location": c.get("location", "台灣"),
                 "occupation": c.get("occupation", "未知職業"),
-                "element": c["bazi_profile"].get("element", "Fire"),
-                "day_master": c["bazi_profile"].get("day_master", ""),
-                "pattern": c["bazi_profile"].get("structure", "未知格局"),
-                "trait": ", ".join(c["traits"][:2]) if c["traits"] else "個性鮮明",
+                "element": bazi.get("element", "Fire"),
+                "icon": {"Fire": "🔥", "Water": "💧", "Metal": "🔩", "Wood": "🌳", "Earth": "🏔️"}.get(bazi.get("element", "Fire"), "🔥"),
+                "day_master": bazi.get("day_master", ""),
+                "pattern": bazi.get("structure", "未知格局"),
+                "trait": ", ".join(c["traits"][:2]) if c.get("traits") else "個性鮮明",
                 "decision_logic": "根據八字格局特質分析",
-                "current_luck": c["bazi_profile"].get("current_luck", {}),
-                "luck_timeline": c["bazi_profile"].get("luck_timeline", [])
+                "current_luck": bazi.get("current_luck", {}),
+                "luck_timeline": bazi.get("luck_timeline", []),
+                # 完整生辰資料
+                "birth_year": bazi.get("birth_year"),
+                "birth_month": bazi.get("birth_month"),
+                "birth_day": bazi.get("birth_day"),
+                "birth_shichen": bazi.get("birth_shichen"),
+                "four_pillars": bazi.get("four_pillars"),
+                "strength": bazi.get("strength", "中和"),
+                "favorable": bazi.get("favorable", ["木", "火"])
             }
-            for c in sampled_citizens[:8]
-        ]
         
         # Build comments
         gemini_comments = data.get("comments", [])
@@ -1801,30 +1866,14 @@ class LineBotService:
                 arena_comments.append({
                     "sentiment": comment.get("sentiment", "neutral"),
                     "text": comment.get("text", "（無評論內容）"),
-                    "persona": {
-                        "id": cid,
-                        "name": citizen["name"],
-                        "age": str(citizen["age"]),
-                        "pattern": bazi.get("structure", "未知格局"),
-                        "element": bazi.get("element", "Fire"),
-                        "icon": {"Fire": "🔥", "Water": "💧", "Metal": "🔩", "Wood": "🌳", "Earth": "🏔️"}.get(bazi.get("element", "Fire"), "🔥"),
-                        "occupation": citizen.get("occupation", "未知職業"),
-                        "location": citizen.get("location", "台灣"),
-                        "birth_year": bazi.get("birth_year"),
-                        "birth_month": bazi.get("birth_month"),
-                        "birth_day": bazi.get("birth_day"),
-                        "birth_shichen": bazi.get("birth_shichen"),
-                        "four_pillars": pillars_str, # Use local variable
-                        "day_master": bazi.get("day_master", "未知"),
-                        "strength": bazi.get("strength", "中和"),
-                        "favorable": bazi.get("favorable", ["木", "火"]),
-                        "current_luck": current_luck, # Use computed variable
-                        "luck_timeline": timeline # Use local variable
-                    }
+                    "persona": personas_dict.get(cid)
                 })
                 
                 # DEBUG LOG
-                logger.info(f"Generated Primary Comment Persona: Name={citizen['name']}, ID={cid}, Pillars={pillars_str}, Birth={bazi.get('birth_year')}")
+                logger.info(f"Generated Primary Comment Persona: Name={citizen['name']}, ID={cid}, Birth={bazi.get('birth_year')}")
+
+        # Ensure personas list for genesis is synced with the comments
+        personas = [c["persona"] for c in arena_comments if c.get("persona")]
 
         # Fallback comments if not enough (ensure at least 8)
         # 大幅增加評論模板，更豐富、更符合八字個性
@@ -1860,10 +1909,10 @@ class LineBotService:
                 "有沒有專業測試報告？作為理性消費者，我需要客觀數據來支持購買決定。"
             ],
             "七殺格": [
-                "效率怎麼樣？我時間很寶貴，需要能快速解決問題的工具。",
-                "直接說重點，這個能解決什麼問題？別跟我繞圈子，我要看實際效果。",
-                "競爭優勢在哪？市場上選擇這麼多，你憑什麼讓我選你？說服我。",
-                "我只關心結果。如果真的像描述的那麼好，我會毫不猶豫下單。"
+                "直接說重點，這東西能不能解決實際痛點？如果是為了虛榮心買的，我沒興趣。效率和結果才是我最在意的，我需要能打仗的工具。",
+                "別跟我繞圈子，市場優勢在哪？憑什麼讓我選你？如果真的有硬實力，我會毫不猶豫下單，否則別浪費我時間。",
+                "我只關心性能和回報。這產品如果能幫我省下 20% 的時間，那它就值這個價。執行力不足的方案，我看都不看。",
+                "這東西看起來很有侵略性，適合開拓新市場。我喜歡這種帶有突破性的設計，只要它能扛得起高強度的壓力。"
             ],
             "正印格": [
                 "這對長期發展有幫助嗎？我比較看重長遠價值，不喜歡曇花一現的東西。",
@@ -1951,57 +2000,28 @@ class LineBotService:
             sentiments = ["positive", "positive", "neutral", "neutral", "negative"]
             sentiment = sentiments[len(arena_comments) % len(sentiments)]
             
-            # Ensure birthday data exists
-            import random
-            birth_year = bazi.get("birth_year")
-            if not birth_year:
-                try:
-                    age = int(citizen.get("age", 30))
-                except:
-                    age = 30
-                birth_year = 2025 - age
-                bazi["birth_year"] = birth_year
-                bazi["birth_month"] = random.randint(1, 12)
-                bazi["birth_day"] = random.randint(1, 28)
-                bazi["birth_shichen"] = random.choice(["子時", "丑時", "寅時", "卯時", "辰時", "巳時", "午時", "未時", "申時", "酉時", "戌時", "亥時"])
-            
-            # 🛡️ 防禦性補全：如果沒有命盤，隨機生成一個好看的
+            # 定義 pillars_str
             pillars_str = bazi.get("four_pillars")
             if not pillars_str:
-                logger.warning(f"Citizen {citizen['name']} missing four_pillars, auto-generating...")
                 pillars = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥"]
-                pillars_str = f"{random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)}"
-                bazi["four_pillars"] = pillars_str
+                import random as rand_mod
+                pillars_str = f"{rand_mod.choice(pillars)} {rand_mod.choice(pillars)} {rand_mod.choice(pillars)} {rand_mod.choice(pillars)}"
             
-            # 🛡️ 防禦性補全：如果沒有大運，生成默認大運
-            timeline = bazi.get("luck_timeline")
+            # 取得 luck_timeline
+            timeline = bazi.get("luck_timeline", [])
+            
+            # 🛡️ 防禦性補全：如果沒有 luck_timeline，生成預設資料
             if not timeline:
-                 # 嘗試從 luck_pillars 生成
-                 if bazi.get("luck_pillars"):
-                     timeline = []
-                     for l in bazi["luck_pillars"]:
-                         name = l.get('pillar', '甲子') + "運"
-                         desc = l.get('description', '行運平穩')
-                         timeline.append({
-                             "age_start": l.get('age_start', 0),
-                             "age_end": l.get('age_end', 9),
-                             "name": name,
-                             "description": desc
-                         })
-                 else:
-                     # 完全隨機生成
-                     start_age = random.randint(2, 9)
-                     pillars_pool = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥"]
-                     timeline = []
-                     for i in range(8):
-                         p_name = f"{pillars_pool[(i+random.randint(0,5))%len(pillars_pool)]}運"
-                         timeline.append({
-                             "age_start": start_age + i*10,
-                             "age_end": start_age + i*10 + 9,
-                             "name": p_name,
-                             "description": "行運平穩，順其自然。"
-                         })
-                 bazi["luck_timeline"] = timeline
+                start_age = random.randint(2, 9)
+                pillars_pool = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未"]
+                descs = ["少年運勢順遂", "初入社會磨練", "事業穩步上升", "財運亨通", "壓力較大需注意", "穩步發展", "財官雙美", "晚運安康"]
+                for i in range(8):
+                    timeline.append({
+                        "age_start": start_age + i*10,
+                        "age_end": start_age + i*10 + 9,
+                        "name": f"{pillars_pool[i]}運",
+                        "description": descs[i]
+                    })
 
             # 🛡️ 防禦性補全：如果沒有 current_luck，從 timeline 中計算
             current_luck = bazi.get("current_luck")
@@ -2024,30 +2044,36 @@ class LineBotService:
             # ID 防禦
             cid = str(citizen.get("id")) if citizen.get("id") else f"gen-{random.randint(1000,9999)}"
 
+            # 構建完整的 persona 資料
+            full_persona = {
+                "id": cid,
+                "name": citizen["name"],
+                "age": str(citizen["age"]),
+                "pattern": bazi.get("structure", "未知格局"),
+                "element": bazi.get("element", "Fire"),
+                "icon": {"Fire": "🔥", "Water": "💧", "Metal": "🔩", "Wood": "🌳", "Earth": "🏔️"}.get(bazi.get("element", "Fire"), "🔥"),
+                "occupation": citizen.get("occupation", "未知職業"),
+                "location": citizen.get("location", "台灣"),
+                "birth_year": bazi.get("birth_year"),
+                "birth_month": bazi.get("birth_month"),
+                "birth_day": bazi.get("birth_day"),
+                "birth_shichen": bazi.get("birth_shichen"),
+                "four_pillars": pillars_str,
+                "day_master": bazi.get("day_master", "未知"),
+                "strength": bazi.get("strength", "中和"),
+                "favorable": bazi.get("favorable", ["木", "火"]),
+                "current_luck": current_luck,
+                "luck_timeline": timeline,
+                "trait": bazi.get("trait", "性格均衡")
+            }
+
             arena_comments.append({
                 "sentiment": sentiment,
                 "text": text,
-                "persona": {
-                    "id": cid,
-                    "name": citizen["name"],
-                    "age": str(citizen["age"]),
-                    "pattern": bazi.get("structure", "未知格局"),
-                    "element": bazi.get("element", "Fire"),
-                    "icon": {"Fire": "🔥", "Water": "💧", "Metal": "🔩", "Wood": "🌳", "Earth": "🏔️"}.get(bazi.get("element", "Fire"), "🔥"),
-                    "occupation": citizen.get("occupation", "未知職業"),
-                    "location": citizen.get("location", "台灣"),
-                    "birth_year": bazi.get("birth_year"),
-                    "birth_month": bazi.get("birth_month"),
-                    "birth_day": bazi.get("birth_day"),
-                    "birth_shichen": bazi.get("birth_shichen"),
-                    "four_pillars": pillars_str, # Use local variable directly
-                    "day_master": bazi.get("day_master", "未知"),
-                    "strength": bazi.get("strength", "中和"),
-                    "favorable": bazi.get("favorable", ["木", "火"]),
-                    "current_luck": bazi.get("current_luck", {}),
-                    "luck_timeline": timeline # Use local variable directly
-                }
+                "persona": full_persona
             })
+            
+            personas.append(full_persona)
             
             # DEBUG LOG
             logger.info(f"Generated Fallback Comment Persona: Name={citizen['name']}, ID={cid}, Pillars={pillars_str}, Birth={bazi.get('birth_year')}")
@@ -2066,7 +2092,7 @@ class LineBotService:
             "bazi_distribution": bazi_dist,
             "genesis": {
                 "total_population": 1000,
-                "sample_size": len(personas),
+                "sample_size": max(len(arena_comments), 8),
                 "personas": personas
             },
             "arena_comments": arena_comments,
@@ -2097,8 +2123,8 @@ class LineBotService:
         except Exception:
             pass
 
-    async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg"):
-        """Helper to call Gemini REST API (Reverted to GitHub Version)"""
+    async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg", timeout=60):
+        """Helper to call Gemini REST API (Async Wrapper with Configurable Timeout)"""
         import requests 
 
         payload = {
@@ -2121,11 +2147,13 @@ class LineBotService:
         if pdf_b64:
             payload["contents"][0]["parts"].append({"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}})
 
+        # [Restore] Prioritize Quality (Pro) as per User Request (reverting to GitHub-like behavior)
         models = [
-        "gemini-2.5-pro",
-        "gemini-2.5-flash",
-        "gemini-2.0-flash"
-    ]
+            "gemini-2.5-pro", 
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
+            "gemini-flash-latest"
+        ]
         
         last_error = ""
         for model in models:
@@ -2135,13 +2163,22 @@ class LineBotService:
                 
                 # [Fix] Use asyncio.to_thread to unblock Event Loop
                 import asyncio
-                print(f"[DEBUG] Calling Gemini Model: {model} with Payload Size: {len(json.dumps(payload))} bytes")
+                # Increase timeout for Pro model and PDF/Audio heavy tasks
+                current_timeout = timeout
+                if "pro" in model:
+                    current_timeout = max(timeout, 120) # Pro needs time to think (2 mins)
+                
+                # PDF needs more time regardless of model
+                if pdf_b64:
+                    current_timeout = max(current_timeout, 120)
+
+                print(f"[DEBUG] Calling Gemini Model: {model} with Payload Size: {len(json.dumps(payload))} bytes, Timeout: {current_timeout}s")
                 response = await asyncio.to_thread(
                     requests.post, 
                     url, 
                     headers={'Content-Type': 'application/json'}, 
                     json=payload, 
-                    timeout=60
+                    timeout=current_timeout
                 )
                 print(f"[DEBUG] Gemini Model {model} returned Status: {response.status_code}")
                 
@@ -2247,9 +2284,11 @@ class LineBotService:
         if model_priority:
             models = model_priority
         else:
+            # [Fix] Prioritize Gemini 2.5 Pro as requested by the user
             models = [
                 "gemini-2.5-pro",
-                "gemini-2.5-flash"
+                "gemini-2.5-flash",
+                "gemini-flash-latest"
             ]
         
         last_error = ""

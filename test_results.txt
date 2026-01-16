@@ -1,0 +1,21 @@
+Testing API with Key: AIzaSyDTDU...
+
+Testing gemini-2.5-pro...
+Status: 200
+Exception: 'cp950' codec can't encode character '\u2705' in position 0: illegal multibyte sequence
+
+Testing gemini-2.5-flash...
+Status: 200
+Exception: 'cp950' codec can't encode character '\u2705' in position 0: illegal multibyte sequence
+
+Testing gemini-2.0-flash-exp...
+Status: 200
+Exception: 'cp950' codec can't encode character '\u2705' in position 0: illegal multibyte sequence
+
+Testing gemini-1.5-flash...
+Status: 404
+Exception: 'cp950' codec can't encode character '\u274c' in position 0: illegal multibyte sequence
+
+Testing gemini-1.5-pro...
+Status: 404
+Exception: 'cp950' codec can't encode character '\u274c' in position 0: illegal multibyte sequence
