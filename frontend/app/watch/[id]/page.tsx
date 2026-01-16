@@ -95,6 +95,8 @@ interface SimulationData {
     avg_price: number
     currency: string
     sources_count: number
+    prices: Array<{ source: string; price: number; title: string }>
+    market_insight?: string
   }
   genesis: {
     sample_size: number
