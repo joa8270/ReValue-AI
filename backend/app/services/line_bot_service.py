@@ -69,40 +69,130 @@ class LineBotService:
             # 不支援的訊息類型
             self.reply_text(reply_token, "⚠️ 抱歉，我不支援此格式。\n請上傳圖片 📸 或 PDF 商業計劃書 📄")
 
+    async def identify_product_from_image(self, image_bytes):
+        """
+        使用 AI 識別圖片中的產品名稱與價格 (移植自 web.py)
+        """
+        import time
+        try:
+            # 1. Image to Base64
+            image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+            
+            # Simple mime type detection
+            if image_bytes.startswith(b'\x89PNG'): mime_type = "image/png"
+            elif image_bytes.startswith(b'GIF8'): mime_type = "image/gif"
+            elif image_bytes.startswith(b'RIFF') and image_bytes[8:12] == b'WEBP': mime_type = "image/webp"
+            else: mime_type = "image/jpeg"
+
+            prompt = """請觀察這張產品圖片，回答以下問題：
+1. 這張圖片中的產品是什麼？用簡短的中文描述（3-8個字）
+2. 根據你對全球主要電商平台（Amazon、淘寶、蝦皮、PChome）上同類產品的了解，估算這類產品的市場平均售價（新台幣 TWD）
+
+請用以下 JSON 格式回答：
+{
+  "product_name": "產品名稱",
+  "estimated_price": 數字（不含貨幣符號）
+}
+
+只回答 JSON，不要加任何其他說明。"""
+
+            # API Setup
+            api_key = settings.GOOGLE_API_KEY
+            payload = {
+                "contents": [{"parts": [{"text": prompt}, {"inline_data": {"mime_type": mime_type, "data": image_b64}}]}],
+                "generationConfig": {"temperature": 0.3, "responseMimeType": "application/json"}
+            }
+            
+            models = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
+            clean_text = ""
+            
+            for model in models:
+                try:
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                    print(f"📸 [Identify] Trying model: {model}")
+                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=20)
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        raw_text = result['candidates'][0]['content']['parts'][0]['text']
+                        clean_text = raw_text.replace('```json', '').replace('```', '').strip()
+                        break
+                    else:
+                        print(f"⚠️ [Identify] Error {model}: {response.status_code}")
+                except Exception as e:
+                    print(f"❌ [Identify] Exception {model}: {e}")
+            
+            if clean_text:
+                # Parse JSON
+                try:
+                    data = json.loads(clean_text)
+                except:
+                    match = re.search(r'\{.*\}', clean_text, re.DOTALL)
+                    data = json.loads(match.group()) if match else {}
+                
+                p_name = str(data.get("product_name", "")).strip()
+                p_price = str(data.get("estimated_price", "")).strip()
+                
+                # Market Search Calibration (Lightweight)
+                try:
+                    from app.services.price_search import search_market_prices_sync
+                    market_avg = search_market_prices_sync(p_name, p_price).get("avg_price")
+                    if market_avg and market_avg > 0:
+                        p_price = int(market_avg)
+                except:
+                    pass
+
+                return p_name, p_price
+                
+        except Exception as e:
+            print(f"❌ Identification Failed: {e}")
+        
+        return None, None
+
     async def _handle_image_message(self, event, user_id, reply_token):
-        """情境 A: 收到圖片 → 暫存並等待產品名稱和售價"""
+        """情境 A: 收到圖片 → AI 識別 → 確認或修改"""
         message_id = event.message.id
         
         # 下載圖片並暫存
         try:
             image_bytes = self.line_bot_blob.get_message_content(message_id)
             
-            # 暫存到 session（新流程：先問名稱/售價）
+            # AI 自動識別
+            self.reply_text(reply_token, "🔍 MIRRA 正在觀察您的圖片，請稍候...")
+            ai_name, ai_price = await self.identify_product_from_image(image_bytes)
+            
+            # 暫存到 session
             self.user_session[user_id] = {
                 "image_bytes": image_bytes,
                 "message_id": message_id,
-                "stage": "waiting_for_name_price",  # 新狀態：等待名稱和售價
-                "product_name": None,
-                "product_price": None,
+                "stage": "waiting_for_name_confirmation",  # 新狀態
+                "product_name": ai_name or "",
+                "product_price": ai_price or "未定",
                 "product_description": None,
-                "generated_descriptions": None  # AI 生成的兩段描述
+                "generated_descriptions": None
             }
             
-            print(f"📸 [SESSION] 已暫存圖片: user_id={user_id}, size={len(image_bytes)} bytes")
+            print(f"📸 [SESSION] AI 識別完成: {ai_name} / {ai_price}")
             
-            # 回覆引導訊息（新流程：先問名稱和售價）
-            guide_msg = (
-                "🔮 **MIRRA 系統已接收產品影像。**\n\n"
-                "請提供以下資訊，格式：**名稱 / 售價**\n"
-                "例如：「珍珠髮夾 / 380」\n\n"
-                "━━━━━━━━━━━━━━\n"
-                "💡 若不確定售價，可輸入：「珍珠髮夾 / 未定」"
+            # 回覆確認訊息
+            confirm_msg = (
+                f"👁️ **AI 視覺分析結果**\n\n"
+                f"📦 產品：{ai_name or '未知'}\n"
+                f"💰 估價：{ai_price or '未知'}\n\n"
+                f"━━━━━━━━━━━━━━\n"
+                f"✅ 若資料正確，請回覆「**Y**」\n"
+                f"✏️ 若需修改，請直接輸入「**名稱 / 售價**」"
             )
-            self.reply_text(reply_token, guide_msg)
+            # Use push because we used reply_token for the "Analyzing..." message
+            # logic check: reply_token can only be used once. 
+            # So I should NOT have sent "Analyzing..." via reply_token if I want to send result via reply_token.
+            # But identify takes time.
+            # Strategy: use push_message for the result.
+            self._push_text(user_id, confirm_msg)
             
         except Exception as e:
-            print(f"❌ [IMAGE] 下載圖片失敗: {e}")
-            self.reply_text(reply_token, "❌ 圖片下載失敗，請重新上傳")
+            print(f"❌ [IMAGE] 處理失敗: {e}")
+            self._push_text(user_id, "❌ 圖片分析失敗，請重新上傳")
 
     async def _handle_text_message(self, event, user_id, reply_token):
         """情境 B: 收到文字 → 多階段處理流程"""
@@ -110,11 +200,9 @@ class LineBotService:
         
         # 檢查是否有暫存圖片
         if user_id not in self.user_session:
-            # 沒有暫存圖片，回覆引導訊息
             guide_msg = (
                 "🔮 **歡迎來到 MIRRA 鏡界**\n\n"
-                "我是連接現實與平行世界的預演系統。\n\n"
-                "📸 上傳 **產品圖片** → 啟動購買意圖預演\n"
+                "📸 上傳 **產品圖片** → 啟動購買意圖預演 (AI 自動判讀)\n"
                 "📄 上傳 **商業計劃書 PDF** → 啟動商業模式推演\n\n"
                 "請選擇您的預演軌道。"
             )
@@ -124,30 +212,37 @@ class LineBotService:
         session = self.user_session[user_id]
         stage = session.get("stage")
         
-        # ===== 階段 1: 等待名稱和售價 =====
-        if stage == "waiting_for_name_price":
-            # 解析「名稱 / 售價」格式
-            if "/" in text_content:
-                parts = text_content.split("/", 1)
-                name = parts[0].strip()
-                price = parts[1].strip() if len(parts) > 1 else "未定"
+        # ===== 階段 1: 等待名稱確認或修改 =====
+        if stage == "waiting_for_name_confirmation" or stage == "waiting_for_name_price":
+            # 檢查是否為確認指令
+            if text_content.lower() in ["y", "yes", "ok", "是", "正確"]:
+                # 使用 AI 識別的資料
+                name = session.get("product_name") or "未命名產品"
+                price = session.get("product_price") or "未定"
             else:
-                name = text_content
-                price = "未定"
+                # 解析「名稱 / 售價」手動輸入
+                if "/" in text_content:
+                    parts = text_content.split("/", 1)
+                    name = parts[0].strip()
+                    price = parts[1].strip() if len(parts) > 1 else "未定"
+                else:
+                    name = text_content
+                    # 保留原本 AI 估算的價格 (如果用戶只打了名稱)
+                    price = session.get("product_price") or "未定"
             
             session["product_name"] = name
             session["product_price"] = price
             session["stage"] = "waiting_for_description_choice"
             
-            print(f"📝 [SESSION] 收到名稱/售價: {name} / {price}")
+            print(f"📝 [SESSION] 確認資訊: {name} / {price}")
             
             # 詢問描述來源
             choice_msg = (
-                f"✅ 已收到：**{name}** / **{price}**\n\n"
-                "請選擇產品描述的方式：\n\n"
-                "1️⃣ 輸入「**1**」→ 自行輸入描述\n"
-                "2️⃣ 輸入「**2**」→ 讓 AI 幫我生成描述\n"
-                "3️⃣ 輸入「**略過**」→ 直接開始分析"
+                f"✅ 資料確認：**{name}** / **{price}**\n\n"
+                "接下來，您希望如何生成產品描述？\n\n"
+                "1️⃣ 回覆「**1**」→ 手動輸入\n"
+                "2️⃣ 回覆「**2**」→ AI 自動撰寫行銷文案 (推薦✨)\n"
+                "3️⃣ 回覆「**3**」→ 略過此步驟"
             )
             self.reply_text(reply_token, choice_msg)
         
@@ -208,6 +303,7 @@ class LineBotService:
 
     async def _generate_ai_descriptions(self, user_id, reply_token):
         """使用 AI 根據圖片+名稱+售價生成兩段產品描述"""
+        import time
         session = self.user_session.get(user_id)
         if not session:
             return
@@ -217,10 +313,16 @@ class LineBotService:
         product_price = session.get("product_price", "未定")
         
         try:
-            # 將圖片轉為 Base64
+            # 1. Image to Base64
             image_b64 = base64.b64encode(image_bytes).decode('utf-8')
             
-            # 構建 Prompt：要求深度場景與沉浸式文案
+            # Simple mime type detection
+            if image_bytes.startswith(b'\x89PNG'): mime_type = "image/png"
+            elif image_bytes.startswith(b'GIF8'): mime_type = "image/gif"
+            elif image_bytes.startswith(b'RIFF') and image_bytes[8:12] == b'WEBP': mime_type = "image/webp"
+            else: mime_type = "image/jpeg"
+            
+            # 構建 Prompt
             prompt = f"""請擔任一位頂級的商業文案策略大師。請深入分析這張產品圖片，並根據提供的資訊，為這款產品創造兩個截然不同的「完美應用場景」與「沉浸式行銷文案」。
 
 產品名稱：{product_name}
@@ -250,109 +352,76 @@ class LineBotService:
 }}
 """
             
-            # 調用 Gemini API
+            # API Setup
             api_key = settings.GOOGLE_API_KEY
             payload = {
-                "contents": [{
-                    "parts": [
-                        {"text": prompt},
-                        {"inline_data": {"mime_type": "image/jpeg", "data": image_b64}}
-                    ]
-                }],
-                "generationConfig": {
-                    "maxOutputTokens": 1024,
-                    "temperature": 0.8,
-                    "responseMimeType": "application/json"
-                }
+                "contents": [{"parts": [{"text": prompt}, {"inline_data": {"mime_type": mime_type, "data": image_b64}}]}],
+                "generationConfig": {"maxOutputTokens": 1024, "temperature": 0.8, "responseMimeType": "application/json"}
             }
             
-            # [Fix] Prioritize Gemini 2.5 Pro as requested by the user
             models = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
-            last_error = ""
+            ai_text = "{}"
+            
             for model in models:
                 try:
-                    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-                    print(f"📸 [DEBUG] 嘗試模型: {model}")
-                    response = requests.post(api_url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                    print(f"📸 [Copywriting] Trying model: {model}")
+                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
                     
                     if response.status_code == 200:
-                        break
+                        result = response.json()
+                        raw_text = result['candidates'][0]['content']['parts'][0]['text']
+                        # Check validity
+                        if "title_a" in raw_text or "description_a" in raw_text:
+                            ai_text = raw_text
+                            break
                     elif response.status_code == 429:
-                        print(f"⚠️ API Rate Limit (429), 模型 {model}, 等待 2 秒...")
                         await asyncio.sleep(2)
                     else:
-                        print(f"⚠️ API Error: {model} - {response.status_code} - {response.text}")
-                        last_error = f"{model}: {response.status_code}"
+                        print(f"⚠️ [Copywriting] Error {model}: {response.status_code}")
                 except Exception as e:
-                    print(f"❌ API 請求錯誤 ({model}): {e}")
-                    last_error = str(e)
-            
-            if response and response.status_code == 200:
-                result = response.json()
-                try:
-                    ai_text = result['candidates'][0]['content']['parts'][0]['text']
-                except (KeyError, IndexError):
-                    ai_text = "{}"
-                
-                # 清理 Markdown 標記並提取 JSON
-                ai_text = ai_text.strip()
+                    print(f"❌ [Copywriting] Exception {model}: {e}")
+
+            # Parse JSON
+            try:
+                clean_text = ai_text.strip().replace('```json', '').replace('```', '')
+                data = json.loads(clean_text)
+            except:
                 match = re.search(r'\{.*\}', ai_text, re.DOTALL)
-                if match:
-                    ai_text = match.group(0)
-                
-                # 解析 JSON
-                try:
-                    data = json.loads(ai_text)
-                    title_a = data.get("title_a", "✨ 情感共鳴版")
-                    desc_a = data.get("description_a", "AI 生成描述 A")
-                    title_b = data.get("title_b", "💼 精準場景版")
-                    desc_b = data.get("description_b", "AI 生成描述 B")
-                except:
-                    # 如果解析失敗，使用預設描述
-                    title_a = "✨ 情感共鳴版"
-                    desc_a = f"這款{product_name}不僅是商品，更是一種生活態度的展現。優質材料與細膩設計，為您的日常生活增添一抹不凡的質感，讓每一次使用都成為享受。"
-                    title_b = "💼 精準場景版"
-                    desc_b = f"{product_name}完美解決了實際需求，售價 {product_price} 元。無論是工作場合還是日常使用，都能展現極佳的實用性與專業感，是高CP值的聰明選擇。"
-                
-                # 儲存生成的描述
-                session["generated_descriptions"] = [desc_a, desc_b]
-                session["stage"] = "waiting_for_ab_choice"
-                
-                # 發送選擇訊息（使用 push message）
-                choice_msg = (
-                    "🔮 **AI 為您生成了兩段沉浸式文案：**\n\n"
-                    f"【A】{title_a}\n{desc_a}\n\n"
-                    "━━━━━━━━━━━━━━\n\n"
-                    f"【B】{title_b}\n{desc_b}\n\n"
-                    "━━━━━━━━━━━━━━\n"
-                    "請回覆「**A**」或「**B**」選擇您偏好的應用場景"
-                )
-                self._push_text(user_id, choice_msg)
-            else:
-                # API 失敗時使用預設描述
-                print(f"⚠️ AI 生成描述失敗 ({response.status_code if response else 'No response'})，使用預設描述")
-                title_a = "✨ 情感共鳴版"
-                desc_a = f"這款{product_name}不僅是商品，更是一種生活態度的展現。優質材料與細膩設計，為您的日常生活增添一抹不凡的質感，讓每一次使用都成為享受。"
-                title_b = "💼 精準場景版"
-                desc_b = f"{product_name}完美解決了實際需求，售價 {product_price} 元。無論是工作場合還是日常使用，都能展現極佳的實用性與專業感，是高CP值的聰明選擇。"
-                
-                session["generated_descriptions"] = [desc_a, desc_b]
-                session["stage"] = "waiting_for_ab_choice"
-                
-                choice_msg = (
-                    "🔮 **AI 為您生成了兩段沉浸式文案（預設模板）：**\n\n"
-                    f"【A】{title_a}\n{desc_a}\n\n"
-                    "━━━━━━━━━━━━━━\n\n"
-                    f"【B】{title_b}\n{desc_b}\n\n"
-                    "━━━━━━━━━━━━━━\n"
-                    "請回覆「**A**」或「**B**」選擇您偏好的應用場景"
-                )
-                self._push_text(user_id, choice_msg)
-                
+                data = json.loads(match.group()) if match else {}
+
+            title_a = data.get("title_a", "✨ 情感共鳴版")
+            desc_a = data.get("description_a")
+            title_b = data.get("title_b", "💼 精準場景版")
+            desc_b = data.get("description_b")
+
+            # Fallback if AI failed completely
+            if not desc_a or not desc_b:
+                print(f"⚠️ Copywriting generation failed. Using default template.")
+                title_a = "✨ 產品魅力版"
+                desc_a = f"這款{product_name}設計獨特，質感優異，能為您的生活增添一份美好。無論是自用還是送禮，都是絕佳的選擇，展現您的不凡品味。"
+                title_b = "💼 實用推薦版"
+                desc_b = f"{product_name}功能實用，售價合理。它能有效解決您的需求，在各種場合都能發揮出色的表現，是高CP值的推薦首選。"
+
+            # 儲存生成的描述
+            session["generated_descriptions"] = [desc_a, desc_b]
+            session["stage"] = "waiting_for_ab_choice"
+            
+            # 發送選擇訊息（使用 push message）
+            choice_msg = (
+                "🔮 **AI 為您生成了兩段沉浸式文案：**\n\n"
+                f"【A】{title_a}\n{desc_a}\n\n"
+                "━━━━━━━━━━━━━━\n\n"
+                f"【B】{title_b}\n{desc_b}\n\n"
+                "━━━━━━━━━━━━━━\n"
+                "請回覆「**A**」或「**B**」選擇您偏好的應用場景"
+            )
+            self._push_text(user_id, choice_msg)
+
         except Exception as e:
             print(f"❌ _generate_ai_descriptions 錯誤: {e}")
             session["stage"] = "waiting_for_description_choice"
-            self._push_text(user_id, "❌ 發生錯誤，請選擇「1」自行輸入描述")
+            self._push_text(user_id, "❌ AI 生成失敗，請直接輸入「**1**」自行輸入描述")
 
     async def _start_simulation(self, user_id, reply_token):
         """組合產品資訊並啟動模擬分析"""
