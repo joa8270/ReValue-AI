@@ -207,8 +207,13 @@ export default function SimulationForm() {
             const data = await res.json()
             if (data.error) throw new Error(data.error)
 
-            // 這裡可以做一個簡單的 Modal 讓用戶選 A 或 B，目前先簡單接上
-            setDescription(`${data.option_a}\n\n━━━━━━━━━━━━━━\n\n${data.option_b}`)
+            // 後端現在只返回單篇文案
+            if (data.copy_content) {
+                setDescription(data.copy_content)
+            } else if (data.option_a) {
+                // 向後兼容舊格式
+                setDescription(`${data.option_a}\n\n━━━━━━━━━━━━━━\n\n${data.option_b}`)
+            }
 
         } catch (err: any) {
             console.error(err)

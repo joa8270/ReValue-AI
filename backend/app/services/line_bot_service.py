@@ -254,12 +254,18 @@ class LineBotService:
                 self.reply_text(reply_token, "📝 請輸入您的產品描述與特點：")
             
             elif text_content == "2":
-                # 選擇 AI 生成
-                session["stage"] = "generating_descriptions"
-                self.reply_text(reply_token, "🤖 AI 正在根據圖片生成描述，請稍候...")
-                
-                # 非同步生成描述
-                await self._generate_ai_descriptions(user_id, reply_token)
+                # 選擇 AI 生成 → 先讓用戶選風格
+                session["stage"] = "waiting_for_style_choice"
+                style_msg = (
+                    "🎨 **請選擇文案風格：**\n\n"
+                    "1️⃣ 專業穩重 - 正式商務風\n"
+                    "2️⃣ 親切活潑 - 輕鬆有趣風\n"
+                    "3️⃣ 高端奢華 - 精緻質感風\n"
+                    "4️⃣ 簡約清爽 - 重點突出風\n"
+                    "5️⃣ 故事敘述 - 情境代入風\n\n"
+                    "請輸入 1-5 選擇風格"
+                )
+                self.reply_text(reply_token, style_msg)
             
             elif text_content.lower() in ["略過", "skip", "跳過", "3"]:
                 # 直接開始分析
@@ -268,13 +274,52 @@ class LineBotService:
             else:
                 self.reply_text(reply_token, "❓ 請輸入「1」、「2」或「略過」")
         
+        # ===== 階段 2.5: 等待風格選擇 =====
+        elif stage == "waiting_for_style_choice":
+            style_map = {
+                "1": "professional",
+                "2": "friendly", 
+                "3": "luxury",
+                "4": "minimalist",
+                "5": "storytelling"
+            }
+            if text_content in style_map:
+                session["selected_style"] = style_map[text_content]
+                session["stage"] = "generating_descriptions"
+                self.reply_text(reply_token, "🤖 AI 正在根據圖片生成描述，請稍候...")
+                await self._generate_ai_descriptions(user_id, reply_token)
+            else:
+                self.reply_text(reply_token, "❓ 請輸入 1-5 選擇風格")
+        
         # ===== 階段 3: 等待手動輸入描述 =====
         elif stage == "waiting_for_manual_description":
             session["product_description"] = text_content
             print(f"[SESSION] 收到手動描述: {text_content[:50]}...")
             await self._start_simulation(user_id, reply_token)
         
-        # ===== 階段 4: 等待 A/B 選擇 =====
+        # ===== 階段 4: 等待單篇文案確認 (新流程) =====
+        elif stage == "waiting_for_copy_confirm":
+            if text_content.lower() in ["y", "yes", "ok", "確認", "好"]:
+                # 使用 AI 生成的文案
+                print(f"[SESSION] 使用者確認使用 AI 文案")
+                await self._start_simulation(user_id, reply_token)
+            
+            elif text_content.lower() in ["改", "重", "regenerate"]:
+                # 重新生成
+                session["stage"] = "generating_descriptions"
+                self.reply_text(reply_token, "🤖 正在重新生成文案，請稍候...")
+                await self._generate_ai_descriptions(user_id, reply_token)
+            
+            elif text_content.lower() in ["略", "skip", "跳過", "略過"]:
+                # 跳過文案
+                session["product_description"] = None
+                print(f"[SESSION] 使用者跳過文案")
+                await self._start_simulation(user_id, reply_token)
+            
+            else:
+                self.reply_text(reply_token, "❓ 請回覆「Y」確認、「改」重新生成、或「略」跳過")
+        
+        # ===== 階段 4 (舊): 等待 A/B 選擇 (向後兼容) =====
         elif stage == "waiting_for_ab_choice":
             descriptions = session.get("generated_descriptions", [])
             
@@ -302,7 +347,7 @@ class LineBotService:
             self.reply_text(reply_token, "❓ 發生錯誤，請重新上傳圖片")
 
     async def _generate_ai_descriptions(self, user_id, reply_token):
-        """使用 AI 根據圖片+名稱+售價生成兩段產品描述"""
+        """使用 AI 根據圖片+名稱+售價生成單篇高品質行銷文案"""
         import time
         session = self.user_session.get(user_id)
         if not session:
@@ -322,11 +367,188 @@ class LineBotService:
             elif image_bytes.startswith(b'RIFF') and image_bytes[8:12] == b'WEBP': mime_type = "image/webp"
             else: mime_type = "image/jpeg"
             
-            # 構建 Prompt
-            prompt = f"""請擔任一位頂級的商業文案策略大師。請深入分析這張產品圖片，並根據提供的資訊，為這款產品創造兩個截然不同的「完美應用場景」與「沉浸式行銷文案」。
+            # 讀取用戶選擇的風格
+            selected_style = session.get("selected_style", "professional")
+            style_instructions = {
+                "professional": "**寫作風格：專業穩重** - 使用正式、專業的商務語氣，強調產品的可靠性與品質。",
+                "friendly": "**寫作風格：親切活潑** - 使用輕鬆、有趣的語氣，像朋友推薦好物一樣，加入生動的口語表達。",
+                "luxury": "**寫作風格：高端奢華** - 使用精緻、典雅的語氣，強調產品的獨特性與頂級體驗，營造尊貴感。",
+                "minimalist": "**寫作風格：簡約清爽** - 使用簡潔有力的語言，直接點出核心賣點，不冗長不囉嗦。",
+                "storytelling": "**寫作風格：故事敘述** - 用第一人稱或情境故事帶入產品，讓讀者彷彿置身其中。"
+            }
+            style_prompt = style_instructions.get(selected_style, style_instructions["professional"])
+            
+            # 優化 Prompt：強制深度識別 + 單篇輸出 + 風格指令
+            prompt = f"""你是一位頂尖的商業文案顧問。請仔細觀察這張圖片，完成以下任務：
+
+**第一步：產品深度識別**
+- 這是什麼產品？（例如：加熱菸煙彈、藍牙耳機、手工皮件...）
+- 它的核心功能或賣點是什麼？
+- 主要消費族群是誰？
+
+**第二步：撰寫沉浸式行銷文案**
+{style_prompt}
+
+⚠️ **重要：只寫「一段」完整文案，不要分成兩段或多段！**
+
+基於你對產品的理解，撰寫 **一段** 150-200 字的繁體中文行銷文案：
+- 開頭用一句吸睛的 Hook（不要用問句）
+- 描繪使用這個產品時的感官體驗或情境
+- 點出產品解決了什麼痛點或創造了什麼價值
+- 結尾加上一句有力的行動呼籲 (CTA)
+- **禁止分成 A/B 兩段、禁止用分隔線分開、只要一個完整的段落！**
 
 產品名稱：{product_name}
 建議售價：{product_price}
+
+請直接回覆 JSON 格式，不要有 Markdown 標記：
+{{
+    "product_type": "你識別出的產品類型 (如：加熱菸煙彈)",
+    "target_audience": "主要消費族群",
+    "copy_title": "文案標題 (10字內)",
+    "copy_content": "完整行銷文案 (150-200字，只寫一段，不要分段！)"
+}}
+"""
+            
+            # API Setup
+            api_key = settings.GOOGLE_API_KEY
+            payload = {
+                "contents": [{"parts": [{"text": prompt}, {"inline_data": {"mime_type": mime_type, "data": image_b64}}]}],
+                "generationConfig": {"maxOutputTokens": 800, "temperature": 0.7, "responseMimeType": "application/json"}
+            }
+            
+            models = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
+            ai_text = "{}"
+            
+            for model in models:
+                try:
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                    print(f"📸 [Copywriting] Trying model: {model}")
+                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=45)
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        raw_text = result['candidates'][0]['content']['parts'][0]['text']
+                        if "copy_content" in raw_text or "copy_title" in raw_text:
+                            ai_text = raw_text
+                            break
+                    elif response.status_code == 429:
+                        await asyncio.sleep(2)
+                    else:
+                        print(f"⚠️ [Copywriting] Error {model}: {response.status_code}")
+                except Exception as e:
+                    print(f"❌ [Copywriting] Exception {model}: {e}")
+
+            # Parse JSON
+            try:
+                clean_text = ai_text.strip().replace('```json', '').replace('```', '')
+                data = json.loads(clean_text)
+            except:
+                match = re.search(r'\{.*\}', ai_text, re.DOTALL)
+                data = json.loads(match.group()) if match else {}
+
+            product_type = data.get("product_type", "")
+            target_audience = data.get("target_audience", "")
+            copy_title = data.get("copy_title", "✨ 專屬文案")
+            copy_content = data.get("copy_content")
+
+            # Fallback if AI failed
+            if not copy_content:
+                print(f"⚠️ Copywriting generation failed. Using default template.")
+                copy_title = "✨ 產品魅力"
+                copy_content = f"這款{product_name}設計精良，是追求品質生活的最佳選擇。無論是自用還是送禮，都能展現您的獨特品味。售價 {product_price} 元，現在正是入手的好時機！"
+
+            # 儲存生成的描述（單篇）
+            session["product_description"] = copy_content
+            session["stage"] = "waiting_for_copy_confirm"
+            
+            # 發送確認訊息（使用 push message）
+            confirm_msg = (
+                f"🔮 **AI 為您生成了行銷文案：**\n\n"
+                f"📌 產品類型：{product_type or product_name}\n"
+                f"🎯 目標客群：{target_audience or '一般消費者'}\n\n"
+                f"【{copy_title}】\n{copy_content}\n\n"
+                "━━━━━━━━━━━━━━\n"
+                "✅ 回覆「**Y**」使用此文案\n"
+                "✏️ 回覆「**改**」重新生成\n"
+                "⏭️ 回覆「**略**」跳過文案"
+            )
+            self._push_text(user_id, confirm_msg)
+
+        except Exception as e:
+            print(f"❌ _generate_ai_descriptions 錯誤: {e}")
+            session["stage"] = "waiting_for_description_choice"
+            self._push_text(user_id, "❌ AI 生成失敗，請直接輸入「**1**」自行輸入描述")
+
+    def _clean_and_parse_json(self, ai_text):
+        """Helper to clean and parse JSON with robust error handling (From GitHub Original)"""
+        if not ai_text or not isinstance(ai_text, str):
+            return {}
+
+        clean_text = ai_text
+        match = re.search(r"```(?:json)?\s*(.*?)\s*```", ai_text, re.DOTALL)
+        if match:
+            clean_text = match.group(1)
+        
+        try:
+            data = json.loads(clean_text)
+            if isinstance(data, dict):
+                return data
+            return {}
+        except json.JSONDecodeError:
+            # Simple fix attempt for truncated JSON
+            fixed_text = clean_text.strip()
+            # Try to close open braces/brackets
+            open_braces = fixed_text.count('{') - fixed_text.count('}')
+            if open_braces > 0: fixed_text += '}' * open_braces
+            
+            open_brackets = fixed_text.count('[') - fixed_text.count(']')
+            if open_brackets > 0: fixed_text += ']' * open_brackets
+            
+            # Remove trailing commas before closing braces (common issue)
+            fixed_text = re.sub(r',\s*([}\]])', r'\1', fixed_text)
+
+            try:
+                data = json.loads(fixed_text)
+                if isinstance(data, dict):
+                    return data
+                return {}
+            except:
+                print(f"⚠️ Failed to parse AI JSON after cleaning: {clean_text[:50]}...")
+                return {}
+
+    async def generate_marketing_copy(self, image_bytes, product_name: str, price: str, style: str = "professional"):
+        """
+        網頁端 API 使用：根據圖片生成行銷文案
+        使用 GitHub 原版 A/B Prompt（品質更好），但只返回其中一段
+        """
+        try:
+            # 1. Image to Base64
+            image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+            
+            # Mime type detection
+            if image_bytes.startswith(b'\x89PNG'): mime_type = "image/png"
+            elif image_bytes.startswith(b'GIF8'): mime_type = "image/gif"
+            elif image_bytes.startswith(b'RIFF') and image_bytes[8:12] == b'WEBP': mime_type = "image/webp"
+            else: mime_type = "image/jpeg"
+            
+            # 風格指令
+            style_prompts = {
+                "professional": "請使用**專業穩重**的商務風格。用詞正式、數據導向，強調產品的專業性與可靠度。適合 B2B 或高端消費者。",
+                "friendly": "請使用**親切活潑**的輕鬆風格。像跟朋友聊天一樣，使用口語化的語句，帶點幽默感，讓人感覺沒有距離。",
+                "luxury": "請使用**高端奢華**的品牌風格。用詞講究、富有質感，營造出稀有、尊貴、非凡的感受，適合精品或高價商品。",
+                "minimalist": "請使用**簡約清爽**的極簡風格。句子精煉有力，去除贅詞，只留精華，讓讀者一眼就能抓住重點。",
+                "storytelling": "請使用**故事敘述**的情境風格。以一個小故事或場景開頭，帶讀者進入產品的使用情境，讓他們在腦海中想像自己正在使用這款產品。"
+            }
+            style_instruction = style_prompts.get(style, style_prompts["professional"])
+            
+            # 使用 GitHub 原版 Prompt（A/B 格式能激發更好的創意）
+            prompt = f"""請擔任一位頂級的商業文案策略大師。請深入分析這張產品圖片，並根據提供的資訊，為這款產品創造兩個截然不同的「完美應用場景」與「沉浸式行銷文案」。
+
+🎨 **寫作風格要求**：{style_instruction}
+
+產品名稱：{product_name}
+建議售價：{price}
 
 請不要只寫「優雅」或「實用」這種空泛的形容詞。我需要你能夠：
 1. **深度識別**：完全理解商品的材質、設計語言與潛在商業價值。
@@ -352,11 +574,11 @@ class LineBotService:
 }}
 """
             
-            # API Setup
+            # API Setup - 使用 GitHub 原版設定 (Token 數需足夠大)
             api_key = settings.GOOGLE_API_KEY
             payload = {
                 "contents": [{"parts": [{"text": prompt}, {"inline_data": {"mime_type": mime_type, "data": image_b64}}]}],
-                "generationConfig": {"maxOutputTokens": 1024, "temperature": 0.8, "responseMimeType": "application/json"}
+                "generationConfig": {"maxOutputTokens": 8192, "temperature": 0.8, "responseMimeType": "application/json"}
             }
             
             models = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
@@ -365,63 +587,52 @@ class LineBotService:
             for model in models:
                 try:
                     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-                    print(f"📸 [Copywriting] Trying model: {model}")
+                    print(f"📸 [Web Copywriting] Trying model: {model}")
+                    # GitHub 原始設定：timeout=30, maxOutputTokens=8192
                     response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
                     
                     if response.status_code == 200:
                         result = response.json()
                         raw_text = result['candidates'][0]['content']['parts'][0]['text']
-                        # Check validity
-                        if "title_a" in raw_text or "description_a" in raw_text:
+                        print(f"✅ [Web Copywriting] Got response from {model}, len={len(raw_text)}")
+                        if "description_a" in raw_text or "title_a" in raw_text:
                             ai_text = raw_text
                             break
                     elif response.status_code == 429:
-                        await asyncio.sleep(2)
+                        print(f"⚠️ [Web Copywriting] Rate limited on {model}, trying next...")
+                        await asyncio.sleep(1)
                     else:
-                        print(f"⚠️ [Copywriting] Error {model}: {response.status_code}")
+                        print(f"⚠️ [Web Copywriting] Error {model}: {response.status_code}")
                 except Exception as e:
-                    print(f"❌ [Copywriting] Exception {model}: {e}")
+                    print(f"❌ [Web Copywriting] Exception {model}: {e}")
 
-            # Parse JSON
-            try:
-                clean_text = ai_text.strip().replace('```json', '').replace('```', '')
-                data = json.loads(clean_text)
-            except:
-                match = re.search(r'\{.*\}', ai_text, re.DOTALL)
-                data = json.loads(match.group()) if match else {}
+            # Robust Parsing using helper (GitHub Logic)
+            print(f"📝 [Web Copywriting] Raw AI response: {ai_text[:200]}...")
+            data = self._clean_and_parse_json(ai_text)
+            print(f"✅ [Web Copywriting] Parsed JSON keys: {list(data.keys())}")
 
-            title_a = data.get("title_a", "✨ 情感共鳴版")
-            desc_a = data.get("description_a")
-            title_b = data.get("title_b", "💼 精準場景版")
-            desc_b = data.get("description_b")
-
-            # Fallback if AI failed completely
-            if not desc_a or not desc_b:
-                print(f"⚠️ Copywriting generation failed. Using default template.")
-                title_a = "✨ 產品魅力版"
-                desc_a = f"這款{product_name}設計獨特，質感優異，能為您的生活增添一份美好。無論是自用還是送禮，都是絕佳的選擇，展現您的不凡品味。"
-                title_b = "💼 實用推薦版"
-                desc_b = f"{product_name}功能實用，售價合理。它能有效解決您的需求，在各種場合都能發揮出色的表現，是高CP值的推薦首選。"
-
-            # 儲存生成的描述
-            session["generated_descriptions"] = [desc_a, desc_b]
-            session["stage"] = "waiting_for_ab_choice"
+            # 提取 A/B 文案
+            desc_a = data.get("description_a", "")
+            desc_b = data.get("description_b", "")
             
-            # 發送選擇訊息（使用 push message）
-            choice_msg = (
-                "🔮 **AI 為您生成了兩段沉浸式文案：**\n\n"
-                f"【A】{title_a}\n{desc_a}\n\n"
-                "━━━━━━━━━━━━━━\n\n"
-                f"【B】{title_b}\n{desc_b}\n\n"
-                "━━━━━━━━━━━━━━\n"
-                "請回覆「**A**」或「**B**」選擇您偏好的應用場景"
-            )
-            self._push_text(user_id, choice_msg)
+            # 返回單篇：優先使用 A 段（情感共鳴版）
+            copy_content = desc_a if desc_a else desc_b
+            
+            if not copy_content:
+                print(f"⚠️ [Web Copywriting] Using fallback template!")
+                copy_content = f"這款{product_name}設計精良，是追求品質生活的最佳選擇。無論是自用還是送禮，都能展現您的獨特品味。售價 {price} 元，現在正是入手的好時機！"
+
+            return {
+                "product_type": product_name,
+                "target_audience": "一般消費者",
+                "copy_title": data.get("title_a", "✨ 產品魅力"),
+                "copy_content": copy_content
+            }
 
         except Exception as e:
-            print(f"❌ _generate_ai_descriptions 錯誤: {e}")
-            session["stage"] = "waiting_for_description_choice"
-            self._push_text(user_id, "❌ AI 生成失敗，請直接輸入「**1**」自行輸入描述")
+            print(f"❌ generate_marketing_copy 錯誤: {e}")
+            return {"error": str(e)}
+
 
     async def _start_simulation(self, user_id, reply_token):
         """組合產品資訊並啟動模擬分析"""
@@ -2274,70 +2485,7 @@ __CITIZENS_JSON__
         
         return None, last_error
 
-    async def generate_marketing_copy(self, image_bytes, product_name, price, style="professional"):
-        """Web API 專用：生成產品文案，根據指定風格"""
-        try:
-            image_b64 = base64.b64encode(image_bytes).decode('utf-8')
-            
-            # Style-specific instructions
-            style_prompts = {
-                "professional": "請使用**專業穩重**的商務風格。用詞正式、數據導向，強調產品的專業性與可靠度。適合 B2B 或高端消費者。",
-                "friendly": "請使用**親切活潑**的輕鬆風格。像跟朋友聊天一樣，使用口語化的語句，帶點幽默感，讓人感覺沒有距離。",
-                "luxury": "請使用**高端奢華**的品牌風格。用詞講究、富有質感，營造出稀有、尊貴、非凡的感受，適合精品或高價商品。",
-                "minimalist": "請使用**簡約清爽**的極簡風格。句子精煉有力，去除贅詞，只留精華，讓讀者一眼就能抓住重點。",
-                "storytelling": "請使用**故事敘述**的情境風格。以一個小故事或場景開頭，帶讀者進入產品的使用情境，讓他們在腦海中想像自己正在使用這款產品。"
-            }
-            style_instruction = style_prompts.get(style, style_prompts["professional"])
-            
-            prompt = f"""請擔任一位頂級的商業文案策略大師。請深入分析這張產品圖片，並根據提供的資訊，為這款產品創造兩個截然不同的「完美應用場景」與「沉浸式行銷文案」。
-
-🎨 **寫作風格要求**：{style_instruction}
-
-產品名稱：{product_name}
-建議售價：{price}
-
-請不要只寫「優雅」或「實用」這種空泛的形容詞。我需要你能夠：
-1. **深度識別**：完全理解商品的材質、設計語言與潛在商業價值。
-2. **精準匹配**：具體指出這款產品最適合「什麼樣的人」、「在什麼場合」、「做什麼事」時使用。
-3. **沉浸體驗**：用文字營造出氛圍，讓觀看者彷彿置身其中，感受到擁有這件商品後的美好生活圖景。
-
-請生成兩段不同切入點的文案（繁體中文，每段約 100-150 字）：
-
-【A】切入點一：情感共鳴與氛圍營造 (Emotional & Atmospheric)
-- 側重於感性訴求，描繪使用當下的美好畫面、心理滿足感或自我展現。
-- 適合想透過產品提升生活質感或表達個性的客群。
-
-【B】切入點二：精準場景與痛點解決 (Scenario & Solution)
-- 側重於理性與場景訴求，具體描述在工作、社交或特定活動中的完美表現。
-- 即使是商業計劃書，也要描述其商業模式落地的具體場景與解決的實際問題。
-
-請直接回覆 JSON 格式，不要有 Markdown 標記：
-{{
-    "title_a": "文案 A 的標題",
-    "description_a": "文案 A 的內容...",
-    "title_b": "文案 B 的標題",
-    "description_b": "文案 B 的內容..."
-}}
-"""
-            if not settings.GOOGLE_API_KEY:
-                 return {"error": "後端未設定 GOOGLE_API_KEY"}
-
-            api_key = settings.GOOGLE_API_KEY
-            # Run blocking request in thread pool
-            ai_text, last_error = await asyncio.to_thread(self._run_blocking_gemini_request, api_key, prompt, image_b64)
-            
-            if ai_text:
-                result = self._clean_and_parse_json(ai_text)
-                # Combine title and description for easier usage
-                option_a = result.get('description_a', '')
-                option_b = result.get('description_b', '')
-                return {"option_a": option_a, "option_b": option_b}
-            else:
-                return {"error": f"AI 生成失敗: {last_error}"}
-
-        except Exception as e:
-            print(f"[ERROR] generate_marketing_copy 錯誤: {e}")
-            return {"error": str(e)}
+    # NOTE: 舊版 generate_marketing_copy 已刪除，現使用第 480 行的新版本 (單篇輸出)
 
     def _run_blocking_gemini_request(self, api_key, prompt, image_b64=None, pdf_b64=None, model_priority=None, mime_type="image/jpeg"):
         """Helper to run synchronous requests in a thread"""
