@@ -109,6 +109,8 @@ interface SimulationData {
     bazi_distribution: BaziDistribution
     source_type?: string  // "pdf" | "image"
     product_category?: string // "tech_electronics" | "collectible_toy" | "food_beverage" | "fashion_accessory" | "home_lifestyle" | "other"
+    product_name?: string
+    style?: string
   }
   bazi_distribution?: BaziDistribution
   arena_comments: Array<{
