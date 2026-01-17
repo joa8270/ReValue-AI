@@ -479,6 +479,142 @@ class LineBotService:
         except Exception as e:
             print(f"❌ _generate_ai_descriptions 錯誤: {e}")
             session["stage"] = "waiting_for_description_choice"
+
+    async def refine_marketing_copy(self, comments: list[dict], product_name: str, price: str, original_copy: str, style: str = "professional", source_type: str = "image") -> dict:
+        """根據 AI 市民的評論（特別是負評），優化現有文案"""
+        print(f"✨ Refine Copy with Style: {style}")
+        import time
+        try:
+            # 1. 篩選評論
+            # 負評：分數 < 60 或情緒為 negative
+            negative_comments = [c for c in comments if c.get('score', 0) < 60 or c.get('sentiment') == 'negative']
+            if not negative_comments:
+                # 若無明顯負評，取分數最低的前 20%
+                sorted_comments = sorted(comments, key=lambda x: x.get('score', 100))
+                negative_comments = sorted_comments[:max(1, int(len(comments) * 0.2))]
+            
+            # 正評：分數 > 80 或情緒為 positive (用於保留優點)
+            positive_comments = [c for c in comments if c.get('score', 0) > 80 or c.get('sentiment') == 'positive']
+            
+            # 提取評論文本
+            neg_texts = "\n".join([f"- {c['text']}" for c in negative_comments[:10]]) # 取前 10 條
+            pos_texts = "\n".join([f"- {c['text']}" for c in positive_comments[:5]])  # 取前 5 條作為參考
+            
+            print(f"🔄 [RefineCopy] Analyzing {len(negative_comments)} negative and {len(positive_comments)} positive comments.")
+
+
+            # Mapping style to description
+            style_desc = {
+                "professional": "專業穩重、商務感強",
+                "friendly": "親切活潑、輕鬆有趣",
+                "luxury": "高端奢華、精緻質感",
+                "minimalist": "簡約清爽、重點突出",
+                "storytelling": "故事敘述、情境代入"
+            }.get(style, "專業穩重")
+
+            # 2. 構建 Prompt (區分 產品 vs 商業計劃)
+            if source_type == 'pdf' or source_type == 'txt':
+                # Business Plan Mode: Only Strategy
+                task_instruction = """
+                2. **優化建議 (Refined Strategy)**：
+                   - 針對商業計劃書的盲點，提出具體的修正方向與論述優化建議。
+                   - 語氣保持專業顧問風格。
+                """
+                json_format = """
+                {
+                    "pain_points_summary": "主要疑慮總結...",
+                    "refined_copy": "針對商業計劃的優化建議與修正論述..."
+                }
+                """
+            else:
+                # Product Mode: Strategy + Ready-to-use Copy
+                task_instruction = f"""
+                2. **優化策略 (Refined Strategy)**：
+                   - 解釋你如何根據反饋進行調整的「策略思路」。(例如：針對價格疑慮，我們改為強調...)
+                   - 這段是寫給使用者看的「修改說明」。
+                
+                3. **實戰文案 (Ready-to-Post Copy)**：
+                   - 請撰寫一篇**可直接發布**在社群媒體或廣告上的完整文案。
+                   - 嚴格遵守 **{style_desc}** 的語氣。 
+                   - 結構完整：包含標題、內文、Call to Action。
+                   - 巧妙融合優點並化解痛點。
+                """
+                json_format = """
+                {
+                    "pain_points_summary": "主要疑慮總結...",
+                    "refined_copy": "優化策略與思路說明...",
+                    "marketing_copy": "【標題】...\n\n內文...\n\n#Hashtags"
+                }
+                """
+
+            prompt = f"""你是一位精通市場反饋的文案優化專家。
+產品：{product_name} | 價格：{price}
+原始文案：{original_copy}
+
+【市場負面反饋】
+{neg_texts}
+
+【市場正面反饋】
+{pos_texts}
+
+【任務】
+1. **分析痛點**：總結 3 個主要抗拒點。
+{task_instruction}
+
+請直接回覆 JSON 格式：
+{json_format}
+"""
+
+
+
+            # 3. Call Gemini API
+            api_key = settings.GOOGLE_API_KEY
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": 8192, "temperature": 0.7, "responseMimeType": "application/json"}
+            }
+            
+            models = ["gemini-2.5-pro", "gemini-2.5-flash"]
+            ai_text = "{}"
+            
+            for model in models:
+                try:
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                    print(f"🔄 [RefineCopy] Trying model: {model}")
+                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
+                    if response.status_code == 200:
+                        result = response.json()
+                        ai_text = result['candidates'][0]['content']['parts'][0]['text']
+                        break
+                except Exception as e:
+                    print(f"❌ [RefineCopy] Error {model}: {e}")
+
+            # 4. Parse Result
+            print(f"DEBUG: AI Raw Response: {ai_text}") # Log raw response
+            data = self._clean_and_parse_json(ai_text)
+            print(f"DEBUG: Parsed Data: {data}") # Log parsed data
+
+            final_refined = data.get("refined_copy", original_copy)
+            
+
+
+            if not final_refined:
+                print("WARNING: Refined copy is empty, checking original...")
+                final_refined = original_copy or "無法優化文案，請檢查原始資料。"
+
+            return {
+                "success": True,
+                "pain_points": data.get("pain_points_summary", "分析中..."),
+                "refined_copy": str(final_refined),
+                "marketing_copy": data.get("marketing_copy", "") 
+            }
+
+
+        except Exception as e:
+            print(f"❌ refine_marketing_copy Exception: {e}")
+            import traceback
+            traceback.print_exc()
+            return {"success": False, "error": str(e), "refined_copy": original_copy}
             self._push_text(user_id, "❌ AI 生成失敗，請直接輸入「**1**」自行輸入描述")
 
     def _clean_and_parse_json(self, ai_text):
@@ -861,7 +997,7 @@ class LineBotService:
 
                 # Use raw string template to avoid f-string syntax errors with JSON braces
                 prompt_template = """
-你是 MIRRA 鏡界系統的核心 AI 策略顧問。請分析這張產品圖片，並「扮演」以下從資料庫隨機抽取的 8 位 AI 虛擬市民，模擬他們對產品的反應。你需要提供**深度、具體、可執行**的行銷策略建議。
+你是 MIRRA 鏡界系統的核心 AI 策略顧問。請分析這張產品圖片，並「扮演」以下從資料庫隨機抽取的 10 位 AI 虛擬市民，模擬他們對產品的反應。你需要提供**深度、具體、可執行**的行銷策略建議。
 __PRODUCT_CONTEXT__
 📋 以下是真實市民資料（八字格局已預先計算）：
 
@@ -929,7 +1065,7 @@ __CITIZENS_JSON__
         ]
     },
     "comments": [
-        (必須生成精確 8 則市民評論，對應上方市民名單)
+        (必須生成精確 10 則市民評論，對應上方市民名單)
         { "citizen_id": "市民ID", "sentiment": "positive/negative/neutral", "text": "市民評論內容（繁體中文，需體現個人格局特徵，至少 40 字，禁止使用『符合我的...』這種句型）" }
     ]
 }
@@ -1011,6 +1147,7 @@ __CITIZENS_JSON__
             # Filter out lazy/hallucinated comments from Gemini matchers
             filtered_comments = []
             for c in gemini_comments:
+                if not isinstance(c, dict): continue
                 text = c.get("text", "")
                 # Forbidden phrases that indicate lazy AI generation
                 if "符合我的" in text or "看起來不錯" in text or len(text) < 10:
@@ -1113,6 +1250,7 @@ __CITIZENS_JSON__
             citizen_map = {str(c["id"]): c for c in sampled_citizens}
             
             for comment in gemini_comments:
+                if not isinstance(comment, dict): continue
                 raw_id = comment.get("citizen_id")
                 c_id = str(raw_id) if raw_id is not None else ""
                 citizen = citizen_map.get(c_id)
@@ -1238,7 +1376,7 @@ __CITIZENS_JSON__
             prompt_text = f"""
 你是 MIRRA 鏡界系統的核心 AI 策略顧問。你正在審閱一份商業計劃書 PDF，並需要提供**深度、具體、可執行**的策略建議。
 
-請讓以下從資料庫隨機抽取的 8 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
+請讓以下從資料庫隨機抽取的 10 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
 
 📋 以下是真實市民資料（八字格局已預先計算）：
 
@@ -1256,7 +1394,7 @@ __CITIZENS_JSON__
     "simulation_metadata": {{
         "product_category": "商業計劃書",
         "target_market": "台灣",
-        "sample_size": 8,
+        "sample_size": 10,
         "bazi_distribution": {{
             "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
         }}
@@ -1264,12 +1402,12 @@ __CITIZENS_JSON__
     "genesis": {{
         "total_population": 1000,
         "personas": [
-            (必須挑選 8 位市民)
+            (必須挑選 10 位市民)
             {{"id": "...", "name": "...", "age": "...", "element": "...", "day_master": "...", "pattern": "...", "trait": "...", "decision_logic": "..."}}
         ]
     }},
     "arena_comments": [
-        (必須生成精確 8 則市民針對商業模式的辯論評論)
+        (必須生成精確 10 則市民針對商業模式的辯論評論)
         {{"sentiment": "...", "text": "...", "persona": {{ ... }} }}
     ],
     "result": {{
@@ -1502,7 +1640,7 @@ __CITIZENS_JSON__
 {text_content[:8000]}  
 ---
 
-請讓以下從資料庫隨機抽取的 8 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
+請讓以下從資料庫隨機抽取的 10 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
 
 📋 以下是真實市民資料（八字格局已預先計算）：
 
@@ -1520,7 +1658,7 @@ __CITIZENS_JSON__
     "simulation_metadata": {{
         "product_category": "商業計劃書",
         "target_market": "台灣",
-        "sample_size": 8,
+        "sample_size": 10,
         "bazi_distribution": {{
             "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
         }}
@@ -1528,12 +1666,12 @@ __CITIZENS_JSON__
     "genesis": {{
         "total_population": 1000,
         "personas": [
-            (必須挑選 8 位市民)
+            (必須挑選 10 位市民)
             {{"id": "...", "name": "...", "age": "...", "element": "...", "day_master": "...", "pattern": "...", "trait": "...", "decision_logic": "..."}}
         ]
     }},
     "arena_comments": [
-        (必須生成精確 8 則市民針對商業模式的辯論評論)
+        (必須生成精確 10 則市民針對商業模式的辯論評論)
         {{"sentiment": "...", "text": "...", "persona": {{ ... }} }}
     ],
     "result": {{

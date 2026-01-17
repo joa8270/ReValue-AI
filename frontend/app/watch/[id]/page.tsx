@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import RefineCopyPanel from "@/app/components/RefineCopyPanel"
 
 // ===== Type Definitions (Bazi V3) =====
 interface BaziDistribution {
@@ -1042,13 +1043,13 @@ export default function WatchPage() {
                   {(() => {
                     // 動態計算：正面評價率
                     const totalComments = data.arena_comments?.length || 0;
-                    // 確保至少以 8 人計算（依據業務規則核心樣本數至少 8‰）
-                    const effectiveComments = Math.max(totalComments, 8);
+                    // 確保至少以 10 人計算（依據業務規則核心樣本數至少 10‰）
+                    const effectiveComments = Math.max(totalComments, 10);
                     const positiveComments = data.arena_comments?.filter((c: any) => c.sentiment === 'positive').length || 0;
                     const positiveRate = totalComments > 0 ? Math.round((positiveComments / totalComments) * 100) : 0;
                     const positiveLabel = positiveRate >= 70 ? '高度正面' : positiveRate >= 50 ? '中性偏正' : positiveRate >= 30 ? '中性' : '偏負面';
 
-                    // 動態計算：參與深度（覆蓋率）- 確保符合 8‰ 基底
+                    // 動態計算：參與深度（覆蓋率）- 確保符合 10‰ 基底
                     const coverageRate = Math.round((effectiveComments / TOTAL_POPULATION) * 100 * 10) / 10;
 
                     // 動態計算：價格敏感度（掃描評論中的價格相關關鍵詞）
@@ -1137,14 +1138,14 @@ export default function WatchPage() {
                       },
                       {
                         label: '參與覆蓋率',
-                        // 確保至少顯示 8‰ (業務規則：1,000 人中抽取 8 位代表)
-                        value: coverageRate < 1 ? `${Math.max(coverageRate * 10, 8)}‰` : `${Math.min(coverageRate * 10, 99)}%`,
+                        // 確保至少顯示 10‰ (業務規則：1,000 人中抽取 10 位代表)
+                        value: coverageRate < 1 ? `${Math.max(coverageRate * 10, 10)}‰` : `${Math.min(coverageRate, 99)}%`,
                         sub: `「從 1,000 位 AI 市民中抽取了多少人參與調查？」目前為 ${effectiveComments} / 1,000 人。覆蓋率越高，預演結果越能反映真實市場反應。`,
                         advice: coverageRate >= 5
                           ? '💡 建議：覆蓋率優秀！這份報告的市場代表性極高，可作為決策參考。'
                           : coverageRate >= 1
                             ? '💡 建議：覆蓋率中等。若想獲得更精準的預測，可以再次進行更大規模的預演。'
-                            : '💡 建議：目前為免費版 (8/1,000 人)。若需擴大母數至 10,000 人或全量分析，請升級 Pro 版。',
+                            : '💡 建議：目前為免費版 (10/1,000 人)。若需擴大母數至 10,000 人或全量分析，請升級 Pro 版。',
                         improvement: coverageRate >= 5 ? '+1~2%' : coverageRate >= 1 ? '+5~8%' : '若優化可升 Pro 版',
                         icon: 'verified',
                         color: 'text-blue-500'
@@ -1258,7 +1259,19 @@ export default function WatchPage() {
                 </div>
               </div>
 
+
+
               <div className="xl:col-span-4 space-y-6">
+                {/* Safe Plugin: Refine Copy Panel */}
+                <RefineCopyPanel
+                  simId={simId}
+                  currentCopy={data.summary || ""}
+                  productName={data.simulation_metadata?.product_name || "未知產品"}
+                  arenaComments={data.arena_comments || []}
+                  style={data.simulation_metadata?.style || "professional"}
+                  sourceType={data.simulation_metadata?.source_type || "image"}
+                />
+
                 <div className="bg-black/40 border border-[#7f13ec]/20 rounded-2xl p-6 relative overflow-hidden group shadow-[0_0_30px_rgba(127,19,236,0.05)]">
                   <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#7f13ec] to-blue-500"></div>
                   <div className="flex items-center gap-2 mb-4"><span className="material-symbols-outlined text-[#7f13ec]">auto_awesome</span><h3 className="text-xs font-bold text-[#7f13ec] tracking-[0.2em] uppercase">STRATEGIC ORACLE // 戰略神諭</h3></div>

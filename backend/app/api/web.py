@@ -55,7 +55,8 @@ async def trigger_simulation(
     product_name: str = Form(None),
     price: str = Form(None),
     description: str = Form(None),
-    market_prices: str = Form(None)  # JSON 字串格式的市場比價資料
+    market_prices: str = Form(None),  # JSON 字串格式的市場比價資料
+    style: str = Form(None)  # 新增 style 欄位
 ):
     from app.services.line_bot_service import LineBotService
     line_service = LineBotService()
@@ -79,7 +80,11 @@ async def trigger_simulation(
         "summary": "AI 正在啟動並讀取您的資料...",
         "genesis": {"total_population": 0, "sample_size": 0, "personas": []},
         "comments": [],
-        "market_prices": market_prices_data  # 存入市場比價資料
+        "comments": [],
+        "market_prices": market_prices_data,  # 存入市場比價資料
+        "simulation_metadata": {
+            "style": style  # 存入 style
+        }
     }
     # 建立 DB 紀錄
     create_simulation(sim_id, initial_data)
@@ -312,4 +317,55 @@ async def identify_product(
             
     except Exception as e:
         print(f"❌ Product identification failed: {e}")
+        return {"error": str(e)}
+
+# Model specifically for this endpoint
+from pydantic import BaseModel
+
+class RefineCopyRequest(BaseModel):
+    sim_id: str
+    current_copy: str
+    product_name: str | None = None
+    price: str | None = None
+    style: str | None = None
+    source_type: str | None = "image" # Default to image (Product)
+
+@router.post("/refine-copy")
+async def refine_copy(request: RefineCopyRequest):
+    """
+    根據模擬結果中的負評，優化文案
+    """
+    try:
+        from app.services.line_bot_service import LineBotService
+        from app.core.database import get_simulation
+        
+        sim_data = get_simulation(request.sim_id)
+        if not sim_data:
+            return {"error": "Simulation found"}
+            
+        comments = sim_data.get("arena_comments", [])
+        if not comments:
+            return {"error": "No comments found in simulation"}
+            
+        # 準備資料
+        line_service = LineBotService()
+        product_name = request.product_name or sim_data.get("product_name", "產品")
+        price = request.price or str(sim_data.get("price", "未定"))
+        style = request.style or sim_data.get("simulation_metadata", {}).get("style", "professional")
+        source_type = request.source_type or sim_data.get("simulation_metadata", {}).get("source_type", "image")
+
+        # 執行優化
+        result = await line_service.refine_marketing_copy(
+            comments=comments, 
+            product_name=product_name, 
+            price=price,
+            original_copy=request.current_copy,
+            style=style,
+            source_type=source_type
+        )
+        
+        return result
+        
+    except Exception as e:
+        print(f"❌ Refine copy failed: {e}")
         return {"error": str(e)}

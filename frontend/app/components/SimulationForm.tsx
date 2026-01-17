@@ -244,6 +244,7 @@ export default function SimulationForm() {
                 if (marketPrices) {
                     formData.append("market_prices", JSON.stringify(marketPrices))
                 }
+                formData.append("style", selectedStyle)
             }
 
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
