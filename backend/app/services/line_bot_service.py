@@ -976,7 +976,7 @@ class LineBotService:
             try:
                 # 簡化市民資料供 prompt 使用 (防禦性訪問)
                 citizens_for_prompt = []
-                for c in sampled_citizens[:15]:
+                for c in sampled_citizens[:10]:
                     bazi = c.get("bazi_profile") or {}
                     citizens_for_prompt.append({
                         "id": str(c.get("id", "0")),
@@ -1216,7 +1216,7 @@ __CITIZENS_JSON__
 
             # Build Personas
             personas = []
-            for c in sampled_citizens[:15]:
+            for c in sampled_citizens[:10]:
                 bazi = c.get("bazi_profile") or {}
                 # 🛡️ 防禦性補全：如果沒有命盤，隨機生成
                 pillars_str = bazi.get("four_pillars")

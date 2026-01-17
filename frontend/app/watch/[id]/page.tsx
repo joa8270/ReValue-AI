@@ -5,6 +5,16 @@ import { useParams } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import RefineCopyPanel from "@/app/components/RefineCopyPanel"
+import dynamic from "next/dynamic"
+
+const PDFDownloadLink = dynamic(
+  () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+  {
+    ssr: false,
+    loading: () => <span className="text-xs text-slate-500">準備中...</span>,
+  }
+)
+import SimulationReportPDF from "@/app/components/pdf/SimulationReportPDF"
 
 // ===== Type Definitions (Bazi V3) =====
 interface BaziDistribution {
@@ -456,6 +466,14 @@ export default function WatchPage() {
   const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isPdfReady, setIsPdfReady] = useState(false) // Lazy PDF generation control
+  const [isCopied, setIsCopied] = useState(false) // Share button state
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
 
   // 確保加載動畫至少顯示一段時間，提供更好的用戶體驗
   const [hasShownLoading, setHasShownLoading] = useState(false)
@@ -603,12 +621,13 @@ export default function WatchPage() {
               </div>
             </div>
           </div>
-          <div className="flex gap-2">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="flex size-10 items-center justify-center overflow-hidden rounded-lg bg-[#283639] text-white">
-                <span className="size-1.5 bg-[#d8b4fe] rounded-full"></span>
-              </div>
-            ))}
+          <div className="flex gap-2 items-center">
+
+
+            {/* Keeping one placeholder for visual balance if needed, or remove completely */}
+            <div className="flex size-10 items-center justify-center overflow-hidden rounded-lg bg-[#283639] text-white/50">
+              <span className="material-symbols-outlined">settings</span>
+            </div>
           </div>
         </header>
 
@@ -789,72 +808,62 @@ export default function WatchPage() {
           <span className="text-sm font-medium text-gray-400">預演報告 #{simId.slice(0, 4).toUpperCase()}</span>
         </div>
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex gap-2">
-            {/* Share Button */}
+          <div className="flex items-center gap-2">
+            {/* New PDF Download Button (Replaces Share & Old Download) */}
+            {/* Share Project Button */}
             <button
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(window.location.href);
-                  // Show toast notification
-                  const toast = document.createElement('div');
-                  toast.className = 'fixed bottom-6 right-6 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-in fade-in slide-in-from-bottom-4 flex items-center gap-2';
-                  toast.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span>連結已複製到剪貼簿！';
-                  document.body.appendChild(toast);
-                  setTimeout(() => toast.remove(), 3000);
-                } catch (err) {
-                  console.error('Failed to copy:', err);
-                }
-              }}
-              className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#7f13ec] hover:bg-[#9d4af2] transition-colors text-white text-sm font-bold shadow-[0_0_10px_rgba(127,19,236,0.5)]"
+              onClick={handleShare}
+              className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#302839] hover:bg-[#473b54] transition-colors text-white text-sm font-bold border border-[#473b54] gap-2 active:scale-95 group"
             >
-              <span className="mr-2 material-symbols-outlined text-[18px]">share</span>分享報告
+              <span className="material-symbols-outlined text-[18px] group-hover:text-[#a855f7] transition-colors">
+                {isCopied ? 'check' : 'share'}
+              </span>
+              <span>{isCopied ? '已複製連結' : '分享專案結果'}</span>
             </button>
 
-            {/* Download Button */}
-            <button
-              onClick={async () => {
-                try {
-                  // Dynamic import html2canvas
-                  const html2canvas = (await import('html2canvas')).default;
-                  const mainContent = document.querySelector('main');
-                  if (!mainContent) return;
-
-                  // Show loading toast
-                  const loadingToast = document.createElement('div');
-                  loadingToast.className = 'fixed bottom-6 right-6 bg-[#302839] text-white px-4 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
-                  loadingToast.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">sync</span>正在生成報告圖片...';
-                  document.body.appendChild(loadingToast);
-
-                  const canvas = await html2canvas(mainContent as HTMLElement, {
-                    backgroundColor: '#191022',
-                    scale: 2,
-                    useCORS: true,
-                  });
-
-                  // Download
-                  const link = document.createElement('a');
-                  link.download = `MIRRA_Report_${simId.slice(0, 8)}.png`;
-                  link.href = canvas.toDataURL('image/png');
-                  link.click();
-
-                  // Replace with success toast
-                  loadingToast.remove();
-                  const successToast = document.createElement('div');
-                  successToast.className = 'fixed bottom-6 right-6 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-in fade-in slide-in-from-bottom-4 flex items-center gap-2';
-                  successToast.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span>報告已下載！';
-                  document.body.appendChild(successToast);
-                  setTimeout(() => successToast.remove(), 3000);
-                } catch (err) {
-                  console.error('Download failed:', err);
-                }
-              }}
-              className="flex items-center justify-center rounded-lg h-9 w-9 bg-[#302839] hover:bg-[#473b54] text-white transition-colors"
-              title="下載報告"
-            >
-              <span className="material-symbols-outlined text-[20px]">download</span>
-            </button>
+            {/* New PDF Download Button (Replaces Share & Old Download) */}
+            {data && data.status === 'ready' && (
+              <>
+                {!isPdfReady ? (
+                  <button
+                    onClick={() => setIsPdfReady(true)}
+                    className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#7f13ec] hover:bg-[#9d4af2] transition-colors text-white text-sm font-bold shadow-[0_0_10px_rgba(127,19,236,0.5)] gap-2 group"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                    <span>準備 PDF 報告</span>
+                  </button>
+                ) : (
+                  <PDFDownloadLink
+                    document={<SimulationReportPDF data={data} />}
+                    fileName={`MIRRA_Report_${simId.slice(0, 8)}.pdf`}
+                    className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#7f13ec] hover:bg-[#9d4af2] transition-colors text-white text-sm font-bold shadow-[0_0_10px_rgba(127,19,236,0.5)] gap-2 group"
+                  >
+                    {/* @ts-ignore */}
+                    {({ blob, url, loading, error }) =>
+                      loading ? (
+                        <>
+                          <span className="material-symbols-outlined text-lg animate-spin">sync</span>
+                          <span>報告生成中...</span>
+                        </>
+                      ) : error ? (
+                        <>
+                          <span className="material-symbols-outlined text-lg">error</span>
+                          <span>失敗: {String(error).slice(0, 10)}...</span>
+                          {console.error('PDF Generation Error:', error)}
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">download</span>
+                          <span>立即下載 PDF</span>
+                        </>
+                      )
+                    }
+                  </PDFDownloadLink>
+                )}
+              </>
+            )}
+            <div className="bg-center bg-no-repeat bg-cover rounded-full size-9 border border-[#302839]" style={{ backgroundImage: 'url("https://api.dicebear.com/7.x/avataaars/svg?seed=Alex")' }}></div>
           </div>
-          <div className="bg-center bg-no-repeat bg-cover rounded-full size-9 border border-[#302839]" style={{ backgroundImage: 'url("https://api.dicebear.com/7.x/avataaars/svg?seed=Alex")' }}></div>
         </div>
       </header>
 
@@ -1340,6 +1349,9 @@ export default function WatchPage() {
                     </div>
                   ))}
                 </div>
+
+
+
               </div>
             </div>
           </div>
