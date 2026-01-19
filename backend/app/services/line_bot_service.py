@@ -2777,7 +2777,7 @@ __CITIZENS_JSON__
         except Exception:
             pass
 
-    async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg", timeout=60, image_parts=None):
+    async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg", timeout=120, image_parts=None):
         """Helper to call Gemini REST API (Async Wrapper with Configurable Timeout)"""
         import requests 
 
@@ -2822,7 +2822,7 @@ __CITIZENS_JSON__
                 # Increase timeout for Pro model and PDF/Audio heavy tasks
                 current_timeout = timeout
                 if "pro" in model:
-                    current_timeout = max(timeout, 120) # Pro needs time to think (2 mins)
+                    current_timeout = max(timeout, 180) # Pro needs time to think (3 mins)
                 
                 # PDF needs more time regardless of model
                 if pdf_b64:
