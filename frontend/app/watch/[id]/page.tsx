@@ -1403,14 +1403,22 @@ export default function WatchPage() {
                         <div className="bg-[#231b2e] size-8 rounded-lg flex items-center justify-center text-lg shadow-inner opacity-70 group-hover:opacity-100 transition-opacity">{i === 0 ? '🎯' : i === 1 ? '💡' : '⚡'}</div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between mb-1">
-                            <h4 className="text-white text-sm font-bold">{s.target || '策略目標'}</h4>
+                            <h4 className="text-white text-sm font-bold">
+                              {typeof s.target === 'object' && s.target !== null
+                                ? (s.target.point || s.target.title || s.target.text || JSON.stringify(s.target))
+                                : (s.target || '策略目標')}
+                            </h4>
                             {s.score_improvement && (
                               <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">
                                 {s.score_improvement}
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-gray-200 leading-relaxed">{s.advice || '載入中...'}</p>
+                          <p className="text-xs text-gray-200 leading-relaxed">
+                            {typeof s.advice === 'object' && s.advice !== null
+                              ? (s.advice.point || s.advice.text || s.advice.description || JSON.stringify(s.advice))
+                              : (s.advice || '載入中...')}
+                          </p>
                         </div>
                       </div>
 
