@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import SimulationForm from './components/SimulationForm';
 
 export default function Home() {
@@ -99,7 +100,9 @@ export default function Home() {
             {/* Simulation Form Section */}
             <section id="start" className="px-4 md:px-40 flex justify-center py-16 relative z-10">
                 <div className="max-w-[960px] w-full">
-                    <SimulationForm />
+                    <Suspense fallback={<div className="h-[600px] flex items-center justify-center text-white"><span className="animate-spin text-4xl">🌀</span></div>}>
+                        <SimulationForm />
+                    </Suspense>
                 </div>
             </section>
 
