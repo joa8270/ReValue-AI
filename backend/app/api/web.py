@@ -81,10 +81,14 @@ async def trigger_simulation(
         "summary": "AI 正在啟動並讀取您的資料...",
         "genesis": {"total_population": 0, "sample_size": 0, "personas": []},
         "comments": [],
-        "comments": [],
-        "market_prices": market_prices_data,  # 存入市場比價資料
+        "product_name": product_name, # 保存用戶輸入
+        "price": price,              # 保存用戶輸入
+        "description": description,  # 保存用戶輸入
+        "market_prices": market_prices_data,
         "simulation_metadata": {
-            "style": style  # 存入 style
+            "style": style,
+            "product_name": product_name, # 冗餘備份，確保前端引用相容
+            "source_type": "pdf" if ext == "pdf" or ext in ["docx", "txt"] else "image"
         }
     }
     # 建立 DB 紀錄

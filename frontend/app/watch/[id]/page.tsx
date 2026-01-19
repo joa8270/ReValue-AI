@@ -114,7 +114,10 @@ interface SimulationData {
   status: string
   score: number
   summary: string
-  productName?: string  // Added to fix TypeScript error
+  productName?: string  // Legacy support
+  product_name?: string // Standard backend field
+  price?: string | number // Standard backend field
+  description?: string // Standard backend field
   market_prices?: {
     success: boolean
     min_price: number
@@ -1128,7 +1131,7 @@ export default function WatchPage() {
 
                     {/* 下一步迭代行動 */}
                     <Link
-                      href={`/?mode=iteration&action=${data.methodology_data.next_step.action}&ref_score=${data.score}&product_name=${encodeURIComponent(data.simulation_metadata?.product_name || '')}&price=${data.market_prices?.avg_price || ''}&description=${encodeURIComponent(data.summary?.slice(0, 200) || '')}`}
+                      href={`/?mode=iteration&action=${data.methodology_data.next_step.action}&ref_score=${data.score}&product_name=${encodeURIComponent(data.product_name || data.simulation_metadata?.product_name || '')}&price=${encodeURIComponent(String(data.price || data.market_prices?.avg_price || ''))}&description=${encodeURIComponent(data.description || data.summary?.slice(0, 200) || '')}`}
                       className="block bg-[#231b2e] p-4 rounded-xl border border-white/5 relative overflow-hidden hover:border-cyan-500/50 transition-all cursor-pointer group/action"
                     >
                       <div className="relative z-10">
