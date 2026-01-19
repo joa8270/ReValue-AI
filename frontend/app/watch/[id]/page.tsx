@@ -5,6 +5,7 @@ import { useParams } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import RefineCopyPanel from "@/app/components/RefineCopyPanel"
+import MethodologyModal from "@/app/components/MethodologyModal"
 import dynamic from "next/dynamic"
 
 const PDFDownloadLink = dynamic(
@@ -94,6 +95,21 @@ function getDecisionModel(structure: string | undefined) {
   return key ? DECISION_MODELS[key] : DEFAULT_DECISION_MODEL;
 }
 
+// ===== Methodology Sidecar Types (New) =====
+interface MethodologyData {
+  framework: string
+  valid_until: string
+  entropy_warning: string
+  confidence_interval: string
+  next_step: {
+    action: "Scale" | "Pivot" | "Restart"
+    label: string
+    style: string
+    desc: string
+  }
+  drivers_summary: string
+}
+
 interface SimulationData {
   status: string
   score: number
@@ -122,6 +138,7 @@ interface SimulationData {
     product_name?: string
     style?: string
   }
+  methodology_data?: MethodologyData // 🧬 Sidecar Data
   bazi_distribution?: BaziDistribution
   arena_comments: Array<{
     sentiment: string
@@ -467,6 +484,7 @@ export default function WatchPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isPdfReady, setIsPdfReady] = useState(false) // Lazy PDF generation control
+  const [showMethodology, setShowMethodology] = useState(false)
   const [isCopied, setIsCopied] = useState(false) // Share button state
 
   const handleShare = () => {
@@ -886,9 +904,14 @@ export default function WatchPage() {
         </div>
       </header>
 
+
+
       {selectedCitizen && <CitizenModal citizen={selectedCitizen} onClose={() => setSelectedCitizen(null)} />}
+      <MethodologyModal isOpen={showMethodology} onClose={() => setShowMethodology(false)} />
 
       <div className="flex flex-1 overflow-hidden relative">
+
+
         {/* Mobile Hamburger Button */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -981,8 +1004,16 @@ export default function WatchPage() {
           <div className="max-w-[1400px] mx-auto flex flex-col gap-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div className="flex flex-col gap-2">
-                <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em] text-white">{data.status === 'processing' ? '專案分析中...' : '專案預演報告'}</h1>
-                <p className="text-[#ab9db9] text-base md:text-lg max-w-2xl">{data.summary ? 'AI 已完成深度輿論場域預演，以下為關鍵數據與洞察報導。' : '正在整合 1,000 位 AI 市民的深度反饋與市場動態數據。'}</p>
+                <h1 className="text-2xl md:text-4xl font-black leading-tight tracking-[-0.033em] text-white">【未來推演】商業模式驗證報告</h1>
+                <p className="text-[#ab9db9] text-base md:text-lg max-w-2xl mt-4 leading-relaxed">
+                  本報告採用「西方方法論」與「東方八字科學」<button onClick={() => setShowMethodology(true)} className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 font-bold text-glow hover:scale-105 transition-transform cursor-pointer border-b border-purple-500/30 hover:border-purple-400 pb-0.5">雙軌演算法</button>，為您預判市場勝率。
+                </p>
+                <button
+                  onClick={() => setShowMethodology(true)}
+                  className="mt-2 inline-flex items-center text-indigo-400 hover:text-indigo-300 cursor-pointer font-medium transition-colors"
+                >
+                  📖 深入解析：我們如何運用「西方科學方法論」進行驗證？
+                </button>
               </div>
               <Link href="/#start" className="flex-none flex items-center justify-center rounded-lg h-12 px-6 bg-[#302839] hover:bg-[#473b54] text-white text-sm font-bold tracking-[0.015em] border border-[#473b54] transition-all shadow-lg active:scale-95">
                 <span className="material-symbols-outlined mr-2 text-[20px]">play_circle</span>執行新預演
@@ -1064,6 +1095,63 @@ export default function WatchPage() {
                     <div className="mt-4 pt-3 border-t border-blue-500/20 flex items-center gap-2">
                       <span className="material-symbols-outlined text-blue-400 text-sm">verified_user</span>
                       <span className="text-[10px] text-blue-300 font-bold tracking-wider">AI 市民已同步參考以上市場價格進行購買意向評估</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 🧬 [Sidecar] 方法論驗證數據 */}
+              {data.methodology_data && (
+                <div className="col-span-1 lg:col-span-4 bg-[#1a1a1f] border border-[#302839] rounded-2xl p-5 shadow-xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-[40px] -mr-16 -mt-16 pointer-events-none"></div>
+
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="material-symbols-outlined text-cyan-400 text-[20px]">science</span>
+                    <h3 className="text-[#ab9db9] text-sm font-bold uppercase tracking-wider">方法論驗證</h3>
+                    <span className="text-[10px] bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full font-bold">
+                      Science
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* 有效期 & 信賴區間 */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-[#231b2e] p-3 rounded-lg border border-white/5">
+                        <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">報告有效期</div>
+                        <div className="text-sm font-bold text-white font-mono">{data.methodology_data.valid_until}</div>
+                      </div>
+                      <div className="bg-[#231b2e] p-3 rounded-lg border border-white/5">
+                        <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">95% 信賴區間</div>
+                        <div className="text-sm font-bold text-cyan-400 font-mono">{data.methodology_data.confidence_interval}</div>
+                      </div>
+                    </div>
+
+                    {/* 下一步迭代行動 */}
+                    <Link
+                      href={`/?mode=iteration&action=${data.methodology_data.next_step.action}&ref_score=${data.score}&product_name=${encodeURIComponent(data.simulation_metadata?.product_name || '')}&price=${data.market_prices?.avg_price || ''}&description=${encodeURIComponent(data.summary?.slice(0, 200) || '')}`}
+                      className="block bg-[#231b2e] p-4 rounded-xl border border-white/5 relative overflow-hidden hover:border-cyan-500/50 transition-all cursor-pointer group/action"
+                    >
+                      <div className="relative z-10">
+                        <div className="text-[10px] text-gray-400 font-bold uppercase mb-2 flex justify-between">
+                          <span>精實迭代建議 / NEXT ACTION</span>
+                          <span className="text-white/50 group-hover/action:text-cyan-400 transition-colors">{data.methodology_data.next_step.action} ↗</span>
+                        </div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className={`size-2 rounded-full ${data.methodology_data.next_step.style.split(' ')[0]}`}></div>
+                          <div className="text-lg font-bold text-white group-hover/action:text-cyan-100 transition-colors">{data.methodology_data.next_step.label}</div>
+                        </div>
+                        <p className="text-xs text-gray-400 leading-relaxed border-t border-white/5 pt-2 mt-2 group-hover/action:text-gray-300 transition-colors">
+                          {data.methodology_data.next_step.desc}
+                        </p>
+                      </div>
+
+                      {/* Background Action Button Overlay */}
+                      <div className={`absolute -bottom-2 -right-2 size-16 rounded-full opacity-20 blur-xl ${data.methodology_data.next_step.style.split(' ')[0]} group-hover/action:opacity-40 transition-opacity`}></div>
+                    </Link>
+
+                    <div className="text-[10px] text-gray-500 font-mono text-center flex items-center justify-center gap-1 opacity-70">
+                      <span className="material-symbols-outlined text-[10px]">lock_clock</span>
+                      {data.methodology_data.entropy_warning}
                     </div>
                   </div>
                 </div>
@@ -1334,10 +1422,14 @@ export default function WatchPage() {
                             執行時間表
                           </p>
                           <ul className="space-y-1.5">
-                            {(s.execution_plan || s.action_plan)?.map((step: string, j: number) => (
+                            {(s.execution_plan || s.action_plan)?.map((step: any, j: number) => (
                               <li key={j} className="flex items-start gap-2 text-[11px] text-gray-300 hover:text-white transition-colors">
                                 <span className="text-cyan-500/70 mt-0.5 font-mono">{j + 1}.</span>
-                                <span>{step}</span>
+                                <span>
+                                  {typeof step === 'object' && step !== null
+                                    ? (step.point ? step.point + (step.description ? `: ${step.description}` : '') : (step.text || JSON.stringify(step)))
+                                    : step}
+                                </span>
                               </li>
                             )) || <li className="text-[10px] text-gray-600 italic">正在生成具體執行方案...</li>}
                           </ul>
@@ -1350,7 +1442,13 @@ export default function WatchPage() {
                               <span className="material-symbols-outlined text-[12px]">flag</span>
                               成功指標
                             </p>
-                            <p className="text-[11px] text-green-300">{s.success_metrics}</p>
+                            <p className="text-[11px] text-green-300">
+                              {typeof s.success_metrics === 'object' && s.success_metrics !== null
+                                ? (Array.isArray(s.success_metrics)
+                                  ? s.success_metrics.map((m: any) => (m.point || m.text || JSON.stringify(m))).join('; ')
+                                  : (s.success_metrics.point || JSON.stringify(s.success_metrics)))
+                                : s.success_metrics}
+                            </p>
                           </div>
                         )}
 
@@ -1361,7 +1459,13 @@ export default function WatchPage() {
                               <span className="material-symbols-outlined text-[12px]">warning</span>
                               潛在風險
                             </p>
-                            <p className="text-[11px] text-amber-300">{s.potential_risks}</p>
+                            <p className="text-[11px] text-amber-300">
+                              {typeof s.potential_risks === 'object' && s.potential_risks !== null
+                                ? (Array.isArray(s.potential_risks)
+                                  ? s.potential_risks.map((r: any) => (r.point || r.text || JSON.stringify(r))).join('; ')
+                                  : (s.potential_risks.point || JSON.stringify(s.potential_risks)))
+                                : s.potential_risks}
+                            </p>
                           </div>
                         )}
                       </div>

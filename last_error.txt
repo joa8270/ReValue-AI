@@ -1,6 +1,6 @@
-'str' object has no attribute 'get'
+name 'image_bytes' is not defined
 Traceback (most recent call last):
-  File "C:\Users\Joa\Downloads\MIRRA\backend\app\services\line_bot_service.py", line 763, in run_simulation_with_image_data
-    raw_id = comment.get("citizen_id")
-             ^^^^^^^^^^^
-AttributeError: 'str' object has no attribute 'get'
+  File "C:\Users\Joa\Downloads\MIRRA\backend\app\services\line_bot_service.py", line 1142, in run_simulation_with_image_data
+    if image_bytes.startswith(b'\x89PNG'):
+       ^^^^^^^^^^^
+NameError: name 'image_bytes' is not defined. Did you mean: 'img_bytes'?

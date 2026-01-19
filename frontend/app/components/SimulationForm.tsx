@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square } from 'lucide-react'
 
@@ -14,6 +14,11 @@ export default function SimulationForm() {
     const [nameLoading, setNameLoading] = useState(false) // AI 識別產品名稱的加載狀態
     const [error, setError] = useState("")
     const [previewUrls, setPreviewUrls] = useState<string[]>([])
+    const [iterationAlert, setIterationAlert] = useState<{ type: 'pivot' | 'scale'; message: string } | null>(null)
+    const searchParams = useSearchParams()
+
+    // Refs
+    const priceInputRef = useRef<HTMLInputElement>(null)
 
     // Recording State
     const [isRecording, setIsRecording] = useState(false)
@@ -40,6 +45,41 @@ export default function SimulationForm() {
             urls.forEach(url => URL.revokeObjectURL(url))
         }
     }, [files])
+
+    // Handle Context Carry-over (Iteration Mode)
+    useEffect(() => {
+        const modeParam = searchParams.get('mode')
+        const action = searchParams.get('action') || 'Pivot'
+        const refName = searchParams.get('product_name')
+        const refPrice = searchParams.get('price')
+        const refDesc = searchParams.get('description')
+        // const refScore = searchParams.get('ref_score')
+
+        if (modeParam === 'iteration') {
+            // Pre-fill data
+            if (refName) setProductName(decodeURIComponent(refName))
+            if (refPrice && refPrice !== 'undefined') setPrice(refPrice)
+            if (refDesc && refDesc !== 'undefined') setDescription(decodeURIComponent(refDesc))
+
+            // Visual Feedback
+            if (action === 'Scale') {
+                setIterationAlert({
+                    type: 'scale',
+                    message: "上一輪表現優異！建議上傳不同風格的素材進行 A/B 測試，擴大勝果 (Scale)。"
+                })
+            } else {
+                // Pivot or Restart match
+                setIterationAlert({
+                    type: 'pivot',
+                    message: "建議根據分析結果微調定價或產品描述，嘗試新的市場切入點 (Pivot)。"
+                })
+                // Focus on price if Pivot
+                setTimeout(() => {
+                    priceInputRef.current?.focus()
+                }, 800)
+            }
+        }
+    }, [searchParams])
 
     // Form Fields
     const [productName, setProductName] = useState("")
@@ -313,9 +353,34 @@ export default function SimulationForm() {
         <div className="w-full max-w-2xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6 shadow-2xl shadow-purple-900/20 overflow-hidden relative group">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50" />
 
+
+            {/* Iteration Alert Banner */}
+            {iterationAlert && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`mb-6 p-4 rounded-xl border flex items-start gap-3 ${iterationAlert.type === 'scale'
+                        ? 'bg-green-500/10 border-green-500/30 text-green-300'
+                        : 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                        }`}
+                >
+                    <span className="text-xl">
+                        {iterationAlert.type === 'scale' ? '🚀' : '💡'}
+                    </span>
+                    <div>
+                        <h3 className="font-bold text-sm mb-1">
+                            {iterationAlert.type === 'scale' ? '準備擴大規模 (Scale)' : '啟動迭代優化 (Pivot)'}
+                        </h3>
+                        <p className="text-xs opacity-90 leading-relaxed">
+                            {iterationAlert.message}
+                        </p>
+                    </div>
+                </motion.div>
+            )}
+
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                 <span className="p-2 bg-purple-500/20 rounded-lg text-purple-400">⚡</span>
-                啟動「鏡界」預演
+                {iterationAlert ? '延續預演迭代' : '啟動「鏡界」預演'}
             </h2>
 
             {/* Tabs */}
@@ -513,12 +578,13 @@ export default function SimulationForm() {
                                         {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
                                     </label>
                                     <input
+                                        ref={priceInputRef}
                                         type="text"
                                         value={price}
                                         onChange={(e) => { setPrice(e.target.value); setPriceSource(""); }}
                                         placeholder={nameLoading ? "AI 估價中..." : "例：2990"}
                                         disabled={nameLoading}
-                                        className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''}`}
+                                        className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''} ${iterationAlert?.type === 'pivot' ? 'ring-2 ring-amber-500/50' : ''}`}
                                     />
                                     {priceSource && (
                                         <p className="text-[10px] text-purple-400/80 ml-1 mt-1">{priceSource}</p>
