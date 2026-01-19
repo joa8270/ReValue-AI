@@ -117,12 +117,19 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
                         <p className="text-xs text-rose-400 font-bold mb-1">發現痛點 / PAIN POINTS</p>
                         <p className="text-xs text-gray-300 leading-relaxed">{refineResult.pain_points}</p>
                     </div>
-                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3">
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 relative group">
                         <p className="text-xs text-emerald-400 font-bold mb-1 flex items-center gap-2">
                             <span className="material-symbols-outlined text-sm">lightbulb</span>
                             優化策略 / STRATEGIC ADVICE
                         </p>
                         <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">{formatContent(refineResult.refined_copy)}</p>
+                        <button
+                            onClick={() => navigator.clipboard.writeText(formatContent(refineResult.refined_copy) || "")}
+                            className="absolute top-2 right-2 p-1.5 bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                            title="複製策略"
+                        >
+                            <span className="material-symbols-outlined text-sm">content_copy</span>
+                        </button>
                     </div>
 
                     {/* 🌟 New Block: Ready-to-Use Marketing Copy */}
