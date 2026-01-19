@@ -8,12 +8,12 @@ import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles,
 export default function SimulationForm() {
     const router = useRouter()
     const [mode, setMode] = useState<'image' | 'pdf'>('image')
-    const [file, setFile] = useState<File | null>(null)
+    const [files, setFiles] = useState<File[]>([])
     const [loading, setLoading] = useState(false)
     const [aiLoading, setAiLoading] = useState(false)
     const [nameLoading, setNameLoading] = useState(false) // AI 識別產品名稱的加載狀態
     const [error, setError] = useState("")
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const [previewUrls, setPreviewUrls] = useState<string[]>([])
 
     // Recording State
     const [isRecording, setIsRecording] = useState(false)
@@ -23,16 +23,23 @@ export default function SimulationForm() {
     const timerRef = useRef<NodeJS.Timeout | null>(null)
 
     useEffect(() => {
-        if (!file || !file.type.startsWith('image/')) {
-            setPreviewUrl(null)
+        if (files.length === 0) {
+            setPreviewUrls([])
             return
         }
 
-        const objectUrl = URL.createObjectURL(file)
-        setPreviewUrl(objectUrl)
+        const urls: string[] = []
+        files.forEach(file => {
+            if (file.type.startsWith('image/')) {
+                urls.push(URL.createObjectURL(file))
+            }
+        })
+        setPreviewUrls(urls)
 
-        return () => URL.revokeObjectURL(objectUrl)
-    }, [file])
+        return () => {
+            urls.forEach(url => URL.revokeObjectURL(url))
+        }
+    }, [files])
 
     // Form Fields
     const [productName, setProductName] = useState("")
@@ -83,51 +90,70 @@ export default function SimulationForm() {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const selectedFile = e.target.files[0]
-            setFile(selectedFile)
+        if (e.target.files && e.target.files.length > 0) {
+            const newFiles = Array.from(e.target.files)
+
+            // Append mode: Add new files to existing ones, avoiding duplicates (by name + size)
+            setFiles(prevFiles => {
+                const combined = [...prevFiles]
+                newFiles.forEach(newFile => {
+                    // Check for duplicate
+                    if (!combined.some(existing => existing.name === newFile.name && existing.size === newFile.size)) {
+                        combined.push(newFile)
+                    }
+                })
+                return combined
+            })
+
             setError("")
 
-            // 如果是圖片模式且是圖片檔案，自動識別產品名稱
-            if (mode === 'image' && selectedFile.type.startsWith('image/')) {
-                setNameLoading(true)
-                try {
-                    const formData = new FormData()
-                    formData.append("file", selectedFile)
-
-                    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-                    const res = await fetch(`${API_BASE_URL}/api/web/identify-product`, {
-                        method: "POST",
-                        body: formData,
-                    })
-
-                    const data = await res.json()
-                    if (data.product_name) {
-                        setProductName(data.product_name)
-                    }
-                    // 填入估算價格
-                    if (data.estimated_price) {
-                        setPrice(data.estimated_price.toString())
-                    }
-                    // 設置價格來源說明
-                    if (data.price_source) {
-                        setPriceSource(`💡 ${data.price_source}${data.price_range ? ` (價格範圍: ${data.price_range})` : ''}`)
-                    }
-                    // 🔍 存儲市場比價資料
-                    if (data.market_prices) {
-                        setMarketPrices(data.market_prices)
-                        // 如果有成功取得市場比價，更新價格來源顯示
-                        if (data.market_prices.success && data.market_prices.sources_count > 0) {
-                            setPriceSource(`📊 已比對 ${data.market_prices.sources_count} 個電商平台：${data.market_prices.search_summary}`)
-                        }
-                    }
-                } catch (err) {
-                    console.error("Product identification failed:", err)
-                    // 失敗時不顯示錯誤，讓用戶手動輸入
-                }
-                setNameLoading(false)
-            }
+            // Clear input value so selecting the same file again (if user wants to for some reason, though we filter duplicates) or selecting others works reliably
+            if (fileInputRef.current) fileInputRef.current.value = ""
         }
+    }
+
+    const handleIdentifyProduct = async () => {
+        if (files.length === 0) return
+
+        setNameLoading(true)
+        try {
+            const formData = new FormData()
+            files.forEach(f => formData.append("files", f))
+
+            const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+            const res = await fetch(`${API_BASE_URL}/api/web/identify-product`, {
+                method: "POST",
+                body: formData,
+            })
+
+            const data = await res.json()
+            // 支援多圖判斷結結果
+            // if (data.is_same_product === false) { alert("注意：AI 檢測到這些圖片可能屬於不同產品，分析將以最顯著的產品為主。") }
+
+            if (data.product_name) {
+                setProductName(data.product_name)
+            }
+            // 填入估算價格
+            if (data.estimated_price) {
+                setPrice(data.estimated_price.toString())
+            }
+            // 設置價格來源說明
+            if (data.price_source) {
+                setPriceSource(`💡 ${data.price_source}${data.price_range ? ` (價格範圍: ${data.price_range})` : ''}`)
+            }
+            // 🔍 存儲市場比價資料
+            if (data.market_prices) {
+                setMarketPrices(data.market_prices)
+                // 如果有成功取得市場比價，更新價格來源顯示
+                if (data.market_prices.success && data.market_prices.sources_count > 0) {
+                    setPriceSource(`📊 已比對 ${data.market_prices.sources_count} 個電商平台：${data.market_prices.search_summary}`)
+                }
+            }
+        } catch (err) {
+            console.error("Product identification failed:", err)
+            setError("識別失敗，請稍後再試或手動輸入")
+        }
+        setNameLoading(false)
     }
 
     // Recording Controls
@@ -147,7 +173,7 @@ export default function SimulationForm() {
             mediaRecorder.onstop = () => {
                 const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
                 const audioFile = new File([audioBlob], `recording_${Date.now()}.webm`, { type: 'audio/webm' })
-                setFile(audioFile)
+                setFiles([audioFile]) // Set as single file
                 stream.getTracks().forEach(track => track.stop())
             }
 
@@ -184,7 +210,7 @@ export default function SimulationForm() {
     }
 
     const handleAiGenerate = async () => {
-        if (!file || !productName) {
+        if (files.length === 0 || !productName) {
             setError("請先上傳圖片並輸入產品名稱")
             return
         }
@@ -193,7 +219,11 @@ export default function SimulationForm() {
 
         try {
             const formData = new FormData()
-            formData.append("file", file)
+            // 傳送所有圖片
+            if (files.length > 0) {
+                files.forEach(f => formData.append("files", f))
+            }
+
             formData.append("product_name", productName)
             formData.append("price", price || "未定")
             formData.append("style", selectedStyle)
@@ -224,7 +254,7 @@ export default function SimulationForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!file) {
+        if (files.length === 0) {
             setError("請先上傳檔案")
             return
         }
@@ -234,7 +264,7 @@ export default function SimulationForm() {
 
         try {
             const formData = new FormData()
-            formData.append("file", file)
+            files.forEach(f => formData.append("files", f))
 
             if (mode === 'image') {
                 formData.append("product_name", productName)
@@ -271,8 +301,9 @@ export default function SimulationForm() {
         }
     }
 
+
     const clearFile = () => {
-        setFile(null)
+        setFiles([])
         if (fileInputRef.current) {
             fileInputRef.current.value = ""
         }
@@ -290,7 +321,7 @@ export default function SimulationForm() {
             {/* Tabs */}
             <div className="flex p-1 bg-slate-950/50 rounded-xl mb-6">
                 <button
-                    onClick={() => { setMode('image'); setFile(null); }}
+                    onClick={() => { setMode('image'); setFiles([]); }}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === 'image'
                         ? 'bg-purple-600 text-white shadow-lg'
                         : 'text-slate-400 hover:text-white hover:bg-slate-800'
@@ -300,7 +331,7 @@ export default function SimulationForm() {
                     產品圖片
                 </button>
                 <button
-                    onClick={() => { setMode('pdf'); setFile(null); }}
+                    onClick={() => { setMode('pdf'); setFiles([]); }}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === 'pdf'
                         ? 'bg-purple-600 text-white shadow-lg'
                         : 'text-slate-400 hover:text-white hover:bg-slate-800'
@@ -315,41 +346,74 @@ export default function SimulationForm() {
 
                 {/* File Upload Area */}
                 <div
-                    className={`relative border-2 border-dashed rounded-2xl p-8 transition-all text-center cursor-pointer hover:border-purple-400/50 hover:bg-slate-800/50 ${file ? 'border-purple-500/50 bg-purple-900/10' : 'border-slate-700 bg-slate-950/30'
+                    className={`relative border-2 border-dashed rounded-2xl p-8 transition-all text-center cursor-pointer hover:border-purple-400/50 hover:bg-slate-800/50 ${files.length > 0 ? 'border-purple-500/50 bg-purple-900/10' : 'border-slate-700 bg-slate-950/30'
                         }`}
-                    onClick={() => !file && fileInputRef.current?.click()}
+                    onClick={() => files.length === 0 && fileInputRef.current?.click()}
                 >
                     <input
                         type="file"
                         ref={fileInputRef}
                         className="hidden"
+                        multiple // Support multiple files
                         accept={mode === 'image' ? "image/*" : ".pdf,.docx,.pptx,.txt,.webm,.mp3,.wav,.m4a"}
                         onChange={handleFileChange}
                     />
 
-                    {file ? (
-                        <div className="flex flex-col items-center gap-2">
-                            {mode === 'image' && previewUrl ? (
-                                <div className="relative w-48 h-48 rounded-xl overflow-hidden mb-2 border-2 border-purple-500/50 shadow-lg shadow-purple-900/20">
-                                    <img
-                                        src={previewUrl}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover"
-                                    />
+                    {files.length > 0 ? (
+                        <div className="flex flex-col items-center gap-2 w-full">
+                            {mode === 'image' && previewUrls.length > 0 ? (
+                                <div className="flex flex-wrap justify-center gap-3 w-full">
+                                    {previewUrls.map((url, index) => (
+                                        <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border border-purple-500/30 shadow-sm group/img">
+                                            <img
+                                                src={url}
+                                                alt={`Preview ${index}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-xs text-white">
+                                                {index + 1}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-red-600"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    setFiles(prev => prev.filter((_, i) => i !== index))
+                                                }}
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {/* Add More Button */}
+                                    <div
+                                        onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                                        className="w-24 h-24 rounded-lg border-2 border-dashed border-purple-500/30 flex items-center justify-center cursor-pointer hover:bg-purple-500/10 hover:border-purple-500/50 transition-all group/add"
+                                    >
+                                        <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center group-hover/add:bg-purple-500/40">
+                                            <span className="text-xl text-purple-400 font-bold">+</span>
+                                        </div>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="p-3 bg-purple-500 rounded-full text-white mb-2">
                                     {mode === 'image' ? <ImageIcon className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
                                 </div>
                             )}
-                            <p className="text-purple-400 font-bold">{file.name}</p>
-                            <p className="text-slate-500 text-xs">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                            <p className="text-purple-400 font-bold mt-2">
+                                {files.length === 1 ? files[0].name : `已選擇 ${files.length} 個檔案`}
+                            </p>
+                            <p className="text-slate-500 text-xs">
+                                {files.length === 1
+                                    ? (files[0].size / 1024 / 1024).toFixed(2) + " MB"
+                                    : `總計 ${(files.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(2)} MB`}
+                            </p>
                             <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); clearFile(); }}
                                 className="mt-2 px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-xs hover:bg-red-500/20 hover:text-red-400 transition-colors flex items-center gap-1"
                             >
-                                <X className="w-3 h-3" /> 移除檔案
+                                <X className="w-3 h-3" /> 移除全部
                             </button>
                         </div>
                     ) : isRecording ? (
@@ -391,6 +455,31 @@ export default function SimulationForm() {
                                 </div>
                             )}
                         </div>
+                    )}
+
+                    {/* Manual Identification Button */}
+                    {mode === 'image' && files.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handleIdentifyProduct(); }}
+                            disabled={nameLoading}
+                            className={`mt-4 w-full py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all ${nameLoading
+                                ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                                : 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:scale-[1.02] border border-purple-500/30'
+                                }`}
+                        >
+                            {nameLoading ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    AI 正在分析產品...
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles className="w-4 h-4" />
+                                    AI 識別品名與估價
+                                </>
+                            )}
+                        </button>
                     )}
                 </div>
 
@@ -455,8 +544,8 @@ export default function SimulationForm() {
                                         <button
                                             type="button"
                                             onClick={handleAiGenerate}
-                                            disabled={aiLoading || !file || !productName}
-                                            className={`text-[10px] px-2 py-1 rounded-full border flex items-center gap-1 transition-all ${aiLoading || !file || !productName
+                                            disabled={aiLoading || files.length === 0 || !productName}
+                                            className={`text-[10px] px-2 py-1 rounded-full border flex items-center gap-1 transition-all ${aiLoading || files.length === 0 || !productName
                                                 ? 'text-slate-600 border-slate-700 cursor-not-allowed'
                                                 : 'text-purple-400 border-purple-500/50 hover:bg-purple-500/20 hover:border-purple-400 animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.5)]'
                                                 }`}

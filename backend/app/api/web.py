@@ -1,4 +1,5 @@
 from fastapi import APIRouter, File, UploadFile, Form, BackgroundTasks
+from typing import List
 from app.core.database import create_simulation, insert_citizens_batch, get_citizens_count, clear_citizens, get_citizen_by_id
 import uuid
 import sys
@@ -51,7 +52,7 @@ async def reset_citizens_endpoint(count: int = 1000):
 @router.post("/trigger")
 async def trigger_simulation(
     background_tasks: BackgroundTasks,
-    file: UploadFile = File(...),
+    files: List[UploadFile] = File(...),
     product_name: str = Form(None),
     price: str = Form(None),
     description: str = Form(None),
@@ -90,8 +91,16 @@ async def trigger_simulation(
     create_simulation(sim_id, initial_data)
     
     # 讀取檔案
-    file_bytes = await file.read()
-    filename = file.filename.lower() if file.filename else ""
+    file_bytes_list = []
+    filenames = []
+    for file in files:
+        content = await file.read()
+        file_bytes_list.append(content)
+        filenames.append(file.filename.lower() if file.filename else "")
+    
+    # 主要檔案 (用於判斷類型)
+    main_filename = filenames[0] if filenames else ""
+    main_file_bytes = file_bytes_list[0] if file_bytes_list else b""
     
     # 組合 Text Context
     text_context = ""
@@ -102,18 +111,18 @@ async def trigger_simulation(
 
     # 判斷檔案類型
     from app.utils.document_parser import parse_document, get_file_extension
-    ext = get_file_extension(filename)
+    ext = get_file_extension(main_filename)
     
     # 文件類型處理 (Word, PPT, TXT)
     document_extensions = ["docx", "pptx", "txt"]
     audio_extensions = ["webm", "mp3", "wav", "m4a", "ogg"]
     
     if ext == "pdf":
-        # PDF 處理 (現有流程)
-        background_tasks.add_task(line_service.run_simulation_with_pdf_data, file_bytes, sim_id, filename)
+        # PDF 處理 (現有流程，暫時只取第一個)
+        background_tasks.add_task(line_service.run_simulation_with_pdf_data, main_file_bytes, sim_id, main_filename)
     elif ext in document_extensions:
         # Word/PPT/TXT: 解析文字後傳給文字分析流程
-        parsed_text = parse_document(file_bytes, filename)
+        parsed_text = parse_document(main_file_bytes, main_filename)
         if parsed_text:
             # 合併解析內容與用戶額外輸入
             full_context = parsed_text
@@ -126,16 +135,17 @@ async def trigger_simulation(
             update_simulation(sim_id, "error", {"status": "error", "summary": f"無法解析 {ext.upper()} 文件"})
     elif ext in audio_extensions:
         # 音訊檔: 傳給語音轉文字處理
-        background_tasks.add_task(line_service.run_simulation_with_audio_data, file_bytes, sim_id, ext)
+        background_tasks.add_task(line_service.run_simulation_with_audio_data, main_file_bytes, sim_id, ext)
     else:
-        # 預設為圖片處理
-        background_tasks.add_task(line_service.run_simulation_with_image_data, file_bytes, sim_id, text_context)
+        # 預設為圖片處理 (支援多圖)
+        # 傳遞 file_bytes_list 給 run_simulation_with_image_data
+        background_tasks.add_task(line_service.run_simulation_with_image_data, file_bytes_list, sim_id, text_context)
         
     return {"status": "ok", "sim_id": sim_id}
 
 @router.post("/generate-description")
 async def generate_description(
-    file: UploadFile = File(...),
+    files: List[UploadFile] = File(...),
     product_name: str = Form(...),
     price: str = Form(...),
     style: str = Form("professional")
@@ -144,10 +154,13 @@ async def generate_description(
         from app.services.line_bot_service import LineBotService
         line_service = LineBotService()
 
-        file_bytes = await file.read()
+        # Read multiple files
+        file_bytes_list = []
+        for file in files:
+            file_bytes_list.append(await file.read())
         
-        # Call LineBotService to generate copy with selected style
-        result = await line_service.generate_marketing_copy(file_bytes, product_name, price, style)
+        # Call LineBotService to generate copy with selected style (pass list)
+        result = await line_service.generate_marketing_copy(file_bytes_list, product_name, price, style)
         
         if "error" in result:
             return {"error": result["error"]}
@@ -159,7 +172,7 @@ async def generate_description(
 
 @router.post("/identify-product")
 async def identify_product(
-    file: UploadFile = File(...)
+    files: List[UploadFile] = File(...)
 ):
     """
     使用 Gemini 2.5 Pro 識別圖片中的產品名稱並估算市場價格
@@ -174,30 +187,36 @@ async def identify_product(
         import time
         
         line_service = LineBotService()
-        file_bytes = await file.read()
         
-        # 將圖片轉為 base64
-        image_b64 = base64.b64encode(file_bytes).decode('utf-8')
-        
-        # 判斷 MIME type
-        filename = file.filename.lower() if file.filename else ""
-        if filename.endswith('.png'):
-            mime_type = "image/png"
-        elif filename.endswith('.webp'):
-            mime_type = "image/webp"
-        elif filename.endswith('.gif'):
-            mime_type = "image/gif"
-        else:
-            mime_type = "image/jpeg"
-        
+        # 讀取所有圖片
+        image_parts = []
+        for file in files:
+            file_bytes = await file.read()
+            # 將圖片轉為 base64
+            image_b64 = base64.b64encode(file_bytes).decode('utf-8')
+            
+            # 判斷 MIME type
+            filename = file.filename.lower() if file.filename else ""
+            if filename.endswith('.png'):
+                mime_type = "image/png"
+            elif filename.endswith('.webp'):
+                mime_type = "image/webp"
+            elif filename.endswith('.gif'):
+                mime_type = "image/gif"
+            else:
+                mime_type = "image/jpeg"
+            
+            image_parts.append({"inline_data": {"mime_type": mime_type, "data": image_b64}})
+            
         # 構建識別 prompt（同時識別名稱和估算價格）
-        prompt = """請觀察這張產品圖片，回答以下問題：
-
-1. 這張圖片中的產品是什麼？用簡短的中文描述（3-8個字）
-2. 根據你對全球主要電商平台（Amazon、淘寶、蝦皮、PChome）上同類產品的了解，估算這類產品的市場平均售價（新台幣 TWD）
+        prompt = """請觀察這張（或多張）產品圖片，回答以下問題：
+1. **是否為同一產品**：如果上傳了多張圖片，請判斷它們是否為同一個產品的不同角度？還是完全不同的產品？（如果是不同產品，請以最顯著的那個為主進行回答）
+2. **產品識別**：這張圖片中的產品是什麼？用簡短的中文描述（3-8個字）
+3. **價格估算**：根據你對全球主要電商平台（Amazon、淘寶、蝦皮、PChome）上同類產品的了解，估算這類產品的市場平均售價（新台幣 TWD）
 
 請用以下 JSON 格式回答：
 {
+  "is_same_product": true/false,
   "product_name": "產品名稱",
   "estimated_price": 數字（不含貨幣符號），
   "price_range": "最低價-最高價",
@@ -211,12 +230,12 @@ async def identify_product(
         if not api_key:
             return {"error": "API Key not configured"}
         
+        # 組合 prompt + 圖片
+        content_parts = [{"text": prompt}] + image_parts
+        
         payload = {
             "contents": [{
-                "parts": [
-                    {"text": prompt},
-                    {"inline_data": {"mime_type": mime_type, "data": image_b64}}
-                ]
+                "parts": content_parts
             }],
             "generationConfig": {
                 "temperature": 0.3,

@@ -15,6 +15,14 @@ services:
         value: 3.10.0
     autoDeploy: true
 
+  # Cron Job - Keep Backend Alive (防止休眠)
+  - type: cron
+    name: mirra-keep-alive
+    env: python
+    schedule: "*/10 * * * *"  # 每 10 分鐘執行一次
+    buildCommand: pip install requests
+    startCommand: python -c "import requests; requests.get('https://mirra-backend.onrender.com')"
+
 databases:
   # Managed PostgreSQL
   - name: mirra-db

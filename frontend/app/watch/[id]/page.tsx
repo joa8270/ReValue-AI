@@ -479,6 +479,7 @@ export default function WatchPage() {
   const [hasShownLoading, setHasShownLoading] = useState(false)
   const [minimumLoadingComplete, setMinimumLoadingComplete] = useState(false)
   const [countdown, setCountdown] = useState(120) // 新增倒數計時狀態 (改為 120s)
+  const [visibleLogLines, setVisibleLogLines] = useState(0) // 控制可見的日誌行數
 
   const TOTAL_POPULATION = 1000
 
@@ -499,6 +500,17 @@ export default function WatchPage() {
       return () => clearInterval(timer)
     }
   }, [minimumLoadingComplete, data?.status])
+
+  // 系統日誌逐行動畫
+  useEffect(() => {
+    const totalLines = 8; // 7個靜態日誌 + 1個動畫行
+    if (visibleLogLines < totalLines) {
+      const timer = setTimeout(() => {
+        setVisibleLogLines(prev => prev + 1);
+      }, 400); // 每 400ms 顯示一行
+      return () => clearTimeout(timer);
+    }
+  }, [visibleLogLines])
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout
@@ -737,21 +749,28 @@ export default function WatchPage() {
                   { t: "警告: 發現異常變數 (已修正)", c: "text-white font-bold" },
                   { t: "正在模擬市場摩擦係數...", c: "text-gray-200" },
                 ].map((log, i) => (
-                  <div key={i} className="flex gap-3">
-                    <span className="text-cyan-700">{`>`}</span>
-                    <span className={log.c}>{log.t}</span>
-                  </div>
+                  visibleLogLines > i && (
+                    <div
+                      key={i}
+                      className="flex gap-3 animate-in fade-in slide-in-from-left-2 duration-300"
+                    >
+                      <span className="text-cyan-700">{`>`}</span>
+                      <span className={log.c}>{log.t}</span>
+                    </div>
+                  )
                 ))}
 
-                {/* Active line */}
-                <div className="relative flex gap-3 text-[#25d1f4] font-bold shadow-[0_0_15px_rgba(37,209,244,0.1)] bg-[#25d1f4]/5 p-2 rounded border-l-2 border-[#25d1f4] mt-4 overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#25d1f4]/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
-                  <span className="shrink-0 animate-pulse">{`>`}</span>
-                  <p className="drop-shadow-[0_0_5px_rgba(37,209,244,0.5)] z-10">
-                    正在計算五行流年影響...
-                    <span className="inline-block w-2.5 h-4 bg-[#25d1f4] ml-1 align-middle animate-[blink_1s_steps(2)_infinite] shadow-[0_0_5px_#25d1f4]"></span>
-                  </p>
-                </div>
+                {/* Active line - 只在第 8 行才顯示 */}
+                {visibleLogLines >= 8 && (
+                  <div className="relative flex gap-3 text-[#25d1f4] font-bold shadow-[0_0_15px_rgba(37,209,244,0.1)] bg-[#25d1f4]/5 p-2 rounded border-l-2 border-[#25d1f4] mt-4 overflow-hidden group animate-in fade-in slide-in-from-left-2 duration-300">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#25d1f4]/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+                    <span className="shrink-0 animate-pulse">{`>`}</span>
+                    <p className="drop-shadow-[0_0_5px_rgba(37,209,244,0.5)] z-10">
+                      正在計算五行流年影響...
+                      <span className="inline-block w-2.5 h-4 bg-[#25d1f4] ml-1 align-middle animate-[blink_1s_steps(2)_infinite] shadow-[0_0_5px_#25d1f4]"></span>
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Footer of Log */}

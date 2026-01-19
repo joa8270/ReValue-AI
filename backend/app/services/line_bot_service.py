@@ -150,7 +150,7 @@ class LineBotService:
         return None, None
 
     async def _handle_image_message(self, event, user_id, reply_token):
-        """情境 A: 收到圖片 → AI 識別 → 確認或修改"""
+        """情境 A: 收到圖片 → 支援多圖上傳 → AI 識別 → 確認或修改"""
         message_id = event.message.id
         
         # 下載圖片並暫存
@@ -161,16 +161,23 @@ class LineBotService:
             self.reply_text(reply_token, "🔍 MIRRA 正在觀察您的圖片，請稍候...")
             ai_name, ai_price = await self.identify_product_from_image(image_bytes)
             
-            # 暫存到 session
-            self.user_session[user_id] = {
-                "image_bytes": image_bytes,
-                "message_id": message_id,
-                "stage": "waiting_for_name_confirmation",  # 新狀態
-                "product_name": ai_name or "",
-                "product_price": ai_price or "未定",
-                "product_description": None,
-                "generated_descriptions": None
-            }
+            # 初始化或更新 session（支援多圖）
+            if user_id not in self.user_session:
+                self.user_session[user_id] = {}
+            
+            session = self.user_session[user_id]
+            session["image_bytes"] = image_bytes  # 暫時保留舊key兼容性
+            session["images"] = [image_bytes]  # 新增：多圖陣列
+            session["message_id"] = message_id
+            session["stage"] = "waiting_for_name_confirmation"
+            session["product_name"] = ai_name or ""
+            session["product_price"] = ai_price or "未定"
+            session["product_description"] = None
+            session["generated_descriptions"] = None
+            session["ai_copy_a"] = ""  # 新增：AI 生成文案 A
+            session["ai_copy_b"] = ""  # 新增：AI 生成文案 B
+            session["style"] = ""  # 新增：用戶選擇的風格
+            session["market_prices"] = {}  # 新增：市場比價資料
             
             print(f"📸 [SESSION] AI 識別完成: {ai_name} / {ai_price}")
             
@@ -654,53 +661,115 @@ class LineBotService:
                 print(f"⚠️ Failed to parse AI JSON after cleaning: {clean_text[:50]}...")
                 return {}
 
-    async def generate_marketing_copy(self, image_bytes, product_name: str, price: str, style: str = "professional"):
+    async def generate_marketing_copy(self, image_data_input, product_name: str, price: str, style: str = "professional"):
         """
-        網頁端 API 使用：根據圖片生成行銷文案
+        網頁端 API 使用：根據圖片（單張或多張）生成行銷文案
         使用 GitHub 原版 A/B Prompt（品質更好），但只返回其中一段
         """
         try:
-            # 1. Image to Base64
-            image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+            # 1. Process Images (List or Single)
+            image_bytes_list = image_data_input if isinstance(image_data_input, list) else [image_data_input]
+            image_parts = []
             
-            # Mime type detection
-            if image_bytes.startswith(b'\x89PNG'): mime_type = "image/png"
-            elif image_bytes.startswith(b'GIF8'): mime_type = "image/gif"
-            elif image_bytes.startswith(b'RIFF') and image_bytes[8:12] == b'WEBP': mime_type = "image/webp"
-            else: mime_type = "image/jpeg"
+            for idx, img_bytes in enumerate(image_bytes_list):
+                 # Auto-detect mime type
+                if img_bytes.startswith(b'\x89PNG'): mime_type = "image/png"
+                elif img_bytes.startswith(b'GIF8'): mime_type = "image/gif"
+                elif img_bytes.startswith(b'RIFF') and img_bytes[8:12] == b'WEBP': mime_type = "image/webp"
+                else: mime_type = "image/jpeg"
+                
+                img_b64 = base64.b64encode(img_bytes).decode('utf-8')
+                image_parts.append({"inline_data": {"mime_type": mime_type, "data": img_b64}})
+            
+            print(f"📸 [Web Copywriting] Processing {len(image_parts)} images...")
             
             # 風格指令
             style_prompts = {
-                "professional": "請使用**專業穩重**的商務風格。用詞正式、數據導向，強調產品的專業性與可靠度。適合 B2B 或高端消費者。",
-                "friendly": "請使用**親切活潑**的輕鬆風格。像跟朋友聊天一樣，使用口語化的語句，帶點幽默感，讓人感覺沒有距離。",
-                "luxury": "請使用**高端奢華**的品牌風格。用詞講究、富有質感，營造出稀有、尊貴、非凡的感受，適合精品或高價商品。",
-                "minimalist": "請使用**簡約清爽**的極簡風格。句子精煉有力，去除贅詞，只留精華，讓讀者一眼就能抓住重點。",
-                "storytelling": "請使用**故事敘述**的情境風格。以一個小故事或場景開頭，帶讀者進入產品的使用情境，讓他們在腦海中想像自己正在使用這款產品。"
+                "professional": "請使用**專業穩重**的商務風格。用詞正式，強調產品的技術規格、數據與可靠性，適合 B2B 或追求效能的專業人士。",
+                "friendly": "請使用**親切活潑**的輕鬆風格。像跟朋友聊天一樣，但也要清楚介紹產品的核心規格（如藍牙、續航），別讓讀者覺得沒內容。",
+                "luxury": "請使用**高端奢華**的品牌風格。用詞講究、富有質感，並將技術規格轉化為尊貴體驗的描述（例如：無線連接帶來的無拘無束）。",
+                "minimalist": "請使用**簡約清爽**的極簡風格。句子精煉有力，直接列出核心規格數據，去除冗餘形容詞。",
+                "storytelling": "請使用**故事敘述**的情境風格。在故事中自然帶出產品的規格優勢（如：不用擔心沒電，因為它有超長續航...）。"
             }
             style_instruction = style_prompts.get(style, style_prompts["professional"])
             
-            # 使用 GitHub 原版 Prompt（A/B 格式能激發更好的創意）
-            prompt = f"""請擔任一位頂級的商業文案策略大師。請深入分析這張產品圖片，並根據提供的資訊，為這款產品創造兩個截然不同的「完美應用場景」與「沉浸式行銷文案」。
+            # 2. 搜尋產品規格 (New Feature)
+            product_specs = ""
+            if product_name and product_name != "產品" and product_name != "未命名產品":
+                 try:
+                     from app.services.price_search import search_product_specs_sync
+                     print(f"🔍 [Web Copywriting] Searching specs for: {product_name}...")
+                     product_specs = search_product_specs_sync(product_name)
+                     print(f"🔍 [Web Copywriting] Specs length: {len(product_specs)}")
+                 except Exception as e:
+                     print(f"⚠️ Spec search failed: {e}")
 
+            # 使用 GitHub 原版 Prompt（A/B 格式）並加入規格資訊
+            # 根據圖片數量調整 prompt
+            multi_image_instruction = ""
+            if len(image_parts) > 1:
+                multi_image_instruction = f"""
+📸 **多圖分析指引** (共 {len(image_parts)} 張圖片)：
+用戶上傳了多張圖片，這代表他們希望你能夠：
+1. **識別每張圖片的視角與用途**：
+   - 可能是產品的不同角度（正面、側面、背面、俯視、細節特寫）
+   - 可能是使用情境展示、包裝展示、配件展示
+   - 可能是顏色/款式變化
+   
+2. **整合多視角資訊**：
+   - 請先在心中分析每張圖片分別展示了什麼
+   - 找出圖片之間的關聯性與互補性
+   - 不要遺漏任何一張圖片中的關鍵資訊
+   
+3. **在文案中明確體現多視角分析**：
+   - **務必在文案中提及你已觀察多個角度/視角**（例如：「從正面到側面」、「各個角度」、「細節處」、「無論從哪個視角」等）
+   - 在文案中自然融入從不同圖片中觀察到的特點
+   - 如果有細節圖，請強調該細節的設計巧思或技術亮點
+   - 如果有使用情境圖，請描述該情境的體驗感受
+   - **讓讀者能感受到這份文案是基於對產品全方位觀察後的綜合描述**
+   
+⚠️ **強制要求**：由於用戶上傳了 {len(image_parts)} 張圖片，你的文案中**必須**包含能體現「多視角分析」的措辭，例如：
+   - 「從各個角度觀察」
+   - 「無論從正面還是側面」
+   - 「細節之處」
+   - 「全方位展現」
+   - 「每個細節都經過精心設計」
+這樣用戶才能確認你確實理解並整合了所有上傳的圖片內容。
+"""
+            
+            prompt = f"""請擔任一位頂級的商業文案策略大師。請深入分析這 {len(image_parts)} 張產品圖片，先識別並解釋圖片中的具體內容與細節（如材質、角度、功能展示），再參考我提供的「產品規格資訊」（若有），為這款產品創造兩個截然不同的「完美應用場景」與「沉浸式行銷文案」。
+{multi_image_instruction}
 🎨 **寫作風格要求**：{style_instruction}
 
-產品名稱：{product_name}
-建議售價：{price}
+📦 **產品資訊**：
+- 產品名稱：{product_name}
+- 建議售價：{price}
+- 參考規格與特色（來自網路搜尋）：
+{product_specs if product_specs else "(查無特定規格，請根據圖片細節與常識自行推斷)"}
 
-請不要只寫「優雅」或「實用」這種空泛的形容詞。我需要你能夠：
-1. **深度識別**：完全理解商品的材質、設計語言與潛在商業價值。
-2. **精準匹配**：具體指出這款產品最適合「什麼樣的人」、「在什麼場合」、「做什麼事」時使用。
-3. **沉浸體驗**：用文字營造出氛圍，讓觀看者彷彿置身其中，感受到擁有這件商品後的美好生活圖景。
+⛔ **嚴格要求：技術規格優先** ⛔
+請將「產品規格」視為文案的核心骨架，而非裝飾。
+請在文案中**務必包含**以下具體規格（如果搜尋結果中有）：
+1.  **連接方式**：必須提到「藍牙」、「Bluetooth」、「無線」或「USB」等關鍵字。
+2.  **供電方式**：必須提到「充電」、「電池」、「續航力」等關鍵字。
+3.  **物理規格**：必須提到「重量」、「尺寸」或「材質」。
 
-請生成兩段不同切入點的文案（繁體中文，每段約 100-150 字）：
+我需要你能夠：
+1.  **拒絕空泛**：絕對不要只寫「精美」、「好用」。要寫「採用陽極氧化鋁金屬」、「支援多點觸控手勢」。
+2.  **硬派數據**：把數據（如 99g, 1個月續航）寫進去。
+3.  **視覺解讀**：(簡略) 描述圖片細節。
+4.  **沉浸體驗**：用文字營造氛圍。
+
+請生成兩段不同切入點的文案（繁體中文，每段約 150-200 字）：
 
 【A】切入點一：情感共鳴與氛圍營造 (Emotional & Atmospheric)
-- 側重於感性訴求，描繪使用當下的美好畫面、心理滿足感或自我展現。
-- 適合想透過產品提升生活質感或表達個性的客群。
+- 側重於感性訴求，但**必須自然融入**上述技術規格（如：享受無線藍牙帶來的自由...）。
 
 【B】切入點二：精準場景與痛點解決 (Scenario & Solution)
-- 側重於理性與場景訴求，具體描述在工作、社交或特定活動中的完美表現。
-- 即使是商業計劃書，也要描述其商業模式落地的具體場景與解決的實際問題。
+- 側重於理性與場景訴求。
+- **條列式強項**：在文案最後，請用 `・` 符號列出 3 點核心規格亮點。
+
+⚠️ **最終檢查**：你的文案中出現「藍牙(Bluetooth)」、「無線」、「充電」、「續航」這些詞了嗎？如果沒有，請重寫！
 
 請直接回覆 JSON 格式，不要有 Markdown 標記：
 {{
@@ -714,9 +783,11 @@ class LineBotService:
             # API Setup - 使用 GitHub 原版設定 (Token 數需足夠大)
             api_key = settings.GOOGLE_API_KEY
             payload = {
-                "contents": [{"parts": [{"text": prompt}, {"inline_data": {"mime_type": mime_type, "data": image_b64}}]}],
+                "contents": [{"parts": [{"text": prompt}]}],
                 "generationConfig": {"maxOutputTokens": 8192, "temperature": 0.8, "responseMimeType": "application/json"}
             }
+            # Append all images
+            payload["contents"][0]["parts"].extend(image_parts)
             
             models = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
             ai_text = "{}"
@@ -943,17 +1014,30 @@ class LineBotService:
         except Exception as e:
             print(f"❌ [LineBot PDF] 下載或處理失敗: {e}")
 
-    async def run_simulation_with_image_data(self, image_bytes, sim_id, text_context=None):
-        """核心圖文分析邏輯 (Decoupled & Synced with PDF Flow)"""
+    async def run_simulation_with_image_data(self, image_data_input, sim_id, text_context=None):
+        """核心圖文分析邏輯 (Decoupled & Synced with PDF Flow) - Supports Single or Multiple Images"""
         import traceback
         try:
             with open("debug_image.log", "w", encoding="utf-8") as f: f.write(f"[{sim_id}] STARTING run_simulation_with_image_data\n")
-            # print(f"Start: {sim_id}")
             
-            # 1. Image to Base64
-            image_b64 = base64.b64encode(image_bytes).decode('utf-8')
-            # print(f"Base64 Done. Length: {len(image_b64)}")
-            with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Base64 encoded. Len: {len(image_b64)}\n")
+            # 1. Process Images (Single or List)
+            image_bytes_list = image_data_input if isinstance(image_data_input, list) else [image_data_input]
+            image_parts = []
+            
+            for idx, img_bytes in enumerate(image_bytes_list):
+                 # Auto-detect mime type
+                mime_type = "image/jpeg"
+                if img_bytes.startswith(b'\x89PNG'):
+                    mime_type = "image/png"
+                elif img_bytes.startswith(b'GIF8'):
+                    mime_type = "image/gif"
+                elif img_bytes.startswith(b'RIFF') and img_bytes[8:12] == b'WEBP':
+                    mime_type = "image/webp"
+                
+                img_b64 = base64.b64encode(img_bytes).decode('utf-8')
+                image_parts.append({"inline_data": {"mime_type": mime_type, "data": img_b64}})
+                
+            with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Processed {len(image_parts)} images.\n")
 
             # 2. 從資料庫隨機抽取市民
             # [Fix] Use run_in_threadpool to match PDF flow exactly
@@ -997,7 +1081,7 @@ class LineBotService:
 
                 # Use raw string template to avoid f-string syntax errors with JSON braces
                 prompt_template = """
-你是 MIRRA 鏡界系統的核心 AI 策略顧問。請分析這張產品圖片，並「扮演」以下從資料庫隨機抽取的 10 位 AI 虛擬市民，模擬他們對產品的反應。你需要提供**深度、具體、可執行**的行銷策略建議。
+你是 MIRRA 鏡界系統的核心 AI 策略顧問。請分析這張（或多張）產品圖片，並「扮演」以下從資料庫隨機抽取的 10 位 AI 虛擬市民，模擬他們對產品的反應。你需要提供**深度、具體、可執行**的行銷策略建議。
 __PRODUCT_CONTEXT__
 📋 以下是真實市民資料（八字格局已預先計算）：
 
@@ -1092,25 +1176,14 @@ __CITIZENS_JSON__
     "comments": [ { "citizen_id": "...", "sentiment": "positive", "text": "..." } ]
 """
 
-            # Auto-detect mime type
-            mime_type = "image/jpeg"
-            if image_bytes.startswith(b'\x89PNG'):
-                mime_type = "image/png"
-            elif image_bytes.startswith(b'GIF8'):
-                mime_type = "image/gif"
-            elif image_bytes.startswith(b'RIFF') and image_bytes[8:12] == b'WEBP':
-                mime_type = "image/webp"
-            
-            # print(f"Detected Image MIME Type: {mime_type}")
-            with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Mime Type: {mime_type}\n")
-
             # 3. REST API Call
             api_key = settings.GOOGLE_API_KEY
             import datetime
             ts_start = datetime.datetime.now().isoformat()
-            with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] [TIME:{ts_start}] Calling Gemini REST API...\n")
+            with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] [TIME:{ts_start}] Calling Gemini REST API with {len(image_parts)} images...\n")
             
-            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, image_b64, mime_type=mime_type)
+            # Pass image_parts instead of single image_b64
+            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, image_parts=image_parts)
             
             ts_end = datetime.datetime.now().isoformat()
             with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] [TIME:{ts_end}] Gemini Returned. Duration check needed.\n")
@@ -2108,7 +2181,7 @@ __CITIZENS_JSON__
 
     # ===== Helpers =====
 
-    async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg"):
+    async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg", timeout=60, image_parts=None):
         """Helper to call Gemini REST API (Async Wrapper)"""
         # [Fix] Prioritize Gemini 2.5 Pro as requested by the user
         priority = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
@@ -2120,7 +2193,8 @@ __CITIZENS_JSON__
             image_b64, 
             pdf_b64, 
             priority,
-            mime_type
+            mime_type,
+            image_parts # Pass image_parts
         )
 
     def _clean_and_parse_json(self, ai_text):
@@ -2553,7 +2627,7 @@ __CITIZENS_JSON__
         except Exception:
             pass
 
-    async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg", timeout=60):
+    async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg", timeout=60, image_parts=None):
         """Helper to call Gemini REST API (Async Wrapper with Configurable Timeout)"""
         import requests 
 
@@ -2571,7 +2645,9 @@ __CITIZENS_JSON__
             }
         }
         
-        if image_b64:
+        if image_parts:
+             payload["contents"][0]["parts"].extend(image_parts)
+        elif image_b64:
             # Use dynamic mime_type
             payload["contents"][0]["parts"].append({"inline_data": {"mime_type": mime_type, "data": image_b64}})
         if pdf_b64:
@@ -2626,7 +2702,7 @@ __CITIZENS_JSON__
 
     # NOTE: 舊版 generate_marketing_copy 已刪除，現使用第 480 行的新版本 (單篇輸出)
 
-    def _run_blocking_gemini_request(self, api_key, prompt, image_b64=None, pdf_b64=None, model_priority=None, mime_type="image/jpeg"):
+    def _run_blocking_gemini_request(self, api_key, prompt, image_b64=None, pdf_b64=None, model_priority=None, mime_type="image/jpeg", image_parts=None):
         """Helper to run synchronous requests in a thread"""
         payload = {
             "contents": [{
@@ -2642,7 +2718,9 @@ __CITIZENS_JSON__
             }
         }
         
-        if image_b64:
+        if image_parts:
+             payload["contents"][0]["parts"].extend(image_parts)
+        elif image_b64:
             payload["contents"][0]["parts"].append({"inline_data": {"mime_type": mime_type, "data": image_b64}})
         if pdf_b64:
             payload["contents"][0]["parts"].append({"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}})
@@ -2678,3 +2756,94 @@ __CITIZENS_JSON__
                 last_error = str(e)
         
         return None, last_error
+# LINE Bot 多圖處理輔助函數
+# 這些函數將被集成到 line_bot_service.py 中
+
+async def _identify_from_multiple_images(self, user_id):
+    """
+    從 session 中的多張圖片進行 AI 識別與市場比價
+    """
+    session = self.user_session.get(user_id)
+    if not session or not session.get("images"):
+        self._push_text(user_id, "❌ 找不到圖片，請重新上傳")
+        return
+    
+    images = session["images"]
+    image_count = len(images)
+    
+    try:
+        # 1. AI 產品識別（使用第一張圖片）
+        print(f"🔍 [Multi-Image] 開始識別 {image_count} 張圖片...")
+        ai_name, ai_price = await self.identify_product_from_image(images[0])
+        
+        # 2. 市場比價查詢（如果有產品名稱）
+        market_prices = {}
+        if ai_name and ai_name != "未知產品":
+            from app.services.price_search import search_market_prices_sync
+            try:
+                print(f"💰 [Market] 查詢市場價格: {ai_name}")
+                market_result = search_market_prices_sync(ai_name)
+                if market_result.get("success"):
+                    market_prices = market_result
+                    print(f"💰 [Market] 找到 {len(market_result.get('prices', []))} 筆價格資料")
+            except Exception as e:
+                print(f"⚠️ [Market] 比價查詢失敗: {e}")
+        
+        # 3. 更新 session
+        session["image_bytes"] = images[0]  # 兼容性：保留第一張做為主圖
+        session["product_name"] = ai_name or ""
+        session["product_price"] = ai_price or "未定"  
+        session["market_prices"] = market_prices
+        session["stage"] = "waiting_for_name_confirmation"
+        
+        print(f"✅ [Multi-Image] 識別完成: {ai_name} / {ai_price}")
+        
+        # 4. 構建回覆訊息（包含市場比價資料）
+        confirm_msg = f"👁️ **AI 視覺分析結果**（{image_count} 張圖片）\n\n"
+        confirm_msg += f"📦 產品：{ai_name or '未知'}\n"
+        
+        # 顯示市場比價
+        if market_prices.get("success"):
+            prices = market_prices.get("prices", [])
+            if prices:
+                min_price = market_prices.get("min_price", ai_price)
+                max_price = market_prices.get("max_price", ai_price)
+                confirm_msg += f"💰 市場價格區間：${min_price} - ${max_price}\n"
+                confirm_msg += f"📊 已比對 {len(prices)} 個平台\n"
+            else:
+                confirm_msg += f"💰 估價：{ai_price or '未知'}\n"
+        else:
+            confirm_msg += f"💰 估價：{ai_price or '未知'}\n"
+        
+        confirm_msg += "\n━━━━━━━━━━━━━━\n"
+        confirm_msg += "✅ 若資料正確，請回覆「**Y**」\n"
+        confirm_msg += "✏️ 若需修改，請直接輸入「**名稱 / 售價**」"
+        
+        self._push_text(user_id, confirm_msg)
+        
+    except Exception as e:
+        print(f"❌ [Multi-Image] 識別失敗: {e}")
+        import traceback
+        traceback.print_exc()
+        self._push_text(user_id, "❌ AI 識別失敗，請重新上傳圖片")
+        # 重置 session
+        if user_id in self.user_session:
+            del self.user_session[user_id]
+
+
+async def _handle_upload_complete(self, user_id):
+    """
+    處理用戶點選「完成上傳」後的邏輯
+    """
+    session = self.user_session.get(user_id)
+    if not session:
+        self._push_text(user_id, "❌ 找不到上傳的圖片，請重新開始")
+        return
+    
+    images = session.get("images", [])
+    if not images:
+        self._push_text(user_id, "❌ 尚未上傳任何圖片，請先上傳產品圖片")
+        return
+    
+    # 開始識別
+    await self._identify_from_multiple_images(user_id)
