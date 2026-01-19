@@ -1410,7 +1410,9 @@ export default function WatchPage() {
                             </h4>
                             {s.score_improvement && (
                               <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">
-                                {s.score_improvement}
+                                {typeof s.score_improvement === 'object' && s.score_improvement !== null
+                                  ? (s.score_improvement.point || s.score_improvement.text || s.score_improvement.value || JSON.stringify(s.score_improvement))
+                                  : s.score_improvement}
                               </span>
                             )}
                           </div>
