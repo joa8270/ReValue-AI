@@ -4,9 +4,11 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function SimulationForm() {
     const router = useRouter()
+    const { t } = useLanguage()
     const [mode, setMode] = useState<'image' | 'pdf'>('image')
     const [files, setFiles] = useState<File[]>([])
     const [loading, setLoading] = useState(false)
@@ -65,13 +67,13 @@ export default function SimulationForm() {
             if (action === 'Scale') {
                 setIterationAlert({
                     type: 'scale',
-                    message: "上一輪表現優異！建議上傳不同風格的素材進行 A/B 測試，擴大勝果 (Scale)。"
+                    message: t('simulation_form.iteration_alert_scale_desc')
                 })
             } else {
                 // Pivot or Restart match
                 setIterationAlert({
                     type: 'pivot',
-                    message: "建議根據分析結果微調定價或產品描述，嘗試新的市場切入點 (Pivot)。"
+                    message: t('simulation_form.iteration_alert_pivot_desc')
                 })
                 // Focus on price if Pivot
                 setTimeout(() => {
@@ -98,11 +100,11 @@ export default function SimulationForm() {
     // AI Writing Style Options
     const [selectedStyle, setSelectedStyle] = useState("professional")
     const styleOptions = [
-        { value: "professional", label: "專業穩重", desc: "正式、專業的商務風格" },
-        { value: "friendly", label: "親切活潑", desc: "輕鬆、有親和力的風格" },
-        { value: "luxury", label: "高端奢華", desc: "精緻、高質感的品牌調性" },
-        { value: "minimalist", label: "簡約清爽", desc: "簡潔有力、重點突出" },
-        { value: "storytelling", label: "故事敘述", desc: "用故事帶入產品情境" },
+        { value: "professional", label: t('simulation_form.style_professional'), desc: t('simulation_form.style_professional') },
+        { value: "friendly", label: t('simulation_form.style_friendly'), desc: t('simulation_form.style_friendly') },
+        { value: "luxury", label: t('simulation_form.style_luxury'), desc: t('simulation_form.style_luxury') },
+        { value: "minimalist", label: t('simulation_form.style_minimalist'), desc: t('simulation_form.style_minimalist') },
+        { value: "storytelling", label: t('simulation_form.style_storytelling'), desc: t('simulation_form.style_storytelling') },
     ]
 
     // Admin Tools
@@ -115,10 +117,10 @@ export default function SimulationForm() {
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
             const res = await fetch(`${API_BASE_URL}/api/web/admin/reset-citizens?count=1000`, { method: "POST" })
             if (res.ok) {
-                alert("✅ 資料庫初始化成功！\n現在您可以開始進行模擬分析。")
+                alert("✅ Database initialized successfully!")
             } else {
                 const txt = await res.text()
-                alert(`❌ 初始化失敗: ${txt}`)
+                alert(`❌ Initialization failed: ${txt}`)
             }
         } catch (e) {
             alert(`❌ 請求錯誤: ${e}`)
@@ -191,7 +193,7 @@ export default function SimulationForm() {
             }
         } catch (err) {
             console.error("Product identification failed:", err)
-            setError("識別失敗，請稍後再試或手動輸入")
+            setError(t('simulation_form.error_identify_fail'))
         }
         setNameLoading(false)
     }
@@ -228,7 +230,7 @@ export default function SimulationForm() {
 
         } catch (err) {
             console.error('Recording failed:', err)
-            setError("無法啟動麥克風，請確認瀏覽器權限")
+            setError(t('simulation_form.error_mic_fail'))
         }
     }
 
@@ -251,7 +253,7 @@ export default function SimulationForm() {
 
     const handleAiGenerate = async () => {
         if (files.length === 0 || !productName) {
-            setError("請先上傳圖片並輸入產品名稱")
+            setError(t('simulation_form.error_ai_write_fail'))
             return
         }
         setAiLoading(true)
@@ -295,7 +297,7 @@ export default function SimulationForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (files.length === 0) {
-            setError("請先上傳檔案")
+            setError(t('simulation_form.error_no_file'))
             return
         }
 
@@ -324,19 +326,19 @@ export default function SimulationForm() {
             })
 
             if (!res.ok) {
-                throw new Error("上傳失敗，請檢查後端連線")
+                throw new Error("Upload failed, please check backend connection")
             }
 
             const data = await res.json()
             if (data.sim_id) {
                 router.push(`/watch/${data.sim_id}`)
             } else {
-                throw new Error("無法取得 Simulation ID")
+                throw new Error("Failed to get Simulation ID")
             }
 
         } catch (err: any) {
             console.error(err)
-            setError(err.message || "發生未知錯誤")
+            setError(err.message || "Unknown Error")
             setLoading(false)
         }
     }
@@ -369,7 +371,7 @@ export default function SimulationForm() {
                     </span>
                     <div>
                         <h3 className="font-bold text-sm mb-1">
-                            {iterationAlert.type === 'scale' ? '準備擴大規模 (Scale)' : '啟動迭代優化 (Pivot)'}
+                            {iterationAlert.type === 'scale' ? t('simulation_form.iteration_alert_scale_title') : t('simulation_form.iteration_alert_pivot_title')}
                         </h3>
                         <p className="text-xs opacity-90 leading-relaxed">
                             {iterationAlert.message}
@@ -380,7 +382,7 @@ export default function SimulationForm() {
 
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                 <span className="p-2 bg-purple-500/20 rounded-lg text-purple-400">⚡</span>
-                {iterationAlert ? '延續預演迭代' : '啟動「鏡界」預演'}
+                {iterationAlert ? t('simulation_form.title_iteration') : t('simulation_form.title_default')}
             </h2>
 
             {/* Tabs */}
@@ -393,7 +395,7 @@ export default function SimulationForm() {
                         }`}
                 >
                     <ImageIcon className="w-4 h-4" />
-                    產品圖片
+                    {t('simulation_form.tab_image')}
                 </button>
                 <button
                     onClick={() => { setMode('pdf'); setFiles([]); }}
@@ -403,7 +405,7 @@ export default function SimulationForm() {
                         }`}
                 >
                     <FileText className="w-4 h-4" />
-                    商業計劃 / 想法
+                    {t('simulation_form.tab_pdf')}
                 </button>
             </div>
 
@@ -466,7 +468,7 @@ export default function SimulationForm() {
                                 </div>
                             )}
                             <p className="text-purple-400 font-bold mt-2">
-                                {files.length === 1 ? files[0].name : `已選擇 ${files.length} 個檔案`}
+                                {files.length === 1 ? files[0].name : t('simulation_form.files_selected').replace('{count}', files.length.toString())}
                             </p>
                             <p className="text-slate-500 text-xs">
                                 {files.length === 1
@@ -478,7 +480,7 @@ export default function SimulationForm() {
                                 onClick={(e) => { e.stopPropagation(); clearFile(); }}
                                 className="mt-2 px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-xs hover:bg-red-500/20 hover:text-red-400 transition-colors flex items-center gap-1"
                             >
-                                <X className="w-3 h-3" /> 移除全部
+                                <X className="w-3 h-3" /> {t('simulation_form.remove_all')}
                             </button>
                         </div>
                     ) : isRecording ? (
@@ -489,33 +491,33 @@ export default function SimulationForm() {
                                     <div className="w-3 h-3 rounded-full bg-red-500 animate-ping"></div>
                                 </div>
                             </div>
-                            <p className="font-bold text-lg">錄音中...</p>
+                            <p className="font-bold text-lg">{t('simulation_form.recording_in_progress')}</p>
                             <p className="text-2xl font-mono">{formatTime(recordingTime)}</p>
                             <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); stopRecording(); }}
                                 className="px-6 py-2 bg-red-500 text-white rounded-full font-bold flex items-center gap-2 hover:bg-red-600 transition-colors"
                             >
-                                <Square className="w-4 h-4" /> 停止錄音
+                                <Square className="w-4 h-4" /> {t('simulation_form.stop_recording')}
                             </button>
                         </div>
                     ) : (
                         <div className="flex flex-col items-center gap-3 text-slate-400">
                             <Upload className="w-8 h-8 mb-1 opacity-50" />
-                            <p className="font-bold">點擊上傳 {mode === 'image' ? '產品圖片' : '商業計劃文件'}</p>
+                            <p className="font-bold">{mode === 'image' ? t('simulation_form.upload_placeholder_image') : t('simulation_form.upload_placeholder_pdf')}</p>
                             <p className="text-xs opacity-60">
-                                {mode === 'image' ? '支援 JPG, PNG, WEBP' : '支援 PDF, Word, PPT, TXT, 錄音檔'}
+                                {mode === 'image' ? t('simulation_form.upload_support_image') : t('simulation_form.upload_support_pdf')}
                             </p>
                             {/* Live Recording Button (PDF mode only) */}
                             {mode === 'pdf' && (
                                 <div className="mt-3 pt-3 border-t border-slate-700/50 w-full flex flex-col items-center gap-2">
-                                    <p className="text-xs text-slate-500">或者用語音分享您的想法</p>
+                                    <p className="text-xs text-slate-500">{t('simulation_form.or_voice_share')}</p>
                                     <button
                                         type="button"
                                         onClick={(e) => { e.stopPropagation(); startRecording(); }}
                                         className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-bold flex items-center gap-2 hover:shadow-lg hover:shadow-purple-500/30 transition-all"
                                     >
-                                        <Mic className="w-4 h-4" /> 開始錄音
+                                        <Mic className="w-4 h-4" /> {t('simulation_form.start_recording')}
                                     </button>
                                 </div>
                             )}
@@ -536,12 +538,12 @@ export default function SimulationForm() {
                             {nameLoading ? (
                                 <>
                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                    AI 正在分析產品...
+                                    {t('simulation_form.btn_identifying')}
                                 </>
                             ) : (
                                 <>
                                     <Sparkles className="w-4 h-4" />
-                                    AI 識別品名與估價
+                                    {t('simulation_form.btn_identify')}
                                 </>
                             )}
                         </button>
@@ -560,21 +562,21 @@ export default function SimulationForm() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
-                                        產品名稱
+                                        {t('simulation_form.label_product_name')}
                                         {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
                                     </label>
                                     <input
                                         type="text"
                                         value={productName}
                                         onChange={(e) => setProductName(e.target.value)}
-                                        placeholder={nameLoading ? "AI 識別中..." : "例：智能咖啡機"}
+                                        placeholder={nameLoading ? t('simulation_form.placeholder_product_name_loading') : t('simulation_form.placeholder_product_name')}
                                         disabled={nameLoading}
                                         className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''}`}
                                     />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
-                                        建議售價 (TWD)
+                                        {t('simulation_form.label_price')}
                                         {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
                                     </label>
                                     <input
@@ -582,7 +584,7 @@ export default function SimulationForm() {
                                         type="text"
                                         value={price}
                                         onChange={(e) => { setPrice(e.target.value); setPriceSource(""); }}
-                                        placeholder={nameLoading ? "AI 估價中..." : "例：2990"}
+                                        placeholder={nameLoading ? t('simulation_form.placeholder_price_loading') : t('simulation_form.placeholder_price')}
                                         disabled={nameLoading}
                                         className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''} ${iterationAlert?.type === 'pivot' ? 'ring-2 ring-amber-500/50' : ''}`}
                                     />
@@ -593,7 +595,7 @@ export default function SimulationForm() {
                             </div>
                             <div className="space-y-1 relative">
                                 <div className="flex justify-between items-center flex-wrap gap-2">
-                                    <label className="text-xs text-slate-400 ml-1">產品描述與特色 (選填)</label>
+                                    <label className="text-xs text-slate-400 ml-1">{t('simulation_form.label_desc')}</label>
                                     <div className="flex items-center gap-2">
                                         {/* Style Dropdown */}
                                         <select
@@ -617,14 +619,14 @@ export default function SimulationForm() {
                                                 }`}
                                         >
                                             <Sparkles className="w-3 h-3" />
-                                            {aiLoading ? 'AI 構思中...' : '讓 AI 幫寫'}
+                                            {aiLoading ? t('simulation_form.btn_ai_writing') : t('simulation_form.btn_ai_write')}
                                         </button>
                                     </div>
                                 </div>
                                 <textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
-                                    placeholder={aiLoading ? "AI 正在觀察您的圖片並撰寫文案..." : "輸入產品特色，讓 AI 更精準分析..."}
+                                    placeholder={aiLoading ? t('simulation_form.placeholder_desc_loading') : t('simulation_form.placeholder_desc')}
                                     rows={5}
                                     className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all resize-none ${aiLoading ? 'animate-pulse' : ''
                                         }`}
@@ -652,18 +654,18 @@ export default function SimulationForm() {
                 >
                     {loading ? (
                         <span className="flex items-center justify-center gap-2">
-                            <span className="animate-spin text-xl">⚡</span> 正在開啟鏡像世界...
+                            <span className="animate-spin text-xl">⚡</span> {t('simulation_form.submit_btn_loading')}
                         </span>
                     ) : (
                         <span className="flex items-center justify-center gap-2">
-                            啟動 MIRRA 預演
+                            {t('simulation_form.submit_btn')}
                         </span>
                     )}
                 </button>
 
                 <p className="flex items-center gap-2 text-xs text-slate-500 mt-4 justify-center">
                     <Sparkles className="w-3 h-3 text-[#d8b4fe]" />
-                    系統將自動召喚 1,000+ 位虛擬市民進行即時推演
+                    {t('simulation_form.footer_note')}
                 </p>
 
                 <div className="mt-8 pt-4 border-t border-white/5 flex flex-col items-center gap-2">
@@ -674,7 +676,7 @@ export default function SimulationForm() {
                         className="text-[10px] text-slate-600 hover:text-red-400 disabled:opacity-50 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-white/5 group"
                     >
                         {isResetting ? <Loader2 className="w-3 h-3 animate-spin" /> : <span className="material-symbols-outlined text-[14px]">database</span>}
-                        {isResetting ? "正在初始化..." : "初始化資料庫 (Admin)"}
+                        {isResetting ? t('simulation_form.admin_init_loading') : t('simulation_form.admin_init')}
                     </button>
                 </div>
             </form>
