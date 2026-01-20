@@ -36,8 +36,8 @@ export default function Home() {
                             </div>
 
                             {/* Main Title */}
-                            {/* RWD Note: using text-2xl on mobile to accommodate longer text */}
-                            <h1 className="text-glow text-2xl sm:text-4xl md:text-6xl font-black leading-[1.4] tracking-tight mb-4 break-words">
+                            {/* RWD Note: using text-xl on mobile to accommodate longer text */}
+                            <h1 className="text-glow text-xl sm:text-3xl md:text-5xl font-black leading-[1.5] tracking-tight mb-4 break-words">
                                 {t('hero.title_prefix')}<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-purple-300 mx-1">{t('hero.title_highlight')}</span>{t('hero.title_suffix')}
                             </h1>
 
