@@ -13,7 +13,7 @@ export const translations = {
             status: '系統上線',
             title_prefix: '用',
             title_highlight: 'AI 代理人',
-            title_suffix: '模擬真實市場，預演產品/想法，的預演',
+            title_suffix: '模擬真實市場，預演產品/想法的未來',
             subtitle: '結合【西方 ABM 代理人模擬】與【東方人格結構】，為您進行沙盒推演。',
             trust_anchor: '核心技術：基於 Agent-Based Modeling (ABM) 社會科學模擬方法論',
             cta_primary: '預演未來',

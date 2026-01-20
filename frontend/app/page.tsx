@@ -16,7 +16,7 @@ export default function Home() {
             {/* Hero Section */}
             <section className="pt-32 md:pt-40 px-4 md:px-40 flex justify-center relative">
                 <div className="max-w-[1200px] w-full">
-                    <div className="flex min-h-[500px] flex-col gap-6 md:gap-10 items-center justify-center p-8 relative overflow-hidden rounded-xl"
+                    <div className="flex min-h-[500px] flex-col gap-6 md:gap-10 items-start justify-center p-8 relative overflow-hidden rounded-xl"
                         style={{
                             backgroundImage: 'linear-gradient(rgba(20, 17, 24, 0.7) 0%, rgba(20, 17, 24, 0.9) 100%), url("https://images.unsplash.com/photo-1639322537228-f710d846310a?w=1200&q=80")',
                             backgroundSize: 'cover',
@@ -25,9 +25,9 @@ export default function Home() {
                         {/* Noise Overlay */}
                         <div className="absolute inset-0 noise-overlay" />
 
-                        <div className="flex flex-col gap-4 text-center max-w-[900px] z-10">
+                        <div className="flex flex-col gap-4 text-left max-w-[900px] z-10">
                             {/* Status Badge */}
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 mx-auto w-fit mb-2">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 mb-2 w-fit">
                                 <span className="relative flex h-2 w-2">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-500 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
@@ -42,7 +42,7 @@ export default function Home() {
                             </h1>
 
                             {/* Subtitle */}
-                            <h2 className="text-gray-300 text-base md:text-lg font-light leading-relaxed max-w-[700px] mx-auto">
+                            <h2 className="text-gray-300 text-base md:text-lg font-light leading-relaxed max-w-[700px]">
                                 {t('hero.subtitle')}
                             </h2>
 
@@ -60,7 +60,7 @@ export default function Home() {
                         </div>
 
                         {/* CTA Buttons */}
-                        <div className="flex flex-wrap gap-4 justify-center z-10 mt-4">
+                        <div className="flex flex-wrap gap-4 justify-start z-10 mt-4">
                             <a href="#start" className="flex min-w-[140px] cursor-pointer items-center justify-center rounded-lg h-12 px-6 bg-purple-600 hover:bg-purple-500 transition-all hover:scale-105 text-white text-base font-bold shadow-[0_0_20px_rgba(127,19,236,0.4)]">
                                 {t('hero.cta_primary')}
                             </a>
@@ -128,7 +128,7 @@ export default function Home() {
                 <div className="max-w-[960px] w-full z-10">
                     <div className="flex flex-col gap-12 px-4">
                         {/* Section Header */}
-                        <div className="flex flex-col gap-4 text-center items-center">
+                        <div className="flex flex-col gap-4 text-left items-start">
                             <h2 className="text-white tracking-tight text-3xl md:text-4xl font-bold leading-tight max-w-[720px]">
                                 {t('how_it_works.title')}
                             </h2>
@@ -188,7 +188,7 @@ export default function Home() {
                 <div className="max-w-[960px] w-full z-10">
                     <div className="flex flex-col gap-12 px-4">
                         {/* Section Header */}
-                        <div className="flex flex-col gap-4 text-center items-center">
+                        <div className="flex flex-col gap-4 text-left items-start">
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 mb-2">
                                 <span className="text-purple-400">⚡</span>
                                 <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">{t('scientific_basis.badge')}</span>
@@ -248,7 +248,7 @@ export default function Home() {
                         </div>
 
                         {/* Bottom Link */}
-                        <div className="text-center">
+                        <div className="text-left md:text-center">
                             <a href="https://en.wikipedia.org/wiki/Computational_social_science" target="_blank" className="text-slate-500 text-sm hover:text-purple-400 transition-colors border-b border-transparent hover:border-purple-400">
                                 {t('scientific_basis.footer_link')}
                             </a>
@@ -263,7 +263,7 @@ export default function Home() {
                 <div className="max-w-[960px] w-full z-10">
                     <div className="flex flex-col gap-12 px-4">
                         {/* Section Header */}
-                        <div className="flex flex-col gap-4 text-center items-center">
+                        <div className="flex flex-col gap-4 text-left items-start">
                             <h2 className="text-white tracking-tight text-3xl md:text-4xl font-bold leading-tight">
                                 {t('pricing.title')}
                             </h2>
