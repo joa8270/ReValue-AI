@@ -77,7 +77,10 @@ export const translations = {
             style_friendly: '親切活潑',
             style_luxury: '高端奢華',
             style_minimalist: '簡約清爽',
+            style_minimalist: '簡約清爽',
             style_storytelling: '故事敘述',
+            format_price_range: ' (價格範圍: {range})',
+            format_market_compare: '📊 已比對 {count} 個電商平台：{summary}',
         },
         how_it_works: {
             title: '預演如何運作',
@@ -223,7 +226,10 @@ export const translations = {
             style_friendly: '亲切活泼',
             style_luxury: '高端奢华',
             style_minimalist: '简约清爽',
+            style_minimalist: '简约清爽',
             style_storytelling: '故事叙述',
+            format_price_range: ' (价格范围: {range})',
+            format_market_compare: '📊 已比对 {count} 个电商平台：{summary}',
         },
         how_it_works: {
             title: '预演如何运作',
@@ -369,7 +375,10 @@ export const translations = {
             style_friendly: 'Friendly',
             style_luxury: 'Luxury',
             style_minimalist: 'Minimalist',
+            style_minimalist: 'Minimalist',
             style_storytelling: 'Storytelling',
+            format_price_range: ' (Price Range: {range})',
+            format_market_compare: '📊 Compared {count} platforms: {summary}',
         },
         how_it_works: {
             title: 'How It Works',

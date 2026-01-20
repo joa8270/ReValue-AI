@@ -8,7 +8,7 @@ import { useLanguage } from '../context/LanguageContext'
 
 export default function SimulationForm() {
     const router = useRouter()
-    const { t } = useLanguage()
+    const { t, language } = useLanguage()
     const [mode, setMode] = useState<'image' | 'pdf'>('image')
     const [files, setFiles] = useState<File[]>([])
     const [loading, setLoading] = useState(false)
@@ -161,6 +161,7 @@ export default function SimulationForm() {
         try {
             const formData = new FormData()
             files.forEach(f => formData.append("files", f))
+            formData.append("language", language)
 
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
             const res = await fetch(`${API_BASE_URL}/api/web/identify-product`, {
@@ -181,14 +182,18 @@ export default function SimulationForm() {
             }
             // 設置價格來源說明
             if (data.price_source) {
-                setPriceSource(`💡 ${data.price_source}${data.price_range ? ` (價格範圍: ${data.price_range})` : ''}`)
+                const rangeText = data.price_range ? t('simulation_form.format_price_range').replace('{range}', data.price_range) : ''
+                setPriceSource(`💡 ${data.price_source}${rangeText}`)
             }
             // 🔍 存儲市場比價資料
             if (data.market_prices) {
                 setMarketPrices(data.market_prices)
                 // 如果有成功取得市場比價，更新價格來源顯示
                 if (data.market_prices.success && data.market_prices.sources_count > 0) {
-                    setPriceSource(`📊 已比對 ${data.market_prices.sources_count} 個電商平台：${data.market_prices.search_summary}`)
+                    setPriceSource(t('simulation_form.format_market_compare')
+                        .replace('{count}', data.market_prices.sources_count.toString())
+                        .replace('{summary}', data.market_prices.search_summary)
+                    )
                 }
             }
         } catch (err) {

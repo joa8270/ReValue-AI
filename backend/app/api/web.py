@@ -181,7 +181,8 @@ async def generate_description(
 
 @router.post("/identify-product")
 async def identify_product(
-    files: List[UploadFile] = File(...)
+    files: List[UploadFile] = File(...),
+    language: str = Form("zh-TW")
 ):
     """
     使用 Gemini 2.5 Pro 識別圖片中的產品名稱並估算市場價格
@@ -217,20 +218,43 @@ async def identify_product(
             
             image_parts.append({"inline_data": {"mime_type": mime_type, "data": image_b64}})
             
+        # 根據語言設定 Prompt
+        lang_config = {
+            "en": {
+                "desc_instruction": "Describe the product in English (3-8 words)",
+                "price_source_instruction": "Basis for price estimation (short, under 20 words)",
+                "fallback_source": "Estimated based on similar market products",
+                "market_calibration": "Calibrated with real data from {count} platforms"
+            },
+            "zh-CN": {
+                "desc_instruction": "用简短的中文描述（3-8个字）",
+                "price_source_instruction": "价格估算依据说明（简短30字内）",
+                "fallback_source": "根据市场同类产品估算",
+                "market_calibration": "已连动 {count} 个电商平台真实数据进行校准"
+            },
+            "zh-TW": {
+                "desc_instruction": "用簡短的中文描述（3-8個字）",
+                "price_source_instruction": "價格估算依據說明（簡短30字內）",
+                "fallback_source": "根據市場同類產品估算",
+                "market_calibration": "已連動 {count} 個電商平台真實數據進行校準"
+            }
+        }
+        lc = lang_config.get(language, lang_config["zh-TW"])
+
         # 構建識別 prompt（同時識別名稱和估算價格）
-        prompt = """請觀察這張（或多張）產品圖片，回答以下問題：
+        prompt = f"""請觀察這張（或多張）產品圖片，回答以下問題：
 1. **是否為同一產品**：如果上傳了多張圖片，請判斷它們是否為同一個產品的不同角度？還是完全不同的產品？（如果是不同產品，請以最顯著的那個為主進行回答）
-2. **產品識別**：這張圖片中的產品是什麼？用簡短的中文描述（3-8個字）
+2. **產品識別**：這張圖片中的產品是什麼？{{lc['desc_instruction']}}
 3. **價格估算**：根據你對全球主要電商平台（Amazon、淘寶、蝦皮、PChome）上同類產品的了解，估算這類產品的市場平均售價（新台幣 TWD）
 
 請用以下 JSON 格式回答：
-{
+{{
   "is_same_product": true/false,
   "product_name": "產品名稱",
   "estimated_price": 數字（不含貨幣符號），
   "price_range": "最低價-最高價",
-  "price_source": "價格估算依據說明（簡短30字內）"
-}
+  "price_source": "{{lc['price_source_instruction']}}"
+}}
 
 只回答 JSON，不要加任何其他說明。"""
 
@@ -314,7 +338,7 @@ async def identify_product(
                 # 🛡️ 模型校準：如果搜尋到的平均價格存在且有效，優先採用真實市場數據
                 final_estimated_price = estimated_price
                 final_price_range = data.get("price_range", "")
-                final_price_source = data.get("price_source", "根據市場同類產品估算")
+                final_price_source = data.get("price_source", lc['fallback_source'])
 
                 if market_prices.get("avg_price") and market_prices["avg_price"] > 0:
                     # 如果搜尋到的平均預算與 AI 估算差異超過 20%，則進行調整
@@ -325,7 +349,7 @@ async def identify_product(
                         print(f"🛡️ [Calibration] Overriding AI estimate with market average.")
                         final_estimated_price = avg_p
                         final_price_range = f"{market_prices['min_price']}-{market_prices['max_price']}"
-                        final_price_source = f"已連動 {len(market_prices.get('prices', []))} 個電商平台真實數據進行校準"
+                        final_price_source = lc['market_calibration'].replace('{count}', str(len(market_prices.get('prices', []))))
 
                 print(f"📸 [Identify] Returning: {product_name}, Price: {final_estimated_price}")
                 return {
