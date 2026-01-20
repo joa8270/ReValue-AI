@@ -222,20 +222,26 @@ async def identify_product(
         lang_config = {
             "en": {
                 "desc_instruction": "Describe the product in English (3-8 words)",
+                "price_instruction": "Estimate average market price in USD based on global platforms (Amazon, eBay, Walmart)",
+                "currency": "USD",
                 "price_source_instruction": "Basis for price estimation (short, under 20 words)",
-                "fallback_source": "Estimated based on similar market products",
-                "market_calibration": "Calibrated with real data from {count} platforms"
+                "fallback_source": "Estimated based on Amazon/eBay market data",
+                "market_calibration": "Calibrated with real data from {count} global platforms"
             },
             "zh-CN": {
                 "desc_instruction": "用简短的中文描述（3-8个字）",
+                "price_instruction": "根据中国主流电商平台（淘宝、京东、天猫）估算市场平均售价（人民币 CNY）",
+                "currency": "CNY",
                 "price_source_instruction": "价格估算依据说明（简短30字内）",
-                "fallback_source": "根据市场同类产品估算",
+                "fallback_source": "根据淘宝/京东同类产品估算",
                 "market_calibration": "已连动 {count} 个电商平台真实数据进行校准"
             },
             "zh-TW": {
                 "desc_instruction": "用簡短的中文描述（3-8個字）",
+                "price_instruction": "根據台灣主流電商平台（蝦皮、PChome、MOMO）估算市場平均售價（新台幣 TWD）",
+                "currency": "TWD",
                 "price_source_instruction": "價格估算依據說明（簡短30字內）",
-                "fallback_source": "根據市場同類產品估算",
+                "fallback_source": "根據蝦皮/PChome同類產品估算",
                 "market_calibration": "已連動 {count} 個電商平台真實數據進行校準"
             }
         }
@@ -245,13 +251,14 @@ async def identify_product(
         prompt = f"""請觀察這張（或多張）產品圖片，回答以下問題：
 1. **是否為同一產品**：如果上傳了多張圖片，請判斷它們是否為同一個產品的不同角度？還是完全不同的產品？（如果是不同產品，請以最顯著的那個為主進行回答）
 2. **產品識別**：這張圖片中的產品是什麼？{{lc['desc_instruction']}}
-3. **價格估算**：根據你對全球主要電商平台（Amazon、淘寶、蝦皮、PChome）上同類產品的了解，估算這類產品的市場平均售價（新台幣 TWD）
+3. **價格估算**：{{lc['price_instruction']}}
 
 請用以下 JSON 格式回答：
 {{
   "is_same_product": true/false,
   "product_name": "產品名稱",
   "estimated_price": 數字（不含貨幣符號），
+  "currency": "{{lc['currency']}}",
   "price_range": "最低價-最高價",
   "price_source": "{{lc['price_source_instruction']}}"
 }}
