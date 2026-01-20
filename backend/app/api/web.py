@@ -64,6 +64,11 @@ async def trigger_simulation(
 
     sim_id = str(uuid.uuid4())
     
+    # 預先定義 ext，避免 initial_data 引用錯誤
+    ext = ""
+    if files and files[0].filename:
+        ext = files[0].filename.split(".")[-1].lower() if "." in files[0].filename else ""
+    
     # 解析市場比價資料
     market_prices_data = None
     if market_prices:
