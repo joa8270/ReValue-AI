@@ -2,9 +2,24 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useLanguage } from "../context/LanguageContext"
+import { Language } from "../lib/translations"
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [isLangMenuOpen, setIsLangMenuOpen] = useState(false)
+    const { t, language, setLanguage } = useLanguage()
+
+    const handleLangChange = (lang: Language) => {
+        setLanguage(lang)
+        setIsLangMenuOpen(false)
+    }
+
+    const languages: { code: Language; label: string }[] = [
+        { code: 'zh-TW', label: '繁體中文' },
+        { code: 'zh-CN', label: '简体中文' },
+        { code: 'en', label: 'English' },
+    ]
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-[#141118]/95 backdrop-blur-md border-b border-white/5">
@@ -19,22 +34,52 @@ export default function Navbar() {
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-6">
                         <Link href="/#how-it-works" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">
-                            運作方式
+                            {t('navbar.process')}
                         </Link>
                         <Link href="/#why-bazi" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">
-                            八字科學
+                            {t('navbar.algorithm')}
                         </Link>
                         <Link href="/#pricing" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">
-                            方案定價
+                            {t('navbar.pricing')}
                         </Link>
                         <Link href="/citizens" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">
-                            瀏覽市民
+                            {t('navbar.citizens')}
                         </Link>
+
+                        {/* Language Switcher */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                                className="flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors text-sm font-medium px-2 py-1.5 rounded-md hover:bg-white/5"
+                            >
+                                <span className="text-lg">🌐</span>
+                                <span className="uppercase">{language === 'zh-TW' ? '繁' : language === 'zh-CN' ? '简' : 'EN'}</span>
+                            </button>
+
+                            {/* Dropdown */}
+                            {isLangMenuOpen && (
+                                <div className="absolute top-full right-0 mt-2 w-32 bg-[#1e1a24] border border-white/10 rounded-lg shadow-xl overflow-hidden py-1">
+                                    {languages.map((lang) => (
+                                        <button
+                                            key={lang.code}
+                                            onClick={() => handleLangChange(lang.code)}
+                                            className={`block w-full text-left px-4 py-2 text-sm transition-colors ${language === lang.code
+                                                    ? 'bg-purple-600/20 text-purple-400'
+                                                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                                }`}
+                                        >
+                                            {lang.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         <Link
                             href="/#start"
                             className="flex items-center justify-center rounded-lg h-9 px-4 bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold transition-all shadow-[0_0_15px_rgba(127,19,236,0.3)]"
                         >
-                            立即預演
+                            {t('navbar.start')}
                         </Link>
                     </div>
 
@@ -61,35 +106,55 @@ export default function Navbar() {
                         className="text-gray-400 hover:text-white transition-colors text-sm font-medium py-2"
                         onClick={() => setIsMenuOpen(false)}
                     >
-                        運作方式
+                        {t('navbar.process')}
                     </Link>
                     <Link
                         href="/#why-bazi"
                         className="text-gray-400 hover:text-white transition-colors text-sm font-medium py-2"
                         onClick={() => setIsMenuOpen(false)}
                     >
-                        八字科學
+                        {t('navbar.algorithm')}
                     </Link>
                     <Link
                         href="/#pricing"
                         className="text-gray-400 hover:text-white transition-colors text-sm font-medium py-2"
                         onClick={() => setIsMenuOpen(false)}
                     >
-                        方案定價
+                        {t('navbar.pricing')}
                     </Link>
                     <Link
                         href="/citizens"
                         className="text-gray-400 hover:text-white transition-colors text-sm font-medium py-2"
                         onClick={() => setIsMenuOpen(false)}
                     >
-                        瀏覽市民
+                        {t('navbar.citizens')}
                     </Link>
+
+                    {/* Mobile Language Switcher */}
+                    <div className="py-2 border-t border-white/5 mt-2">
+                        <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Language</p>
+                        <div className="flex gap-2">
+                            {languages.map((lang) => (
+                                <button
+                                    key={lang.code}
+                                    onClick={() => handleLangChange(lang.code)}
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold border transition-colors ${language === lang.code
+                                            ? 'bg-purple-600 border-purple-600 text-white'
+                                            : 'border-white/10 text-gray-400 hover:border-white/30'
+                                        }`}
+                                >
+                                    {lang.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     <Link
                         href="/#start"
                         className="mt-2 flex items-center justify-center rounded-lg h-10 px-4 bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold transition-all"
                         onClick={() => setIsMenuOpen(false)}
                     >
-                        立即預演
+                        {t('navbar.start')}
                     </Link>
                 </div>
             </div>
