@@ -64,8 +64,8 @@ export default function Navbar() {
                                             key={lang.code}
                                             onClick={() => handleLangChange(lang.code)}
                                             className={`block w-full text-left px-4 py-2 text-sm transition-colors ${language === lang.code
-                                                    ? 'bg-purple-600/20 text-purple-400'
-                                                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                                ? 'bg-purple-600/20 text-purple-400'
+                                                : 'text-gray-400 hover:bg-white/5 hover:text-white'
                                                 }`}
                                         >
                                             {lang.label}
@@ -130,17 +130,16 @@ export default function Navbar() {
                         {t('navbar.citizens')}
                     </Link>
 
-                    {/* Mobile Language Switcher */}
                     <div className="py-2 border-t border-white/5 mt-2">
                         <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Language</p>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col gap-2">
                             {languages.map((lang) => (
                                 <button
                                     key={lang.code}
                                     onClick={() => handleLangChange(lang.code)}
-                                    className={`px-3 py-1.5 rounded-md text-xs font-bold border transition-colors ${language === lang.code
-                                            ? 'bg-purple-600 border-purple-600 text-white'
-                                            : 'border-white/10 text-gray-400 hover:border-white/30'
+                                    className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium border transition-colors ${language === lang.code
+                                        ? 'bg-purple-600 border-purple-600 text-white'
+                                        : 'border-white/10 text-gray-400 hover:border-white/30'
                                         }`}
                                 >
                                     {lang.label}
