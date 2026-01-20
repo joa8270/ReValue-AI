@@ -497,7 +497,7 @@ class LineBotService:
                 try:
                     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
                     print(f"📸 [LINE Copywriting] Trying model: {model}")
-                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
+                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=90)
                     
                     if response.status_code == 200:
                         result = response.json()
@@ -673,7 +673,7 @@ class LineBotService:
                 try:
                     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
                     print(f"🔄 [RefineCopy] Trying model: {model}")
-                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
+                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=90)
                     if response.status_code == 200:
                         result = response.json()
                         ai_text = result['candidates'][0]['content']['parts'][0]['text']
@@ -929,8 +929,8 @@ class LineBotService:
                 try:
                     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
                     print(f"📸 [Web Copywriting] Trying model: {model}")
-                    # GitHub 原始設定：timeout=30, maxOutputTokens=8192
-                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
+                    # GitHub 原始設定：timeout=90, maxOutputTokens=8192
+                    response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=90)
                     
                     if response.status_code == 200:
                         result = response.json()
@@ -2896,8 +2896,8 @@ __CITIZENS_JSON__
             try:
                 print(f"[AI] 嘗試使用模型: {model}...")
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-                # Reduced timeout to 30s
-                response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
+                # Increased timeout to 90s for complex prompts with detailed strategic advice
+                response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=90)
                 if response.status_code == 200:
                     try:
                         return response.json()['candidates'][0]['content']['parts'][0]['text'], None

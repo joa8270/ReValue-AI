@@ -264,7 +264,7 @@ async def identify_product(
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
                 print(f"📸 [Identify] Trying model: {model}...")
                 start_time = time.time()
-                response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
+                response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=90)
                 duration = time.time() - start_time
                 print(f"📸 [Identify] Model {model} responded in {duration:.2f}s with status {response.status_code}")
                 
