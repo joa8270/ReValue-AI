@@ -65,7 +65,7 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
         setIsRefining(true)
         try {
             // Use the exact API endpoint confirmed in web.py
-            const res = await fetch(`http://localhost:8000/api/web/refine-copy`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/web/refine-copy`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
