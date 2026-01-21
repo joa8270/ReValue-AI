@@ -61,6 +61,58 @@ interface Persona {
 // Citizen 類型別名（用於 modal 組件兼容性）
 type Citizen = Persona
 
+// SimulationData 類型定義
+interface SimulationData {
+  status: string
+  score: number
+  summary: string
+  genesis: {
+    total_population: number
+    sample_size: number
+    personas: Persona[]
+  }
+  arena_comments: Array<{
+    sentiment: string
+    text: string
+    citizen_id?: string
+    persona: Persona
+    score?: number
+  }>
+  intent?: string
+  suggestions?: Array<{ target: string; advice: string; execution_plan: string[]; score_improvement?: string }>
+  objections?: Array<{ reason: string; percentage: string }>
+  product_name?: string
+  price?: string | number
+  description?: string
+  market_prices?: {
+    success: boolean
+    prices: Array<{ platform: string; price: number; note: string }>
+    min_price: number
+    max_price: number
+    avg_price?: number
+    sources_count: number
+    search_summary: string
+    market_insight?: string
+  }
+  simulation_metadata?: {
+    style?: string
+    product_name?: string
+    source_type?: string
+    product_category?: string
+  }
+  methodology_data?: {
+    valid_until: string
+    confidence_interval: string
+    next_step: {
+      action: string
+      label: string
+      desc: string
+      style: string
+    }
+    entropy_warning: string
+  }
+}
+
 // ===== Element Config (Dynamic) =====
 const getElementConfig = (t: any) => ({
   Fire: { icon: "🔥", color: "text-orange-400", bg: "bg-gradient-to-r from-red-600 to-orange-500", glow: "shadow-orange-500/50", cn: t('report.elements.Fire.word') || "火", trait: t('report.elements.Fire.trait') },
@@ -1297,7 +1349,7 @@ export default function WatchPage() {
                     const elem = elementConfig[persona.element] || elementConfig.Fire;
                     const isPositive = comment.sentiment === 'positive';
                     return (
-                      <div key={i} className={`group relative p-4 rounded-xl border transition-all duration-300 transform bg-[#1a1a1f] hover:translate-x-1 cursor-pointer ${isPositive ? 'border-l-4 border-l-green-500 border-[#302839]' : comment.sentiment === 'negative' ? 'border-l-4 border-l-rose-500 border-[#302839]' : 'border-l-4 border-l-gray-500 border-[#302839]'}`} onClick={() => setSelectedCitizen(enrichCitizenData(persona))}>
+                      <div key={i} className={`group relative p-4 rounded-xl border transition-all duration-300 transform bg-[#1a1a1f] hover:translate-x-1 cursor-pointer ${isPositive ? 'border-l-4 border-l-green-500 border-[#302839]' : comment.sentiment === 'negative' ? 'border-l-4 border-l-rose-500 border-[#302839]' : 'border-l-4 border-l-gray-500 border-[#302839]'}`} onClick={() => setSelectedCitizen(enrichCitizenData(persona, t))}>
                         <div className="flex items-start gap-3">
                           <div className={`size-10 flex-none rounded-xl ${elem.bg} flex items-center justify-center text-xl shadow-lg group-hover:scale-110 transition-transform`}>{elem.icon}</div>
                           <div className="min-w-0 flex-1">
