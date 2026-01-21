@@ -330,7 +330,7 @@ export const translations = {
             status: '系统上线',
             title_prefix: '用',
             title_highlight: 'AI 代理人',
-            title_suffix: '模拟真实市场，预演产品/想法(商业计划书)的胜率',
+            title_suffix: '模拟真实市场，预演产品/想法的未来',
             subtitle: '结合【西方 ABM 代理人模拟】与【东方人格结构】，为您进行沙盒推演。',
             trust_anchor: '核心技术：基于 Agent-Based Modeling (ABM) 社会科学模拟方法论',
             cta_primary: '预演未来',
