@@ -1370,27 +1370,27 @@ export default function WatchPage() {
 
                 {/* AI 策略建議 / TACTICAL ADVICE - moved here */}
                 <div className="space-y-3">
-                  <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-1">{t('report.ui.tactical_advice')}</p>
+                  <p className="text-sm font-bold text-gray-400 tracking-widest uppercase mb-2">{t('report.ui.tactical_advice')}</p>
                   {data.suggestions?.slice(0, 3).map((s: any, i: number) => (
                     <div key={i} className="bg-[#1a1a1f] border border-[#302839] rounded-xl p-4 hover:border-cyan-500/30 transition-all group flex flex-col gap-3">
                       <div className="flex items-start gap-3">
                         <div className="bg-[#231b2e] size-8 rounded-lg flex items-center justify-center text-lg shadow-inner opacity-70 group-hover:opacity-100 transition-opacity">{i === 0 ? '🎯' : i === 1 ? '💡' : '⚡'}</div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between mb-1">
-                            <h4 className="text-white text-sm font-bold">
+                            <h4 className="text-white text-base font-bold">
                               {typeof s.target === 'object' && s.target !== null
                                 ? (s.target.point || s.target.title || s.target.text || JSON.stringify(s.target))
                                 : (s.target || '策略目標')}
                             </h4>
                             {s.score_improvement && (
-                              <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">
+                              <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">
                                 {typeof s.score_improvement === 'object' && s.score_improvement !== null
                                   ? (s.score_improvement.point || s.score_improvement.text || s.score_improvement.value || JSON.stringify(s.score_improvement))
                                   : s.score_improvement}
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-gray-200 leading-relaxed">
+                          <p className="text-sm text-gray-200 leading-relaxed">
                             {typeof s.advice === 'object' && s.advice !== null
                               ? (s.advice.point || s.advice.text || s.advice.description || JSON.stringify(s.advice))
                               : (s.advice || '載入中...')}
@@ -1401,13 +1401,13 @@ export default function WatchPage() {
                       {/* 執行時間表 */}
                       <div className="pl-11 space-y-3">
                         <div>
-                          <p className="text-[10px] text-[#7f13ec] font-bold uppercase mb-1.5 flex items-center gap-1">
+                          <p className="text-xs text-[#7f13ec] font-bold uppercase mb-1.5 flex items-center gap-1">
                             <span className="material-symbols-outlined text-[12px]">calendar_month</span>
                             {t('report.ui.execution_schedule')}
                           </p>
                           <ul className="space-y-1.5">
                             {(s.execution_plan || s.action_plan)?.map((step: any, j: number) => (
-                              <li key={j} className="flex items-start gap-2 text-[11px] text-gray-300 hover:text-white transition-colors">
+                              <li key={j} className="flex items-start gap-2 text-[13px] text-gray-300 hover:text-white transition-colors">
                                 <span className="text-cyan-500/70 mt-0.5 font-mono">{j + 1}.</span>
                                 <span>
                                   {typeof step === 'object' && step !== null
@@ -1415,18 +1415,18 @@ export default function WatchPage() {
                                     : step}
                                 </span>
                               </li>
-                            )) || <li className="text-[10px] text-gray-600 italic">{t('report.ui.generating_plan')}</li>}
+                            )) || <li className="text-xs text-gray-600 italic">{t('report.ui.generating_plan')}</li>}
                           </ul>
                         </div>
 
                         {/* 成功指標 */}
                         {s.success_metrics && (
                           <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-2.5">
-                            <p className="text-[10px] text-green-400 font-bold uppercase mb-1 flex items-center gap-1">
+                            <p className="text-xs text-green-400 font-bold uppercase mb-1 flex items-center gap-1">
                               <span className="material-symbols-outlined text-[12px]">flag</span>
                               {t('report.ui.success_metrics')}
                             </p>
-                            <p className="text-[11px] text-green-300">
+                            <p className="text-[13px] text-green-300 leading-relaxed">
                               {typeof s.success_metrics === 'object' && s.success_metrics !== null
                                 ? (Array.isArray(s.success_metrics)
                                   ? s.success_metrics.map((m: any) => (m.point || m.text || JSON.stringify(m))).join('; ')
@@ -1439,11 +1439,11 @@ export default function WatchPage() {
                         {/* 潛在風險 */}
                         {s.potential_risks && (
                           <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-2.5">
-                            <p className="text-[10px] text-amber-400 font-bold uppercase mb-1 flex items-center gap-1">
+                            <p className="text-xs text-amber-400 font-bold uppercase mb-1 flex items-center gap-1">
                               <span className="material-symbols-outlined text-[12px]">warning</span>
                               {t('report.ui.potential_risks')}
                             </p>
-                            <p className="text-[11px] text-amber-300">
+                            <p className="text-[13px] text-amber-300 leading-relaxed">
                               {typeof s.potential_risks === 'object' && s.potential_risks !== null
                                 ? (Array.isArray(s.potential_risks)
                                   ? s.potential_risks.map((r: any) => (r.point || r.text || JSON.stringify(r))).join('; ')
