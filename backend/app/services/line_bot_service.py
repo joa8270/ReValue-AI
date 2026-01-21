@@ -930,10 +930,13 @@ class LineBotService:
 - 建議售價：{price}
 - 參考規格與特色：{product_specs if product_specs else "(請根據圖片細節推斷)"}
 
+🔍 **規格引用強制要求**：
+{'⚠️ 重要：系統已搜尋到此產品的詳細規格資訊，你**必須**在文案中明確提及至少 3-5 個具體規格參數（如：藍牙版本、電池容量、重量、尺寸、材質、技術特性等）。這些規格必須自然融入文案，而非單純列表。' if product_specs else '⚠️ 請根據圖片仔細觀察推斷產品規格，並在文案中提及你觀察到的技術細節與參數。'}
+
 請生成兩段不同切入點的文案（**繁體中文**，每段約 150-200 字）：
 
-【A】情感共鳴版 - 側重感性訴求，描繪使用場景的美好體驗。
-【B】理性分析版 - 側重產品優勢，列出核心規格亮點。
+【A】情感共鳴版 - 側重感性訴求，描繪使用場景的美好體驗，但仍需自然提及產品規格。
+【B】理性分析版 - 側重產品優勢，**必須詳細列出核心規格亮點與技術參數**。
 
 請直接回覆 JSON 格式：
 {{
@@ -956,10 +959,13 @@ class LineBotService:
 - 建议售价：{price}
 - 参考规格与特色：{product_specs if product_specs else "(请根据图片细节推断)"}
 
+🔍 **规格引用强制要求**：
+{'⚠️ 重要：系统已搜索到此产品的详细规格信息，你**必须**在文案中明确提及至少 3-5 个具体规格参数（如：蓝牙版本、电池容量、重量、尺寸、材质、技术特性等）。这些规格必须自然融入文案，而非单纯列表。' if product_specs else '⚠️ 请根据图片仔细观察推断产品规格，并在文案中提及你观察到的技术细节与参数。'}
+
 请生成两段不同切入点的文案（**简体中文**，每段约 150-200 字）：
 
-【A】情感共鸣版 - 侧重感性诉求，描绘使用场景的美好体验。
-【B】理性分析版 - 侧重产品优势，列出核心规格亮点。
+【A】情感共鸣版 - 侧重感性诉求，描绘使用场景的美好体验，但仍需自然提及产品规格。
+【B】理性分析版 - 侧重产品优势，**必须详细列出核心规格亮点与技术参数**。
 
 请直接回复 JSON 格式：
 {{
@@ -982,10 +988,13 @@ Please act as a top-tier commercial copywriting strategist. Analyze these {len(i
 - Suggested Price: {price}
 - Reference Specs: {product_specs if product_specs else "(Please infer from image details)"}
 
+🔍 **Specification Reference Requirements**:
+{'⚠️ Important: The system has found detailed specifications for this product. You **MUST** explicitly mention at least 3-5 specific spec parameters in your copy (e.g., Bluetooth version, battery capacity, weight, dimensions, materials, technical features, etc.). These specs must be naturally integrated into the copy, not just listed.' if product_specs else '⚠️ Please carefully observe the images to infer product specifications, and mention the technical details and parameters you observed in your copy.'}
+
 Generate two different marketing copy approaches (in **English**, ~100-150 words each):
 
-【A】Emotional Resonance - Focus on emotional appeal, describing the wonderful experience of using the product.
-【B】Rational Analysis - Focus on product advantages, listing core specification highlights.
+【A】Emotional Resonance - Focus on emotional appeal, describing the wonderful experience, but still naturally mention product specs.
+【B】Rational Analysis - Focus on product advantages, **MUST detail core specification highlights and technical parameters**.
 
 Reply directly in JSON format:
 {{

@@ -604,29 +604,33 @@ export default function SimulationForm() {
                             <div className="space-y-1 relative">
                                 <div className="flex justify-between items-center flex-wrap gap-2">
                                     <label className="text-xs text-slate-400 ml-1">{t('simulation_form.label_desc')}</label>
-                                    <div className="flex items-center gap-2">
-                                        {/* Style Dropdown */}
-                                        <select
-                                            value={selectedStyle}
-                                            onChange={(e) => setSelectedStyle(e.target.value)}
-                                            className="text-[10px] px-2 py-1 rounded-full border border-slate-700 bg-slate-950/50 text-slate-300 focus:outline-none focus:border-purple-500/50 cursor-pointer"
-                                        >
-                                            {styleOptions.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
+                                    <div className="flex items-center gap-3">
+                                        {/* Style Dropdown with Label */}
+                                        <div className="flex items-center gap-2">
+                                            <label className="text-xs text-slate-400 whitespace-nowrap">{t('simulation_form.label_style')}</label>
+                                            <select
+                                                value={selectedStyle}
+                                                onChange={(e) => setSelectedStyle(e.target.value)}
+                                                className="text-sm px-3 py-2 rounded-lg border border-slate-700 bg-slate-950/50 text-slate-300 focus:outline-none focus:border-purple-500/50 cursor-pointer hover:bg-slate-800/50 transition-colors min-w-[120px]"
+                                            >
+                                                {styleOptions.map((opt) => (
+                                                    <option key={opt.value} value={opt.value}>
+                                                        {opt.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        {/* AI Write Button */}
                                         <button
                                             type="button"
                                             onClick={handleAiGenerate}
                                             disabled={aiLoading || files.length === 0 || !productName}
-                                            className={`text-[10px] px-2 py-1 rounded-full border flex items-center gap-1 transition-all ${aiLoading || files.length === 0 || !productName
-                                                ? 'text-slate-600 border-slate-700 cursor-not-allowed'
-                                                : 'text-purple-400 border-purple-500/50 hover:bg-purple-500/20 hover:border-purple-400 animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.5)]'
+                                            className={`text-sm px-4 py-2 rounded-lg border flex items-center gap-2 transition-all font-medium ${aiLoading || files.length === 0 || !productName
+                                                ? 'text-slate-600 border-slate-700 cursor-not-allowed bg-slate-900'
+                                                : 'text-purple-400 border-purple-500/50 hover:bg-purple-500/20 hover:border-purple-400 animate-pulse shadow-[0_0_15px_rgba(168,85,247,0.6)] hover:shadow-[0_0_20px_rgba(168,85,247,0.8)]'
                                                 }`}
                                         >
-                                            <Sparkles className="w-3 h-3" />
+                                            <Sparkles className="w-4 h-4" />
                                             {aiLoading ? t('simulation_form.btn_ai_writing') : t('simulation_form.btn_ai_write')}
                                         </button>
                                     </div>
