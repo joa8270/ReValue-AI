@@ -789,10 +789,11 @@ class LineBotService:
                 print(f"⚠️ Failed to parse AI JSON after cleaning: {clean_text[:50]}...")
                 return {}
 
-    async def generate_marketing_copy(self, image_data_input, product_name: str, price: str, style: str = "professional"):
+    async def generate_marketing_copy(self, image_data_input, product_name: str, price: str, style: str = "professional", language: str = "zh-TW"):
         """
         網頁端 API 使用：根據圖片（單張或多張）生成行銷文案
         使用 GitHub 原版 A/B Prompt（品質更好），但只返回其中一段
+        支援多語言：zh-TW（繁體中文）、zh-CN（簡體中文）、en（英文）
         """
         try:
             # 1. Process Images (List or Single)
@@ -809,17 +810,35 @@ class LineBotService:
                 img_b64 = base64.b64encode(img_bytes).decode('utf-8')
                 image_parts.append({"inline_data": {"mime_type": mime_type, "data": img_b64}})
             
-            print(f"📸 [Web Copywriting] Processing {len(image_parts)} images...")
+            print(f"📸 [Web Copywriting] Processing {len(image_parts)} images, language={language}...")
             
-            # 風格指令
-            style_prompts = {
-                "professional": "請使用**專業穩重**的商務風格。用詞正式，強調產品的技術規格、數據與可靠性，適合 B2B 或追求效能的專業人士。",
-                "friendly": "請使用**親切活潑**的輕鬆風格。像跟朋友聊天一樣，但也要清楚介紹產品的核心規格（如藍牙、續航），別讓讀者覺得沒內容。",
-                "luxury": "請使用**高端奢華**的品牌風格。用詞講究、富有質感，並將技術規格轉化為尊貴體驗的描述（例如：無線連接帶來的無拘無束）。",
-                "minimalist": "請使用**簡約清爽**的極簡風格。句子精煉有力，直接列出核心規格數據，去除冗餘形容詞。",
-                "storytelling": "請使用**故事敘述**的情境風格。在故事中自然帶出產品的規格優勢（如：不用擔心沒電，因為它有超長續航...）。"
+            # 多語言風格指令
+            style_prompts_by_lang = {
+                "zh-TW": {
+                    "professional": "請使用**專業穩重**的商務風格。用詞正式，強調產品的技術規格、數據與可靠性，適合 B2B 或追求效能的專業人士。",
+                    "friendly": "請使用**親切活潑**的輕鬆風格。像跟朋友聊天一樣，但也要清楚介紹產品的核心規格（如藍牙、續航），別讓讀者覺得沒內容。",
+                    "luxury": "請使用**高端奢華**的品牌風格。用詞講究、富有質感，並將技術規格轉化為尊貴體驗的描述（例如：無線連接帶來的無拘無束）。",
+                    "minimalist": "請使用**簡約清爽**的極簡風格。句子精煉有力，直接列出核心規格數據，去除冗餘形容詞。",
+                    "storytelling": "請使用**故事敘述**的情境風格。在故事中自然帶出產品的規格優勢（如：不用擔心沒電，因為它有超長續航...）。"
+                },
+                "zh-CN": {
+                    "professional": "请使用**专业稳重**的商务风格。用词正式，强调产品的技术规格、数据与可靠性，适合 B2B 或追求效能的专业人士。",
+                    "friendly": "请使用**亲切活泼**的轻松风格。像跟朋友聊天一样，但也要清楚介绍产品的核心规格（如蓝牙、续航），别让读者觉得没内容。",
+                    "luxury": "请使用**高端奢华**的品牌风格。用词讲究、富有质感，并将技术规格转化为尊贵体验的描述（例如：无线连接带来的无拘无束）。",
+                    "minimalist": "请使用**简约清爽**的极简风格。句子精炼有力，直接列出核心规格数据，去除冗余形容词。",
+                    "storytelling": "请使用**故事叙述**的情境风格。在故事中自然带出产品的规格优势（如：不用担心没电，因为它有超长续航...）。"
+                },
+                "en": {
+                    "professional": "Please use a **professional and steady** business style. Use formal language, emphasizing technical specifications, data, and reliability. Suitable for B2B or professional audiences.",
+                    "friendly": "Please use a **friendly and lively** casual style. Write as if chatting with a friend, but clearly introduce core specs (like Bluetooth, battery life).",
+                    "luxury": "Please use a **high-end luxury** brand style. Use refined, textured language, transforming technical specs into premium experience descriptions.",
+                    "minimalist": "Please use a **minimalist and clean** style. Sentences should be concise and powerful, directly listing core specs without redundant adjectives.",
+                    "storytelling": "Please use a **storytelling** scenario style. Naturally bring out product advantages within the story narrative."
+                }
             }
-            style_instruction = style_prompts.get(style, style_prompts["professional"])
+            
+            lang_styles = style_prompts_by_lang.get(language, style_prompts_by_lang["zh-TW"])
+            style_instruction = lang_styles.get(style, lang_styles["professional"])
             
             # 2. 搜尋產品規格 (New Feature)
             product_specs = ""
@@ -864,54 +883,89 @@ class LineBotService:
    - 「每個細節都經過精心設計」
 這樣用戶才能確認你確實理解並整合了所有上傳的圖片內容。
 """
-            
-            prompt = f"""🚨 **系統語言設定：繁體中文 (zh-TW)** 🚨
+            # 多語言 Prompt 模板
+            prompt_templates = {
+                "zh-TW": f"""🚨 **系統語言設定：繁體中文 (zh-TW)** 🚨
 ⚠️ 本提示的所有輸出內容必須使用**繁體中文**撰寫。
 ⚠️ 禁止輸出任何英文文案內容（JSON 欄位名稱除外）。
-⚠️ 若違反將被視為任務失敗。
 
-請擔任一位頂級的商業文案策略大師。請深入分析這 {len(image_parts)} 張產品圖片，先識別並解釋圖片中的具體內容與細節（如材質、角度、功能展示），再參考我提供的「產品規格資訊」（若有），為這款產品創造兩個截然不同的「完美應用場景」與「沉浸式行銷文案」。
+請擔任一位頂級的商業文案策略大師。請深入分析這 {len(image_parts)} 張產品圖片，為這款產品創造兩個截然不同的「完美應用場景」與「沉浸式行銷文案」。
 {multi_image_instruction}
 🎨 **寫作風格要求**：{style_instruction}
 
 📦 **產品資訊**：
 - 產品名稱：{product_name}
 - 建議售價：{price}
-- 參考規格與特色（來自網路搜尋）：
-{product_specs if product_specs else "(查無特定規格，請根據圖片細節與常識自行推斷)"}
+- 參考規格與特色：{product_specs if product_specs else "(請根據圖片細節推斷)"}
 
-⛔ **嚴格要求：技術規格優先** ⛔
-請將「產品規格」視為文案的核心骨架，而非裝飾。
-請在文案中**務必包含**以下具體規格（如果搜尋結果中有）：
-1.  **連接方式**：必須提到「藍牙」、「Bluetooth」、「無線」或「USB」等關鍵字。
-2.  **供電方式**：必須提到「充電」、「電池」、「續航力」等關鍵字。
-3.  **物理規格**：必須提到「重量」、「尺寸」或「材質」。
+請生成兩段不同切入點的文案（**繁體中文**，每段約 150-200 字）：
 
-我需要你能夠：
-1.  **拒絕空泛**：絕對不要只寫「精美」、「好用」。要寫「採用陽極氧化鋁金屬」、「支援多點觸控手勢」。
-2.  **硬派數據**：把數據（如 99g, 1個月續航）寫進去。
-3.  **視覺解讀**：(簡略) 描述圖片細節。
-4.  **沉浸體驗**：用文字營造氛圍。
+【A】情感共鳴版 - 側重感性訴求，描繪使用場景的美好體驗。
+【B】理性分析版 - 側重產品優勢，列出核心規格亮點。
 
-請生成兩段不同切入點的文案（**務必使用繁體中文**，絕對禁止英文，每段約 150-200 字）：
-
-【A】切入點一：情感共鳴與氛圍營造 (Emotional & Atmospheric)
-- 側重於感性訴求，但**必須自然融入**上述技術規格（如：享受無線藍牙帶來的自由...）。
-
-【B】切入點二：精準場景與痛點解決 (Scenario & Solution)
-- 側重於理性與場景訴求。
-- **條列式強項**：在文案最後，請用 `・` 符號列出 3 點核心規格亮點。
-
-⚠️ **最終檢查**：你的文案中出現「藍牙(Bluetooth)」、「無線」、「充電」、「續航」這些詞了嗎？如果沒有，請重寫！
-
-請直接回覆 JSON 格式，不要有 Markdown 標記：
+請直接回覆 JSON 格式：
 {{
-    "title_a": "文案 A 的標題 (如：週末午後的微奢時光)",
+    "title_a": "文案 A 的標題",
     "description_a": "文案 A 的內容...",
-    "title_b": "文案 B 的標題 (如：職場穿搭的點睛之筆)",
+    "title_b": "文案 B 的標題",
     "description_b": "文案 B 的內容..."
 }}
+""",
+                "zh-CN": f"""🚨 **系统语言设定：简体中文 (zh-CN)** 🚨
+⚠️ 本提示的所有输出内容必须使用**简体中文**撰写。
+⚠️ 禁止输出任何繁体中文或英文文案内容（JSON 字段名称除外）。
+
+请担任一位顶级的商业文案策略大师。请深入分析这 {len(image_parts)} 张产品图片，为这款产品创造两个截然不同的「完美应用场景」与「沉浸式营销文案」。
+{multi_image_instruction}
+🎨 **写作风格要求**：{style_instruction}
+
+📦 **产品信息**：
+- 产品名称：{product_name}
+- 建议售价：{price}
+- 参考规格与特色：{product_specs if product_specs else "(请根据图片细节推断)"}
+
+请生成两段不同切入点的文案（**简体中文**，每段约 150-200 字）：
+
+【A】情感共鸣版 - 侧重感性诉求，描绘使用场景的美好体验。
+【B】理性分析版 - 侧重产品优势，列出核心规格亮点。
+
+请直接回复 JSON 格式：
+{{
+    "title_a": "文案 A 的标题",
+    "description_a": "文案 A 的内容...",
+    "title_b": "文案 B 的标题",
+    "description_b": "文案 B 的内容..."
+}}
+""",
+                "en": f"""🚨 **System Language: English (en)** 🚨
+⚠️ All output content MUST be written in **English only**.
+⚠️ Do NOT output any Chinese characters (JSON field names are exceptions).
+
+Please act as a top-tier commercial copywriting strategist. Analyze these {len(image_parts)} product images and create two distinct "perfect application scenarios" with "immersive marketing copy" for this product.
+{multi_image_instruction}
+🎨 **Writing Style**: {style_instruction}
+
+📦 **Product Information**:
+- Product Name: {product_name}
+- Suggested Price: {price}
+- Reference Specs: {product_specs if product_specs else "(Please infer from image details)"}
+
+Generate two different marketing copy approaches (in **English**, ~100-150 words each):
+
+【A】Emotional Resonance - Focus on emotional appeal, describing the wonderful experience of using the product.
+【B】Rational Analysis - Focus on product advantages, listing core specification highlights.
+
+Reply directly in JSON format:
+{{
+    "title_a": "Title for Copy A",
+    "description_a": "Content for Copy A...",
+    "title_b": "Title for Copy B",
+    "description_b": "Content for Copy B..."
+}}
 """
+            }
+            
+            prompt = prompt_templates.get(language, prompt_templates["zh-TW"])
             
             # API Setup - 使用 GitHub 原版設定 (Token 數需足夠大)
             api_key = settings.GOOGLE_API_KEY

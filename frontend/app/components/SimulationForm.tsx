@@ -274,6 +274,7 @@ export default function SimulationForm() {
             formData.append("product_name", productName)
             formData.append("price", price || "未定")
             formData.append("style", selectedStyle)
+            formData.append("language", language)
 
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
             const res = await fetch(`${API_BASE_URL}/api/web/generate-description`, {

@@ -157,7 +157,8 @@ async def generate_description(
     files: List[UploadFile] = File(...),
     product_name: str = Form(...),
     price: str = Form(...),
-    style: str = Form("professional")
+    style: str = Form("professional"),
+    language: str = Form("zh-TW")
 ):
     try:
         from app.services.line_bot_service import LineBotService
@@ -168,8 +169,8 @@ async def generate_description(
         for file in files:
             file_bytes_list.append(await file.read())
         
-        # Call LineBotService to generate copy with selected style (pass list)
-        result = await line_service.generate_marketing_copy(file_bytes_list, product_name, price, style)
+        # Call LineBotService to generate copy with selected style and language
+        result = await line_service.generate_marketing_copy(file_bytes_list, product_name, price, style, language)
         
         if "error" in result:
             return {"error": result["error"]}
