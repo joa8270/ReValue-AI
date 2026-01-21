@@ -230,12 +230,12 @@ export const translations = {
                 }
             },
             elements: {
-                Fire: { trait: '熱情衝動、直覺行動', detailed: '熱情洋溢，行動力強，但有時過於急躁。' },
-                Water: { trait: '理性冷靜、深思熟慮', detailed: '聰明機智，適應力強，心思深沉。' },
-                Metal: { trait: '精明挑剔、重視品質', detailed: '果斷剛毅，講求原則，重視效率與SOP。' },
-                Wood: { trait: '成長導向、追求創新', detailed: '仁慈博愛，富有創意，具備良好的生長性與彈性。' },
-                Earth: { trait: '穩重務實、重視CP值', detailed: '誠信穩重，包容力強，是團隊中的定海神針。' },
-                General: { detailed: '性格均衡，適應力良好。' }
+                Fire: { word: '火', trait: '熱情衝動、直覺行動', detailed: '熱情洋溢，行動力強，但有時過於急躁。' },
+                Water: { word: '水', trait: '理性冷靜、深思熟慮', detailed: '聰明機智，適應力強，心思深沉。' },
+                Metal: { word: '金', trait: '精明挑剔、重視品質', detailed: '果斷剛毅，講求原則，重視效率與SOP。' },
+                Wood: { word: '木', trait: '成長導向、追求創新', detailed: '仁慈博愛，富有創意，具備良好的生長性與彈性。' },
+                Earth: { word: '土', trait: '穩重務實、重視CP值', detailed: '誠信穩重，包容力強，是團隊中的定海神針。' },
+                General: { word: '', detailed: '性格均衡，適應力良好。' }
             },
             decision_models: {
                 '正官格': { title: '邏輯審慎型', desc: '決策前必先評估風險與合規性，偏好有前例可循的方案，重視SOP與權責劃分。' },
@@ -547,12 +547,12 @@ export const translations = {
                 }
             },
             elements: {
-                Fire: { trait: '热情冲动、直觉行动', detailed: '热情洋溢，行动力强，但有时过于急躁。' },
-                Water: { trait: '理性冷静、深思熟虑', detailed: '聪明机智，适应力强，心思深沉。' },
-                Metal: { trait: '精明挑剔、重视品质', detailed: '果断刚毅，讲求原则，重视效率与SOP。' },
-                Wood: { trait: '成长导向、追求创新', detailed: '仁慈博爱，富有创意，具备良好的生长性与弹性。' },
-                Earth: { trait: '稳重务实、重视CP值', detailed: '诚信稳重，包容力强，是团队中的定海神针。' },
-                General: { detailed: '性格均衡，适应力良好。' }
+                Fire: { word: '火', trait: '热情冲动、直觉行动', detailed: '热情洋溢，行动力强，但有时过于急躁。' },
+                Water: { word: '水', trait: '理性冷静、深思熟虑', detailed: '聪明机智，适应力强，心思深沉。' },
+                Metal: { word: '金', trait: '精明挑剔、重视品质', detailed: '果断刚毅，讲求原则，重视效率与SOP。' },
+                Wood: { word: '木', trait: '成长导向、追求创新', detailed: '仁慈博爱，富有创意，具备良好的生长性与弹性。' },
+                Earth: { word: '土', trait: '稳重务实、重视CP值', detailed: '诚信稳重，包容力强，是团队中的定海神针。' },
+                General: { word: '', detailed: '性格均衡，适应力良好。' }
             },
             decision_models: {
                 '正官格': { title: '逻辑审慎型', desc: '决策前必先评估风险与合规性，偏好有前例可循的方案，重视SOP与权责划分。' },
@@ -864,12 +864,12 @@ export const translations = {
                 }
             },
             elements: {
-                Fire: { trait: 'Passionate & Intuitive', detailed: 'Passionate and action-oriented, but sometimes too impulsive.' },
-                Water: { trait: 'Rational & Deep Thinker', detailed: 'Smart, adaptable, and deep thinker.' },
-                Metal: { trait: 'Sharp & Quality Focused', detailed: 'Decisive, principled, values efficiency and SOPs.' },
-                Wood: { trait: 'Growth & Innovation', detailed: 'Benevolent, creative, with good growth potential and flexibility.' },
-                Earth: { trait: 'Steady & Pragmatic', detailed: 'Trustworthy, inclusive, the rock of the team.' },
-                General: { detailed: 'Balanced personality and good adaptability.' }
+                Fire: { word: 'Fire', trait: 'Passionate & Intuitive', detailed: 'Passionate and action-oriented, but sometimes too impulsive.' },
+                Water: { word: 'Water', trait: 'Rational & Deep Thinker', detailed: 'Smart, adaptable, and deep thinker.' },
+                Metal: { word: 'Metal', trait: 'Sharp & Quality Focused', detailed: 'Decisive, principled, values efficiency and SOPs.' },
+                Wood: { word: 'Wood', trait: 'Growth & Innovation', detailed: 'Benevolent, creative, with good growth potential and flexibility.' },
+                Earth: { word: 'Earth', trait: 'Steady & Pragmatic', detailed: 'Trustworthy, inclusive, the rock of the team.' },
+                General: { word: '', detailed: 'Balanced personality and good adaptability.' }
             },
             decision_models: {
                 '正官格': { title: 'Logic & Prudence', desc: 'Evaluates risks and compliance before acting, prefers precedents and SOPs.' },

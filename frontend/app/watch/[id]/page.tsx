@@ -929,14 +929,14 @@ export default function WatchPage() {
                 <button
                   key={item.key}
                   className={`flex items-center rounded-lg hover:bg-[#302839] text-[#ab9db9] group transition-colors ${isSidebarCollapsed ? 'p-2.5 justify-center' : 'justify-between gap-3 px-3 py-2'}`}
-                  title={isSidebarCollapsed ? `${t('report.persona_types.' + item.key)}` : undefined}
+                  title={isSidebarCollapsed ? `${t('report.ui.persona_types.' + item.key)}` : undefined}
                 >
                   <div className={`flex items-center ${isSidebarCollapsed ? '' : 'gap-3'}`}>
                     <span className="material-symbols-outlined group-hover:text-[#7f13ec] transition-colors">{item.icon}</span>
                     {!isSidebarCollapsed && (
                       <div className="flex flex-col items-start gap-0.5">
-                        <span className="text-sm font-medium group-hover:text-white transition-colors">{t('report.persona_types.' + item.key)}</span>
-                        // @ts-ignore
+                        <span className="text-sm font-medium group-hover:text-white transition-colors">{t('report.ui.persona_types.' + item.key)}</span>
+                        {/* @ts-ignore - getDecisionModels may have dynamic keys */}
                         <span className="text-sm text-[#a855f7] font-bold tracking-wide">{getDecisionModels(t)[item.bazi]?.title || item.bazi}</span>
                       </div>
                     )}
