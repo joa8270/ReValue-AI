@@ -32,13 +32,36 @@ def search_market_prices_sync(product_name: str, user_price: float = None) -> di
         print("❌ Price search: No API key")
         return _fallback_prices(product_name, user_price)
     
-    # 構建搜尋 prompt（簡化版本，減少 token 消耗）
-    prompt = f"""搜尋「{product_name}」在台灣電商平台的價格。
-    
-回覆純 JSON：
-{{"prices":[{{"platform":"蝦皮","price":數字}},{{"platform":"PChome","price":數字}},{{"platform":"momo","price":數字}}],"market_insight":"一句話總結"}}
+    # 構建搜尋 prompt（強化版本，要求真實搜尋電商網站）
+    prompt = f"""🔍 **市場價格搜尋任務**
 
-如找不到價格填 0。只回 JSON。"""
+請使用 Google 搜尋功能，查詢「{product_name}」在以下台灣主要電商平台的**當前實際售價**：
+
+**必須搜尋的平台**（至少 3 個）：
+1. 蝦皮購物 (shopee.tw) - 搜尋關鍵字："{product_name} 蝦皮"
+2. PChome 24h購物 (24h.pchome.com.tw) - 搜尋關鍵字："{product_name} PChome"
+3. momo購物網 (momoshop.com.tw) - 搜尋關鍵字："{product_name} momo"
+4. Yahoo 購物中心 (buy.yahoo.com.tw) - 搜尋關鍵字："{product_name} Yahoo"
+
+**搜尋要求**：
+- 請真正執行 Google 搜尋，不要依賴訓練資料
+- 找出「最常見的售價」，而非最低價或最高價
+- 如果找到多個賣家，請取主流價格（不要極端值）
+- 價格必須是新台幣（TWD）
+- 如果某平台真的找不到，價格填 0
+
+**回覆格式**（純 JSON，不要有任何開場白或 markdown）：
+{{
+  "prices": [
+    {{"platform": "蝦皮購物", "price": [數字]}},
+    {{"platform": "PChome", "price": [數字]}},
+    {{"platform": "momo購物網", "price": [數字]}},
+    {{"platform": "Yahoo購物", "price": [數字]}}
+  ],
+  "market_insight": "[一句話總結市場價格趨勢，例如：主流價格集中在 2000-2500 元]"
+}}
+
+⚠️ 重要：請勿虛構價格，如果真的搜尋不到某平台的價格，該平台的 price 請填 0。"""
 
     try:
         print(f"📊 Searching market prices for: {product_name}")
@@ -100,7 +123,20 @@ def search_market_prices_sync(product_name: str, user_price: float = None) -> di
         price_values = [p["price"] for p in valid_prices]
         min_price = min(price_values)
         max_price = max(price_values)
+        
+        # 使用中位數代替平均值，避免極端值影響
+        sorted_prices = sorted(price_values)
+        n = len(sorted_prices)
+        if n % 2 == 0:
+            median_price = int((sorted_prices[n//2-1] + sorted_prices[n//2]) / 2)
+        else:
+            median_price = sorted_prices[n//2]
+        
+        # 仍計算平均值作為參考
         avg_price = int(sum(price_values) / len(price_values))
+        
+        # 使用中位數作為主要參考價格
+        reference_price = median_price
         
         # 判斷使用者價格在市場中的位置
         price_position = "符合市場"
@@ -110,16 +146,18 @@ def search_market_prices_sync(product_name: str, user_price: float = None) -> di
             elif user_price > max_price * 1.1:
                 price_position = "高於市場"
         
-        print(f"✅ Price search success: {len(valid_prices)} platforms, ${min_price}-${max_price}")
+        print(f"✅ Price search success: {len(valid_prices)} platforms, ${min_price}-${max_price}, median=${median_price}")
         
         return {
             "success": True,
             "prices": valid_prices,
             "min_price": min_price,
             "max_price": max_price,
-            "avg_price": avg_price,
+            "avg_price": median_price,  # 使用中位數作為主要顯示價格
+            "median_price": median_price,
+            "mean_price": avg_price,
             "sources_count": len(valid_prices),
-            "search_summary": f"根據{len(valid_prices)}個電商平台，市場價格約 ${min_price}-${max_price}",
+            "search_summary": f"根據{len(valid_prices)}個電商平台，市場價格約 NT${min_price:,}-${max_price:,}，中位數 ${median_price:,}",
             "price_position": price_position,
             "market_insight": data.get("market_insight", "")
         }
