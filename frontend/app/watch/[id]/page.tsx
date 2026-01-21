@@ -6,6 +6,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import RefineCopyPanel from "@/app/components/RefineCopyPanel"
 import MethodologyModal from "@/app/components/MethodologyModal"
+import { useLanguage } from "@/app/context/LanguageContext"
 import dynamic from "next/dynamic"
 
 const PDFDownloadLink = dynamic(
@@ -60,148 +61,87 @@ interface Persona {
 // Citizen 類型別名（用於 modal 組件兼容性）
 type Citizen = Persona
 
-// ===== Element Config =====
-const elementConfig: Record<string, { icon: string; color: string; bg: string; glow: string; cn: string; trait: string }> = {
-  Fire: { icon: "🔥", color: "text-orange-400", bg: "bg-gradient-to-r from-red-600 to-orange-500", glow: "shadow-orange-500/50", cn: "火", trait: "熱情衝動、直覺行動" },
-  Water: { icon: "💧", color: "text-cyan-400", bg: "bg-gradient-to-r from-blue-600 to-cyan-500", glow: "shadow-cyan-500/50", cn: "水", trait: "理性冷靜、深思熟慮" },
-  Metal: { icon: "🔩", color: "text-slate-300", bg: "bg-gradient-to-r from-slate-500 to-zinc-400", glow: "shadow-slate-400/50", cn: "金", trait: "精明挑剔、重視品質" },
-  Wood: { icon: "🌳", color: "text-emerald-400", bg: "bg-gradient-to-r from-green-600 to-emerald-500", glow: "shadow-emerald-500/50", cn: "木", trait: "成長導向、追求創新" },
-  Earth: { icon: "⛰️", color: "text-amber-400", bg: "bg-gradient-to-r from-amber-600 to-yellow-500", glow: "shadow-amber-500/50", cn: "土", trait: "穩重務實、重視CP值" }
+// ===== Element Config (Dynamic) =====
+const getElementConfig = (t: any) => ({
+  Fire: { icon: "🔥", color: "text-orange-400", bg: "bg-gradient-to-r from-red-600 to-orange-500", glow: "shadow-orange-500/50", cn: t('report.elements.Fire.word') || "火", trait: t('report.elements.Fire.trait') },
+  Water: { icon: "💧", color: "text-cyan-400", bg: "bg-gradient-to-r from-blue-600 to-cyan-500", glow: "shadow-cyan-500/50", cn: t('report.elements.Water.word') || "水", trait: t('report.elements.Water.trait') },
+  Metal: { icon: "🔩", color: "text-slate-300", bg: "bg-gradient-to-r from-slate-500 to-zinc-400", glow: "shadow-slate-400/50", cn: t('report.elements.Metal.word') || "金", trait: t('report.elements.Metal.trait') },
+  Wood: { icon: "🌳", color: "text-emerald-400", bg: "bg-gradient-to-r from-green-600 to-emerald-500", glow: "shadow-emerald-500/50", cn: t('report.elements.Wood.word') || "木", trait: t('report.elements.Wood.trait') },
+  Earth: { icon: "⛰️", color: "text-amber-400", bg: "bg-gradient-to-r from-amber-600 to-yellow-500", glow: "shadow-amber-500/50", cn: t('report.elements.Earth.word') || "土", trait: t('report.elements.Earth.trait') }
+})
+
+// ===== DECISION MODELS (Dynamic) =====
+const getDecisionModels = (t: any) => ({
+  "正官格": t('report.decision_models.正官格'),
+  "七殺格": t('report.decision_models.七殺格'),
+  "正財格": t('report.decision_models.正財格'),
+  "偏財格": t('report.decision_models.偏財格'),
+  "正印格": t('report.decision_models.正印格'),
+  "偏印格": t('report.decision_models.偏印格'),
+  "食神格": t('report.decision_models.食神格'),
+  "傷官格": t('report.decision_models.傷官格'),
+  "建祿格": t('report.decision_models.建祿格'),
+  "羊刃格": t('report.decision_models.羊刃格'),
+  "從財格": t('report.decision_models.從財格'),
+  "從殺格": t('report.decision_models.從殺格'),
+  "從兒格": t('report.decision_models.從兒格'),
+  "專旺格": t('report.decision_models.專旺格'),
+  "default": t('report.decision_models.default')
+});
+
+function getDecisionModel(structure: string | undefined, t: any) {
+  const models = getDecisionModels(t);
+  if (!structure) return models.default;
+  // Match the Chinese key from backend
+  const key = Object.keys(models).find(k => k !== 'default' && structure.includes(k));
+  return (models as any)[key || 'default'] || models.default;
 }
 
-// ===== DECISION MODELS =====
-const DECISION_MODELS: Record<string, { title: string; desc: string }> = {
-  "正官格": { title: "邏輯審慎型", desc: "決策前必先評估風險與合規性，偏好有前例可循的方案，重視SOP與權責劃分。" },
-  "七殺格": { title: "果斷執行型", desc: "面對危機敢於下重注，決策速度快，重視結果大於過程，關鍵時刻能展現魄力。" },
-  "正財格": { title: "穩健數據型", desc: "重視成本效益分析 (CP值)，每一分錢都要花在刀口上，偏好低風險、穩定回報的選擇。" },
-  "偏財格": { title: "機會捕捉型", desc: "商業嗅覺敏銳，願意為高潛在回報承擔風險，決策豪爽，善於利用槓桿。" },
-  "正印格": { title: "長遠規劃型", desc: "決策著重長期價值與品牌信譽，不喜歡短視近利的行為，會考慮對整體的影響。" },
-  "偏印格": { title: "創新反骨型", desc: "討厭隨波逐流，喜歡獨特、非主流的選擇，決策帶有直覺色彩，常有出人意表的洞見。" },
-  "食神格": { title: "品味直覺型", desc: "重視個人喜好與美感體驗，決策較感性，追求「感覺對了」與心理舒適度。" },
-  "傷官格": { title: "顛覆突破型", desc: "喜歡打破常規，不按牌理出牌，決策往往挑戰現狀，旨在證明自己的獨特能力。" },
-  "建祿格": { title: "務實自主型", desc: "相信自己的判斷，不輕易被話術影響，重視實際掌控權與執行可行性。" },
-  "羊刃格": { title: "效率目標型", desc: "目標導向極強，為了達成目的可以排除萬難，決策快狠準，不喜歡拖泥帶水。" },
-  "從財格": { title: "順勢而為型", desc: "懂得利用大環境趨勢，決策靈活，適應力強，哪裡有利就往哪裡去。" },
-  "從殺格": { title: "權力導向型", desc: "具有強烈的企圖心，決策服務於地位的提升與影響力的擴大。" },
-  "從兒格": { title: "智慧策略型", desc: "靠才華與創意取勝，決策靈活多變，不喜歡被死板的規則束縛。" },
-  "專旺格": { title: "堅持本色型", desc: "意志堅定，一條路走到黑，在專業領域有極強的決策自信。" }
-};
-
-const DEFAULT_DECISION_MODEL = { title: "多元策略型", desc: "能根據不同情境調整決策模式，兼具理性與感性。" };
-
-function getDecisionModel(structure: string | undefined) {
-  if (!structure) return DEFAULT_DECISION_MODEL;
-  const key = Object.keys(DECISION_MODELS).find(k => structure.includes(k));
-  return key ? DECISION_MODELS[key] : DEFAULT_DECISION_MODEL;
-}
-
-// ===== Methodology Sidecar Types (New) =====
-interface MethodologyData {
-  framework: string
-  valid_until: string
-  entropy_warning: string
-  confidence_interval: string
-  next_step: {
-    action: "Scale" | "Pivot" | "Restart"
-    label: string
-    style: string
-    desc: string
-  }
-  drivers_summary: string
-}
-
-interface SimulationData {
-  status: string
-  score: number
-  summary: string
-  productName?: string  // Legacy support
-  product_name?: string // Standard backend field
-  price?: string | number // Standard backend field
-  description?: string // Standard backend field
-  market_prices?: {
-    success: boolean
-    min_price: number
-    max_price: number
-    avg_price: number
-    currency: string
-    sources_count: number
-    prices: Array<{ source: string; price: number; title: string }>
-    market_insight?: string
-  }
-  genesis: {
-    sample_size: number
-    personas: Persona[]
-    bazi_profile?: BaziProfile
-  }
-  simulation_metadata?: {
-    sample_size: number
-    bazi_distribution: BaziDistribution
-    source_type?: string  // "pdf" | "image"
-    product_category?: string // "tech_electronics" | "collectible_toy" | "food_beverage" | "fashion_accessory" | "home_lifestyle" | "other"
-    product_name?: string
-    style?: string
-  }
-  methodology_data?: MethodologyData // 🧬 Sidecar Data
-  bazi_distribution?: BaziDistribution
-  arena_comments: Array<{
-    sentiment: string
-    text: string
-    citizen_id?: string
-    persona: Persona
-    score?: number
-  }>
-  result?: { summary: string }
-  intent?: any
-  suggestions?: Array<{ target: string; advice: string; action_plan: string[]; score_improvement?: string }>
-  objections?: Array<{ reason: string; percentage: string }>
-  buying_intent?: string
-}
-
-// ===== Dynamic Metric Config based on Product Category =====
-const METRIC_CONFIG: Record<string, { label: string; subLabel: string; getAdvice: (level: string) => string }> = {
+// ===== Dynamic Metric Config (Dynamic) =====
+const getMetricConfig = (t: any) => ({
   tech_electronics: {
-    label: "技術變現力",
-    subLabel: "「是用技術折服人，還是在拼價格？」越少人嫌貴，代表技術帶來的溢價能力越強。",
-    getAdvice: (level) => level === "強" ? "💡 建議：技術優勢受到認可，可考慮強化專利/技術文件作為信任背書。" :
-      level === "中" ? "💡 建議：技術認可度中等。建議以「長期價值」或「無形效益」重新包裝訴求。" :
-        "💡 建議：難以產生技術溢價。消費者對價格敏感，建議建立「不可替代性」來自抬身價，或接受薄利多銷的策略。"
+    label: t('report.metrics.tech_electronics.label'),
+    subLabel: t('report.metrics.tech_electronics.subLabel'),
+    getAdvice: (level: string) => level === "high" ? t('report.metrics.tech_electronics.advice_high') :
+      level === "mid" ? t('report.metrics.tech_electronics.advice_mid') :
+        t('report.metrics.tech_electronics.advice_low')
   },
   collectible_toy: {
-    label: "收藏價值",
-    subLabel: "「是買來收藏還是玩一玩就丟？」越多人想收藏，代表產品有潛力成為經典。",
-    getAdvice: (level) => level === "強" ? "💡 建議：收藏價值受認可！可考慮推出限量版或編號系列來強化稀有性。" :
-      level === "中" ? "💡 建議：收藏價值中等。建議強調IP故事性或角色情感連結。" :
-        "💡 建議：暫時缺乏收藏吸引力。建議透過包裝設計、授權合作或限定活動來提升價值感。"
+    label: t('report.metrics.collectible_toy.label'),
+    subLabel: t('report.metrics.collectible_toy.subLabel'),
+    getAdvice: (level: string) => level === "high" ? t('report.metrics.collectible_toy.advice_high') :
+      level === "mid" ? t('report.metrics.collectible_toy.advice_mid') :
+        t('report.metrics.collectible_toy.advice_low')
   },
   food_beverage: {
-    label: "口碑潛力",
-    subLabel: "「值不值得推薦給朋友？」越多人願意分享，代表產品有病毒式傳播的潛力。",
-    getAdvice: (level) => level === "強" ? "💡 建議：口碑潛力極佳！建議設計分享機制（如買一送一、打卡優惠）放大效果。" :
-      level === "中" ? "💡 建議：口碑中等。可透過KOL試吃、使用者評論來累積信任感。" :
-        "💡 建議：口碑動能不足。建議先改善產品體驗，或透過試吃活動讓消費者親身感受。"
+    label: t('report.metrics.food_beverage.label'),
+    subLabel: t('report.metrics.food_beverage.subLabel'),
+    getAdvice: (level: string) => level === "high" ? t('report.metrics.food_beverage.advice_high') :
+      level === "mid" ? t('report.metrics.food_beverage.advice_mid') :
+        t('report.metrics.food_beverage.advice_low')
   },
   fashion_accessory: {
-    label: "風格認同度",
-    subLabel: "「穿戴它會被羨慕還是忽略？」越多人認同其風格，代表品牌調性越精準。",
-    getAdvice: (level) => level === "強" ? "💡 建議：風格精準！建議經營社群穿搭內容，讓產品成為「生活態度」的象徵。" :
-      level === "中" ? "💡 建議：風格定位需加強。可透過造型師聯名或場景行銷來清晰品牌調性。" :
-        "💡 建議：風格辨識度低。建議重新定義目標客群，找到「為誰而設計」的答案。"
+    label: t('report.metrics.fashion_accessory.label'),
+    subLabel: t('report.metrics.fashion_accessory.subLabel'),
+    getAdvice: (level: string) => level === "high" ? t('report.metrics.fashion_accessory.advice_high') :
+      level === "mid" ? t('report.metrics.fashion_accessory.advice_mid') :
+        t('report.metrics.fashion_accessory.advice_low')
   },
   home_lifestyle: {
-    label: "實用滿意度",
-    subLabel: "「買回家後會不會後悔？」越少人覺得多餘，代表產品真正解決了生活痛點。",
-    getAdvice: (level) => level === "強" ? "💡 建議：實用性受認可！可強調使用情境與前後對比，讓價值更具體。" :
-      level === "中" ? "💡 建議：實用性有改善空間。建議收集使用者回饋，找出「為什麼不常用」的原因。" :
-        "💡 建議：實用性評價較低。消費者可能覺得「不太需要」，建議精準定位使用場景。"
+    label: t('report.metrics.home_lifestyle.label'),
+    subLabel: t('report.metrics.home_lifestyle.subLabel'),
+    getAdvice: (level: string) => level === "high" ? t('report.metrics.home_lifestyle.advice_high') :
+      level === "mid" ? t('report.metrics.home_lifestyle.advice_mid') :
+        t('report.metrics.home_lifestyle.advice_low')
   },
   other: {
-    label: "產品差異化",
-    subLabel: "「跟其他同類產品有什麼不同？」越多人覺得獨特，代表產品有明確的競爭優勢。",
-    getAdvice: (level) => level === "強" ? "💡 建議：差異化明顯！建議以此為核心訴求，強化獨特賣點的傳播。" :
-      level === "中" ? "💡 建議：差異化中等。可思考是否有被忽略的獨特功能或價值主張。" :
-        "💡 建議：同質化嚴重。建議找出「為什麼選你而不是別人」的答案。"
+    label: t('report.metrics.other.label'),
+    subLabel: t('report.metrics.other.subLabel'),
+    getAdvice: (level: string) => level === "high" ? t('report.metrics.other.advice_high') :
+      level === "mid" ? t('report.metrics.other.advice_mid') :
+        t('report.metrics.other.advice_low')
   }
-}
+})
 
 interface EnrichedPersona extends Persona {
   fullBirthday?: string
@@ -214,53 +154,45 @@ interface EnrichedPersona extends Persona {
  * 直接使用後端傳來的市民資料，不再生成假資料
  * 所有資料應該已在 line_bot_service.py 的 _build_simulation_result 中完整填充
  */
-const enrichCitizenData = (p: Persona): EnrichedPersona => {
-  // 1. 日主：直接使用後端資料
-  const dm = p.day_master || "未知";
+const enrichCitizenData = (p: Persona, t: any): EnrichedPersona => {
+  // 1. 日主
+  const dm = p.day_master || t('report.ui.unknown') || "未知";
 
-  // 2. 生日：直接使用後端資料，不再推算
+  // 2. 生日
   let fullBirthday = "";
   if (p.birth_year && p.birth_month && p.birth_day) {
-    fullBirthday = `${p.birth_year}年${p.birth_month}月${p.birth_day}日`;
-    if (p.birth_shichen) fullBirthday += ` ${p.birth_shichen}`;
+    fullBirthday = `${p.birth_year}/${p.birth_month}/${p.birth_day}`;
   } else {
-    fullBirthday = "生辰資料缺失";
+    fullBirthday = t('report.ui.birthday_unknown');
   }
 
-  // 3. 當前大運：直接使用後端資料
+  // 3. 當前大運
   let luckCycle = "";
   if (p.current_luck && p.current_luck.description) {
     luckCycle = p.current_luck.description;
   } else if (p.current_luck && p.current_luck.name) {
-    luckCycle = `目前行${p.current_luck.name}`;
+    luckCycle = `${p.current_luck.name}`; // Simplified for i18n
   } else {
-    luckCycle = "大運資料載入中...";
+    luckCycle = t('report.ui.unknown_stage');
   }
 
-  // 4. 性格特質描述
-  const traitMap: Record<string, string> = {
-    "Fire": "熱情洋溢，行動力強，但有時過於急躁。",
-    "Water": "聰明機智，適應力強，心思深沉。",
-    "Metal": "果斷剛毅，講求原則，重視效率與SOP。",
-    "Wood": "仁慈博愛，富有創意，具備良好的生長性與彈性。",
-    "Earth": "誠信穩重，包容力強，是團隊中的定海神針。"
-  };
-  const detailedTrait = traitMap[p.element] || "性格均衡，適應力良好。";
+  // 4. 性格特質描述 (Dynamic)
+  const detailedTrait = t(`report.elements.${p.element}.detailed`) || t('report.elements.General.detailed');
 
-  // 5. 決策邏輯：直接使用或根據格局生成
+  // 5. 決策邏輯 (Dynamic)
   let decisionLogic = p.decision_logic;
   if (!decisionLogic || decisionLogic.includes("根據八字格局特質分析")) {
-    const dmModel = getDecisionModel(p.pattern);
+    const dmModel = getDecisionModel(p.pattern, t);
     decisionLogic = `【${dmModel.title}】${dmModel.desc}`;
   }
 
-  // 6. 大運時間軸：直接使用後端資料
+  // 6. 大運時間軸
   const luck_timeline = p.luck_timeline || [];
 
-  // 7. 喜用五行：直接使用後端資料
+  // 7. 喜用五行
   const favorable = p.favorable || [];
 
-  // 8. 身強身弱：直接使用後端資料
+  // 8. 身強身弱
   const strength = p.strength || "中和";
 
   return {
@@ -281,6 +213,8 @@ const enrichCitizenData = (p: Persona): EnrichedPersona => {
 
 function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose: () => void }) {
   if (!citizen) return null;
+  const { t } = useLanguage();
+  const elementConfig = getElementConfig(t);
   const [showDetails, setShowDetails] = useState(false);
   const [enrichedData, setEnrichedData] = useState<EnrichedPersona>(citizen);
   const [isLoading, setIsLoading] = useState(false);
@@ -343,7 +277,7 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
             <div>
               <div className="flex items-baseline gap-3">
                 <h2 className="text-3xl font-black text-white tracking-tight">{displayCitizen.name}</h2>
-                <span className="text-xs font-mono text-slate-500 px-2 py-1 bg-white/5 rounded-full border border-white/5">ID: {displayCitizen.id ? String(displayCitizen.id).padStart(8, '0').slice(0, 8) : '????'}</span>
+                <span className="text-xs font-mono text-slate-500 px-2 py-1 bg-white/5 rounded-full border border-white/5">{t('report.ui.id') || "ID"}: {displayCitizen.id ? String(displayCitizen.id).padStart(8, '0').slice(0, 8) : '????'}</span>
               </div>
               <div className="flex flex-col gap-1.5 mt-2">
                 <div className="flex items-center gap-3 text-sm">
@@ -351,13 +285,13 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                     {displayCitizen.occupation || 'AI Citizen'}
                   </span>
                   <span className="text-slate-400">•</span>
-                  <span className="text-slate-300 font-medium">{displayCitizen.displayAge || displayCitizen.age} 歲</span>
+                  <span className="text-slate-300 font-medium">{displayCitizen.displayAge || displayCitizen.age} {t('report.ui.age')}</span>
                   <span className="text-slate-400">•</span>
                   <span className="text-slate-400">{displayCitizen.location || 'Taiwan'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
                   <span className="material-symbols-outlined text-[14px]">calendar_month</span>
-                  <span>{isLoading ? '載入中...' : displayCitizen.fullBirthday || '生日未知'}</span>
+                  <span>{isLoading ? t('report.ui.preparing') : displayCitizen.fullBirthday || t('report.ui.birthday_unknown')}</span>
                 </div>
               </div>
             </div>
@@ -371,7 +305,7 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
           <section>
             <div className="flex items-center gap-2 mb-3">
               <span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]"></span>
-              <h3 className="text-sm font-bold text-purple-400 uppercase tracking-widest">當前狀態解讀</h3>
+              <h3 className="text-sm font-bold text-purple-400 uppercase tracking-widest">{t('report.ui.current_status')}</h3>
             </div>
             <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-900/20 to-slate-900 border border-purple-500/30 text-slate-200 leading-relaxed text-lg shadow-inner">
               {displayCitizen.detailedTrait}
@@ -380,25 +314,25 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
 
           <section className="grid grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
-              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">命理格局</div>
-              <div className="text-xl font-black text-white">{displayCitizen.pattern}</div>
+              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t('report.ui.bazi_structure')}</div>
+              <div className="text-xl font-black text-white">{getDecisionModel(displayCitizen.pattern, t).title}</div>
             </div>
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
-              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">能量強弱</div>
+              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t('report.ui.energy_strength')}</div>
               <div className="text-xl font-black text-white">{displayCitizen.strength || "中和"}</div>
             </div>
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
-              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">喜用五行</div>
+              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t('report.ui.favorable_elements')}</div>
               <div className="flex gap-1.5 flex-wrap">
                 {displayCitizen.favorable?.map(e => (
                   <span key={e} className="text-sm font-bold text-emerald-400 flex items-center">
-                    {elementConfig[e]?.icon}{e}
+                    {elementConfig[e]?.icon}{elementConfig[e]?.cn || e}
                   </span>
-                )) || <span className="text-slate-500">Balance</span>}
+                )) || <span className="text-slate-500">{t('report.ui.balance')}</span>}
               </div>
             </div>
             <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
-              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">性格標籤</div>
+              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t('report.ui.character_tag')}</div>
               <div className="text-xl font-black text-amber-400 truncate">{displayCitizen.trait?.split(',')[0] || "多元性格"}</div>
             </div>
           </section>
@@ -408,7 +342,7 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
               <section>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>
-                  <h3 className="text-sm font-bold text-cyan-500 uppercase tracking-widest">決策思維模型</h3>
+                  <h3 className="text-sm font-bold text-cyan-500 uppercase tracking-widest">{t('report.ui.decision_model')}</h3>
                 </div>
                 <div className="p-5 rounded-2xl bg-slate-800/30 border border-cyan-500/20 text-slate-200 leading-relaxed text-sm">
                   {displayCitizen.decision_logic}
@@ -419,21 +353,21 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                 <section>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                    <h3 className="text-sm font-bold text-amber-500 uppercase tracking-widest">當前大運 / CURRENT LUCK</h3>
+                    <h3 className="text-sm font-bold text-amber-500 uppercase tracking-widest">{t('report.ui.current_luck')}</h3>
                   </div>
                   <div className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20">
                     <div className="text-amber-100/80 leading-relaxed">
-                      {isLoading ? '載入中...' : displayCitizen.luckCycle || "暫無詳細運程描述"}
+                      {isLoading ? t('report.ui.preparing') : displayCitizen.luckCycle || t('report.ui.no_luck_desc')}
                     </div>
                   </div>
                 </section>
                 <section>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">八字命盤</h3>
+                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">{t('report.ui.bazi_chart')}</h3>
                   </div>
                   <div className="p-6 rounded-2xl bg-slate-950 border border-white/10 text-center font-mono text-xl md:text-2xl text-white tracking-widest shadow-inner">
-                    {isLoading ? '載入中...' : displayCitizen.four_pillars || "無命盤數據"}
+                    {isLoading ? t('report.ui.preparing') : displayCitizen.four_pillars || t('report.ui.no_bazi_data')}
                   </div>
                 </section>
               </div>
@@ -441,7 +375,7 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
               <section>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
-                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">10年大運時間軸</h3>
+                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">{t('report.ui.luck_timeline')}</h3>
                 </div>
                 <div className="space-y-3">
                   {displayCitizen.luck_timeline?.length > 0 ? displayCitizen.luck_timeline.map((pillar, idx) => {
@@ -451,7 +385,7 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                       <div key={idx} className={`p-4 rounded-xl border transition-all ${isCurrent ? 'bg-purple-900/30 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.1)]' : 'bg-slate-800/30 border-white/5 opacity-70 hover:opacity-100'}`}>
                         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
                           <div className="flex items-center gap-3 min-w-[120px]">
-                            <span className={`text-xs font-bold ${isCurrent ? 'text-purple-300' : 'text-slate-500'}`}>{pillar.age_start}-{pillar.age_end}歲</span>
+                            <span className={`text-xs font-bold ${isCurrent ? 'text-purple-300' : 'text-slate-500'}`}>{pillar.age_start}-{pillar.age_end}{t('report.ui.age')}</span>
                             <span className={`text-lg font-bold ${isCurrent ? 'text-white' : 'text-slate-300'}`}>{pillar.name}</span>
                           </div>
                           {isCurrent && <span className="text-[10px] bg-purple-500 text-white px-2 py-0.5 rounded-full font-bold tracking-wider">CURRENT</span>}
@@ -463,14 +397,14 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                         )}
                       </div>
                     )
-                  }) : <div className="text-slate-500 text-center py-4">{isLoading ? '載入中...' : '暫無大運資料'}</div>}
+                  }) : <div className="text-slate-500 text-center py-4">{isLoading ? t('report.ui.preparing') : t('report.ui.no_timeline_data')}</div>}
                 </div>
               </section>
             </div>
           )}
 
           <button onClick={() => setShowDetails(!showDetails)} className="w-full py-4 rounded-xl bg-purple-500/10 border border-purple-500/30 text-base font-bold text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/50 transition-all flex items-center justify-center gap-2 group">
-            {showDetails ? <>收合報告 <span className="group-hover:-translate-y-1 transition-transform">↑</span></> : <>查看完整運勢報告 <span className="group-hover:translate-y-1 transition-transform">↓</span></>}
+            {showDetails ? <>{t('report.ui.collapse')} <span className="group-hover:-translate-y-1 transition-transform">↑</span></> : <>{t('report.ui.expand')} <span className="group-hover:translate-y-1 transition-transform">↓</span></>}
           </button>
         </div>
       </div>
@@ -479,6 +413,9 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
 }
 
 export default function WatchPage() {
+  const { t, language } = useLanguage()
+  const elementConfig = getElementConfig(t)
+  const METRIC_CONFIG = getMetricConfig(t)
   const params = useParams()
   const simId = params.id as string
   const [data, setData] = useState<SimulationData | null>(null)
@@ -727,7 +664,7 @@ export default function WatchPage() {
                   <div className="absolute inset-0 rounded-full bg-gradient-to-b from-transparent via-[#d8b4fe]/5 to-transparent animate-spin-slow opacity-20 pointer-events-none"></div>
                 </div>
                 <div className="mt-8 text-center space-y-4">
-                  <div className="text-[#d8b4fe] text-xl font-bold tracking-widest drop-shadow-[0_0_8px_rgba(216,180,254,0.6)] animate-[flicker_3s_infinite]">系統深度推演中</div>
+                  <div className="text-[#d8b4fe] text-xl font-bold tracking-widest drop-shadow-[0_0_8px_rgba(216,180,254,0.6)] animate-[flicker_3s_infinite]">{t('report.ui.loading_long_time')}</div>
 
                   {/* Large Central Countdown */}
                   <div className="flex flex-col items-center justify-center py-2">
@@ -762,13 +699,13 @@ export default function WatchPage() {
               {/* Scrollable Area */}
               <div className="flex-1 overflow-y-auto p-4 font-mono text-sm space-y-3 relative">
                 {[
-                  { t: "[SYSTEM] 連線至 MIRRA-NODE-01 成功", c: "text-[#536b70]" },
-                  { t: "載入核心模組: 經濟模型 v4.2 ... 完成", c: "text-[#536b70]" },
-                  { t: "正在初始化平行世界...", c: "text-[#7a969c]" },
-                  { t: "正在計算 1,000 位市民的八字命盤...", c: "text-[#9cb5ba]" },
-                  { t: "正在根據出生地生成人口分佈... [OK]", c: "text-[#9cb5ba]" },
-                  { t: "警告: 發現異常變數 (已修正)", c: "text-white font-bold" },
-                  { t: "正在模擬市場摩擦係數...", c: "text-gray-200" },
+                  { t: `[SYSTEM] ${t('report.logs.connected') || "Connected to MIRRA-NODE-01"}`, c: "text-[#536b70]" },
+                  { t: `${t('report.logs.loading_citizens') || "Loading Economic Models v4.2..."} [OK]`, c: "text-[#536b70]" },
+                  { t: t('report.logs.analyzing') || "Initializing Parallel Worlds...", c: "text-[#7a969c]" },
+                  { t: t('report.logs.generating') || "Calculating 1,000 Bazi Charts...", c: "text-[#9cb5ba]" },
+                  { t: t('report.logs.generating') || "Generating Population Distribution...", c: "text-[#9cb5ba]" },
+                  { t: "WARNING: Anomalous Variable Detected (Fixed)", c: "text-white font-bold" },
+                  { t: "Simulating Market Friction Coefficients...", c: "text-gray-200" },
                 ].map((log, i) => (
                   visibleLogLines > i && (
                     <div
@@ -811,12 +748,12 @@ export default function WatchPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25d1f4] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#25d1f4]"></span>
               </span>
-              <span className="text-[#25d1f4] text-sm font-bold tracking-wider">1000 個活躍 AI 市民：已就緒</span>
+              <span className="text-[#25d1f4] text-sm font-bold tracking-wider">{TOTAL_POPULATION.toLocaleString()} {t('report.ui.all_citizens')} : {t('report.ui.ready') || "Ready"}</span>
             </div>
             {/* 預估等待時間 (Moved to Center) */}
             <div className="flex items-center gap-2 text-[#d8b4fe]/50">
               <span className="material-symbols-outlined text-[16px]">hourglass_empty</span>
-              <span className="text-xs font-medium">Deep Thinking Mode Active</span>
+              <span className="text-xs font-medium">{t('report.ui.deep_thinking') || "Deep Thinking Mode Active"}</span>
             </div>
             {/* Progress Bar Mini */}
             <div className="hidden md:flex items-center gap-3 w-64">
@@ -956,8 +893,8 @@ export default function WatchPage() {
           <div className={`flex flex-col gap-6 ${isSidebarCollapsed ? 'items-center' : ''}`}>
             {/* Header */}
             <div className={`${isSidebarCollapsed ? 'hidden' : ''}`}>
-              <h1 className="text-white text-base font-bold uppercase tracking-wider mb-1 mt-10">人物誌篩選</h1>
-              <p className="text-gray-500 text-xs">篩選 {TOTAL_POPULATION.toLocaleString()} 位 AI 市民</p>
+              <h1 className="text-white text-base font-bold uppercase tracking-wider mb-1 mt-10">{t('report.ui.filter_title')}</h1>
+              <p className="text-gray-500 text-xs">{t('report.ui.filter_desc').replace('{count}', TOTAL_POPULATION.toLocaleString())}</p>
             </div>
 
             {/* Collapsed Header Icon */}
@@ -981,18 +918,26 @@ export default function WatchPage() {
               {!isSidebarCollapsed && <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3">原型</p>}
 
               {/* Persona Buttons */}
-              {[{ name: '科技愛好者', bazi: '食神格', icon: 'devices', count: 342 }, { name: '精打細算型', bazi: '正財格', icon: 'savings', count: 215 }, { name: '懷疑論者', bazi: '七殺格', icon: 'sentiment_dissatisfied', count: 140 }, { name: '早期採用者', bazi: '偏財格', icon: 'rocket_launch', count: 188 }, { name: '品牌忠誠者', bazi: '正印格', icon: 'verified', count: 115 }].map((item) => (
+              {/* Persona Buttons */}
+              {[
+                { key: 'tech', bazi: '食神格', icon: 'devices', count: 342 },
+                { key: 'budget', bazi: '正財格', icon: 'savings', count: 215 },
+                { key: 'skeptic', bazi: '七殺格', icon: 'sentiment_dissatisfied', count: 140 },
+                { key: 'early', bazi: '偏財格', icon: 'rocket_launch', count: 188 },
+                { key: 'loyal', bazi: '正印格', icon: 'verified', count: 115 }
+              ].map((item) => (
                 <button
-                  key={item.name}
+                  key={item.key}
                   className={`flex items-center rounded-lg hover:bg-[#302839] text-[#ab9db9] group transition-colors ${isSidebarCollapsed ? 'p-2.5 justify-center' : 'justify-between gap-3 px-3 py-2'}`}
-                  title={isSidebarCollapsed ? `${item.name} (${item.bazi})` : undefined}
+                  title={isSidebarCollapsed ? `${t('report.persona_types.' + item.key)}` : undefined}
                 >
                   <div className={`flex items-center ${isSidebarCollapsed ? '' : 'gap-3'}`}>
                     <span className="material-symbols-outlined group-hover:text-[#7f13ec] transition-colors">{item.icon}</span>
                     {!isSidebarCollapsed && (
                       <div className="flex flex-col items-start gap-0.5">
-                        <span className="text-sm font-medium group-hover:text-white transition-colors">{item.name}</span>
-                        <span className="text-sm text-[#a855f7] font-bold tracking-wide">{item.bazi}</span>
+                        <span className="text-sm font-medium group-hover:text-white transition-colors">{t('report.persona_types.' + item.key)}</span>
+                        // @ts-ignore
+                        <span className="text-sm text-[#a855f7] font-bold tracking-wide">{getDecisionModels(t)[item.bazi]?.title || item.bazi}</span>
                       </div>
                     )}
                   </div>
@@ -1007,19 +952,25 @@ export default function WatchPage() {
           <div className="max-w-[1400px] mx-auto flex flex-col gap-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div className="flex flex-col gap-2">
-                <h1 className="text-2xl md:text-4xl font-black leading-tight tracking-[-0.033em] text-white">【未來推演】商業模式驗證報告</h1>
+                <h1 className="text-2xl md:text-4xl font-black leading-tight tracking-[-0.033em] text-white">
+                  {t('report.ui.methodology_title')}
+                </h1>
                 <p className="text-[#ab9db9] text-base md:text-lg max-w-2xl mt-4 leading-relaxed">
-                  本報告採用「西方方法論」與「東方八字科學」<button onClick={() => setShowMethodology(true)} className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 font-bold text-glow hover:scale-105 transition-transform cursor-pointer border-b border-purple-500/30 hover:border-purple-400 pb-0.5">雙軌演算法</button>，為您預判市場勝率。
+                  {t('report.ui.methodology_desc')}
+                  <button onClick={() => setShowMethodology(true)} className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 font-bold text-glow hover:scale-105 transition-transform cursor-pointer border-b border-purple-500/30 hover:border-purple-400 pb-0.5 mx-1">
+                    {t('report.ui.dual_algo')}
+                  </button>
+                  {t('report.ui.predict_win_rate')}
                 </p>
                 <button
                   onClick={() => setShowMethodology(true)}
                   className="mt-2 inline-flex items-center text-indigo-400 hover:text-indigo-300 cursor-pointer font-medium transition-colors"
                 >
-                  📖 深入解析：我們如何運用「西方科學方法論」進行驗證？
+                  {t('report.ui.methodology_link')}
                 </button>
               </div>
               <Link href="/#start" className="flex-none flex items-center justify-center rounded-lg h-12 px-6 bg-[#302839] hover:bg-[#473b54] text-white text-sm font-bold tracking-[0.015em] border border-[#473b54] transition-all shadow-lg active:scale-95">
-                <span className="material-symbols-outlined mr-2 text-[20px]">play_circle</span>執行新預演
+                <span className="material-symbols-outlined mr-2 text-[20px]">play_circle</span>{t('report.ui.open_new_sim')}
               </Link>
             </div>
 
@@ -1028,15 +979,15 @@ export default function WatchPage() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#7f13ec]/20 rounded-full blur-[60px] -mr-16 -mt-16 pointer-events-none"></div>
                 <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h3 className="text-[#ab9db9] text-sm font-bold uppercase tracking-wider">整體可行性</h3>
+                    <h3 className="text-[#ab9db9] text-sm font-bold uppercase tracking-wider">{t('report.ui.goal_achieved').replace('核心目標達成', '整體可行性') || "Overall Feasibility"}</h3>
                     <div className="flex flex-col gap-1 mt-1">
                       <div className="flex items-center gap-2">
                         <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span></span>
-                        <p className="text-[10px] text-purple-400 font-medium">即時推演波動中</p>
+                        <p className="text-[10px] text-purple-400 font-medium">{t('report.ui.feasibility_status')}</p>
                       </div>
                     </div>
                   </div>
-                  <span className={`text-xs font-bold px-2 py-1 rounded ${data.score >= 70 ? 'bg-green-500/10 text-green-400' : 'bg-amber-500/10 text-amber-400'}`}>{data.score >= 70 ? '核心目標達成' : '需進一步優化'}</span>
+                  <span className={`text-xs font-bold px-2 py-1 rounded ${data.score >= 70 ? 'bg-green-500/10 text-green-400' : 'bg-amber-500/10 text-amber-400'}`}>{data.score >= 70 ? t('report.ui.goal_achieved') : t('report.ui.needs_opt')}</span>
                 </div>
                 <div className="flex flex-col items-center justify-center py-4 gap-4">
                   <div className="relative size-44 md:size-48">
@@ -1046,10 +997,10 @@ export default function WatchPage() {
                     </svg>
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
                       <span className="text-5xl md:text-6xl font-black text-white block">{data.score}</span>
-                      <span className="text-sm font-medium text-gray-500">滿分 100</span>
+                      <span className="text-sm font-medium text-gray-500">{t('report.ui.score_unit')}</span>
                     </div>
                   </div>
-                  <p className="text-xs text-white font-mono text-center">*分數源自下面 {Math.max(data.arena_comments?.length || 0, 8)} 位八字代表市民的加權平均</p>
+                  <p className="text-xs text-white font-mono text-center">{t('report.ui.score_note').replace('{count}', Math.max(data.arena_comments?.length || 0, 8).toString())}</p>
                 </div>
               </div>
 
@@ -1058,29 +1009,29 @@ export default function WatchPage() {
                 <div className="col-span-1 lg:col-span-4 bg-[#1a1a1f] border border-[#302839] rounded-2xl p-5 shadow-xl">
                   <div className="flex items-center gap-2 mb-4">
                     <span className="material-symbols-outlined text-blue-400 text-[20px]">price_check</span>
-                    <h3 className="text-[#ab9db9] text-sm font-bold uppercase tracking-wider">市場比價</h3>
+                    <h3 className="text-[#ab9db9] text-sm font-bold uppercase tracking-wider">{t('report.ui.market_price_title')}</h3>
                     <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">
-                      📊 已比對 {data.market_prices.sources_count} 個平台
+                      📊 {t('report.simulation_form.format_market_compare').replace('{count}', data.market_prices.sources_count.toString()).replace('{summary}', '')}
                     </span>
                   </div>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center p-3 bg-[#231b2e] rounded-lg">
-                      <span className="text-sm text-gray-400">最低價</span>
+                      <span className="text-sm text-gray-400">{t('report.ui.min_price')}</span>
                       <span className="text-lg font-bold text-green-400">${data.market_prices.min_price}</span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-[#231b2e] rounded-lg">
-                      <span className="text-sm text-gray-400">最高價</span>
+                      <span className="text-sm text-gray-400">{t('report.ui.max_price')}</span>
                       <span className="text-lg font-bold text-red-400">${data.market_prices.max_price}</span>
                     </div>
                     {data.market_prices.avg_price && (
                       <div className="flex justify-between items-center p-3 bg-[#231b2e] rounded-lg">
-                        <span className="text-sm text-gray-400">平均價</span>
+                        <span className="text-sm text-gray-400">{t('report.ui.avg_price')}</span>
                         <span className="text-lg font-bold text-amber-400">${data.market_prices.avg_price}</span>
                       </div>
                     )}
                     {data.market_prices.prices && data.market_prices.prices.length > 0 && (
                       <div className="mt-3 pt-3 border-t border-[#302839]">
-                        <p className="text-[10px] text-gray-500 mb-2">比價來源：</p>
+                        <p className="text-[10px] text-gray-500 mb-2">{t('report.ui.price_source_label')}:</p>
                         <div className="flex flex-wrap gap-1.5">
                           {data.market_prices.prices.slice(0, 5).map((p: any, idx: number) => (
                             <span key={idx} className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded">
@@ -1097,7 +1048,7 @@ export default function WatchPage() {
                     )}
                     <div className="mt-4 pt-3 border-t border-blue-500/20 flex items-center gap-2">
                       <span className="material-symbols-outlined text-blue-400 text-sm">verified_user</span>
-                      <span className="text-[10px] text-blue-300 font-bold tracking-wider">AI 市民已同步參考以上市場價格進行購買意向評估</span>
+                      <span className="text-[10px] text-blue-300 font-bold tracking-wider">{t('report.ui.ai_price_ref')}</span>
                     </div>
                   </div>
                 </div>
@@ -1245,29 +1196,29 @@ export default function WatchPage() {
 
                     const stats = [
                       {
-                        label: '市場潛力',
-                        value: positiveRate >= 70 ? '高' : positiveRate >= 40 ? '中' : '低',
-                        sub: '「有多少人看了喜歡？」若大部分市民都給予好評，代表產品本身吸引力極強。',
+                        label: t('report.metrics.market_potential.label'),
+                        value: positiveRate >= 70 ? t('report.metrics.market_potential.value_high') : positiveRate >= 40 ? t('report.metrics.market_potential.value_mid') : t('report.metrics.market_potential.value_low'),
+                        sub: t('report.metrics.market_potential.sub_label'),
                         advice: positiveRate >= 70
-                          ? '💡 建議：趁勝追擊！您可以加大行銷預算來擴大這股熱潮。'
+                          ? t('report.metrics.market_potential.advice_high')
                           : positiveRate >= 40
-                            ? '💡 建議：表現四平八穩。試試看強化產品的「獨家特色」，讓大家印象更深刻。'
-                            : '💡 建議：市場反應冷淡。可能產品未觸及核心需求，或目標客群設定有誤，建議重新定位賣點。',
+                            ? t('report.metrics.market_potential.advice_mid')
+                            : t('report.metrics.market_potential.advice_low'),
                         improvement: getBoost(w_pot),
                         icon: 'trending_up',
                         color: positiveRate >= 60 ? 'text-green-500' : 'text-amber-500'
                       },
                       {
-                        label: '參與覆蓋率',
+                        label: t('report.metrics.coverage.label'),
                         // 確保至少顯示 10‰ (業務規則：1,000 人中抽取 10 位代表)
                         value: coverageRate < 1 ? `${Math.max(coverageRate * 10, 10)}‰` : `${Math.min(coverageRate, 99)}%`,
-                        sub: `「從 1,000 位 AI 市民中抽取了多少人參與調查？」目前為 ${effectiveComments} / 1,000 人。覆蓋率越高，預演結果越能反映真實市場反應。`,
+                        sub: t('report.metrics.coverage.sub_label_prefix') + effectiveComments + t('report.metrics.coverage.sub_label_suffix'),
                         advice: coverageRate >= 5
-                          ? '💡 建議：覆蓋率優秀！這份報告的市場代表性極高，可作為決策參考。'
+                          ? t('report.metrics.coverage.advice_high')
                           : coverageRate >= 1
-                            ? '💡 建議：覆蓋率中等。若想獲得更精準的預測，可以再次進行更大規模的預演。'
-                            : '💡 建議：目前為免費版 (10/1,000 人)。若需擴大母數至 10,000 人或全量分析，請升級 Pro 版。',
-                        improvement: coverageRate >= 5 ? '+1~2%' : coverageRate >= 1 ? '+5~8%' : '若優化可升 Pro 版',
+                            ? t('report.metrics.coverage.advice_mid')
+                            : t('report.metrics.coverage.advice_low'),
+                        improvement: coverageRate >= 5 ? '+1~2%' : coverageRate >= 1 ? '+5~8%' : t('report.metrics.coverage.advice_low').includes('Pro') ? 'Pro' : '+10%',
                         icon: 'verified',
                         color: 'text-blue-500'
                       },
@@ -1313,9 +1264,9 @@ export default function WatchPage() {
                   })()}
                 </div>
                 <div className="flex-1 bg-[#1a1a1f] border border-[#302839] rounded-xl p-6 flex flex-col justify-center">
-                  <h3 className="text-white text-sm font-bold mb-4">購買意願轉換率</h3>
+                  <h3 className="text-white text-sm font-bold mb-4">{t('report.ui.buy_intent_rate')}</h3>
                   <div className="flex flex-col gap-4">
-                    {[{ label: '絕對購買', value: 42, color: 'bg-[#7f13ec]' }, { label: '可能購買', value: 35, color: 'bg-blue-500' }, { label: '放棄', value: 23, color: 'bg-gray-600' }].map((intent) => (
+                    {[{ label: t('report.ui.intent_high'), value: 42, color: 'bg-[#7f13ec]' }, { label: t('report.ui.intent_mid'), value: 35, color: 'bg-blue-500' }, { label: t('report.ui.intent_low'), value: 23, color: 'bg-gray-600' }].map((intent) => (
                       <div key={intent.label} className="flex items-center gap-4 text-xs font-medium">
                         <div className="w-24 text-gray-400 text-right">{intent.label}</div>
                         <div className="flex-1 h-3 bg-[#302839] rounded-full overflow-hidden"><div className={`h-full ${intent.color} rounded-full`} style={{ width: `${intent.value}%` }} /></div>
@@ -1331,13 +1282,13 @@ export default function WatchPage() {
               {/* THE ARENA // 輿論競技場 - moved to first position */}
               <div className="xl:col-span-5 space-y-4">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2"><div className="w-1.5 h-6 bg-cyan-400 rounded-full animate-pulse"></div><div><h2 className="text-lg font-bold text-white tracking-widest uppercase">THE ARENA // 輿論競技場</h2><p className="text-[10px] text-gray-500 font-mono">Real-time Stream of Consciousness</p></div></div>
+                  <div className="flex items-center gap-2"><div className="w-1.5 h-6 bg-cyan-400 rounded-full animate-pulse"></div><div><h2 className="text-lg font-bold text-white tracking-widest uppercase">{t('report.ui.arena_title')}</h2><p className="text-[10px] text-gray-500 font-mono">Real-time Stream of Consciousness</p></div></div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-1 rounded flex items-center gap-1">
                       <span className="material-symbols-outlined text-[12px]">inventory_2</span>
-                      市場價格已連動
+                      {t('report.ui.market_linked')}
                     </span>
-                    <span className="text-[10px] bg-[#302839] text-gray-400 px-2 py-1 rounded">LIVE FEED</span>
+                    <span className="text-[10px] bg-[#302839] text-gray-400 px-2 py-1 rounded">{t('report.ui.live_feed')}</span>
                   </div>
                 </div>
                 <div className="space-y-4 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
@@ -1365,18 +1316,18 @@ export default function WatchPage() {
 
               {/* GENESIS // 取樣邏輯 - moved to second position */}
               <div className="xl:col-span-3 space-y-6 bg-[#1a1a1f] border border-[#302839] rounded-2xl p-5 flex flex-col">
-                <div className="flex items-center gap-2 mb-4"><span className="material-symbols-outlined text-[#a855f7] animate-pulse">grain</span><h3 className="text-[#a855f7] text-sm font-bold uppercase tracking-wider">GENESIS // 取樣邏輯</h3></div>
+                <div className="flex items-center gap-2 mb-4"><span className="material-symbols-outlined text-[#a855f7] animate-pulse">grain</span><h3 className="text-[#a855f7] text-sm font-bold uppercase tracking-wider">{t('report.ui.genesis_title')}</h3></div>
                 <div className="flex flex-col items-center justify-center space-y-8 p-6">
                   <Link href="/citizens" className="relative z-10 w-full text-center group cursor-pointer block p-4 rounded-xl hover:bg-white/5 transition-all duration-300">
                     <span className="material-symbols-outlined text-4xl text-blue-400 mb-2 group-hover:text-purple-400 group-hover:scale-110 transition-all duration-300">public</span>
                     <div className="text-3xl font-black text-white group-hover:text-purple-100 transition-colors">1,000</div>
-                    <div className="text-xs text-gray-400 font-bold mt-1 group-hover:text-white transition-colors">所有市民</div>
+                    <div className="text-xs text-gray-400 font-bold mt-1 group-hover:text-white transition-colors">{t('report.ui.all_citizens')}</div>
                     <div className="absolute inset-0 border border-purple-500/0 group-hover:border-purple-500/30 rounded-xl transition-all duration-300" />
                   </Link>
                   <span className="material-symbols-outlined text-gray-600 animate-bounce">keyboard_double_arrow_down</span>
-                  <div className="w-full bg-[#302839]/50 rounded-lg p-4 border border-[#7f13ec]/20 text-center"><p className="text-[#a855f7] font-bold text-sm mb-1">八字邏輯推演</p><p className="text-[10px] text-gray-400">依據五行生剋與十神格局，篩選最具因果關聯之代表</p></div>
+                  <div className="w-full bg-[#302839]/50 rounded-lg p-4 border border-[#7f13ec]/20 text-center"><p className="text-[#a855f7] font-bold text-sm mb-1">{t('report.ui.bazi_deduction')}</p><p className="text-[10px] text-gray-400">{t('report.ui.bazi_deduction_desc')}</p></div>
                   <span className="material-symbols-outlined text-gray-600 animate-bounce">keyboard_double_arrow_down</span>
-                  <div className="text-center"><span className="material-symbols-outlined text-4xl text-[#7f13ec] mb-2">groups</span><div className="text-4xl font-black text-white text-glow">{data.arena_comments?.length || 0}</div><div className="text-xs text-gray-300 font-bold mt-1">本場深度參與 AI 市民</div></div>
+                  <div className="text-center"><span className="material-symbols-outlined text-4xl text-[#7f13ec] mb-2">groups</span><div className="text-4xl font-black text-white text-glow">{data.arena_comments?.length || 0}</div><div className="text-xs text-gray-300 font-bold mt-1">{t('report.ui.participating_citizens')}</div></div>
                 </div>
               </div>
 
@@ -1395,11 +1346,11 @@ export default function WatchPage() {
 
                 <div className="bg-black/40 border border-[#7f13ec]/20 rounded-2xl p-6 relative overflow-hidden group shadow-[0_0_30px_rgba(127,19,236,0.05)]">
                   <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#7f13ec] to-blue-500"></div>
-                  <div className="flex items-center gap-2 mb-4"><span className="material-symbols-outlined text-[#7f13ec]">auto_awesome</span><h3 className="text-xs font-bold text-[#7f13ec] tracking-[0.2em] uppercase">STRATEGIC ORACLE // 戰略神諭</h3></div>
+                  <div className="flex items-center gap-2 mb-4"><span className="material-symbols-outlined text-[#7f13ec]">auto_awesome</span><h3 className="text-xs font-bold text-[#7f13ec] tracking-[0.2em] uppercase">{t('report.ui.oracle_title')}</h3></div>
                   <div className="font-mono text-sm leading-7 text-gray-300 min-h-[140px]">{typedSummary}<span className="inline-block w-1.5 h-4 ml-1 bg-[#7f13ec] animate-pulse align-middle"></span></div>
                 </div>
                 <div className="space-y-3">
-                  <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-1">AI 策略建議 / TACTICAL ADVICE</p>
+                  <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-1">{t('report.ui.tactical_advice')}</p>
                   {data.suggestions?.slice(0, 3).map((s: any, i: number) => (
                     <div key={i} className="bg-[#1a1a1f] border border-[#302839] rounded-xl p-4 hover:border-cyan-500/30 transition-all group flex flex-col gap-3">
                       <div className="flex items-start gap-3">
@@ -1432,7 +1383,7 @@ export default function WatchPage() {
                         <div>
                           <p className="text-[10px] text-[#7f13ec] font-bold uppercase mb-1.5 flex items-center gap-1">
                             <span className="material-symbols-outlined text-[12px]">calendar_month</span>
-                            執行時間表
+                            {t('report.ui.execution_schedule')}
                           </p>
                           <ul className="space-y-1.5">
                             {(s.execution_plan || s.action_plan)?.map((step: any, j: number) => (
@@ -1444,7 +1395,7 @@ export default function WatchPage() {
                                     : step}
                                 </span>
                               </li>
-                            )) || <li className="text-[10px] text-gray-600 italic">正在生成具體執行方案...</li>}
+                            )) || <li className="text-[10px] text-gray-600 italic">{t('report.ui.generating_plan')}</li>}
                           </ul>
                         </div>
 
@@ -1453,7 +1404,7 @@ export default function WatchPage() {
                           <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-2.5">
                             <p className="text-[10px] text-green-400 font-bold uppercase mb-1 flex items-center gap-1">
                               <span className="material-symbols-outlined text-[12px]">flag</span>
-                              成功指標
+                              {t('report.ui.success_metrics')}
                             </p>
                             <p className="text-[11px] text-green-300">
                               {typeof s.success_metrics === 'object' && s.success_metrics !== null
@@ -1470,7 +1421,7 @@ export default function WatchPage() {
                           <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-2.5">
                             <p className="text-[10px] text-amber-400 font-bold uppercase mb-1 flex items-center gap-1">
                               <span className="material-symbols-outlined text-[12px]">warning</span>
-                              潛在風險
+                              {t('report.ui.potential_risks')}
                             </p>
                             <p className="text-[11px] text-amber-300">
                               {typeof s.potential_risks === 'object' && s.potential_risks !== null

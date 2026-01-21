@@ -226,7 +226,23 @@ async def identify_product(
                 "currency": "USD",
                 "price_source_instruction": "Basis for price estimation (short, under 20 words)",
                 "fallback_source": "Estimated based on Amazon/eBay market data",
-                "market_calibration": "Calibrated with real data from {count} global platforms"
+                "market_calibration": "Calibrated with real data from {count} global platforms",
+                "prompt_template": """Analyze this product image(s) and answer the following:
+1. **Same Product Check**: If multiple images uploaded, are they different angles of the same product, or different products? (If different, focus on the most prominent one)
+2. **Product Identification**: What is this product? {desc_instruction}
+3. **Price Estimation**: {price_instruction}
+
+Respond ONLY in this JSON format:
+{{
+  "is_same_product": true/false,
+  "product_name": "Product Name in English",
+  "estimated_price": number (without currency symbol),
+  "currency": "{currency}",
+  "price_range": "min-max",
+  "price_source": "{price_source_instruction}"
+}}
+
+Only return JSON, no other text."""
             },
             "zh-CN": {
                 "desc_instruction": "用简短的中文描述（3-8个字）",
@@ -234,7 +250,23 @@ async def identify_product(
                 "currency": "CNY",
                 "price_source_instruction": "价格估算依据说明（简短30字内）",
                 "fallback_source": "根据淘宝/京东同类产品估算",
-                "market_calibration": "已连动 {count} 个电商平台真实数据进行校准"
+                "market_calibration": "已连动 {count} 个电商平台真实数据进行校准",
+                "prompt_template": """请观察这张（或多张）产品图片，回答以下问题：
+1. **是否为同一产品**：如果上传了多张图片，请判断它们是否为同一个产品的不同角度？还是完全不同的产品？（如果是不同产品，请以最显著的那个为主进行回答）
+2. **产品识别**：这张图片中的产品是什么？{desc_instruction}
+3. **价格估算**：{price_instruction}
+
+请用以下 JSON 格式回答：
+{{
+  "is_same_product": true/false,
+  "product_name": "产品名称",
+  "estimated_price": 数字（不含货币符号），
+  "currency": "{currency}",
+  "price_range": "最低价-最高价",
+  "price_source": "{price_source_instruction}"
+}}
+
+只回答 JSON，不要加任何其他说明。"""
             },
             "zh-TW": {
                 "desc_instruction": "用簡短的中文描述（3-8個字）",
@@ -242,28 +274,34 @@ async def identify_product(
                 "currency": "TWD",
                 "price_source_instruction": "價格估算依據說明（簡短30字內）",
                 "fallback_source": "根據蝦皮/PChome同類產品估算",
-                "market_calibration": "已連動 {count} 個電商平台真實數據進行校準"
-            }
-        }
-        lc = lang_config.get(language, lang_config["zh-TW"])
-
-        # 構建識別 prompt（同時識別名稱和估算價格）
-        prompt = f"""請觀察這張（或多張）產品圖片，回答以下問題：
+                "market_calibration": "已連動 {count} 個電商平台真實數據進行校準",
+                "prompt_template": """請觀察這張（或多張）產品圖片，回答以下問題：
 1. **是否為同一產品**：如果上傳了多張圖片，請判斷它們是否為同一個產品的不同角度？還是完全不同的產品？（如果是不同產品，請以最顯著的那個為主進行回答）
-2. **產品識別**：這張圖片中的產品是什麼？{{lc['desc_instruction']}}
-3. **價格估算**：{{lc['price_instruction']}}
+2. **產品識別**：這張圖片中的產品是什麼？{desc_instruction}
+3. **價格估算**：{price_instruction}
 
 請用以下 JSON 格式回答：
 {{
   "is_same_product": true/false,
   "product_name": "產品名稱",
   "estimated_price": 數字（不含貨幣符號），
-  "currency": "{{lc['currency']}}",
+  "currency": "{currency}",
   "price_range": "最低價-最高價",
-  "price_source": "{{lc['price_source_instruction']}}"
+  "price_source": "{price_source_instruction}"
 }}
 
 只回答 JSON，不要加任何其他說明。"""
+            }
+        }
+        lc = lang_config.get(language, lang_config["zh-TW"])
+
+        # 構建識別 prompt（根據語言使用對應模板）
+        prompt = lc["prompt_template"].format(
+            desc_instruction=lc["desc_instruction"],
+            price_instruction=lc["price_instruction"],
+            currency=lc["currency"],
+            price_source_instruction=lc["price_source_instruction"]
+        )
 
         # 調用 Gemini API
         api_key = os.getenv("GOOGLE_API_KEY")
