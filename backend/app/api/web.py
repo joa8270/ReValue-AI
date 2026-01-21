@@ -57,7 +57,8 @@ async def trigger_simulation(
     price: str = Form(None),
     description: str = Form(None),
     market_prices: str = Form(None),  # JSON 字串格式的市場比價資料
-    style: str = Form(None)  # 新增 style 欄位
+    style: str = Form(None),  # 新增 style 欄位
+    language: str = Form("zh-TW")  # 新增 language 欄位
 ):
     from app.services.line_bot_service import LineBotService
     line_service = LineBotService()
@@ -92,6 +93,7 @@ async def trigger_simulation(
         "market_prices": market_prices_data,
         "simulation_metadata": {
             "style": style,
+            "language": language, # 儲存語言設定
             "product_name": product_name, # 冗餘備份，確保前端引用相容
             "source_type": "pdf" if ext == "pdf" or ext in ["docx", "txt"] else "image"
         }
@@ -128,7 +130,7 @@ async def trigger_simulation(
     
     if ext == "pdf":
         # PDF 處理 (現有流程，暫時只取第一個)
-        background_tasks.add_task(line_service.run_simulation_with_pdf_data, main_file_bytes, sim_id, main_filename)
+        background_tasks.add_task(line_service.run_simulation_with_pdf_data, main_file_bytes, sim_id, main_filename, language)
     elif ext in document_extensions:
         # Word/PPT/TXT: 解析文字後傳給文字分析流程
         parsed_text = parse_document(main_file_bytes, main_filename)
@@ -137,18 +139,18 @@ async def trigger_simulation(
             full_context = parsed_text
             if text_context:
                 full_context = f"{text_context}\n\n---\n\n{parsed_text}"
-            background_tasks.add_task(line_service.run_simulation_with_text_data, full_context, sim_id, ext)
+            background_tasks.add_task(line_service.run_simulation_with_text_data, full_context, sim_id, ext, language)
         else:
             # 設置錯誤狀態
             from app.core.database import update_simulation
             update_simulation(sim_id, "error", {"status": "error", "summary": f"無法解析 {ext.upper()} 文件"})
     elif ext in audio_extensions:
         # 音訊檔: 傳給語音轉文字處理
-        background_tasks.add_task(line_service.run_simulation_with_audio_data, main_file_bytes, sim_id, ext)
+        background_tasks.add_task(line_service.run_simulation_with_audio_data, main_file_bytes, sim_id, ext, language)
     else:
         # 預設為圖片處理 (支援多圖)
         # 傳遞 file_bytes_list 給 run_simulation_with_image_data
-        background_tasks.add_task(line_service.run_simulation_with_image_data, file_bytes_list, sim_id, text_context)
+        background_tasks.add_task(line_service.run_simulation_with_image_data, file_bytes_list, sim_id, text_context, language)
         
     return {"status": "ok", "sim_id": sim_id}
 
@@ -426,7 +428,8 @@ class RefineCopyRequest(BaseModel):
     product_name: str | None = None
     price: str | None = None
     style: str | None = None
-    source_type: str | None = "image" # Default to image (Product)
+    source_type: str | None = "image"
+    language: str = "zh-TW" # Default to zh-TW
 
 @router.post("/refine-copy")
 async def refine_copy(request: RefineCopyRequest):
@@ -459,7 +462,8 @@ async def refine_copy(request: RefineCopyRequest):
             price=price,
             original_copy=request.current_copy,
             style=style,
-            source_type=source_type
+            source_type=source_type,
+            language=request.language
         )
         
         return result

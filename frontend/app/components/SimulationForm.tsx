@@ -178,7 +178,8 @@ export default function SimulationForm() {
             }
             // 填入估算價格
             if (data.estimated_price) {
-                setPrice(data.estimated_price.toString())
+                const currency = data.currency || ''
+                setPrice(`${data.estimated_price} ${currency}`.trim())
             }
             // 設置價格來源說明
             if (data.price_source) {
@@ -323,6 +324,7 @@ export default function SimulationForm() {
                     formData.append("market_prices", JSON.stringify(marketPrices))
                 }
                 formData.append("style", selectedStyle)
+                formData.append("language", language)
             }
 
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"

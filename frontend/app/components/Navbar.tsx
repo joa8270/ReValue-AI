@@ -99,7 +99,7 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu Dropdown */}
-            <div className={`md:hidden overflow-hidden transition-all duration-300 ${isMenuOpen ? 'max-h-96' : 'max-h-0'}`}>
+            <div className={`md:hidden transition-all duration-300 ${isMenuOpen ? 'max-h-[85vh] overflow-y-auto' : 'max-h-0 overflow-hidden'}`}>
                 <div className="px-4 py-6 bg-[#0f0c12] border-t border-white/5 flex flex-col gap-4">
                     <Link
                         href="/#how-it-works"

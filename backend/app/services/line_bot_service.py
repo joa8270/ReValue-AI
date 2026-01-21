@@ -27,7 +27,7 @@ from app.core.database import create_simulation, update_simulation, get_simulati
 get_simulation_data = get_simulation
 
 
-def _generate_methodology_sidecar(score, summary):
+def _generate_methodology_sidecar(score, summary, language="zh-TW"):
     """
     🧬 計算社會科學方法論外掛層 (Computational Social Science Sidecar)
     
@@ -42,6 +42,7 @@ def _generate_methodology_sidecar(score, summary):
     Args:
         score: 八字運算產生的購買意圖分數 (0-100)
         summary: AI 生成的分析摘要文字
+        language: 語言 (zh-TW, zh-CN, en)
     
     Returns:
         dict: 方法論詮釋數據包，包含有效期、信賴區間、下一步建議
@@ -57,34 +58,65 @@ def _generate_methodology_sidecar(score, summary):
     upper = min(100, base_score + random.uniform(2.0, 4.0))
     ci_text = f"95% CI [{lower:.1f}, {upper:.1f}]"
 
+    # Multi-language Next Step Advice
+    ADVICE_DICT = {
+        "scale": {
+            "zh-TW": {"label": "擴張策略：放大規模 (Scale)", "desc": "市場反應熱烈。建議增加廣告預算，並測試不同受眾。"},
+            "zh-CN": {"label": "扩张策略：放大规模 (Scale)", "desc": "市场反应热烈。建议增加广告预算，并测试不同受众。"},
+            "en": {"label": "Growth Strategy: Scale Up", "desc": "Strong market reaction. Suggest increasing ad budget and testing different audiences."}
+        },
+        "pivot": {
+            "zh-TW": {"label": "微調策略：迭代優化 (Pivot)", "desc": "有潛力但雜訊多。建議調整「定價」或「文案」後再測一次。"},
+            "zh-CN": {"label": "微调策略：迭代优化 (Pivot)", "desc": "有潜力但杂讯多。建议调整「定价」或「文案」后再测一次。"},
+            "en": {"label": "Strategy Tweak: Iteration (Pivot)", "desc": "Potential seen but noisy. Suggest creating new variant of 'Price' or 'Copy' to test again."}
+        },
+        "restart": {
+            "zh-TW": {"label": "止損策略：暫停專案 (Kill)", "desc": "市場反應冷淡。建議重新思考產品核心價值或目標客群。"},
+            "zh-CN": {"label": "止损策略：暂停专案 (Kill)", "desc": "市场反应冷淡。建议重新思考产品核心价值或目标客群。"},
+            "en": {"label": "Exit Strategy: Pivot or Kill", "desc": "Cold market reaction. Suggest rethinking core value prop or target audience."}
+        }
+    }
+    
+    # Default warning
+    WARNING_DICT = {
+        "zh-TW": "市場風向隨時在變，建議每月重新校準一次。",
+        "zh-CN": "市场风向随时在变，建议每月重新校准一次。",
+        "en": "Market trends change constantly. Re-calibration recommended monthly."
+    }
+
+    lang_key = language if language in ["zh-TW", "zh-CN", "en"] else "zh-TW"
+
     # 3. [Iteration] 生成下一步建議 (Actionable Advice)
     if base_score >= 80:
+        advice = ADVICE_DICT["scale"][lang_key]
         next_step = {
             "action": "Scale", 
-            "label": "乘勝追擊：擴大測試 (Scale Up)", 
+            "label": advice["label"], 
             "style": "bg-green-600 hover:bg-green-700", 
-            "desc": "信號極強！建議立即投入廣告資源，進行 A/B 測試。"
+            "desc": advice["desc"]
         }
     elif base_score >= 60:
+        advice = ADVICE_DICT["pivot"][lang_key]
         next_step = {
             "action": "Pivot", 
-            "label": "微調策略：迭代優化 (Pivot)", 
+            "label": advice["label"], 
             "style": "bg-amber-500 hover:bg-amber-600", 
-            "desc": "有潛力但雜訊多。建議調整「定價」或「文案」後再測一次。"
+            "desc": advice["desc"]
         }
     else:
+        advice = ADVICE_DICT["restart"][lang_key]
         next_step = {
             "action": "Restart", 
-            "label": "打掉重練：重新構思 (Restart)", 
+            "label": advice["label"], 
             "style": "bg-red-500 hover:bg-red-600", 
-            "desc": "市場反應冷淡。建議更換「目標客群」或「產品定位」。"
+            "desc": advice["desc"]
         }
 
     # 為了與前端對接，我們統一使用 "methodology_data" 作為 Key
     return {
         "framework": "雙軌演算法：行為科學 x 命理結構",
         "valid_until": valid_until,
-        "entropy_warning": "市場風向隨時在變，建議每月重新校準一次。",
+        "entropy_warning": WARNING_DICT[lang_key],
         "confidence_interval": ci_text,
         "next_step": next_step,
         # 將原本的摘要截取作為驅動力簡介，若無摘要則給預設值
@@ -1201,11 +1233,11 @@ Reply directly in JSON format:
         except Exception as e:
             print(f"❌ [LineBot PDF] 下載或處理失敗: {e}")
 
-    async def run_simulation_with_image_data(self, image_data_input, sim_id, text_context=None):
+    async def run_simulation_with_image_data(self, image_data_input, sim_id, text_context=None, language="zh-TW"):
         """核心圖文分析邏輯 (Decoupled & Synced with PDF Flow) - Supports Single or Multiple Images"""
         import traceback
         try:
-            with open("debug_image.log", "w", encoding="utf-8") as f: f.write(f"[{sim_id}] STARTING run_simulation_with_image_data\n")
+            with open("debug_image.log", "w", encoding="utf-8") as f: f.write(f"[{sim_id}] STARTING run_simulation_with_image_data (Lang: {language})\n")
             
             # 1. Process Images (Single or List)
             image_bytes_list = image_data_input if isinstance(image_data_input, list) else [image_data_input]
@@ -1267,7 +1299,10 @@ Reply directly in JSON format:
                     product_context = f"📦 使用者補充的產品資訊：\n{text_context}\n請特別考慮上述產品資訊及價格進行分析。"
 
                 # Use raw string template to avoid f-string syntax errors with JSON braces
-                prompt_template = """
+                
+                # 多語言 Prompt 模板
+                prompt_templates = {
+                    "zh-TW": """
 你是 MIRRA 鏡界系統的核心 AI 策略顧問。請分析這張（或多張）產品圖片，並「扮演」以下從資料庫隨機抽取的 10 位 AI 虛擬市民，模擬他們對產品的反應。你需要提供**深度、具體、可執行**的行銷策略建議。
 __PRODUCT_CONTEXT__
 📋 以下是真實市民資料（八字格局已預先計算）：
@@ -1296,7 +1331,7 @@ __CITIZENS_JSON__
     },
     "result": {
         "score": (0-100 的購買意圖分數),
-        "summary": "分析報告標題\n\n[解析] (深入解析產品核心價值、市場定位與潛在痛點，至少 200 字)\n\n[優化] (根據市民辯論與八字特徵，提出至少 3 個具體的產品優化或包裝策略，至少 200 字)\n\n[戰略] (給出具備「戰略神諭」特質的頂級商業建議，指明產品未來的爆發點，至少 150 字)",
+        "summary": "分析報告標題\\n\\n[解析] (深入解析產品核心價值、市場定位與潛在痛點，至少 200 字)\\n\\n[優化] (根據市民辯論與八字特徵，提出至少 3 個具體的產品優化或包裝策略，至少 200 字)\\n\\n[戰略] (給出具備「戰略神諭」特質的頂級商業建議，指明產品未來的爆發點，至少 150 字)",
         "objections": [
             {"reason": "質疑點 A", "percentage": 30},
             {"reason": "質疑點 B", "percentage": 20}
@@ -1316,22 +1351,6 @@ __CITIZENS_JSON__
                 "success_metrics": "量化的具體成效指標",
                 "potential_risks": "可能遇到的真實商業挑戰與備案",
                 "score_improvement": "+X 分"
-            },
-            {
-                "target": "完全不同的另一個目標群眾",
-                "advice": "對應的落地建議，字數須達150字以上...",
-                "execution_plan": ["...", "...", "...", "...", "..."],
-                "success_metrics": "指標",
-                "potential_risks": "風險",
-                "score_improvement": "+X 分"
-            },
-            {
-                "target": "第三個全新的方向",
-                "advice": "第三個落地建議，字數須達150字以上...",
-                "execution_plan": ["...", "...", "...", "...", "..."],
-                "success_metrics": "指標",
-                "potential_risks": "風險",
-                "score_improvement": "+X 分"
             }
         ]
     },
@@ -1342,12 +1361,142 @@ __CITIZENS_JSON__
 }
 
 📌 重要規則：
-1. **戰略深度**：summary 的三個部分（解析、優化、戰略）必須寫滿、寫深，總字數需在 500 字以上。
-2. **落地執行**：suggestions 的 steps 必須具體到可以立即操作，禁止使用空泛動詞。
+1. **戰略深度**：summary 的三個部分必須寫滿、寫深，總字數需在 500 字以上。
+2. **落地執行**：suggestions 的 steps 必須具體到可以立即操作。
 3. **禁止範例內容**：絕對不得直接複製 JSON 結構中的 placeholder 文字。
-4. **評論品質**：市民評論必須像真人說話，**嚴禁**出現「符合我的XX格」、「這個產品看起來不錯」這類模板語句。若出現此類語句將被視為失敗。
+4. **評論品質**：市民評論必須像真人說話，**嚴禁**出現模板語句。
 5. **語言**：所有內容必須使用繁體中文。
+""",
+                    "zh-CN": """
+你是 MIRRA 境界系统的核心 AI 策略顾问。请分析这张（或多张）产品图片，并「扮演」以下从资料库随机抽取的 10 位 AI 虚拟市民，模拟他们对产品的反应。你需要提供**深度、具体、可执行**的行销策略建议。
+__PRODUCT_CONTEXT__
+📋 以下是真实市民资料（八字格局已预先计算）：
+
+__CITIZENS_JSON__
+
+⚠️ **重要指示：市场真实性校准 (Market Reality Check)**
+- 作为 AI 顾问，你必须先运用你的知识库判断该产品的**真实市场行情** (Standard Retail Price)。
+- **如果使用者设定的价格显著高于市价**：
+  - **市民反应必须负面**：市民应感觉被「当盘子」或「不合理」，购买意图(Score) 应大幅降低。
+  - **严禁**出现「虽然贵但我愿意买」这类违背常理的评论，除非产品有极特殊的附加价值。
+  - 请在 Summary 中点出「价格缺乏竞争力」的问题。
+
+⚠️ **重要指示：策略建议必须非常具体且可执行** (请使用简体中文)
+- 不要给出「进行 A/B 测试」这种人人都知道的泛泛建议
+- 必须根据**这个特定产品**的特点，给出**独特、有洞察力**的行销策略
+- 执行步骤要具体到「第一周做什么、第一个月达成什么、如何衡量成效」
+
+🎯 请务必回传一个**纯 JSON 字串 (不要 Markdown)**，结构如下：
+{
+    "simulation_metadata": {
+        "product_category": "(必须从以下选择一个：tech_electronics | collectible_toy | food_beverage | fashion_accessory | home_lifestyle | other)",
+        "marketing_angle": "(极具洞察力的行销切角，至少 20 字)",
+        "bazi_analysis": "(深入分析产品属性与五行规律的契合度，至少 50 字)"
+    },
+    "result": {
+        "score": (0-100 的购买意图分数),
+        "summary": "分析报告标题\\n\\n[解析] (深入解析产品核心价值、市场定位与潜在痛点，至少 200 字)\\n\\n[优化] (根据市民辩论与八字特征，提出至少 3 个具体的产品优化或包装策略，至少 200 字)\\n\\n[战略] (给出具备「战略神谕」特质的顶级商业建议，指明产品未来的爆发点，至少 150 字)",
+        "objections": [
+            {"reason": "质疑点 A", "percentage": 30},
+            {"reason": "质疑点 B", "percentage": 20}
+        ],
+        "suggestions": [
+            {
+                "target": "极具体的市场细分对象",
+                "advice": "150字以上的『战术落地』建议。说明如何利用目前市场缺口，以及对接哪些具体平台或线下资源。",
+                "element_focus": "对应五行",
+                "execution_plan": [
+                    "步骤 1：(具体第一周动作与所需资源对接)",
+                    "步骤 2：(具体第二周动作及关键 KPI 设定)",
+                    "步骤 3：(第 1 个月的具体扩展路径)",
+                    "步骤 4：(第 2 个月的具体获利/验证目标)",
+                    "步骤 5：(长期维护与品牌护城河建立动作)"
+                ],
+                "success_metrics": "量化的具体成效指标",
+                "potential_risks": "可能遇到的真实商业挑战与备案",
+                "score_improvement": "+X 分"
+            }
+        ]
+    },
+    "comments": [
+        (必须生成精确 10 则市民评论，对应上方市民名单)
+        { "citizen_id": "市民ID", "sentiment": "positive/negative/neutral", "text": "市民评论内容（简体中文，需体现个人格局特征，至少 40 字，禁止使用『符合我的...』这种句型）" }
+    ]
+}
+
+📌 重要规则：
+1. **战略深度**：summary 必须写满、写深，总字数需在 500 字以上。
+2. **落地执行**：suggestions 的 steps 必须具体到可以立即操作。
+3. **禁止范例内容**：绝对不得直接复制 JSON 结构中的 placeholder 文字。
+4. **评论品质**：市民评论必须像真人说话，**严禁**出现模板语句。
+5. **语言**：所有内容必须使用简体中文。
+""",
+                    "en": """
+You are the Core AI Strategic Advisor of the MIRRA system. Please analyze the product image(s) and "roleplay" the following 10 AI virtual citizens sampled from the database, simulating their reactions to the product. You need to provide **in-depth, specific, and actionable** marketing strategy advice.
+__PRODUCT_CONTEXT__
+📋 Virtual Citizen Profiles (Bazi structures pre-calculated):
+
+__CITIZENS_JSON__
+
+⚠️ **Important Instruction: Market Reality Check**
+- As an AI advisor, you must first use your knowledge base to judge the **standard retail price** of the product.
+- **If the user-set price is significantly higher than the market price** (e.g., standard price is $5, user sets $15):
+  - **Citizen reactions MUST be negative**: They should feel "ripped off" or "unreasonable".
+  - **STRICTLY FORBID** comments like "It's expensive but I'd buy it".
+  - Please highlight the "lack of price competitiveness" in the Summary.
+
+⚠️ **Important Instruction: Strategy Advice Must Be Specific and Actionable** (Answer in English)
+- Do not give generic advice like "do A/B testing".
+- You must provide **unique, insightful** marketing suggestions based on **this specific product's** characteristics.
+- Action steps must be specific: "What to do in Week 1, what to achieve in Month 1, how to measure success".
+
+🎯 You must return a **PURE JSON string (No Markdown)**, structure as follows:
+{
+    "simulation_metadata": {
+        "product_category": "(Must choose one: tech_electronics | collectible_toy | food_beverage | fashion_accessory | home_lifestyle | other)",
+        "marketing_angle": "(Insightful marketing angle, at least 20 words)",
+        "bazi_analysis": "(Deep analysis of product attributes vs Bazi elements, at least 50 words)"
+    },
+    "result": {
+        "score": (0-100 Purchase Intention Score),
+        "summary": "Report Title\\n\\n[Analysis] (Deep analysis of value, positioning, pain points, >200 words)\\n\\n[Optimization] (3 concrete optimization strategies based on debate/Bazi, >200 words)\\n\\n[Strategy] (Top-tier business advice, 'Strategic Oracle' style, >150 words)",
+        "objections": [
+            {"reason": "Objection A", "percentage": 30}
+        ],
+        "suggestions": [
+            {
+                "target": "Specific segment (e.g. Taipei District X, 25-30yo coffee lovers)",
+                "advice": ">150 words tactical advice. How to exploit market gaps, specific platforms/resources.",
+                "element_focus": "Corresponding Element",
+                "execution_plan": [
+                    "Step 1: (Week 1 specific actions)",
+                    "Step 2: (Week 2 actions & KPIs)",
+                    "Step 3: (Month 1 expansion path)",
+                    "Step 4: (Month 2 profit/validation goal)",
+                    "Step 5: (Long-term moat building)"
+                ],
+                "success_metrics": "Quantifiable metrics",
+                "potential_risks": "Real business challenges & backups",
+                "score_improvement": "+X points"
+            }
+        ]
+    },
+    "comments": [
+        (Must generate exactly 10 comments matching the citizen list above)
+        { "citizen_id": "CitizenID", "sentiment": "positive/negative/neutral", "text": "Citizen comment (English, reflecting Bazi traits, >40 words, DO NOT start with 'Matching my...')" }
+    ]
+}
+
+📌 Important Rules:
+1. **Strategic Depth**: Summary sections must be deep and >500 words total.
+2. **Actionable**: Suggestion steps must be immediately executable.
+3. **No Placeholders**: Do not copy placeholder text.
+4. **Comment Quality**: Comments must sound natural.
+5. **Language**: All content must be in English.
 """
+                }
+
+                prompt_template = prompt_templates.get(language, prompt_templates["zh-TW"])
                 prompt_text = prompt_template.replace("__PRODUCT_CONTEXT__", product_context).replace("__CITIZENS_JSON__", citizens_json)
 
             except Exception as e:
@@ -1422,17 +1571,42 @@ __CITIZENS_JSON__
                  already_ids = {str(c.get("citizen_id")) for c in fallback_comments}
                  
                  # Improved Templates (Generic but realistic, avoiding forbidden phrases)
-                 fallback_templates = [
-                    "身為{occupation}，我覺得這產品的實用性很高，會想嘗試看看。",
-                    "雖然價格需要考量，但整體的質感很吸引我，{structure}的人通常蠻喜歡這種設計。",
-                    "對{age}歲的我來說，這產品解決了不少麻煩，值得推薦。",
-                    "設計感很強，感覺能夠提升生活品質，很有興趣！",
-                    "目前市面上類似產品很多，但這款的獨特性在於細節處理。",
-                    "我是比較務實的人，這產品的功能確實有打中我的痛點。",
-                    "從{element}行人的角度來看，這種風格很有能量，感覺不錯。",
-                    "剛好最近有在找類似的東西，這款列入考慮清單。",
-                    "產品概念很有趣，如果售價親民一點我會直接買單。"
-                 ]
+                 fallback_templates_map = {
+                    "zh-TW": [
+                        "身為{occupation}，我覺得這產品的實用性很高，會想嘗試看看。",
+                        "雖然價格需要考量，但整體的質感很吸引我，{structure}的人通常蠻喜歡這種設計。",
+                        "對{age}歲的我來說，這產品解決了不少麻煩，值得推薦。",
+                        "設計感很強，感覺能夠提升生活品質，很有興趣！",
+                        "目前市面上類似產品很多，但這款的獨特性在於細節處理。",
+                        "我是比較務實的人，這產品的功能確實有打中我的痛點。",
+                        "從{element}行人的角度來看，這種風格很有能量，感覺不錯。",
+                        "剛好最近有在找類似的東西，這款列入考慮清單。",
+                        "產品概念很有趣，如果售價親民一點我會直接買單。"
+                    ],
+                    "zh-CN": [
+                        "身为{occupation}，我觉得这产品的实用性很高，会想尝试看看。",
+                        "虽然价格需要考量，但整体的质感很吸引我，{structure}的人通常蛮喜欢这种设计。",
+                        "对{age}岁的我来说，这产品解决了不少麻烦，值得推荐。",
+                        "设计感很强，感觉能够提升生活品质，很有兴趣！",
+                        "目前市面上类似产品很多，但这款的独特性在于细节处理。",
+                        "我是比较务实的人，这产品的功能确实有打中我的痛点。",
+                        "从{element}行人的角度来看，这种风格很有能量，感觉不错。",
+                        "刚好最近有在找类似的东西，这款列入考虑清单。",
+                        "产品概念很有趣，如果售价亲民一点我会直接买单。"
+                    ],
+                    "en": [
+                        "As a {occupation}, I find this product very practical and would like to try it.",
+                        "Although price is a factor, the quality attracts me. People with {structure} usually like this design.",
+                        "For someone aged {age}, this product solves a lot of trouble and is worth recommending.",
+                        "Strong design sense, feels like it can improve quality of life, very interested!",
+                        "There are many similar products, but the uniqueness of this one lies in the details.",
+                        "I am a practical person, and this product's functions really hit my pain points.",
+                        "From the perspective of a {element} element person, this style is very energetic.",
+                        "Just happened to be looking for something similar recently, considering this one.",
+                        "The product concept is interesting, if the price is friendlier I would buy it."
+                    ]
+                 }
+                 fallback_templates = fallback_templates_map.get(language, fallback_templates_map["zh-TW"])
 
                  for c in sampled_citizens: 
                       if len(fallback_comments) >= 8: break
@@ -1451,7 +1625,13 @@ __CITIZENS_JSON__
                           template = random.choice(fallback_templates)
                           text = template.format(occupation=occupation, structure=structure, age=age, element=elem)
                       except:
-                          text = "這產品很有特色，我會考慮購買。"
+                          
+                          default_texts = {
+                                "zh-TW": "這產品很有特色，我會考慮購買。",
+                                "zh-CN": "这产品很有特色，我会考虑购买。",
+                                "en": "This product is unique, I will consider buying it."
+                            }
+                          text = default_texts.get(language, default_texts["zh-TW"])
 
                       fallback_comments.append({
                           "citizen_id": cid,
@@ -1585,7 +1765,8 @@ __CITIZENS_JSON__
             # 🧬 [Sidecar] 追加計算社會科學方法論詮釋層
             methodology_sidecar = _generate_methodology_sidecar(
                 score=result_data.get("score"),
-                summary=result_data.get("summary")
+                summary=result_data.get("summary"),
+                language=language
             )
             result_data["methodology_data"] = methodology_sidecar
             
@@ -1609,9 +1790,9 @@ __CITIZENS_JSON__
                 pass
             self._handle_error_db(sim_id, error_msg)
 
-    async def run_simulation_with_pdf_data(self, pdf_bytes, sim_id, file_name):
+    async def run_simulation_with_pdf_data(self, pdf_bytes, sim_id, file_name, language="zh-TW"):
         """核心 PDF 分析邏輯 (Decoupled)"""
-        with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] PDF Flow Start\n")
+        with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] PDF Flow Start (Lang: {language})\n")
         try:
             # Convert PDF to base64
             pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
@@ -1639,8 +1820,8 @@ __CITIZENS_JSON__
             ]
             citizens_json = json.dumps(citizens_for_prompt, ensure_ascii=False, indent=2)
             
-            # 3. Prompt
-            prompt_text = f"""
+            # 3. Prompt (Default to zh-TW base)
+            prompt_base_tw = f"""
 你是 MIRRA 鏡界系統的核心 AI 策略顧問。你正在審閱一份商業計劃書 PDF，並需要提供**深度、具體、可執行**的策略建議。
 
 請讓以下從資料庫隨機抽取的 10 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
@@ -1711,11 +1892,145 @@ __CITIZENS_JSON__
 4. 禁止使用「進行 A/B 測試」、「優化行銷文案」這類通用建議，必須針對這個特定商業模式給出獨特見解
 """
 
+            # --- Multi-language Prompt Logic ---
+            if language == "en":
+                prompt_text = f"""
+You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a Business Plan PDF and need to provide **in-depth, specific, and actionable** strategic advice.
+
+Please let the following 10 AI virtual citizens sampled from the database engage in a fierce debate regarding the "Business Feasibility", "Revenue Model", and "Market Pain Points" of this business plan.
+
+📋 Virtual Citizen Profiles (Bazi structures pre-calculated):
+
+{citizens_json}
+
+⚠️ **Important Instruction: Strategy Advice Must Be Specific and Actionable**
+- Do not give generic advice like "do A/B testing".
+- You must provide **unique, insightful** suggestions based on **this specific business model's** characteristics.
+- Action steps must be specific: "What to do in Week 1, what to achieve in Month 1, how to measure success".
+- Each suggestion must explain "Why is this important for this specific business model".
+
+🎯 You must return a **PURE JSON string (No Markdown)**, structure as follows:
+
+{{
+    "simulation_metadata": {{
+        "product_category": "Business Plan",
+        "target_market": "Taiwan",
+        "sample_size": 10,
+        "bazi_distribution": {{
+            "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
+        }}
+    }},
+    "genesis": {{
+        "total_population": 1000,
+        "personas": [
+            (Must select 10 citizens)
+            {{"id": "...", "name": "...", "age": "...", "element": "...", "day_master": "...", "pattern": "...", "trait": "...", "decision_logic": "..."}}
+        ]
+    }},
+    "arena_comments": [
+        (Must generate exactly 10 debate comments on the business model by citizens)
+        {{"sentiment": "...", "text": "...", "persona": {{ ... }} }}
+    ],
+    "result": {{
+        "score": (0-100),
+        "summary": "Report Title\\n\\n[Analysis] (Deep analysis of core value, market gap, and design intent, >200 words)\\n\\n[Optimization] (Based on the fierce debate of 30 citizens, propose reconstruction or optimization directions, >200 words)\\n\\n[Strategy] (Provide high-level strategic improvements to guide explosion, >150 words)",
+        "objections": [
+            {{"reason": "...", "percentage": 30}}
+        ],
+        "suggestions": [
+            {{
+                "target": "Specific Market Segment",
+                "advice": ">150 words specific 'Tactical Landing' advice...",
+                "element_focus": "Element",
+                "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+                "success_metrics": "Specific Metrics",
+                "potential_risks": "Challenges & Countermeasures",
+                "score_improvement": "+X points"
+            }}
+        ]
+    }}
+}}
+
+📌 Important Rules:
+1. **Analysis Depth**: Summary must strictly follow [Analysis], [Optimization], [Strategy] format, >500 words total.
+2. **Actionable**: Suggestions must be concrete and execution plans must have high implementation value.
+3. **No Placeholders**: Do not copy placeholder text.
+4. **Context**: This is a business plan analysis, focus on "Feasibility", "Revenue Model", and "Pain Points".
+5. **Comments**: Generate investor/entrepreneur perspective comments, quoting specific plan details.
+6. **Language**: All content must be in English.
+"""
+            elif language == "zh-CN":
+                prompt_text = f"""
+你是 MIRRA 境界系统的核心 AI 策略顾问。你正在审阅一份商业计划书 PDF，并需要提供**深度、具体、可执行**的策略建议。
+
+请让以下从资料库随机抽取的 10 位 AI 虚拟市民，针对这份商业计划书进行「商业可行性」、「获利模式」与「市场痛点」的激烈辩论。
+
+📋 以下是真实市民资料（八字格局已预先计算）：
+
+{citizens_json}
+
+⚠️ **重要指示：策略建议必须非常具体且可执行**
+- 不要给出「进行 A/B 测试」这种人人都知道的泛泛建议
+- 必须根据**这个特定商业模式**的特点，给出**独特、有洞察力**的建议
+- 执行步骤要具体到「第一周做什么、第一个月达成什么、如何衡量成效」
+- 每个建议都要说明「为什么这对这个商业模式特别重要」
+
+🎯 请务必回传一个**纯 JSON 字串 (不要 Markdown)**，结构如下：
+
+{{
+    "simulation_metadata": {{
+        "product_category": "商业计划书",
+        "target_market": "台湾",
+        "sample_size": 10,
+        "bazi_distribution": {{
+            "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
+        }}
+    }},
+    "genesis": {{
+        "total_population": 1000,
+        "personas": [
+            (必须挑选 10 位市民)
+            {{"id": "...", "name": "...", "age": "...", "element": "...", "day_master": "...", "pattern": "...", "trait": "...", "decision_logic": "..."}}
+        ]
+    }},
+    "arena_comments": [
+        (必须生成精确 10 则市民针对商业模式的辩论评论)
+        {{"sentiment": "...", "text": "...", "persona": {{ ... }} }}
+    ],
+    "result": {{
+        "score": (0-100),
+        "summary": "分析报告标题\\n\\n[解析] (深入解析产品核心价值、市场缺口与设计初衷，至少 200 字)\\n\\n[优化] (结合 30 位市民的激烈辩论，提出对此模式的重构或优化方向，至少 200 字)\\n\\n[战略] (给出具备战略高度的改进意见，指引其爆发，至少 150 字)",
+        "objections": [
+            {{"reason": "...", "percentage": 30}}
+        ],
+        "suggestions": [
+            {{
+                "target": "具体市场细分对象",
+                "advice": "150字以上的具体『战术落地』建议...",
+                "element_focus": "五行",
+                "execution_plan": ["步骤 1", "步骤 2", "步骤 3", "步骤 4", "步骤 5"],
+                "success_metrics": "具体指标",
+                "potential_risks": "挑战与对策",
+                "score_improvement": "+X 分"
+            }}
+        ]
+    }}
+}}
+
+📌 重要规则：
+1. **分析深度**：summary 必须严格遵守 [解析]、[优化]、[战略] 三段式，总字数 500 字以上。
+2. **落地性**：三个建议 suggestions 必须完全不同，且 execution_plan 具备极高执行价值。
+3. **禁止范例内容**：绝对不得直接复制 JSON 结构中的 placeholder 文字。
+4. **语言**：所有内容必须使用简体中文。
+"""
+            else:
+                 prompt_text = prompt_base_tw
+
             # 4. REST API Call
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Calling Gemini (PDF)...\n")
             api_key = settings.GOOGLE_API_KEY
-            # PDF needs more time. Set base timeout to 60s. (Pro will get 60s automatically by helper logic)
-            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, pdf_b64=pdf_b64, timeout=60)
+            # PDF needs more time. Set base timeout to 180s. (Pro will get 300s automatically by helper logic)
+            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, pdf_b64=pdf_b64, timeout=180)
 
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Gemini Response: {str(ai_text)[:20]}...\n")
             
@@ -1850,7 +2165,7 @@ __CITIZENS_JSON__
                 "status": "ready",
                 "score": data.get("result", {}).get("score", 70),
                 "intent": data.get("result", {}).get("market_sentiment", "分析完成"),
-                "summary": data.get("result", {}).get("summary", "AI 分析完成"),
+                "summary": data.get("result", {}).get("summary", "AI 分析超時，無法生成完整報告。請稍後重試。"),
                 "simulation_metadata": sim_metadata,
                 "genesis": {
                      "total_population": 1000,
@@ -1865,7 +2180,8 @@ __CITIZENS_JSON__
             # 🧬 [Sidecar] 追加計算社會科學方法論詮釋層
             methodology_sidecar = _generate_methodology_sidecar(
                 score=result_data.get("score"),
-                summary=result_data.get("summary")
+                summary=result_data.get("summary"),
+                language=language
             )
             result_data["methodology_data"] = methodology_sidecar
             
@@ -1878,7 +2194,7 @@ __CITIZENS_JSON__
             print(f"[Core PDF] Analysis Failed: {e}")
             self._handle_error_db(sim_id, str(e))
 
-    async def run_simulation_with_text_data(self, text_content: str, sim_id: str, source_type: str = "txt"):
+    async def run_simulation_with_text_data(self, text_content: str, sim_id: str, source_type: str = "txt", language: str = "zh-TW"):
         """處理純文字內容的商業計劃書分析 (Word/PPT/TXT) - 與 PDF 流程對齊"""
         try:
             from fastapi.concurrency import run_in_threadpool
@@ -1907,8 +2223,8 @@ __CITIZENS_JSON__
             ]
             citizens_json = json.dumps(citizens_for_prompt, ensure_ascii=False, indent=2)
             
-            # 3. 建構 Prompt (與 PDF 流程對齊，使用 arena_comments 格式)
-            prompt_text = f"""你是 MIRRA 鏡界系統的核心 AI 策略顧問。你正在審閱一份商業計劃書（來自 {source_type.upper()} 文件），並需要提供**深度、具體、可執行**的策略建議。
+            # 3. 建構 Prompt (Default to zh-TW base)
+            prompt_base_tw = f"""你是 MIRRA 鏡界系統的核心 AI 策略顧問。你正在審閱一份商業計劃書（來自 {source_type.upper()} 文件），並需要提供**深度、具體、可執行**的策略建議。
 
 以下是文件內容：
 ---
@@ -1976,11 +2292,154 @@ __CITIZENS_JSON__
 2. **落地性**：三個建議 suggestions 必須完全不同，且 execution_plan 具備極高執行價值。
 3. **禁止範例內容**：絕對不得直接複製 JSON 結構中的 placeholder 文字。
 """
+
+            # --- Multi-language Prompt Logic ---
+            if language == "en":
+                prompt_text = f"""
+You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a Business Plan (from {source_type.upper()} document) and need to provide **in-depth, specific, and actionable** strategic advice.
+
+Here is the document content:
+---
+{text_content[:8000]}
+---
+
+Please let the following 10 AI virtual citizens sampled from the database engage in a fierce debate regarding the "Business Feasibility", "Revenue Model", and "Market Pain Points" of this business plan.
+
+📋 Virtual Citizen Profiles (Bazi structures pre-calculated):
+
+{citizens_json}
+
+⚠️ **Important Instruction: Strategy Advice Must Be Specific and Actionable**
+- Do not give generic advice like "do A/B testing".
+- You must provide **unique, insightful** suggestions based on **this specific business model's** characteristics.
+- Action steps must be specific: "What to do in Week 1, what to achieve in Month 1, how to measure success".
+- Each suggestion must explain "Why is this important for this specific business model".
+
+🎯 You must return a **PURE JSON string (No Markdown)**, structure as follows:
+
+{{
+    "simulation_metadata": {{
+        "product_category": "Business Plan",
+        "target_market": "Taiwan",
+        "sample_size": 10,
+        "bazi_distribution": {{
+            "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
+        }}
+    }},
+    "genesis": {{
+        "total_population": 1000,
+        "personas": [
+            (Must select 10 citizens)
+            {{"id": "...", "name": "...", "age": "...", "element": "...", "day_master": "...", "pattern": "...", "trait": "...", "decision_logic": "..."}}
+        ]
+    }},
+    "arena_comments": [
+        (Must generate exactly 10 debate comments on the business model by citizens)
+        {{"sentiment": "...", "text": "...", "persona": {{ ... }} }}
+    ],
+    "result": {{
+        "score": (0-100),
+        "summary": "Report Title\\n\\n[Analysis] (Deep analysis of core value, market gap, and design intent, >200 words)\\n\\n[Optimization] (Based on the fierce debate of 30 citizens, propose reconstruction or optimization directions, >200 words)\\n\\n[Strategy] (Provide high-level strategic improvements to guide explosion, >150 words)",
+        "objections": [
+            {{"reason": "...", "percentage": 30}}
+        ],
+        "suggestions": [
+            {{
+                "target": "Specific Market Segment",
+                "advice": ">150 words specific 'Tactical Landing' advice...",
+                "element_focus": "Element",
+                "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+                "success_metrics": "Specific Metrics",
+                "potential_risks": "Challenges & Countermeasures",
+                "score_improvement": "+X points"
+            }}
+        ]
+    }}
+}}
+
+📌 Important Rules:
+1. **Analysis Depth**: Summary must strictly follow [Analysis], [Optimization], [Strategy] format, >500 words total.
+2. **Actionable**: Suggestions must be concrete and execution plans must have high implementation value.
+3. **No Placeholders**: Do not copy placeholder text.
+4. **Language**: All content must be in English.
+"""
+            elif language == "zh-CN":
+                prompt_text = f"""
+你是 MIRRA 境界系统的核心 AI 策略顾问。你正在审阅一份商业计划书（来源 {source_type.upper()} 文件），并需要提供**深度、具体、可执行**的策略建议。
+
+以下是文件内容：
+---
+{text_content[:8000]}
+---
+
+请让以下从资料库随机抽取的 10 位 AI 虚拟市民，针对这份商业计划书进行「商业可行性」、「获利模式」与「市场痛点」的激烈辩论。
+
+📋 以下是真实市民资料（八字格局已预先计算）：
+
+{citizens_json}
+
+⚠️ **重要指示：策略建议必须非常具体且可执行**
+- 不要给出「进行 A/B 测试」这种人人都知道的泛泛建议
+- 必须根据**这个特定商业模式**的特点，给出**独特、有洞察力**的建议
+- 执行步骤要具体到「第一周做什么、第一个月达成什么、如何衡量成效」
+- 每个建议都要说明「为什么这对这个商业模式特别重要」
+
+🎯 请务必回传一个**纯 JSON 字串 (不要 Markdown)**，结构如下：
+
+{{
+    "simulation_metadata": {{
+        "product_category": "商业计划书",
+        "target_market": "台湾",
+        "sample_size": 10,
+        "bazi_distribution": {{
+            "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
+        }}
+    }},
+    "genesis": {{
+        "total_population": 1000,
+        "personas": [
+            (必须挑选 10 位市民)
+            {{"id": "...", "name": "...", "age": "...", "element": "...", "day_master": "...", "pattern": "...", "trait": "...", "decision_logic": "..."}}
+        ]
+    }},
+    "arena_comments": [
+        (必须生成精确 10 则市民针对商业模式的辩论评论)
+        {{"sentiment": "...", "text": "...", "persona": {{ ... }} }}
+    ],
+    "result": {{
+        "score": (0-100),
+        "summary": "分析报告标题\\n\\n[解析] (深入解析产品核心价值、市场缺口与设计初衷，至少 200 字)\\n\\n[优化] (结合 30 位市民的激烈辩论，提出对此模式的重构或优化方向，至少 200 字)\\n\\n[战略] (给出具备战略高度的改进意见，指引其爆发，至少 150 字)",
+        "objections": [
+            {{"reason": "...", "percentage": 30}}
+        ],
+        "suggestions": [
+            {{
+                "target": "具体市场细分对象",
+                "advice": "150字以上的具体『战术落地』建议...",
+                "element_focus": "五行",
+                "execution_plan": ["步骤 1", "步骤 2", "步骤 3", "步骤 4", "步骤 5"],
+                "success_metrics": "具体指标",
+                "potential_risks": "挑战与对策",
+                "score_improvement": "+X 分"
+            }}
+        ]
+    }}
+}}
+
+📌 重要规则：
+1. **分析深度**：summary 必须严格遵守 [解析]、[优化]、[战略] 三段式，总字数 500 字以上。
+2. **落地性**：三个建议 suggestions 必须完全不同，且 execution_plan 具备极高执行价值。
+3. **禁止范例内容**：绝对不得直接复制 JSON 结构中的 placeholder 文字。
+4. **语言**：所有内容必须使用简体中文。
+"""
+            else:
+                 prompt_text = prompt_base_tw
+
             # 4. 呼叫 Gemini AI (純文字，不需圖片/PDF)
             api_key = settings.GOOGLE_API_KEY
             print(f"[Core TEXT] Sending prompt to Gemini, length: {len(prompt_text)}")
-            # Text/PDF content needs more time. Set base timeout to 60s.
-            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, timeout=60)
+            # Text/PDF content needs more time. Set base timeout to 180s.
+            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, timeout=180)
             
             if not ai_text:
                 print(f"[Core TEXT] Gemini Error: {last_error}. Triggering FALLBACK.")
@@ -2277,7 +2736,8 @@ __CITIZENS_JSON__
             # 🧬 [Sidecar] 追加計算社會科學方法論詮釋層
             methodology_sidecar = _generate_methodology_sidecar(
                 score=result_data.get("score"),
-                summary=result_data.get("summary")
+                summary=result_data.get("summary"),
+                language=language
             )
             result_data["methodology_data"] = methodology_sidecar
             
@@ -2289,7 +2749,7 @@ __CITIZENS_JSON__
             print(f"[Core TEXT] Analysis Failed: {e}")
             self._handle_error_db(sim_id, str(e))
 
-    async def run_simulation_with_audio_data(self, audio_bytes: bytes, sim_id: str, audio_format: str = "webm"):
+    async def run_simulation_with_audio_data(self, audio_bytes: bytes, sim_id: str, audio_format: str = "webm", language: str = "zh-TW"):
         """處理語音錄音的商業計劃書分析 (錄音 → 轉文字 → 分析)"""
         try:
             from fastapi.concurrency import run_in_threadpool
@@ -2297,7 +2757,29 @@ __CITIZENS_JSON__
             # 1. 使用 Gemini 將音訊轉文字
             audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
             
-            transcription_prompt = """請聽取這段語音錄音，並將其完整轉錄為繁體中文文字。
+            # Localized Transcription Prompt
+            if language == "en":
+                 transcription_prompt = """Please listen to this audio recording and transcribe it fully into English text.
+        
+This is a recording about a business plan or product idea. Please:
+1. Transcribe all spoken content fully
+2. Use English
+3. Keep the original meaning, add appropriate punctuation for readability
+4. If there is stuttering or repetition, smooth it out into fluent text
+
+Output the transcribed text directly, without any additional explanation."""
+            elif language == "zh-CN":
+                 transcription_prompt = """请听取这段语音录音，并将其完整转录为简体中文文字。
+        
+这是一段关于商业计划或产品想法的录音。请：
+1. 完整转录所有口说内容
+2. 使用简体中文
+3. 保持原意，适当加入标点符号让内容更易读
+4. 如果有口吃或重复的部分，请整理为顺畅的文字
+
+直接输出转录后的文字内容，不要有任何额外说明。"""
+            else:
+                 transcription_prompt = """請聽取這段語音錄音，並將其完整轉錄為繁體中文文字。
             
 這是一段關於商業計劃或產品想法的錄音。請：
 1. 完整轉錄所有口說內容
@@ -2335,7 +2817,7 @@ __CITIZENS_JSON__
             print(f"[Audio] Transcribed {len(transcribed_text)} characters")
             
             # 2. 使用轉錄的文字進行商業分析
-            await self.run_simulation_with_text_data(transcribed_text, sim_id, "voice")
+            await self.run_simulation_with_text_data(transcribed_text, sim_id, "voice", language=language)
 
         except Exception as e:
             print(f"[Core AUDIO] Analysis Failed: {e}")
@@ -2795,7 +3277,7 @@ __CITIZENS_JSON__
             "status": "ready",
             "score": data.get("result", {}).get("score", 75),
             "intent": data.get("result", {}).get("market_sentiment", "謹慎樂觀"),
-            "summary": data.get("result", {}).get("summary", "分析完成"),
+            "summary": data.get("result", {}).get("summary", "AI 分析超時，無法生成完整報告。請稍後重試。"),
             "simulation_metadata": {
                 "source_type": sim_metadata_override.get("source_type", "image") if sim_metadata_override else "image",
                 "product_category": data.get("simulation_metadata", {}).get("product_category", sim_metadata_override.get("product_category", "other") if sim_metadata_override else "other"),
@@ -2881,7 +3363,7 @@ __CITIZENS_JSON__
                 # Increase timeout for Pro model and PDF/Audio heavy tasks
                 current_timeout = timeout
                 if "pro" in model:
-                    current_timeout = max(timeout, 180) # Pro needs time to think (3 mins)
+                    current_timeout = max(timeout, 300) # Pro needs time to think (5 mins)
                 
                 # PDF needs more time regardless of model
                 if pdf_b64:
@@ -2910,6 +3392,115 @@ __CITIZENS_JSON__
         return None, last_error
 
     # NOTE: 舊版 generate_marketing_copy 已刪除，現使用第 480 行的新版本 (單篇輸出)
+
+    async def refine_marketing_copy(self, comments, product_name, price, original_copy, style="professional", source_type="image", language="zh-TW"):
+        """優化文案 (Async) - 支持多語言"""
+        try:
+            print(f"🚀 [Copy Opt] Starting refinement for {product_name} in {language}...")
+            
+            # Construct Prompt
+            negative_comments = [c['text'] for c in comments if c.get('sentiment') == 'negative']
+            pain_points_text = "\n".join([f"- {c}" for c in negative_comments[:10]])
+            
+            # Localized Prompt Construction
+            if language == "en":
+                if not pain_points_text:
+                    pain_points_text = "(No significant negative feedback, please optimize for potential market resistance)"
+                
+                prompt = f"""
+You are a top-tier AI Copywriter. Please optimize the original marketing copy based on the product info and "Real Citizen Feedback" from the simulation.
+
+📦 Product Info:
+- Name: {product_name}
+- Price: {price}
+- Source Type: {source_type}
+
+📝 Original Copy:
+{original_copy}
+
+💔 Market Pain Points (from Citizen Objections):
+{pain_points_text}
+
+🎨 Requested Style: {style}
+(professional, friendly, luxury, minimalist, storytelling)
+
+Please output strict JSON format ONLY:
+{{
+    "pain_points": "Summarize 3 key market pain points (String, in English)",
+    "refined_copy": "Strategic advice on how to address these pain points (String, 150 words, in English)",
+    "marketing_copy": "A complete, ready-to-use marketing post (Include Title, Body, Call to Action, Hashtags) (String, in English)"
+}}
+"""
+            elif language == "zh-CN":
+                if not pain_points_text:
+                    pain_points_text = "（暂无明显负评，请针对潜在市场抗性进行优化）"
+
+                prompt = f"""
+你是顶尖的 AI 商业文案大师。请根据以下产品信息与“模拟市民的真实反馈”，优化原本的营销文案。
+
+📦 产品信息：
+- 名称：{product_name}
+- 价格：{price}
+- 来源类型：{source_type}
+
+📝 原始文案：
+{original_copy}
+
+💔 市场痛点 (来自 AI 市民的负评/疑虑)：
+{pain_points_text}
+
+🎨 要求的文案风格：{style}
+(professional: 专业稳重, friendly: 亲切活泼, luxury: 高端奢华, minimalist: 简约清爽, storytelling: 故事叙述)
+
+请输出 JSON 格式：
+{{
+    "pain_points": "归纳出的 3 个主要市场痛点 (String, 简体中文)",
+    "refined_copy": "针对痛点优化后的策略建议 (String, 200字, 简体中文)",
+    "marketing_copy": "一篇完整的实战营销贴文 (包含标题、内文、Call to Action、Hashtags) (String, 简体中文)"
+}}
+"""
+            else: # Default zh-TW
+                if not pain_points_text:
+                    pain_points_text = "（暫無明顯負評，請針對潛在市場抗性進行優化）"
+
+                prompt = f"""
+你是頂尖的 AI 商業文案大師。請根據以下產品資訊與「模擬市民的真實反饋」，優化原本的行銷文案。
+
+📦 產品資訊：
+- 名稱：{product_name}
+- 價格：{price}
+- 來源類型：{source_type}
+
+📝 原始文案：
+{original_copy}
+
+💔 市場痛點 (來自 AI 市民的負評/疑慮)：
+{pain_points_text}
+
+🎨 要求的文案風格：{style}
+(professional: 專業穩重, friendly: 親切活潑, luxury: 高端奢華, minimalist: 簡約清爽, storytelling: 故事敘述)
+
+請輸出 JSON 格式：
+{{
+    "pain_points": "歸納出的 3 個主要市場痛點 (String, 繁體中文)",
+    "refined_copy": "針對痛點優化後的策略建議 (String, 200字, 繁體中文)",
+    "marketing_copy": "一篇完整的實戰行銷貼文 (包含標題、內文、Call to Action、Hashtags) (String, 繁體中文)"
+}}
+"""
+            api_key = settings.GOOGLE_API_KEY
+            resp_text, error = await self._call_gemini_rest(api_key, prompt)
+            
+            if error:
+                print(f"❌ [Copy Opt] Gemini Error: {error}")
+                return {"error": error}
+                
+            return self._clean_and_parse_json(resp_text)
+            
+        except Exception as e:
+            print(f"❌ [Copy Opt] Exception: {e}")
+            import traceback
+            traceback.print_exc()
+            return {"error": str(e)}
 
     def _run_blocking_gemini_request(self, api_key, prompt, image_b64=None, pdf_b64=None, model_priority=None, mime_type="image/jpeg", image_parts=None):
         """Helper to run synchronous requests in a thread"""

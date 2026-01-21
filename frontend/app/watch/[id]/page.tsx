@@ -847,7 +847,7 @@ export default function WatchPage() {
               <span className="material-symbols-outlined text-[18px] group-hover:text-[#a855f7] transition-colors">
                 {isCopied ? 'check' : 'share'}
               </span>
-              <span>{isCopied ? '已複製連結' : '分享專案結果'}</span>
+              <span>{isCopied ? t('report.ui.copy_link') : t('report.ui.share_project')}</span>
             </button>
 
             {/* New PDF Download Button (Replaces Share & Old Download) */}
@@ -859,7 +859,7 @@ export default function WatchPage() {
                     className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#7f13ec] hover:bg-[#9d4af2] transition-colors text-white text-sm font-bold shadow-[0_0_10px_rgba(127,19,236,0.5)] gap-2 group"
                   >
                     <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-                    <span>準備 PDF 報告</span>
+                    <span>{t('report.ui.prepare_pdf')}</span>
                   </button>
                 ) : (
                   <PDFDownloadLink
@@ -872,18 +872,18 @@ export default function WatchPage() {
                       loading ? (
                         <>
                           <span className="material-symbols-outlined text-lg animate-spin">sync</span>
-                          <span>報告生成中...</span>
+                          <span>{t('report.ui.generating_pdf')}</span>
                         </>
                       ) : error ? (
                         <>
                           <span className="material-symbols-outlined text-lg">error</span>
-                          <span>失敗: {String(error).slice(0, 10)}...</span>
+                          <span>{t('report.ui.pdf_failed')}: {String(error).slice(0, 10)}...</span>
                           {console.error('PDF Generation Error:', error)}
                         </>
                       ) : (
                         <>
                           <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">download</span>
-                          <span>立即下載 PDF</span>
+                          <span>{t('report.ui.download_pdf')}</span>
                         </>
                       )
                     }
@@ -959,10 +959,10 @@ export default function WatchPage() {
             {/* Content */}
             <div className={`flex flex-col gap-2 ${isSidebarCollapsed ? 'items-center' : ''}`}>
               {/* All Citizens Button */}
-              <button className={`flex items-center rounded-lg bg-[#7f13ec]/10 text-white border border-[#7f13ec]/50 transition-all ${isSidebarCollapsed ? 'p-2.5 justify-center' : 'gap-3 px-3 py-2.5'}`} title="所有市民">
+              <button className={`flex items-center rounded-lg bg-[#7f13ec]/10 text-white border border-[#7f13ec]/50 transition-all ${isSidebarCollapsed ? 'p-2.5 justify-center' : 'gap-3 px-3 py-2.5'}`} title={t('report.ui.all_citizens')}>
                 <span className="material-symbols-outlined fill-1 text-[#7f13ec]">groups</span>
                 {!isSidebarCollapsed && (
-                  <div className="flex flex-col items-start"><span className="text-sm font-bold">所有市民</span><span className="text-[10px] opacity-70">{TOTAL_POPULATION} 名 AI 市民</span></div>
+                  <div className="flex flex-col items-start"><span className="text-sm font-bold">{t('report.ui.all_citizens')}</span><span className="text-[10px] opacity-70">{t('report.ui.all_citizens_sub').replace('{count}', TOTAL_POPULATION.toLocaleString())}</span></div>
                 )}
               </button>
 
@@ -1113,7 +1113,7 @@ export default function WatchPage() {
 
                   <div className="flex items-center gap-2 mb-4">
                     <span className="material-symbols-outlined text-cyan-400 text-[20px]">science</span>
-                    <h3 className="text-[#ab9db9] text-sm font-bold uppercase tracking-wider">方法論驗證</h3>
+                    <h3 className="text-[#ab9db9] text-sm font-bold uppercase tracking-wider">{t('report.ui.methodology_main_title')}</h3>
                     <span className="text-[10px] bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full font-bold">
                       Science
                     </span>
@@ -1123,11 +1123,11 @@ export default function WatchPage() {
                     {/* 有效期 & 信賴區間 */}
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-[#231b2e] p-3 rounded-lg border border-white/5">
-                        <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">報告有效期</div>
+                        <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">{t('report.ui.report_validity')}</div>
                         <div className="text-sm font-bold text-white font-mono">{data.methodology_data.valid_until}</div>
                       </div>
                       <div className="bg-[#231b2e] p-3 rounded-lg border border-white/5">
-                        <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">95% 信賴區間</div>
+                        <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">{t('report.ui.confidence_interval')}</div>
                         <div className="text-sm font-bold text-cyan-400 font-mono">{data.methodology_data.confidence_interval}</div>
                       </div>
                     </div>
@@ -1139,7 +1139,7 @@ export default function WatchPage() {
                     >
                       <div className="relative z-10">
                         <div className="text-[10px] text-gray-400 font-bold uppercase mb-2 flex justify-between">
-                          <span>精實迭代建議 / NEXT ACTION</span>
+                          <span>{t('report.ui.next_action')}</span>
                           <span className="text-white/50 group-hover/action:text-cyan-400 transition-colors">{data.methodology_data.next_step.action} ↗</span>
                         </div>
                         <div className="flex items-center gap-3 mb-2">
@@ -1278,7 +1278,7 @@ export default function WatchPage() {
                         // Dynamic metric based on product category
                         const productCategory = data.simulation_metadata?.product_category || 'other';
                         const metricConfig = METRIC_CONFIG[productCategory] || METRIC_CONFIG.other;
-                        const metricLevel = sensitivityLevel === '低' ? '強' : sensitivityLevel === '中等' ? '中' : '弱';
+                        const metricLevel = sensitivityLevel === '低' ? t('report.metrics.level.strong') : sensitivityLevel === '中等' ? t('report.metrics.level.mid') : t('report.metrics.level.weak');
 
                         return {
                           label: metricConfig.label,

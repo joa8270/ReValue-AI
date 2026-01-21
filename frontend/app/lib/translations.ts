@@ -188,6 +188,15 @@ export const translations = {
                 ai_price_ref: 'AI 市民已同步參考以上市場價格進行購買意向評估',
                 genesis_title: 'GENESIS // 取樣邏輯',
                 all_citizens: '所有市民',
+                all_citizens_sub: '{count} 名 AI 市民',
+                citizens_suffix: '名 AI 市民',
+                share_project: '分享專案結果',
+                copy_link: '已複製連結',
+                prepare_pdf: '準備 PDF 報告',
+                generating_pdf: '報告生成中...',
+                download_pdf: '立即下載 PDF',
+                pdf_failed: '生成失敗',
+
                 bazi_deduction: '八字邏輯推演',
                 bazi_deduction_desc: '依據五行生剋與十神格局，篩選最具因果關聯之代表',
                 participating_citizens: '本場深度參與 AI 市民',
@@ -207,15 +216,11 @@ export const translations = {
                 confidence_interval: '95% 信賴區間',
                 next_action: '精實迭代建議 / NEXT ACTION',
                 entropy_warning: '熵值警告',
-                share_project: '分享專案結果',
-                copy_link: '已複製連結',
-                prepare_pdf: '準備 PDF 報告',
-                download_pdf: '立即下載 PDF',
-                generating_pdf: '報告生成中...',
-                pdf_failed: '失敗',
+
                 open_new_sim: '執行新預演',
                 methodology_link: '📖 深入解析：我們如何運用「西方科學方法論」進行驗證？',
                 methodology_title: '【未來推演】商業模式驗證報告',
+                methodology_main_title: '方法論驗證',
                 methodology_desc: '本報告採用「西方方法論」與「東方八字科學」',
                 dual_algo: '雙軌演算法',
                 predict_win_rate: '，為您預判市場勝率。',
@@ -255,6 +260,7 @@ export const translations = {
                 'default': { title: '多元策略型', desc: '能根據不同情境調整決策模式，兼具理性與感性。' }
             },
             metrics: {
+                level: { strong: '強', mid: '中', weak: '弱' },
                 tech_electronics: {
                     label: '技術變現力',
                     subLabel: '「是用技術折服人，還是在拼價格？」越少人嫌貴，代表技術帶來的溢價能力越強。',
@@ -315,6 +321,19 @@ export const translations = {
                     advice_mid: '💡 建議：覆蓋率中等。若想獲得更精準的預測，可以再次進行更大規模的預演。',
                     advice_low: '💡 建議：目前為免費版 (10/1,000 人)。若需擴大母數至 10,000 人或全量分析，請升級 Pro 版。'
                 }
+            },
+            copy_opt: {
+                title: 'AI 文案優化',
+                optimizing: '優化運算中...',
+                btn_start: '根據反饋優化文案',
+                btn_loading: '正在分析市民反饋...',
+                section_pain: '發現痛點 / PAIN POINTS',
+                section_advice: '優化策略 / STRATEGIC ADVICE',
+                section_copy: '實戰文案 / READY-TO-USE COPY',
+                btn_retry: '重新優化',
+                alert_no_comments: '暫無市民評論，無法進行優化',
+                alert_empty: '優化結果為空，請稍後再試',
+                alert_fail: '優化失敗，請檢查後端日誌'
             }
         }
     },
@@ -505,6 +524,15 @@ export const translations = {
                 ai_price_ref: 'AI 市民已同步参考以上市场价格进行购买意向评估',
                 genesis_title: 'GENESIS // 取样逻辑',
                 all_citizens: '所有市民',
+                all_citizens_sub: '{count} 名 AI 市民',
+                citizens_suffix: '名 AI 市民',
+                share_project: '分享专案结果',
+                copy_link: '已复制链接',
+                prepare_pdf: '准备 PDF 报告',
+                generating_pdf: '报告生成中...',
+                download_pdf: '立即下载 PDF',
+                pdf_failed: '生成失败',
+
                 bazi_deduction: '八字逻辑推演',
                 bazi_deduction_desc: '依据五行生克与十神格局，筛选最具因果关联之代表',
                 participating_citizens: '本场深度参与 AI 市民',
@@ -524,15 +552,11 @@ export const translations = {
                 confidence_interval: '95% 信赖区间',
                 next_action: '精实迭代建议 / NEXT ACTION',
                 entropy_warning: '熵值警告',
-                share_project: '分享专案结果',
-                copy_link: '已复制连结',
-                prepare_pdf: '准备 PDF 报告',
-                download_pdf: '立即下载 PDF',
-                generating_pdf: '报告生成中...',
-                pdf_failed: '失败',
+
                 open_new_sim: '执行新预演',
                 methodology_link: '📖 深入解析：我们如何运用「西方科学方法论」进行验证？',
                 methodology_title: '【未来推演】商业模式验证报告',
+                methodology_main_title: '方法论验证',
                 methodology_desc: '本报告采用「西方方法论」与「东方八字科学」',
                 dual_algo: '双轨演算法',
                 predict_win_rate: '，为您预判市场胜率。',
@@ -572,6 +596,7 @@ export const translations = {
                 'default': { title: '多元策略型', desc: '能根据不同情境调整决策模式，兼具理性与感性。' }
             },
             metrics: {
+                level: { strong: '强', mid: '中', weak: '弱' },
                 tech_electronics: {
                     label: '技术变现力',
                     subLabel: '「是用技术折服人，还是在拼价格？」越少人嫌贵，代表技术带来的溢价能力越强。',
@@ -632,6 +657,19 @@ export const translations = {
                     advice_mid: '💡 建议：覆盖率中等。若想获得更精准的预测，可以再次进行更大规模的预演。',
                     advice_low: '💡 建议：目前为免费版 (10/1,000 人)。若需扩大母数至 10,000 人或全量分析，请升级 Pro 版。'
                 }
+            },
+            copy_opt: {
+                title: 'AI 文案优化',
+                optimizing: '优化运算中...',
+                btn_start: '根据反馈优化文案',
+                btn_loading: '正在分析市民反馈...',
+                section_pain: '发现痛点 / PAIN POINTS',
+                section_advice: '优化策略 / STRATEGIC ADVICE',
+                section_copy: '实战文案 / READY-TO-USE COPY',
+                btn_retry: '重新优化',
+                alert_no_comments: '暂无市民评论，无法进行优化',
+                alert_empty: '优化结果为空，请稍后再试',
+                alert_fail: '优化失败，请检查后端日志'
             }
         }
     },
@@ -822,6 +860,15 @@ export const translations = {
                 ai_price_ref: 'AI citizens have evaluated purchase intent based on these market prices',
                 genesis_title: 'GENESIS // Sampling Logic',
                 all_citizens: 'All Citizens',
+                all_citizens_sub: '{count} AI Citizens',
+                citizens_suffix: 'AI Citizens',
+                share_project: 'Share Project',
+                copy_link: 'Link Copied',
+                prepare_pdf: 'Prepare PDF',
+                generating_pdf: 'Generating...',
+                download_pdf: 'Download PDF',
+                pdf_failed: 'Failed',
+
                 bazi_deduction: 'Bazi Logic Deduction',
                 bazi_deduction_desc: 'Selecting representative agents based on 5-Elements & 10-Gods interactions',
                 participating_citizens: 'Deeply Participating AI Citizens',
@@ -841,15 +888,11 @@ export const translations = {
                 confidence_interval: '95% Confidence Interval',
                 next_action: 'Lean Iteration / NEXT ACTION',
                 entropy_warning: 'Entropy Warning',
-                share_project: 'Share Result',
-                copy_link: 'Link Copied',
-                prepare_pdf: 'Prepare PDF',
-                download_pdf: 'Download PDF',
-                generating_pdf: 'Generating...',
-                pdf_failed: 'Failed',
+
                 open_new_sim: 'New Simulation',
                 methodology_link: '📖 Deep Dive: How we use Western Scientific Methodology?',
                 methodology_title: '[Future Deduction] Business Validation Report',
+                methodology_main_title: 'Methodology Verification',
                 methodology_desc: 'This report uses "Western Methodology" & "Eastern Bazi Science"',
                 dual_algo: 'Dual-Track Algorithm',
                 predict_win_rate: 'to predict market success rate.',
@@ -889,6 +932,7 @@ export const translations = {
                 'default': { title: 'Adaptive Strategy', desc: 'Adjusts decision model based on context, balancing rationality and emotion.' }
             },
             metrics: {
+                level: { strong: 'Strong', mid: 'Mid', weak: 'Weak' },
                 tech_electronics: {
                     label: 'Tech Monetization',
                     subLabel: '"Impressed by tech or price?" Fewer complaints about price mean higher tech premium.',
@@ -949,6 +993,19 @@ export const translations = {
                     advice_mid: '💡 Advice: Moderate coverage. Consider larger simulation for precision.',
                     advice_low: '💡 Advice: Free version limit. Upgrade to Pro for 100% analysis.'
                 }
+            },
+            copy_opt: {
+                title: 'AI Copy Optimization',
+                optimizing: 'Optimizing...',
+                btn_start: 'Refine Copy based on Feedback',
+                btn_loading: 'Analyzing citizen feedback...',
+                section_pain: 'PAIN POINTS',
+                section_advice: 'STRATEGIC ADVICE',
+                section_copy: 'READY-TO-USE COPY',
+                btn_retry: 'Try Again',
+                alert_no_comments: 'No citizen comments available for optimization.',
+                alert_empty: 'Optimization result is empty, please try again later.',
+                alert_fail: 'Optimization failed, please check backend logs.'
             }
         }
     }

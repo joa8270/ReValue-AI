@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useLanguage } from "../context/LanguageContext"
+import { translations } from "../lib/translations"
 
 interface RefineCopyPanelProps {
     simId: string
@@ -12,6 +14,8 @@ interface RefineCopyPanelProps {
 }
 
 export default function RefineCopyPanel({ simId, currentCopy, productName, arenaComments, style = "professional", sourceType = "image" }: RefineCopyPanelProps) {
+    const { language } = useLanguage()
+    const t = translations[language]
     const [isRefining, setIsRefining] = useState(false)
     const [refineResult, setRefineResult] = useState<{ pain_points: string, refined_copy: string | any, marketing_copy?: string | any } | null>(null)
 
@@ -58,7 +62,7 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
 
     const handleRefineCopy = async () => {
         if (!arenaComments || arenaComments.length === 0) {
-            alert("暫無市民評論，無法進行優化")
+            alert(t.report.copy_opt.alert_no_comments)
             return
         }
 
@@ -73,7 +77,8 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
                     current_copy: currentCopy,
                     product_name: productName,
                     style: style,
-                    source_type: sourceType
+                    source_type: sourceType,
+                    language: language
                 })
             })
 
@@ -83,11 +88,11 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
             if (result.refined_copy) {
                 setRefineResult(result)
             } else {
-                alert("優化結果為空，請稍後再試")
+                alert(t.report.copy_opt.alert_empty)
             }
         } catch (e) {
             console.error("Refine Error", e)
-            alert("優化失敗，請檢查後端日誌")
+            alert(t.report.copy_opt.alert_fail)
         } finally {
             setIsRefining(false)
         }
@@ -98,9 +103,9 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-white font-bold flex items-center gap-2">
                     <span className="material-symbols-outlined text-[#7f13ec]">auto_fix_high</span>
-                    AI 文案優化
+                    {t.report.copy_opt.title}
                 </h3>
-                {isRefining && <span className="text-xs text-[#7f13ec] animate-pulse">優化運算中...</span>}
+                {isRefining && <span className="text-xs text-[#7f13ec] animate-pulse">{t.report.copy_opt.optimizing}</span>}
             </div>
 
             {!refineResult ? (
@@ -109,18 +114,18 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
                     disabled={isRefining}
                     className="w-full py-3 bg-[#7f13ec] hover:bg-[#6b10c6] text-white rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                    {isRefining ? '正在分析市民反饋...' : '根據反饋優化文案'}
+                    {isRefining ? t.report.copy_opt.btn_loading : t.report.copy_opt.btn_start}
                 </button>
             ) : (
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
                     <div className="bg-rose-500/10 border border-rose-500/20 rounded-lg p-3">
-                        <p className="text-xs text-rose-400 font-bold mb-1">發現痛點 / PAIN POINTS</p>
-                        <p className="text-xs text-gray-300 leading-relaxed">{refineResult.pain_points}</p>
+                        <p className="text-xs text-rose-400 font-bold mb-1">{t.report.copy_opt.section_pain}</p>
+                        <p className="text-xs text-gray-300 leading-relaxed">{formatContent(refineResult.pain_points)}</p>
                     </div>
                     <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 relative group">
                         <p className="text-xs text-emerald-400 font-bold mb-1 flex items-center gap-2">
                             <span className="material-symbols-outlined text-sm">lightbulb</span>
-                            優化策略 / STRATEGIC ADVICE
+                            {t.report.copy_opt.section_advice}
                         </p>
                         <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">{formatContent(refineResult.refined_copy)}</p>
                         <button
@@ -137,7 +142,7 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
                         <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3 relative group mt-4">
                             <p className="text-xs text-purple-400 font-bold mb-1 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-sm">post_add</span>
-                                實戰文案 / READY-TO-USE COPY
+                                {t.report.copy_opt.section_copy}
                             </p>
                             <div className="relative">
                                 <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap font-medium">
@@ -157,7 +162,7 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
                         onClick={() => setRefineResult(null)}
                         className="w-full text-xs text-gray-500 hover:text-white py-2 transition-colors"
                     >
-                        重新優化
+                        {t.report.copy_opt.btn_retry}
                     </button>
                 </div>
             )}
