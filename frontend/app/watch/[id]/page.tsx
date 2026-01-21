@@ -1331,76 +1331,44 @@ export default function WatchPage() {
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-              {/* THE ARENA // 輿論競技場 - moved to first position */}
-              <div className="xl:col-span-5 space-y-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2"><div className="w-1.5 h-6 bg-cyan-400 rounded-full animate-pulse"></div><div><h2 className="text-lg font-bold text-white tracking-widest uppercase">{t('report.ui.arena_title')}</h2><p className="text-[10px] text-gray-500 font-mono">Real-time Stream of Consciousness</p></div></div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-1 rounded flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[12px]">inventory_2</span>
-                      {t('report.ui.market_linked')}
-                    </span>
-                    <span className="text-[10px] bg-[#302839] text-gray-400 px-2 py-1 rounded">{t('report.ui.live_feed')}</span>
+              {/* Column 1: THE ARENA + TACTICAL ADVICE */}
+              <div className="xl:col-span-5 space-y-6">
+                {/* THE ARENA // 輿論競技場 */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2"><div className="w-1.5 h-6 bg-cyan-400 rounded-full animate-pulse"></div><div><h2 className="text-lg font-bold text-white tracking-widest uppercase">{t('report.ui.arena_title')}</h2><p className="text-[10px] text-gray-500 font-mono">Real-time Stream of Consciousness</p></div></div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-1 rounded flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[12px]">inventory_2</span>
+                        {t('report.ui.market_linked')}
+                      </span>
+                      <span className="text-[10px] bg-[#302839] text-gray-400 px-2 py-1 rounded">{t('report.ui.live_feed')}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-4 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
-                  {data.arena_comments?.map((comment, i) => {
-                    const persona = comment.persona;
-                    const elem = elementConfig[persona.element] || elementConfig.Fire;
-                    const isPositive = comment.sentiment === 'positive';
-                    return (
-                      <div key={i} className={`group relative p-4 rounded-xl border transition-all duration-300 transform bg-[#1a1a1f] hover:translate-x-1 cursor-pointer ${isPositive ? 'border-l-4 border-l-green-500 border-[#302839]' : comment.sentiment === 'negative' ? 'border-l-4 border-l-rose-500 border-[#302839]' : 'border-l-4 border-l-gray-500 border-[#302839]'}`} onClick={() => setSelectedCitizen(enrichCitizenData(persona, t))}>
-                        <div className="flex items-start gap-3">
-                          <div className={`size-10 flex-none rounded-xl ${elem.bg} flex items-center justify-center text-xl shadow-lg group-hover:scale-110 transition-transform`}>{elem.icon}</div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center justify-between mb-1">
-                              <div className="flex items-center gap-2"><span className="text-xs font-bold text-white">{persona.name}</span><span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${elem.bg} text-white opacity-80`}>{elem.cn}</span></div>
-                              <div className="flex flex-col items-end"><span className={`text-[10px] font-bold ${isPositive ? 'text-green-400' : comment.sentiment === 'negative' ? 'text-rose-400' : 'text-gray-400'}`}>{isPositive ? 'POSITIVE' : comment.sentiment === 'negative' ? 'NEGATIVE' : 'NEUTRAL'}</span><span className="text-xs font-mono text-purple-400 mt-0.5 font-bold">{comment.score} <span className="text-[9px] text-gray-600">/ 100</span></span></div>
+                  <div className="space-y-4 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
+                    {data.arena_comments?.map((comment, i) => {
+                      const persona = comment.persona;
+                      const elem = elementConfig[persona.element] || elementConfig.Fire;
+                      const isPositive = comment.sentiment === 'positive';
+                      return (
+                        <div key={i} className={`group relative p-4 rounded-xl border transition-all duration-300 transform bg-[#1a1a1f] hover:translate-x-1 cursor-pointer ${isPositive ? 'border-l-4 border-l-green-500 border-[#302839]' : comment.sentiment === 'negative' ? 'border-l-4 border-l-rose-500 border-[#302839]' : 'border-l-4 border-l-gray-500 border-[#302839]'}`} onClick={() => setSelectedCitizen(enrichCitizenData(persona, t))}>
+                          <div className="flex items-start gap-3">
+                            <div className={`size-10 flex-none rounded-xl ${elem.bg} flex items-center justify-center text-xl shadow-lg group-hover:scale-110 transition-transform`}>{elem.icon}</div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center gap-2"><span className="text-xs font-bold text-white">{persona.name}</span><span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${elem.bg} text-white opacity-80`}>{elem.cn}</span></div>
+                                <div className="flex flex-col items-end"><span className={`text-[10px] font-bold ${isPositive ? 'text-green-400' : comment.sentiment === 'negative' ? 'text-rose-400' : 'text-gray-400'}`}>{isPositive ? 'POSITIVE' : comment.sentiment === 'negative' ? 'NEGATIVE' : 'NEUTRAL'}</span><span className="text-xs font-mono text-purple-400 mt-0.5 font-bold">{comment.score} <span className="text-[9px] text-gray-600">/ 100</span></span></div>
+                              </div>
+                              <p className="text-sm text-gray-300 leading-relaxed italic">"{comment.text}"</p>
                             </div>
-                            <p className="text-sm text-gray-300 leading-relaxed italic">"{comment.text}"</p>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
 
-              {/* GENESIS // 取樣邏輯 - moved to second position */}
-              <div className="xl:col-span-3 space-y-6 bg-[#1a1a1f] border border-[#302839] rounded-2xl p-5 flex flex-col">
-                <div className="flex items-center gap-2 mb-4"><span className="material-symbols-outlined text-[#a855f7] animate-pulse">grain</span><h3 className="text-[#a855f7] text-sm font-bold uppercase tracking-wider">{t('report.ui.genesis_title')}</h3></div>
-                <div className="flex flex-col items-center justify-center space-y-8 p-6">
-                  <Link href="/citizens" className="relative z-10 w-full text-center group cursor-pointer block p-4 rounded-xl hover:bg-white/5 transition-all duration-300">
-                    <span className="material-symbols-outlined text-4xl text-blue-400 mb-2 group-hover:text-purple-400 group-hover:scale-110 transition-all duration-300">public</span>
-                    <div className="text-3xl font-black text-white group-hover:text-purple-100 transition-colors">1,000</div>
-                    <div className="text-xs text-gray-400 font-bold mt-1 group-hover:text-white transition-colors">{t('report.ui.all_citizens')}</div>
-                    <div className="absolute inset-0 border border-purple-500/0 group-hover:border-purple-500/30 rounded-xl transition-all duration-300" />
-                  </Link>
-                  <span className="material-symbols-outlined text-gray-600 animate-bounce">keyboard_double_arrow_down</span>
-                  <div className="w-full bg-[#302839]/50 rounded-lg p-4 border border-[#7f13ec]/20 text-center"><p className="text-[#a855f7] font-bold text-sm mb-1">{t('report.ui.bazi_deduction')}</p><p className="text-[10px] text-gray-400">{t('report.ui.bazi_deduction_desc')}</p></div>
-                  <span className="material-symbols-outlined text-gray-600 animate-bounce">keyboard_double_arrow_down</span>
-                  <div className="text-center"><span className="material-symbols-outlined text-4xl text-[#7f13ec] mb-2">groups</span><div className="text-4xl font-black text-white text-glow">{data.arena_comments?.length || 0}</div><div className="text-xs text-gray-300 font-bold mt-1">{t('report.ui.participating_citizens')}</div></div>
-                </div>
-              </div>
-
-
-
-              <div className="xl:col-span-4 space-y-6">
-                {/* Safe Plugin: Refine Copy Panel */}
-                <RefineCopyPanel
-                  simId={simId}
-                  currentCopy={data.summary || ""}
-                  productName={data.simulation_metadata?.product_name || "未知產品"}
-                  arenaComments={data.arena_comments || []}
-                  style={data.simulation_metadata?.style || "professional"}
-                  sourceType={data.simulation_metadata?.source_type || "image"}
-                />
-
-                <div className="bg-black/40 border border-[#7f13ec]/20 rounded-2xl p-6 relative overflow-hidden group shadow-[0_0_30px_rgba(127,19,236,0.05)]">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#7f13ec] to-blue-500"></div>
-                  <div className="flex items-center gap-2 mb-4"><span className="material-symbols-outlined text-[#7f13ec]">auto_awesome</span><h3 className="text-xs font-bold text-[#7f13ec] tracking-[0.2em] uppercase">{t('report.ui.oracle_title')}</h3></div>
-                  <div className="font-mono text-sm leading-7 text-gray-300 min-h-[140px]">{typedSummary}<span className="inline-block w-1.5 h-4 ml-1 bg-[#7f13ec] animate-pulse align-middle"></span></div>
-                </div>
+                {/* AI 策略建議 / TACTICAL ADVICE - moved here */}
                 <div className="space-y-3">
                   <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-1">{t('report.ui.tactical_advice')}</p>
                   {data.suggestions?.slice(0, 3).map((s: any, i: number) => (
@@ -1488,9 +1456,43 @@ export default function WatchPage() {
                     </div>
                   ))}
                 </div>
+              </div>
 
+              {/* Column 2: GENESIS // 取樣邏輯 */}
+              <div className="xl:col-span-3 space-y-6 bg-[#1a1a1f] border border-[#302839] rounded-2xl p-5 flex flex-col">
+                <div className="flex items-center gap-2 mb-4"><span className="material-symbols-outlined text-[#a855f7] animate-pulse">grain</span><h3 className="text-[#a855f7] text-sm font-bold uppercase tracking-wider">{t('report.ui.genesis_title')}</h3></div>
+                <div className="flex flex-col items-center justify-center space-y-8 p-6">
+                  <Link href="/citizens" className="relative z-10 w-full text-center group cursor-pointer block p-4 rounded-xl hover:bg-white/5 transition-all duration-300">
+                    <span className="material-symbols-outlined text-4xl text-blue-400 mb-2 group-hover:text-purple-400 group-hover:scale-110 transition-all duration-300">public</span>
+                    <div className="text-3xl font-black text-white group-hover:text-purple-100 transition-colors">1,000</div>
+                    <div className="text-xs text-gray-400 font-bold mt-1 group-hover:text-white transition-colors">{t('report.ui.all_citizens')}</div>
+                    <div className="absolute inset-0 border border-purple-500/0 group-hover:border-purple-500/30 rounded-xl transition-all duration-300" />
+                  </Link>
+                  <span className="material-symbols-outlined text-gray-600 animate-bounce">keyboard_double_arrow_down</span>
+                  <div className="w-full bg-[#302839]/50 rounded-lg p-4 border border-[#7f13ec]/20 text-center"><p className="text-[#a855f7] font-bold text-sm mb-1">{t('report.ui.bazi_deduction')}</p><p className="text-[10px] text-gray-400">{t('report.ui.bazi_deduction_desc')}</p></div>
+                  <span className="material-symbols-outlined text-gray-600 animate-bounce">keyboard_double_arrow_down</span>
+                  <div className="text-center"><span className="material-symbols-outlined text-4xl text-[#7f13ec] mb-2">groups</span><div className="text-4xl font-black text-white text-glow">{data.arena_comments?.length || 0}</div><div className="text-xs text-gray-300 font-bold mt-1">{t('report.ui.participating_citizens')}</div></div>
+                </div>
+              </div>
 
+              {/* Column 3: Refine Copy Panel + Strategic Oracle */}
+              <div className="xl:col-span-4 space-y-6">
+                {/* Safe Plugin: Refine Copy Panel */}
+                <RefineCopyPanel
+                  simId={simId}
+                  currentCopy={data.summary || ""}
+                  productName={data.simulation_metadata?.product_name || "未知產品"}
+                  arenaComments={data.arena_comments || []}
+                  style={data.simulation_metadata?.style || "professional"}
+                  sourceType={data.simulation_metadata?.source_type || "image"}
+                />
 
+                {/* STRATEGIC ORACLE */}
+                <div className="bg-black/40 border border-[#7f13ec]/20 rounded-2xl p-6 relative overflow-hidden group shadow-[0_0_30px_rgba(127,19,236,0.05)]">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#7f13ec] to-blue-500"></div>
+                  <div className="flex items-center gap-2 mb-4"><span className="material-symbols-outlined text-[#7f13ec]">auto_awesome</span><h3 className="text-xs font-bold text-[#7f13ec] tracking-[0.2em] uppercase">{t('report.ui.oracle_title')}</h3></div>
+                  <div className="font-mono text-sm leading-7 text-gray-300 min-h-[140px]">{typedSummary}<span className="inline-block w-1.5 h-4 ml-1 bg-[#7f13ec] animate-pulse align-middle"></span></div>
+                </div>
               </div>
             </div>
           </div>
