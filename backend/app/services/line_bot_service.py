@@ -27,32 +27,80 @@ from app.core.database import create_simulation, update_simulation, get_simulati
 get_simulation_data = get_simulation
 
 
-def _generate_methodology_sidecar(score, summary, language="zh-TW"):
+# 📉 維度隔離手術規則 (Dimensional Isolation Protocol)
+DIMENSIONAL_ISOLATION_RULES = """
+⚠️ **重要指示：維度隔離手術 (Dimensional Isolation Protocol)**
+作為頂級 AI 策略顧問，你必須嚴格遵守以下維度邊界，禁止建議內容在不同指標間重複或模糊跨越：
+
+1. 📈 **市場潛力 (Market Potential)** —— 關鍵字：【需求與痛點】
+   - **核心思考**：Product-Market Fit (PMF)。產品現在能不能賣掉？受眾想不想要？
+   - **建議方向**：若分數低，檢討「市場定位錯誤」或「核心痛點未被滿足」；若分數高，建議「擴大流量池」或「增加預算」。
+   - **🚫 禁區**：嚴禁談論品牌故事、材質、IP 故事、收藏價值。
+
+2. 💰 **收藏價值 (Collection Value)** —— 關鍵字：【稀缺與情感】
+   - **核心思考**：資產增值與情感連結。10年後還有價值嗎？捨不捨得丟？
+   - **建議方向**：若分數低，建議「引入編號限量」、「升級材質耐久度」、「擴展 IP 宇宙」；若分數高，建議「發行 NFT 憑證」或「建立二手交易社群」。
+   - **🚫 禁區**：嚴禁談論受眾痛點、市場需求、廣告投放、PMF。
+
+3. ✅ **參與覆蓋率 (Coverage)** —— 關鍵字：【信賴度】
+   - **核心思考**：數據準不準？樣本是否具備代表性？
+   - **建議方向**：只專注於「樣本數」與「抽樣偏差」。建議「增加預演次數」或「調整受眾篩選條件」。
+"""
+
+# 🧬 ABM 演化日誌語系映射 (ABM Localization)
+ELEMENT_TRANSLATION = {
+    "zh-TW": {"Wood": "木", "Fire": "火", "Earth": "土", "Metal": "金", "Water": "水"},
+    "zh-CN": {"Wood": "木", "Fire": "火", "Earth": "土", "Metal": "金", "Water": "水"},
+    "en": {"Wood": "Wood", "Fire": "Fire", "Earth": "Earth", "Metal": "Metal", "Water": "Water"}
+}
+
+ABM_LOG_TEMPLATES = {
+    "zh-TW": {
+        "init": "初始狀態：{count} 位市民的平均購買意圖為 {score:.1f} 分",
+        "round1": "第 1 輪：{elem}行市民率先表態支持（平均 {score:.1f} 分），開始影響周圍人群",
+        "round3": "第 3 輪：社交影響力開始顯現，{count} 位市民意見發生明顯改變 (±5 分以上)",
+        "round5": "第 5 輪：意見演化趨於穩定，群體共識達成（最終平均 {score:.1f} 分）",
+        "leader": "意見領袖識別：{names} 等人成為關鍵影響者",
+        "consensus": "市場共識度高達 {val:.0f}%，意見高度一致",
+        "polarization": "市場出現兩極分化（極化度 {val:.0f}%），需關注不同族群"
+    },
+    "zh-CN": {
+        "init": "初始状态：{count} 位市民的平均购买意图为 {score:.1f} 分",
+        "round1": "第 1 轮：{elem}行市民率先表态支持（平均 {score:.1f} 分），开始影响周围人群",
+        "round3": "第 3 轮：社交影响力开始显现，{count} 位市民意见发生明显改变 (±5 分以上)",
+        "round5": "第 5 轮：意见演化趋于稳定，群体共识达成（最终平均 {score:.1f} 分）",
+        "leader": "意见领袖识别：{names} 等人成为关键影响者",
+        "consensus": "市场共识度高达 {val:.0f}%，意见高度一致",
+        "polarization": "市场出现两极分化（极化度 {val:.0f}%），需关注不同族群"
+    },
+    "en": {
+        "init": "Initial State: Average intent of {count} citizens is {score:.1f} pts",
+        "round1": "Round 1: {elem} element citizens take the lead ({score:.1f} pts), influencing others",
+        "round3": "Round 3: Social influence emerges, {count} citizens significantly changed opinions (±5 pts)",
+        "round5": "Round 5: Evolution stabilized, consensus reached (Final Avg: {score:.1f} pts)",
+        "leader": "Opinion Leaders: {names} identified as key influencers",
+        "consensus": "High market consensus at {val:.0f}%, opinions highly aligned",
+        "polarization": "Market polarization detected ({val:.0f}%), monitor different segments"
+    }
+}
+
+def _generate_methodology_sidecar(score, summary, language="zh-TW", metric_advice=None):
     """
     🧬 計算社會科學方法論外掛層 (Computational Social Science Sidecar)
     
     此函數採用 Sidecar Pattern，在不修改既有八字運算邏輯的前提下，
     為模擬結果添加「方法論驗證」與「產品迭代循環」的詮釋層。
     
-    基於：
-    - 縱向研究 (Longitudinal Study)：市場會隨時間改變，報告需有有效期
-    - 精實創業 (Lean Startup)：提供下一步迭代建議（Pivot/Scale/Persevere）
-    - 混合方法 (Mixed Methods)：量化分數 + 質性摘要
-    
     Args:
         score: 八字運算產生的購買意圖分數 (0-100)
         summary: AI 生成的分析摘要文字
         language: 語言 (zh-TW, zh-CN, en)
-    
-    Returns:
-        dict: 方法論詮釋數據包，包含有效期、信賴區間、下一步建議
+        metric_advice: 【NEW】AI 動態生成的維度隔離建議
     """
     # 1. [Lifecycle] 計算有效期 (模擬當前時間 + 28天/一個節氣)
     valid_until = (datetime.now() + timedelta(days=28)).strftime("%Y-%m-%d")
     
-    # 2. [Methodology] 計算模擬信賴區間 (95% CI)
-    # 邏輯：基於分數做微幅隨機波動，模擬統計不確定性 (這是計算社會科學的特徵)
-    # 注意：score 可能是 int 或 float，請確保運算正常
+    # 2. [Methodology] 計算模擬信賴區間
     base_score = float(score) if score is not None else 0.0
     lower = max(0, base_score - random.uniform(2.0, 4.0))
     upper = min(100, base_score + random.uniform(2.0, 4.0))
@@ -77,7 +125,6 @@ def _generate_methodology_sidecar(score, summary, language="zh-TW"):
         }
     }
     
-    # Default warning
     WARNING_DICT = {
         "zh-TW": "市場風向隨時在變，建議每月重新校準一次。",
         "zh-CN": "市场风向随时在变，建议每月重新校准一次。",
@@ -86,7 +133,7 @@ def _generate_methodology_sidecar(score, summary, language="zh-TW"):
 
     lang_key = language if language in ["zh-TW", "zh-CN", "en"] else "zh-TW"
 
-    # 3. [Iteration] 生成下一步建議 (Actionable Advice)
+    # 3. [Iteration] 生成下一步建議
     if base_score >= 80:
         advice = ADVICE_DICT["scale"][lang_key]
         next_step = {
@@ -112,16 +159,16 @@ def _generate_methodology_sidecar(score, summary, language="zh-TW"):
             "desc": advice["desc"]
         }
 
-    # 為了與前端對接，我們統一使用 "methodology_data" 作為 Key
     return {
         "framework": "雙軌演算法：行為科學 x 命理結構",
         "valid_until": valid_until,
         "entropy_warning": WARNING_DICT[lang_key],
         "confidence_interval": ci_text,
         "next_step": next_step,
-        # 將原本的摘要截取作為驅動力簡介，若無摘要則給預設值
-        "drivers_summary": (summary[:60] + "...") if summary else "Key market drivers identified via grounded theory."
+        "drivers_summary": (summary[:60] + "...") if summary else "Key market drivers identified.",
+        "metric_advice": metric_advice or {} # 【FIX】確保不為 None
     }
+
 
 
 class LineBotService:
@@ -133,6 +180,96 @@ class LineBotService:
         self.api_client = ApiClient(configuration)
         self.line_bot_api = MessagingApi(self.api_client)
         self.line_bot_blob = MessagingApiBlob(self.api_client)
+
+    async def _run_abm_simulation(self, sampled_citizens, text_context, language="zh-TW"):
+        """
+        🧬 通用 ABM 模擬執行器
+        封裝了五行判斷、社交網絡構建與動態日誌生成。
+        """
+        import random
+        from app.core.abm_engine import ABMSimulation
+        from app.services.abm_helpers import extract_price_from_context
+
+        # 1. 設置語言與映射
+        lang = language if language in ["zh-TW", "zh-CN", "en"] else "zh-TW"
+        templates = ABM_LOG_TEMPLATES[lang]
+        elem_trans = ELEMENT_TRANSLATION[lang]
+
+        # 2. 提取資訊與判斷產品五行
+        price_info = extract_price_from_context(text_context or "")
+        product_element = "Fire"
+        if text_context:
+            text_lower = text_context.lower()
+            if any(kw in text_lower for kw in ["飲料", "水", "清潔", "化妝"]): product_element = "Water"
+            elif any(kw in text_lower for kw in ["金屬", "工具", "樂器"]): product_element = "Metal"
+            elif any(kw in text_lower for kw in ["木", "書", "植物", "文具"]): product_element = "Wood"
+            elif any(kw in text_lower for kw in ["食品", "陶瓷", "土"]): product_element = "Earth"
+
+        product_info = {
+            "element": product_element,
+            "price": price_info.get("price", 100),
+            "market_price": price_info.get("market_price", 100)
+        }
+
+        # 3. 初始化 ABM
+        abm_sim = ABMSimulation(sampled_citizens, product_info)
+        abm_sim.build_social_network("element_based")
+        abm_sim.initialize_opinions()
+
+        evolution_rounds = []
+        evolution_logs = []
+
+        # 初始狀態
+        num_agents = len(abm_sim.agents)
+        initial_avg = sum(a.current_opinion for a in abm_sim.agents) / num_agents
+        evolution_rounds.append({"round": 0, "average_score": round(initial_avg, 1)})
+        evolution_logs.append(templates["init"].format(count=num_agents, score=initial_avg))
+
+        # 4. 執行迭代 (5 輪)
+        for i in range(5):
+            abm_sim.run_iterations(num_iterations=1, convergence_rate=0.3)
+            current_avg = sum(a.current_opinion for a in abm_sim.agents) / num_agents
+            evolution_rounds.append({"round": i + 1, "average_score": round(current_avg, 1)})
+
+            if i == 0:
+                element_groups = {}
+                for agent in abm_sim.agents:
+                    elem = agent.element
+                    if elem not in element_groups: element_groups[elem] = []
+                    element_groups[elem].append(agent.current_opinion)
+                element_avgs = {e: sum(ops)/len(ops) for e, ops in element_groups.items()}
+                most_pos = max(element_avgs, key=element_avgs.get)
+                evolution_logs.append(templates["round1"].format(elem=elem_trans.get(most_pos, most_pos), score=element_avgs[most_pos]))
+            elif i == 2:
+                changes = sum(1 for a in abm_sim.agents if abs(a.get_opinion_change()) > 5)
+                evolution_logs.append(templates["round3"].format(count=changes))
+            elif i == 4:
+                evolution_logs.append(templates["round5"].format(score=current_avg))
+
+        # 5. 領袖識別與突現分析
+        abm_sim.identify_opinion_leaders(top_n=5)
+        leaders = [a for a in abm_sim.agents if a.is_opinion_leader]
+        if leaders:
+            leader_names = ", ".join([a.name for a in leaders[:3]])
+            evolution_logs.append(templates["leader"].format(names=leader_names))
+
+        emergence = abm_sim.analyze_emergence()
+        if emergence['consensus'] > 0.7:
+            evolution_logs.append(templates["consensus"].format(val=emergence['consensus']*100))
+        elif emergence['polarization'] > 0.5:
+            evolution_logs.append(templates["polarization"].format(val=emergence['polarization']*100))
+
+        return {
+            "evolution_data": {
+                "rounds": [r["round"] for r in evolution_rounds],
+                "average_scores": [r["average_score"] for r in evolution_rounds],
+                "logs": evolution_logs,
+                "product_element": product_element,
+                "price_ratio": round(product_info['price'] / product_info['market_price'], 2)
+            },
+            "analytics_data": emergence,
+            "comments_data": abm_sim.get_final_comments(num_comments=10)
+        }
 
     async def handle_event(self, event):
         """
@@ -585,9 +722,9 @@ class LineBotService:
             print(f"❌ _generate_ai_descriptions 錯誤: {e}")
             session["stage"] = "waiting_for_description_choice"
 
-    async def refine_marketing_copy(self, comments: list[dict], product_name: str, price: str, original_copy: str, style: str = "professional", source_type: str = "image") -> dict:
-        """根據 AI 市民的評論（特別是負評），優化現有文案"""
-        print(f"✨ Refine Copy with Style: {style}")
+    async def refine_marketing_copy(self, comments: list[dict], product_name: str, price: str, original_copy: str, style: str = "professional", source_type: str = "image", language: str = "zh-TW") -> dict:
+        """根據 AI 市民的評論（特別是負評），優化現有文案 - 支援多語言"""
+        print(f"✨ Refine Copy with Style: {style}, Language: {language}")
         import time
         try:
             # 1. 篩選評論
@@ -607,85 +744,193 @@ class LineBotService:
             
             print(f"🔄 [RefineCopy] Analyzing {len(negative_comments)} negative and {len(positive_comments)} positive comments.")
 
-
-            # Mapping style to description
-            style_desc = {
-                "professional": "專業穩重、商務感強",
-                "friendly": "親切活潑、輕鬆有趣",
-                "luxury": "高端奢華、精緻質感",
-                "minimalist": "簡約清爽、重點突出",
-                "storytelling": "故事敘述、情境代入"
-            }.get(style, "專業穩重")
+            # === 多語言配置 ===
+            lang_configs = {
+                "zh-TW": {
+                    "style_map": {
+                        "professional": "專業穩重、商務感強",
+                        "friendly": "親切活潑、輕鬆有趣",
+                        "luxury": "高端奢華、精緻質感",
+                        "minimalist": "簡約清爽、重點突出",
+                        "storytelling": "故事敘述、情境代入"
+                    },
+                    "role": "你是一位精通市場反饋的電商文案專家，擅長撰寫可直接複製使用的產品介紹文案。",
+                    "product_label": "產品",
+                    "price_label": "價格",
+                    "style_label": "要求風格",
+                    "original_label": "原始文案",
+                    "neg_label": "市場負面反饋（需巧妙化解，但不直接提及）",
+                    "pos_label": "市場正面反饋（需保留並強化）",
+                    "task_label": "任務",
+                    "pain_task": "分析痛點：總結 3 個主要抗拒點（供內部參考，不要在文案中直接提及）。",
+                    "json_instruction": "請直接回覆 JSON 格式：",
+                    "forbidden": ["我們理解您的疑慮", "面對市場質疑", "您擔心的，我們聽見了"],
+                    "structure_intro": "文案結構規範（必須按此順序）：",
+                    "step1": "開頭：以「產品名稱」或「吸睛標題」開頭（如【產品名】或 ✨標語）",
+                    "step2": "核心賣點：用符號列點（✨/📊/🎯）介紹 3-5 個核心賣點與規格",
+                    "step3": "信任建立：簡短提及認證/數據/口碑（巧妙化解市場疑慮，但不直接提「疑慮」）",
+                    "step4": "結尾 CTA：明確行動呼籲（立即購買/限時優惠/點擊了解更多）",
+                    "word_count": "150-250 字",
+                    "short_copy_title": "實戰爆款短文案",
+                    "short_copy_desc": "撰寫 3 則適合社群平台 (IG/蝦皮/FB) 的爆款短文案，每則約 50-80 字，Emoji 豐富，語氣自然",
+                    "example_opens": [
+                        f"「【{product_name}】— 科學飲水新標準 ✨」",
+                        f"「🔬 {product_name}｜SGS 認證 × 高品質」",
+                        "「告別普通水杯，遇見專業級科技 💧」"
+                    ]
+                },
+                "zh-CN": {
+                    "style_map": {
+                        "professional": "专业稳重、商务感强",
+                        "friendly": "亲切活泼、轻松有趣",
+                        "luxury": "高端奢华、精致质感",
+                        "minimalist": "简约清爽、重点突出",
+                        "storytelling": "故事叙述、情境代入"
+                    },
+                    "role": "你是一位精通市场反馈的电商文案专家，擅长撰写可直接复制使用的产品介绍文案。",
+                    "product_label": "产品",
+                    "price_label": "价格",
+                    "style_label": "要求风格",
+                    "original_label": "原始文案",
+                    "neg_label": "市场负面反馈（需巧妙化解，但不直接提及）",
+                    "pos_label": "市场正面反馈（需保留并强化）",
+                    "task_label": "任务",
+                    "pain_task": "分析痛点：总结 3 个主要抗拒点（供内部参考，不要在文案中直接提及）。",
+                    "json_instruction": "请直接回复 JSON 格式：",
+                    "forbidden": ["我们理解您的疑虑", "面对市场质疑", "您担心的，我们听见了"],
+                    "structure_intro": "文案结构规范（必须按此顺序）：",
+                    "step1": "开头：以「产品名称」或「吸睛标题」开头（如【产品名】或 ✨标语）",
+                    "step2": "核心卖点：用符号列点（✨/📊/🎯）介绍 3-5 个核心卖点与规格",
+                    "step3": "信任建立：简短提及认证/数据/口碑（巧妙化解市场疑虑，但不直接提「疑虑」）",
+                    "step4": "结尾 CTA：明确行动呼吁（立即购买/限时优惠/点击了解更多）",
+                    "word_count": "150-250 字",
+                    "short_copy_title": "实战爆款短文案",
+                    "short_copy_desc": "撰写 3 则适合社群平台 (抖音/淘宝/小红书) 的爆款短文案，每则约 50-80 字，Emoji 丰富，语气自然",
+                    "example_opens": [
+                        f"「【{product_name}】— 科学饮水新标准 ✨」",
+                        f"「🔬 {product_name}｜权威认证 × 高品质」",
+                        "「告别普通水杯，遇见专业级科技 💧」"
+                    ]
+                },
+                "en": {
+                    "style_map": {
+                        "professional": "Professional, Business-Focused",
+                        "friendly": "Friendly, Casual & Fun",
+                        "luxury": "Luxurious, Premium Feel",
+                        "minimalist": "Minimalist, Clean & Clear",
+                        "storytelling": "Storytelling, Narrative-Driven"
+                    },
+                    "role": "You are a top-tier e-commerce copywriter specializing in ready-to-use product descriptions.",
+                    "product_label": "Product",
+                    "price_label": "Price",
+                    "style_label": "Requested Style",
+                    "original_label": "Original Copy",
+                    "neg_label": "Market Negative Feedback (address subtly, don't mention directly)",
+                    "pos_label": "Market Positive Feedback (preserve and strengthen)",
+                    "task_label": "Tasks",
+                    "pain_task": "Analyze Pain Points: Summarize 3 key objections (for internal reference, don't mention in copy).",
+                    "json_instruction": "Reply in JSON format only:",
+                    "forbidden": ["We understand your concerns", "Addressing market skepticism", "Your worries, we hear them"],
+                    "structure_intro": "Copy Structure (must follow this order):",
+                    "step1": "Opening: Start with 'Product Name' or 'Catchy Headline' (e.g., 【Product】or ✨ Tagline)",
+                    "step2": "Core Features: Use bullet points (✨/📊/🎯) to introduce 3-5 key features & specs",
+                    "step3": "Trust Building: Briefly mention certifications/data/testimonials (subtly address concerns)",
+                    "step4": "CTA: Clear call-to-action (Buy Now/Limited Offer/Learn More)",
+                    "word_count": "100-180 words",
+                    "short_copy_title": "Social Media Short Copies",
+                    "short_copy_desc": "Write 3 viral-ready posts for social platforms (IG/Amazon/FB), 40-60 words each, emoji-rich",
+                    "example_opens": [
+                        f"\"【{product_name}】— Your New Hydration Standard ✨\"",
+                        f"\"🔬 {product_name} | SGS Certified × Premium Quality\"",
+                        "\"Upgrade your daily hydration game 💧\""
+                    ]
+                }
+            }
+            
+            lc = lang_configs.get(language, lang_configs["zh-TW"])
+            style_desc = lc["style_map"].get(style, lc["style_map"]["professional"])
 
             # 2. 構建 Prompt (區分 產品 vs 商業計劃)
             if source_type == 'pdf' or source_type == 'txt':
                 # Business Plan Mode: Only Strategy
-                task_instruction = """
-                2. **優化建議 (Refined Strategy)**：
-                   - 針對商業計劃書的盲點，提出具體的修正方向與論述優化建議。
-                   - 語氣保持專業顧問風格。
+                task_instruction = f"""
+                2. **Optimization Advice / 優化建議**：
+                   - Provide specific improvement directions and refined arguments for the business plan.
+                   - Style: {style_desc}
                 """
                 json_format = """
                 {
-                    "pain_points_summary": "主要疑慮總結...",
-                    "refined_copy": "針對商業計劃的優化建議與修正論述..."
+                    "pain_points_summary": "Key concerns summary...",
+                    "refined_copy": "Optimization advice and refined arguments..."
                 }
                 """
             else:
-                # Product Mode: Universal Dynamic Adaptation Architecture
+                # Product Mode: 生成可直接使用的完整行銷文案
+                forbidden_list = "\n                   ".join([f"❌ \"{f}\"" for f in lc["forbidden"]])
+                examples_list = "\n                   ".join([f"✅ {ex}" for ex in lc["example_opens"]])
+                
                 task_instruction = f"""
-                2. **動態適配策略 (Dynamic Strategic Adaptation)**：
-                   請先執行以下 **三步驟推理**，不要直接生成文案：
+                2. **Optimized Ready-to-Use Copy / 優化後完整文案**：
+                   
+                   🎨 **Style / 文案風格要求**：「{style_desc}」
+                   You MUST write in this style throughout - word choice, tone, and sentence structure.
+                   
+                   ⚠️ **CRITICAL RULE**: Generate a **ready-to-copy-paste e-commerce product description**.
+                   
+                   **{lc["structure_intro"]}**
+                   1️⃣ {lc["step1"]}
+                   2️⃣ {lc["step2"]}
+                   3️⃣ {lc["step3"]}
+                   4️⃣ {lc["step4"]}
+                   
+                   **Word Count / 字數**：{lc["word_count"]}
+                   
+                   **ABSOLUTELY FORBIDDEN (Violation = Failure) / 絕對禁止**：
+                   {forbidden_list}
+                   ❌ Any form of "response-style" or "explanatory" opening
+                   ❌ FAQ format
+                   ❌ Multi-paragraph responses to different objections
+                   
+                   **Correct Opening Examples / 正確開頭範例**：
+                   {examples_list}
 
-                   **步驟 1：產品屬性診斷 (Product DNA Profiling)**
-                   - **購買決策者**：是「個人 (B2C)」還是「組織 (B2B)」？
-                   - **價值維度**：是「實用功能 (Functional)」還是「情感社交 (Emotional)」？
-
-                   **步驟 2：溝通策略鎖定 (Strategy Locking)**
-                   - **情境 A (大眾消費 B2C)**：若為個人享樂/低單價 -> 關鍵字：小確幸、療癒、顏值、CP值。**禁語**：企業賦能、解決方案、底層邏輯。
-                   - **情境 B (高價/房產 B2C)**：若為高單價/身份象徵 -> 關鍵字：生活風格 (Lifestyle)、稀缺性、價值、長效投資。
-                   - **情境 C (企業工具 B2B)**：若為商業工具 -> 關鍵字：ROI、效率、降本增效、競爭力。語氣：專業數據導向。
-
-                   **步驟 3：痛點轉化 (Pain Point Translation - Magic Formula)**
-                   - 被罵「沒用」-> 轉譯為 **「無用之用的情緒價值」** (例：雖然不能吃，但看著心情好)。
-                   - 被罵「太貴」-> 轉譯為 **「平均每天只需 X 元的長效投資」** (將價格除以使用天數)。
-                   - 被罵「太醜」-> 轉譯為 **「獨特醜萌美學」** 或 **「硬派實用主義」**。
-
-                3. **實戰文案 (Ready-to-Post Copy)**：
-                   - 根據上述鎖定的策略，撰寫 3 則適合該客群平台 (IG/Shopee/LinkedIn) 的爆款短文案。
-                   - **格式要求**：
-                     - 請返回正常的 JSON 陣列格式，包含 `title`, `body`, `hashtags`。
-                     - 請確保 Emoji 豐富且語氣自然。
-                   - **自我檢測 (Self-Correction)**：
-                     - 若判斷為 B2C，嚴禁出現「提升團隊效率」等 B2B 詞彙。
+                3. **{lc["short_copy_title"]}**：
+                   - Also use 「{style_desc}」 style
+                   - {lc["short_copy_desc"]}
                 """
                 json_format = """
                 {
-                    "strategy_rationale": "...",
-                    "pain_points_summary": "...",
-                    "refined_copy": "...",
+                    "strategy_rationale": "Strategy analysis...",
+                    "pain_points_summary": "3 key market concerns...",
+                    "refined_copy": "【Ready-to-copy product description, starting with product name or headline】",
                     "marketing_copy": [
-                        {"title": "...", "body": "...", "hashtags": "..."},
-                        {"title": "...", "body": "...", "hashtags": "..."}
+                        {"title": "Title 1", "body": "Body 1...", "hashtags": "#tag1 #tag2"},
+                        {"title": "Title 2", "body": "Body 2...", "hashtags": "#tag1 #tag2"},
+                        {"title": "Title 3", "body": "Body 3...", "hashtags": "#tag1 #tag2"}
                     ]
                 }
                 """
 
-            prompt = f"""你是一位精通市場反饋的文案優化專家。
-產品：{product_name} | 價格：{price}
-原始文案：{original_copy}
+            prompt = f"""{lc["role"]}
 
-【市場負面反饋】
+📦 {lc["product_label"]}：{product_name}
+💰 {lc["price_label"]}：{price}
+🎨 {lc["style_label"]}：{style_desc}
+
+【{lc["original_label"]}】
+{original_copy}
+
+【{lc["neg_label"]}】
 {neg_texts}
 
-【市場正面反饋】
+【{lc["pos_label"]}】
 {pos_texts}
 
-【任務】
-1. **分析痛點**：總結 3 個主要抗拒點。
+【{lc["task_label"]}】
+1. **{lc["pain_task"]}**
 {task_instruction}
 
-請直接回覆 JSON 格式：
+{lc["json_instruction"]}
 {json_format}
 """
 
@@ -1284,6 +1529,21 @@ Reply directly in JSON format:
             
             random.shuffle(sampled_citizens)
             
+            # 🧬 【ABM INTEGRATION】執行 Agent-Based Modeling 模擬
+            abm_evolution_data = None
+            abm_analytics = None
+            abm_comments_data = []
+            
+            try:
+                abm_res = await self._run_abm_simulation(sampled_citizens, text_context, language)
+                abm_evolution_data = abm_res["evolution_data"]
+                abm_analytics = abm_res["analytics_data"]
+                abm_comments_data = abm_res["comments_data"]
+            except Exception as e:
+                print(f"❌ [ABM] ABM模擬失敗: {e}")
+                import traceback
+                traceback.print_exc()
+            
             # 3. Prompt Construction (Safe Mode)
             try:
                 # 簡化市民資料供 prompt 使用 (防禦性訪問)
@@ -1312,7 +1572,7 @@ Reply directly in JSON format:
                 # 多語言 Prompt 模板
                 prompt_templates = {
                     "zh-TW": """
-你是 MIRRA 鏡界系統的核心 AI 策略顧問。請分析這張（或多張）產品圖片，並「扮演」以下從資料庫隨機抽取的 10 位 AI 虛擬市民，模擬他們對產品的反應。你需要提供**深度、具體、可執行**的行銷策略建議。
+你是 MIRRA 鏡界系統的核心 AI 策略顧問。請分析這張（或多張）產品圖片，我們已針對 1,000 位虛擬市民進行初步模擬，並從中「選出」以下 10 位具備代表性的 AI 市民，請模擬他們對產品的反應。你需要提供**深度、具體、可執行**的行銷策略建議。
 __PRODUCT_CONTEXT__
 📋 以下是真實市民資料（八字格局已預先計算）：
 
@@ -1325,11 +1585,22 @@ __CITIZENS_JSON__
   - **嚴禁**出現「雖然貴但我願意買」這類違背常理的評論，除非產品有極特殊的附加價值（但通常標準品沒有）。
   - 請在 Summary 中點出「價格缺乏競爭力」的問題。
 
-⚠️ **重要指示：策略建議必須非常具體且可執行**
-- 不要給出「進行 A/B 測試」這種人人都知道的泛泛建議
-- 必須根據**這個特定產品**的特點，給出**獨特、有洞察力**的行銷建議
-- 執行步驟要具體到「第一週做什麼、第一個月達成什麼、如何衡量成效」
-- 每個建議都要說明「為什麼這對這個產品特別重要」
+⚠️ **重要指示：維度隔離手術 (Dimensional Isolation Protocol)**
+作為頂級 AI 策略顧問，你必須嚴格遵守以下維度邊界，禁止建議內容在不同指標間重複或模糊跨越：
+
+1. 📈 **市場潛力 (Market Potential)** —— 關鍵字：【需求與痛點】
+   - **核心思考**：Product-Market Fit (PMF)。產品現在能不能賣掉？受眾想不想要？
+   - **建議方向**：若分數低，檢討「目標客群設定錯誤」或「核心痛點未被滿足」；若分數高，建議「擴大流量池」或「增加預算」。
+   - **🚫 禁區**：嚴禁談論包裝、材質、IP 故事、收藏價值。
+
+2. 💰 **收藏價值 (Collection Value)** —— 關鍵字：【稀缺與情感】
+   - **核心思考**：資產增值與情感連結。10年後還有價值嗎？捨不捨得丟？
+   - **建議方向**：若分數低，建議「引入編號限量」、「升級材質耐久度」、「擴展 IP 宇宙」；若分數高，建議「發行 NFT 憑證」或「建立二手交易社群」。
+   - **🚫 禁區**：嚴禁談論受眾痛點、市場需求、廣告投放、PMF。
+
+3. ✅ **參與覆蓋率 (Coverage)** —— 關鍵字：【信賴度】
+   - **核心思考**：數據準不準？樣本是否具備代表性？
+   - **建議方向**：只專注於「樣本數」與「抽樣偏差」。建議「增加預演次數」或「放寬受眾篩選條件」。
 
 🎯 請務必回傳一個**純 JSON 字串 (不要 Markdown)**，結構如下：
 {
@@ -1338,34 +1609,51 @@ __CITIZENS_JSON__
         "marketing_angle": "(極具洞察力的行銷切角，至少 20 字)",
         "bazi_analysis": "(深入分析產品屬性與五行規律的契合度，至少 50 字)"
     },
+    "metric_advice": {
+        "market_potential": "針對市場潛力的維度隔離建議 (100字以內)",
+        "collection_value": "針對收藏價值的維度隔離建議 (100字以內)",
+        "coverage": "針對覆蓋率與信賴度的建議 (100字以內)"
+    },
     "result": {
         "score": (0-100 的購買意圖分數),
-        "summary": "分析報告標題\\n\\n[解析] (深入解析產品核心價值、市場定位與潛在痛點，至少 200 字)\\n\\n[優化] (根據市民辯論與八字特徵，提出至少 3 個具體的產品優化或包裝策略，至少 200 字)\\n\\n[戰略] (給出具備「戰略神諭」特質的頂級商業建議，指明產品未來的爆發點，至少 150 字)",
+        "market_sentiment": "樂觀/偏向負面/具有潛力 (四字簡述)",
+        "summary": "分析報告標題\n\n[解析] (深入解析產品核心價值、市場定位與潛在痛點，至少 200 字)\n\n[優化] (結合 1,000 位市民的模擬預演結果，提出對此模式的重構或優化方向，至少 200 字)\n\n[戰略] (給出具備「戰略神諭」特質的頂級商業建議，指明產品未來的爆發點，至少 150 字)",
         "objections": [
-            {"reason": "質疑點 A", "percentage": 30},
-            {"reason": "質疑點 B", "percentage": 20}
+            {"reason": "質疑點 A", "percentage": 30}
         ],
         "suggestions": [
             {
-                "target": "極具體的市場細分對象（如：台北信義區 25-30 歲重度咖啡愛好者 / 特定 B2B 採購決策者）",
-                "advice": "150字以上的『戰術落地』建議。說明如何利用目前市場缺口，以及對接哪些具體平台或線下資源。嚴禁『優化廣告』這類廢話。",
+                "target": "具體受眾群 A",
+                "advice": "【寫入對受眾A的具體策略，包含戰術細節，至少 150 字，不得複製此說明文字】",
                 "element_focus": "對應五行",
-                "execution_plan": [
-                    "步驟 1：(具體第一週動作與所需資源對接)",
-                    "步驟 2：(具體第二週動作及關鍵 KPI 設定)",
-                    "步驟 3：(第 1 個月的具體擴展路徑)",
-                    "步驟 4：(第 2 個月的具體獲利/驗證目標)",
-                    "步驟 5：(長期維護與品牌護城河建立動作)"
-                ],
-                "success_metrics": "量化的具體成效指標",
-                "potential_risks": "可能遇到的真實商業挑戰與備案",
+                "execution_plan": ["步驟 1 (具體動作)", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具體指標",
+                "potential_risks": "可能遇到的挑戰與解決方案",
                 "score_improvement": "+X 分"
+            },
+            {
+                "target": "具體受眾群 B",
+                "advice": "【寫入對受眾B的具體策略，至少 150 字，內容必須與受眾A完全不同】",
+                "element_focus": "對應五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具體指標",
+                "potential_risks": "風險與備案",
+                "score_improvement": "+Y 分"
+            },
+            {
+                "target": "具體受眾群 C",
+                "advice": "【寫入對受眾C的具體策略，至少 150 字，內容必須具備獨特性】",
+                "element_focus": "對應五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具體指標",
+                "potential_risks": "風險與備案",
+                "score_improvement": "+Z 分"
             }
         ]
     },
     "comments": [
         (必須生成精確 10 則市民評論，對應上方市民名單)
-        { "citizen_id": "市民ID", "sentiment": "positive/negative/neutral", "text": "市民評論內容（繁體中文，需體現個人格局特徵，至少 40 字，禁止使用『符合我的...』這種句型）" }
+        {"citizen_id": "對應市民的 ID", "sentiment": "positive/neutral/negative", "text": "市民評論內容（繁體中文，需體現個人格局特徵，至少 40 字，禁止使用『符合我的...』這種句型）"}
     ]
 }
 
@@ -1375,9 +1663,10 @@ __CITIZENS_JSON__
 3. **禁止範例內容**：絕對不得直接複製 JSON 結構中的 placeholder 文字。
 4. **評論品質**：市民評論必須像真人說話，**嚴禁**出現模板語句。
 5. **語言**：所有內容必須使用繁體中文。
+
 """,
                     "zh-CN": """
-你是 MIRRA 境界系统的核心 AI 策略顾问。请分析这张（或多张）产品图片，并「扮演」以下从资料库随机抽取的 10 位 AI 虚拟市民，模拟他们对产品的反应。你需要提供**深度、具体、可执行**的行销策略建议。
+你是 MIRRA 境界系统的核心 AI 策略顾问。请分析这张（或多张）产品图片，我们已针对 1,000 位虚拟市民进行初步模拟，并从中「选出」以下 10 位具备代表性的 AI 市民，请模拟他们对产品的反应。你需要提供**深度、具体、可执行**的行销策略建议。
 __PRODUCT_CONTEXT__
 📋 以下是真实市民资料（八字格局已预先计算）：
 
@@ -1404,32 +1693,44 @@ __CITIZENS_JSON__
     },
     "result": {
         "score": (0-100 的购买意图分数),
-        "summary": "分析报告标题\\n\\n[解析] (深入解析产品核心价值、市场定位与潜在痛点，至少 200 字)\\n\\n[优化] (根据市民辩论与八字特征，提出至少 3 个具体的产品优化或包装策略，至少 200 字)\\n\\n[战略] (给出具备「战略神谕」特质的顶级商业建议，指明产品未来的爆发点，至少 150 字)",
+        "market_sentiment": "乐观/偏向负面/具有潜力 (四字简述)",
+        "summary": "分析报告标题\n\n[解析] (深入解析产品核心价值、市场定位与潜在痛点，至少 200 字)\n\n[优化] (结合 1,000 位市民的模拟预演结果，提出对此模式的重构或优化方向，至少 200 字)\n\n[战略] (给出具备「战略神谕」特质的顶级商业建议，指明产品未来的爆发点，至少 150 字)",
         "objections": [
-            {"reason": "质疑点 A", "percentage": 30},
-            {"reason": "质疑点 B", "percentage": 20}
+            {"reason": "质疑点 A", "percentage": 30}
         ],
         "suggestions": [
             {
-                "target": "极具体的市场细分对象",
-                "advice": "150字以上的『战术落地』建议。说明如何利用目前市场缺口，以及对接哪些具体平台或线下资源。",
+                "target": "具体市场细分对象 1",
+                "advice": "150字以上的具体『战术落地』建议...",
                 "element_focus": "对应五行",
-                "execution_plan": [
-                    "步骤 1：(具体第一周动作与所需资源对接)",
-                    "步骤 2：(具体第二周动作及关键 KPI 设定)",
-                    "步骤 3：(第 1 个月的具体扩展路径)",
-                    "步骤 4：(第 2 个月的具体获利/验证目标)",
-                    "步骤 5：(长期维护与品牌护城河建立动作)"
-                ],
-                "success_metrics": "量化的具体成效指标",
-                "potential_risks": "可能遇到的真实商业挑战与备案",
+                "execution_plan": ["步骤 1", "步骤 2", "步骤 3", "步骤 4", "步骤 5"],
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战与备案",
                 "score_improvement": "+X 分"
+            },
+            {
+                "target": "具体市场细分对象 2",
+                "advice": "150字以上的具体『战术落地』建议...",
+                "element_focus": "对应五行",
+                "execution_plan": ["步骤 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战与备案",
+                "score_improvement": "+Y 分"
+            },
+            {
+                "target": "具体市场细分对象 3",
+                "advice": "150字以上的具体『战术落地』建议...",
+                "element_focus": "对应五行",
+                "execution_plan": ["步骤 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战与备案",
+                "score_improvement": "+Z 分"
             }
         ]
     },
     "comments": [
-        (必须生成精确 10 则市民评论，对应上方市民名单)
-        { "citizen_id": "市民ID", "sentiment": "positive/negative/neutral", "text": "市民评论内容（简体中文，需体现个人格局特征，至少 40 字，禁止使用『符合我的...』这种句型）" }
+        (必須生成精確 10 则市民评论，对应上方市民名单)
+        {"citizen_id": "对应市民的 ID", "sentiment": "positive/neutral/negative", "text": "市民评论内容（简体中文，需体现个人格局特征，至少 40 字，禁止使用『符合我的...』这种句型）"}
     ]
 }
 
@@ -1441,7 +1742,7 @@ __CITIZENS_JSON__
 5. **语言**：所有内容必须使用简体中文。
 """,
                     "en": """
-You are the Core AI Strategic Advisor of the MIRRA system. Please analyze the product image(s) and "roleplay" the following 10 AI virtual citizens sampled from the database, simulating their reactions to the product. You need to provide **in-depth, specific, and actionable** marketing strategy advice.
+You are the Core AI Strategic Advisor of the MIRRA system. Based on a preliminary simulation of 1,000 virtual citizens, we have "selected" the following 10 representative AI citizens. Please analyze the product image(s) and simulate their reactions. You need to provide **in-depth, specific, and actionable** marketing strategy advice.
 __PRODUCT_CONTEXT__
 📋 Virtual Citizen Profiles (Bazi structures pre-calculated):
 
@@ -1467,32 +1768,45 @@ __CITIZENS_JSON__
         "bazi_analysis": "(Deep analysis of product attributes vs Bazi elements, at least 50 words)"
     },
     "result": {
-        "score": (0-100 Purchase Intention Score),
-        "summary": "Report Title\\n\\n[Analysis] (Deep analysis of value, positioning, pain points, >200 words)\\n\\n[Optimization] (3 concrete optimization strategies based on debate/Bazi, >200 words)\\n\\n[Strategy] (Top-tier business advice, 'Strategic Oracle' style, >150 words)",
+        "score": (0-100),
+        "market_sentiment": "Optimistic/Cautious/Potential (Short phrase)",
+        "summary": "Report Title\n\n[Analysis] (Deep analysis of value, positioning, pain points, >200 words)\n\n[Optimization] (Based on the simulation results of 1,000 citizens, propose reconstruction or optimization directions, >200 words)\n\n[Strategy] (Top-tier business advice, 'Strategic Oracle' style, >150 words)",
         "objections": [
             {"reason": "Objection A", "percentage": 30}
         ],
         "suggestions": [
             {
-                "target": "Specific segment (e.g. Taipei District X, 25-30yo coffee lovers)",
-                "advice": ">150 words tactical advice. How to exploit market gaps, specific platforms/resources.",
-                "element_focus": "Corresponding Element",
-                "execution_plan": [
-                    "Step 1: (Week 1 specific actions)",
-                    "Step 2: (Week 2 actions & KPIs)",
-                    "Step 3: (Month 1 expansion path)",
-                    "Step 4: (Month 2 profit/validation goal)",
-                    "Step 5: (Long-term moat building)"
-                ],
-                "success_metrics": "Quantifiable metrics",
-                "potential_risks": "Real business challenges & backups",
+                "target": "Specific segment A",
+                "advice": "[WRITE_DETAILED_STRATEGY_FOR_A_MIN_150_WORDS_DO_NOT_COPY_THIS]",
+                "element_focus": "Specific Element",
+                "execution_plan": ["Step 1 (Specific Action)", "Step 2", "Step 3", "Step 4", "Step 5"],
+                "success_metrics": "KPIs",
+                "potential_risks": "Risks & Mitigations",
                 "score_improvement": "+X points"
+            },
+            {
+                "target": "Specific segment B",
+                "advice": "[WRITE_DETAILED_STRATEGY_FOR_B_MUST_BE_DIFFERENT_FROM_A]",
+                "element_focus": "Specific Element",
+                "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+                "success_metrics": "KPIs",
+                "potential_risks": "Risks & Mitigations",
+                "score_improvement": "+Y points"
+            },
+            {
+                "target": "Specific segment C",
+                "advice": "[WRITE_DETAILED_STRATEGY_FOR_C_UNIQUE_INSIGHTS]",
+                "element_focus": "Specific Element",
+                "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+                "success_metrics": "KPIs",
+                "potential_risks": "Risks & Mitigations",
+                "score_improvement": "+Z points"
             }
         ]
     },
     "comments": [
-        (Must generate exactly 10 comments matching the citizen list above)
-        { "citizen_id": "CitizenID", "sentiment": "positive/negative/neutral", "text": "Citizen comment (English, reflecting Bazi traits, >40 words, DO NOT start with 'Matching my...')" }
+        (Must generate exactly 10 citizen comments, corresponding to the citizen list above)
+        {"citizen_id": "CitizenID", "sentiment": "positive/negative/neutral", "text": "Citizen comment (in English, reflecting personal Bazi traits, at least 40 words, avoid using 'meets my needs...' type phrases)"}
     ]
 }
 
@@ -1500,7 +1814,7 @@ __CITIZENS_JSON__
 1. **Strategic Depth**: Summary sections must be deep and >500 words total.
 2. **Actionable**: Suggestion steps must be immediately executable.
 3. **No Placeholders**: Do not copy placeholder text.
-4. **Comment Quality**: Comments must sound natural.
+4. **Comment Quality**: Comments must sound natural, **strictly avoid** template phrases.
 5. **Language**: All content must be in English.
 """
                 }
@@ -1528,7 +1842,8 @@ __CITIZENS_JSON__
             with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] [TIME:{ts_start}] Calling Gemini REST API with {len(image_parts)} images...\n")
             
             # Pass image_parts instead of single image_b64
-            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, image_parts=image_parts)
+            # 增加 timeout 到 180 秒，讓 AI 有足夠時間生成詳細評論
+            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, image_parts=image_parts, timeout=180)
             
             ts_end = datetime.datetime.now().isoformat()
             with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] [TIME:{ts_end}] Gemini Returned. Duration check needed.\n")
@@ -1563,18 +1878,32 @@ __CITIZENS_JSON__
             
             # --- 1. QUALITY FILTER FIRST (Before Fallback) ---
             # Filter out lazy/hallucinated comments from Gemini matchers
+            # 加強過濾條件：要求至少 40 字且排除更多罐頭回覆
             filtered_comments = []
+            forbidden_phrases = [
+                "符合我的", "看起來不錯", "值得購買", "值得买", "看起来不错",
+                "符合我的需求", "非常喜歡", "非常喜欢", "好產品", "好产品",
+                "推薦購買", "推荐购买", "挺好的", "蠻好的", "還不錯", "还不错",
+                "looks good", "worth buying", "meets my needs", "highly recommend"
+            ]
             for c in gemini_comments:
                 if not isinstance(c, dict): continue
                 text = c.get("text", "")
-                # Forbidden phrases that indicate lazy AI generation
-                if "符合我的" in text or "看起來不錯" in text or len(text) < 10:
+                # 過濾條件：
+                # 1. 長度必須至少 40 字（原本是 10 字）
+                # 2. 不包含任何罐頭回覆關鍵字
+                if len(text) < 40:
+                    logger.warning(f"[FILTER] Comment too short ({len(text)} chars): {text[:30]}...")
+                    continue
+                if any(phrase in text for phrase in forbidden_phrases):
+                    logger.warning(f"[FILTER] Forbidden phrase detected: {text[:30]}...")
                     continue
                 filtered_comments.append(c)
             gemini_comments = filtered_comments
+            logger.info(f"[{sim_id}] After quality filter: {len(gemini_comments)} comments passed")
             
-            # --- 2. FALLBACK MECHANISM (Fill up to 8) ---
-            if len(gemini_comments) < 8:
+            # --- 2. FALLBACK MECHANISM (Fill up to 10) ---
+            if len(gemini_comments) < 10:
                  logger.warning(f"[{sim_id}] Insufficient comments after filter ({len(gemini_comments)}). Generating fallback.")
                  fallback_comments = list(gemini_comments) # Copy
                  already_ids = {str(c.get("citizen_id")) for c in fallback_comments}
@@ -1618,7 +1947,7 @@ __CITIZENS_JSON__
                  fallback_templates = fallback_templates_map.get(language, fallback_templates_map["zh-TW"])
 
                  for c in sampled_citizens: 
-                      if len(fallback_comments) >= 8: break
+                      if len(fallback_comments) >= 10: break
                       cid = str(c["id"])
                       if cid in already_ids: continue
                       
@@ -1771,12 +2100,32 @@ __CITIZENS_JSON__
                 "suggestions": data.get("result", {}).get("suggestions", [])
             }
             
+            
             # 🧬 [Sidecar] 追加計算社會科學方法論詮釋層
             methodology_sidecar = _generate_methodology_sidecar(
                 score=result_data.get("score"),
                 summary=result_data.get("summary"),
-                language=language
+                language=language, metric_advice=data.get("metric_advice")
             )
+            
+            # 🧬 【ABM EVOLUTION】添加演化數據到methodology_data
+            if abm_evolution_data:
+                methodology_sidecar["abm_evolution"] = abm_evolution_data
+                print(f"✅ [ABM] Evolution數據已添加到methodology_data")
+            
+            # 🧬 【ABM ANALYTICS】添加突現行為分析指標
+            if abm_analytics:
+                methodology_sidecar["abm_analytics"] = {
+                    "consensus": round(abm_analytics.get("consensus", 0), 3),
+                    "polarization": round(abm_analytics.get("polarization", 0), 3),
+                    "herding_strength": round(abm_analytics.get("herding_strength", 0), 2),
+                    "network_density": round(abm_analytics.get("network_density", 0), 3),
+                    "element_preferences": {
+                        k: round(v, 1) for k, v in abm_analytics.get("element_preferences", {}).items()
+                    }
+                }
+                print(f"✅ [ABM] Analytics數據已添加到methodology_data")
+            
             result_data["methodology_data"] = methodology_sidecar
             
             with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Final Result Data written. Keys: {list(result_data.keys())}\n")
@@ -1809,6 +2158,7 @@ __CITIZENS_JSON__
             
             # 2. 從資料庫隨機抽取市民
             from fastapi.concurrency import run_in_threadpool
+            # [Fix] 使用 run_in_threadpool 抽樣 30 位市民，從中精選 10 位生成評論
             sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30)
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Got citizens: {len(sampled_citizens)}\n")
             
@@ -1831,9 +2181,7 @@ __CITIZENS_JSON__
             
             # 3. Prompt (Default to zh-TW base)
             prompt_base_tw = f"""
-你是 MIRRA 鏡界系統的核心 AI 策略顧問。你正在審閱一份商業計劃書 PDF，並需要提供**深度、具體、可執行**的策略建議。
-
-請讓以下從資料庫隨機抽取的 10 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
+你是 MIRRA 鏡界系統的核心 AI 策略顧問。你正在審閱一份商業計劃書 PDF，並需要提供**深度、具體、可執行**的策略建議。我們已針對 1,000 位虛擬市民進行初步模擬，並從中「選出」以下 10 位具備代表性的 AI 市民，請模擬他們對這份計劃書的反應。
 
 📋 以下是真實市民資料（八字格局已預先計算）：
 
@@ -1869,22 +2217,38 @@ __CITIZENS_JSON__
     ],
     "result": {{
         "score": (0-100),
-        "summary": "分析報告標題\n\n[解析] (深入解析產品核心價值、市場缺口與設計初衷，至少 200 字)\n\n[優化] (結合 30 位市民的激烈辯論，提出對此模式的重構或優化方向，至少 200 字)\n\n[戰略] (給出具備戰略高度的改進意見，指引其爆發，至少 150 字)",
+        "summary": "分析報告標題\n\n[解析] (深入解析產品核心價值、市場缺口與設計初衷，至少 200 字)\n\n[優化] (結合 1,000 位市民的模擬預演結果，提出對此模式的重構或優化方向，至少 200 字)\n\n[戰略] (給出具備戰略高度的改進意見，指引其爆發，至少 150 字)",
         "objections": [
             {{"reason": "...", "percentage": 30}}
         ],
         "suggestions": [
             {{
-                "target": "具體市場細分對象",
-                "advice": "150字以上的具體『戰術落地』建議...",
+                "target": "具體市場細分對象 1",
+                "advice": "【針對受眾 A 寫入具體戰術細節，至少 150 字，不得複製此指令文字】",
                 "element_focus": "五行",
                 "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
                 "success_metrics": "具體指標",
                 "potential_risks": "挑戰與對策",
                 "score_improvement": "+X 分"
             }},
-            {{ "target": "群眾2", "advice": "150字以上的落地建議..." }},
-            {{ "target": "群眾3", "advice": "150字以上的落地建議..." }}
+            {{
+                "target": "具體市場細分對象 2",
+                "advice": "【針對受眾 A 寫入具體戰術細節，至少 150 字，不得複製此指令文字】",
+                "element_focus": "五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具體指標",
+                "potential_risks": "挑戰與對策",
+                "score_improvement": "+Y 分"
+            }},
+            {{
+                "target": "具體市場細分對象 3",
+                "advice": "【針對受眾 A 寫入具體戰術細節，至少 150 字，不得複製此指令文字】",
+                "element_focus": "五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具體指標",
+                "potential_risks": "挑戰與對策",
+                "score_improvement": "+Z 分"
+            }}
         ]
     }}
 }}
@@ -1897,16 +2261,15 @@ __CITIZENS_JSON__
 📌 重要規則：
 1. 這是商業計劃書分析，請聚焦於「商業可行性」、「獲利模式」與「市場痛點」
 2. arena_comments 請生成投資者/創業者角度的評論，必須引用計劃書具體內容
-3. **suggestions 必須非常具體**：每個建議100字以上，執行計劃5個步驟含時間表，不要泛泛而談
-4. 禁止使用「進行 A/B 測試」、「優化行銷文案」這類通用建議，必須針對這個特定商業模式給出獨特見解
+3. **評論品質**：每則評論必須至少 40 字，嚴禁使用模板化語句（如「符合我的需求」），必須體現市民個人格局。
+4. **suggestions 必須非常具體**：每個建議150字以上，執行計劃5個步驟含時間表，不要泛泛而談
+5. 禁止使用「進行 A/B 測試」、「優化行銷文案」這類通用建議，必須針對這個特定商業模式給出獨特見解
 """
 
             # --- Multi-language Prompt Logic ---
             if language == "en":
                 prompt_text = f"""
-You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a Business Plan PDF and need to provide **in-depth, specific, and actionable** strategic advice.
-
-Please let the following 10 AI virtual citizens sampled from the database engage in a fierce debate regarding the "Business Feasibility", "Revenue Model", and "Market Pain Points" of this business plan.
+You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a Business Plan PDF and need to provide **in-depth, specific, and actionable** strategic advice. Based on a preliminary simulation of 1,000 virtual citizens, we have "selected" the following 10 representative AI citizens to engage in a fierce debate regarding the "Business Feasibility", "Revenue Model", and "Market Pain Points" of this business plan.
 
 📋 Virtual Citizen Profiles (Bazi structures pre-calculated):
 
@@ -1942,19 +2305,37 @@ Please let the following 10 AI virtual citizens sampled from the database engage
     ],
     "result": {{
         "score": (0-100),
-        "summary": "Report Title\\n\\n[Analysis] (Deep analysis of core value, market gap, and design intent, >200 words)\\n\\n[Optimization] (Based on the fierce debate of 30 citizens, propose reconstruction or optimization directions, >200 words)\\n\\n[Strategy] (Provide high-level strategic improvements to guide explosion, >150 words)",
+        "summary": "Report Title\\n\\n[Analysis] (Deep analysis of core value, market gap, and design intent, >200 words)\\n\\n[Optimization] (Based on the simulation results of 1,000 citizens, propose reconstruction or optimization directions, >200 words)\\n\\n[Strategy] (Provide high-level strategic improvements to guide explosion, >150 words)",
         "objections": [
             {{"reason": "...", "percentage": 30}}
         ],
         "suggestions": [
             {{
-                "target": "Specific Market Segment",
+                "target": "Specific Market Segment 1",
                 "advice": ">150 words specific 'Tactical Landing' advice...",
                 "element_focus": "Element",
                 "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
                 "success_metrics": "Specific Metrics",
                 "potential_risks": "Challenges & Countermeasures",
                 "score_improvement": "+X points"
+            }},
+            {{
+                "target": "Specific Market Segment 2",
+                "advice": ">150 words specific 'Tactical Landing' advice...",
+                "element_focus": "Element",
+                "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+                "success_metrics": "Specific Metrics",
+                "potential_risks": "Challenges & Countermeasures",
+                "score_improvement": "+Y points"
+            }},
+            {{
+                "target": "Specific Market Segment 3",
+                "advice": ">150 words specific 'Tactical Landing' advice...",
+                "element_focus": "Element",
+                "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+                "success_metrics": "Specific Metrics",
+                "potential_risks": "Challenges & Countermeasures",
+                "score_improvement": "+Z points"
             }}
         ]
     }}
@@ -1963,16 +2344,15 @@ Please let the following 10 AI virtual citizens sampled from the database engage
 📌 Important Rules:
 1. **Analysis Depth**: Summary must strictly follow [Analysis], [Optimization], [Strategy] format, >500 words total.
 2. **Actionable**: Suggestions must be concrete and execution plans must have high implementation value.
-3. **No Placeholders**: Do not copy placeholder text.
-4. **Context**: This is a business plan analysis, focus on "Feasibility", "Revenue Model", and "Pain Points".
-5. **Comments**: Generate investor/entrepreneur perspective comments, quoting specific plan details.
-6. **Language**: All content must be in English.
+3. **Comment Quality**: Each comment must be at least 40 words, strictly avoid template phrases (e.g., "meets my needs"), and must reflect the citizen's personal Bazi traits.
+4. **No Placeholders**: Do not copy placeholder text.
+5. **Context**: This is a business plan analysis, focus on "Feasibility", "Revenue Model", and "Pain Points".
+6. **Comments**: Generate investor/entrepreneur perspective comments, quoting specific plan details.
+7. **Language**: All content must be in English.
 """
             elif language == "zh-CN":
                 prompt_text = f"""
-你是 MIRRA 境界系统的核心 AI 策略顾问。你正在审阅一份商业计划书 PDF，并需要提供**深度、具体、可执行**的策略建议。
-
-请让以下从资料库随机抽取的 10 位 AI 虚拟市民，针对这份商业计划书进行「商业可行性」、「获利模式」与「市场痛点」的激烈辩论。
+你是 MIRRA 境界系统的核心 AI 策略顾问。你正在审阅一份商业计划书 PDF，并需要提供**深度、具体、可执行**的策略建议。我们已针对 1,000 位虚拟市民进行初步模拟，并从中「选出」以下 10 位具备代表性的 AI 市民，请模拟他们对这份计划书的反应。
 
 📋 以下是真实市民资料（八字格局已预先计算）：
 
@@ -2008,25 +2388,43 @@ Please let the following 10 AI virtual citizens sampled from the database engage
     ],
     "result": {{
         "score": (0-100),
-        "summary": "分析报告标题\\n\\n[解析] (深入解析产品核心价值、市场缺口与设计初衷，至少 200 字)\\n\\n[优化] (结合 30 位市民的激烈辩论，提出对此模式的重构或优化方向，至少 200 字)\\n\\n[战略] (给出具备战略高度的改进意见，指引其爆发，至少 150 字)",
+        "summary": "分析报告标题\\n\\n[解析] (深入解析产品核心价值、市场缺口与设计初衷，至少 200 字)\\n\\n[优化] (结合 1,000 位市民的模拟预演结果，提出对此模式的重构或优化方向，至少 200 字)\\n\\n[战略] (给出具备战略高度的改进意见，指引其爆发，至少 150 字)",
         "objections": [
             {{"reason": "...", "percentage": 30}}
         ],
         "suggestions": [
             {{
-                "target": "具体市场细分对象",
+                "target": "具体市场细分对象 1",
                 "advice": "150字以上的具体『战术落地』建议...",
-                "element_focus": "五行",
+                "element_focus": "对应五行",
                 "execution_plan": ["步骤 1", "步骤 2", "步骤 3", "步骤 4", "步骤 5"],
-                "success_metrics": "具体指标",
-                "potential_risks": "挑战与对策",
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战与备案",
                 "score_improvement": "+X 分"
+            }},
+            {{
+                "target": "具体市场细分对象 2",
+                "advice": "150字以上的具体『战术落地』建议...",
+                "element_focus": "对应五行",
+                "execution_plan": ["步骤 1", "步骤 2", "步骤 3", "步骤 4", "步骤 5"],
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战与备案",
+                "score_improvement": "+Y 分"
+            }},
+            {{
+                "target": "具体市场细分对象 3",
+                "advice": "150字以上的具体『战术落地』建议...",
+                "element_focus": "对应五行",
+                "execution_plan": ["步骤 1", "步骤 2", "步骤 3", "步骤 4", "步骤 5"],
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战与备案",
+                "score_improvement": "+Z 分"
             }}
         ]
     }}
 }}
 
-📌 重要规则：
+📌 重要規則：
 1. **分析深度**：summary 必须严格遵守 [解析]、[优化]、[战略] 三段式，总字数 500 字以上。
 2. **落地性**：三个建议 suggestions 必须完全不同，且 execution_plan 具备极高执行价值。
 3. **禁止范例内容**：绝对不得直接复制 JSON 结构中的 placeholder 文字。
@@ -2062,6 +2460,52 @@ Please let the following 10 AI virtual citizens sampled from the database engage
             genesis_data = data.get("genesis", {})
             personas = genesis_data.get("personas", [])
             
+            # --- 1. QUALITY FILTER FIRST (Sync with Image Flow) ---
+            raw_arena_comments = data.get("arena_comments", [])
+            filtered_comments = []
+            forbidden_phrases = [
+                "符合我的", "看起來不錯", "值得購買", "值得买", "看起来不错",
+                "符合我的需求", "非常喜歡", "非常喜欢", "好產品", "好产品",
+                "推薦購買", "推荐购买", "挺好的", "蠻好的", "還不錯", "还不错",
+                "looks good", "worth buying", "meets my needs", "highly recommend"
+            ]
+            for c in raw_arena_comments:
+                if not isinstance(c, dict): continue
+                text = c.get("text", "")
+                if len(text) < 40: continue
+                if any(phrase in text for phrase in forbidden_phrases): continue
+                filtered_comments.append(c)
+            
+            # --- 2. FALLBACK MECHANISM (Fill up to 10) ---
+            if len(filtered_comments) < 10:
+                logger.warning(f"[{sim_id}] PDF Analysis: Insufficient comments ({len(filtered_comments)}). Filling fallback.")
+                already_names = {c.get("persona", {}).get("name") for c in filtered_comments if c.get("persona")}
+                
+                fallback_templates_map = {
+                    "zh-TW": ["身為投資分析的角度看，這份計劃書在{pattern}層面很有潛力，但{element}行的考量不可少。", "作為創業者，我覺得獲利模式還能再優化，特別是針對{age}歲客群的切入點。"],
+                    "zh-CN": ["身为投资分析的角度看，这份计划书在{pattern}层面很有潜力，但{element}行的考量不可少。", "作为创业者，我觉得获利模式还能再优化，特别是针对{age}岁客群的切入点。"],
+                    "en": ["From an investment perspective, this plan has potential in {pattern}, but needs {element} consideration.", "As an entrepreneur, the revenue model needs optimization for the {age} age group."]
+                }
+                templates = fallback_templates_map.get(language, fallback_templates_map["zh-TW"])
+                
+                for citizen in sampled_citizens:
+                    if len(filtered_comments) >= 10: break
+                    if citizen["name"] in already_names: continue
+                    
+                    bazi = citizen.get("bazi_profile", {})
+                    text = random.choice(templates).format(
+                        pattern=bazi.get("structure", "市場"),
+                        element=bazi.get("element", "五行"),
+                        age=citizen.get("age", 30)
+                    )
+                    filtered_comments.append({
+                        "sentiment": "neutral",
+                        "text": text,
+                        "persona": {"name": citizen["name"]} # Temporary persona for matching
+                    })
+            arena_comments = filtered_comments
+            # -----------------------------------------------
+
             # 補充 arena_comments 中每個 persona 的完整八字資料
             import random
             arena_comments = data.get("arena_comments", [])
@@ -2186,12 +2630,29 @@ Please let the following 10 AI virtual citizens sampled from the database engage
                 "suggestions": data.get("result", {}).get("suggestions", [])
             }
             
+            # 🧬 【ABM INTEGRATION】執行 Agent-Based Modeling 模擬
+            try:
+                abm_res = await self._run_abm_simulation(sampled_citizens, None, language)
+                abm_evolution_data = abm_res["evolution_data"]
+                abm_analytics = abm_res["analytics_data"]
+            except Exception as e:
+                logger.error(f"[{sim_id}] ABM Simulation Failed: {e}")
+                abm_evolution_data = None
+                abm_analytics = None
+
             # 🧬 [Sidecar] 追加計算社會科學方法論詮釋層
             methodology_sidecar = _generate_methodology_sidecar(
                 score=result_data.get("score"),
                 summary=result_data.get("summary"),
-                language=language
+                language=language, metric_advice=data.get("metric_advice")
             )
+
+            # 🧬 【ABM EVOLUTION】添加演化數據
+            if abm_evolution_data:
+                methodology_sidecar["abm_evolution"] = abm_evolution_data
+            if abm_analytics:
+                methodology_sidecar["abm_analytics"] = abm_analytics
+
             result_data["methodology_data"] = methodology_sidecar
             
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Updating DB (PDF)...\n")
@@ -2212,6 +2673,7 @@ Please let the following 10 AI virtual citizens sampled from the database engage
             print(f"[Core TEXT] Starting text analysis for {sim_id}, source: {source_type}")
             
             # 1. 從資料庫隨機抽取市民
+            # [Fix] 抽樣 30 位市民，從中精選 10 位生成評論
             sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30)
             print(f"[Core TEXT] Sampled {len(sampled_citizens)} citizens")
             
@@ -2240,7 +2702,7 @@ Please let the following 10 AI virtual citizens sampled from the database engage
 {text_content[:8000]}  
 ---
 
-請讓以下從資料庫隨機抽取的 10 位 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
+請讓以下從 1,000 位虛擬市民中選出的 10 位具備代表性的 AI 虛擬市民，針對這份商業計劃書進行「商業可行性」、「獲利模式」與「市場痛點」的激烈辯論。
 
 📋 以下是真實市民資料（八字格局已預先計算）：
 
@@ -2276,22 +2738,38 @@ Please let the following 10 AI virtual citizens sampled from the database engage
     ],
     "result": {{
         "score": (0-100),
-        "summary": "分析報告標題\n\n[解析] (深入解析產品核心價值、市場缺口與設計初衷，至少 200 字)\n\n[優化] (結合 30 位市民的激烈辯論，提出對此模式的重構或優化方向，至少 200 字)\n\n[戰略] (給出具備戰略高度的改進意見，指引其爆發，至少 150 字)",
+        "summary": "分析報告標題\n\n[解析] (深入解析產品核心價值、市場缺口與設計初衷，至少 200 字)\n\n[優化] (結合 1,000 位市民的模擬預演結果，提出對此模式的重構或優化方向，至少 200 字)\n\n[戰略] (給出具備戰略高度的改進意見，指引其爆發，至少 150 字)",
         "objections": [
             {{"reason": "...", "percentage": 30}}
         ],
         "suggestions": [
             {{
-                "target": "具體市場細分對象",
-                "advice": "150字以上的具體『戰術落地』建議...",
+                "target": "具體市場細分對象 1",
+                "advice": "【針對受眾 A 寫入具體戰術細節，至少 150 字，不得複製此指令文字】",
                 "element_focus": "五行",
                 "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
                 "success_metrics": "具體指標",
                 "potential_risks": "挑戰與對策",
                 "score_improvement": "+X 分"
             }},
-            {{ "target": "群眾2", "advice": "150字以上的落地建議..." }},
-            {{ "target": "群眾3", "advice": "150字以上的落地建議..." }}
+            {{
+                "target": "具體市場細分對象 2",
+                "advice": "【針對受眾 A 寫入具體戰術細節，至少 150 字，不得複製此指令文字】",
+                "element_focus": "五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具體指標",
+                "potential_risks": "挑戰與對策",
+                "score_improvement": "+Y 分"
+            }},
+            {{
+                "target": "具體市場細分對象 3",
+                "advice": "【針對受眾 A 寫入具體戰術細節，至少 150 字，不得複製此指令文字】",
+                "element_focus": "五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具體指標",
+                "potential_risks": "挑戰與對策",
+                "score_improvement": "+Z 分"
+            }}
         ]
     }}
 }}
@@ -2299,7 +2777,8 @@ Please let the following 10 AI virtual citizens sampled from the database engage
 📌 重要規則：
 1. **分析深度**：summary 必須嚴格遵守 [解析]、[優化]、[戰略] 三段式，總字數 500 字以上。
 2. **落地性**：三個建議 suggestions 必須完全不同，且 execution_plan 具備極高執行價值。
-3. **禁止範例內容**：絕對不得直接複製 JSON 結構中的 placeholder 文字。
+3. **評論品質**：每則評論必須至少 40 字，嚴禁使用模板化語句（如「符合我的需求」），必須體現市民個人格局。
+4. **禁止範例內容**：絕對不得直接複製 JSON 結構中的 placeholder 文字。
 """
 
             # --- Multi-language Prompt Logic ---
@@ -2312,7 +2791,7 @@ Here is the document content:
 {text_content[:8000]}
 ---
 
-Please let the following 10 AI virtual citizens sampled from the database engage in a fierce debate regarding the "Business Feasibility", "Revenue Model", and "Market Pain Points" of this business plan.
+Please let the following 10 representative AI virtual citizens, selected from a simulation of 1,000 citizens, engage in a fierce debate regarding the "Business Feasibility", "Revenue Model", and "Market Pain Points" of this business plan.
 
 📋 Virtual Citizen Profiles (Bazi structures pre-calculated):
 
@@ -2348,19 +2827,37 @@ Please let the following 10 AI virtual citizens sampled from the database engage
     ],
     "result": {{
         "score": (0-100),
-        "summary": "Report Title\\n\\n[Analysis] (Deep analysis of core value, market gap, and design intent, >200 words)\\n\\n[Optimization] (Based on the fierce debate of 30 citizens, propose reconstruction or optimization directions, >200 words)\\n\\n[Strategy] (Provide high-level strategic improvements to guide explosion, >150 words)",
+        "summary": "Report Title\\n\\n[Analysis] (Deep analysis of core value, market gap, and design intent, >200 words)\\n\\n[Optimization] (Based on the simulation results of 1,000 citizens, propose reconstruction or optimization directions, >200 words)\\n\\n[Strategy] (Provide high-level strategic improvements to guide explosion, >150 words)",
         "objections": [
             {{"reason": "...", "percentage": 30}}
         ],
         "suggestions": [
             {{
-                "target": "Specific Market Segment",
+                "target": "Specific Market Segment 1",
                 "advice": ">150 words specific 'Tactical Landing' advice...",
                 "element_focus": "Element",
                 "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
                 "success_metrics": "Specific Metrics",
                 "potential_risks": "Challenges & Countermeasures",
                 "score_improvement": "+X points"
+            }},
+            {{
+                "target": "Specific Market Segment 2",
+                "advice": ">150 words specific 'Tactical Landing' advice...",
+                "element_focus": "Element",
+                "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+                "success_metrics": "Specific Metrics",
+                "potential_risks": "Challenges & Countermeasures",
+                "score_improvement": "+Y points"
+            }},
+            {{
+                "target": "Specific Market Segment 3",
+                "advice": ">150 words specific 'Tactical Landing' advice...",
+                "element_focus": "Element",
+                "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+                "success_metrics": "Specific Metrics",
+                "potential_risks": "Challenges & Countermeasures",
+                "score_improvement": "+Z points"
             }}
         ]
     }}
@@ -2369,8 +2866,9 @@ Please let the following 10 AI virtual citizens sampled from the database engage
 📌 Important Rules:
 1. **Analysis Depth**: Summary must strictly follow [Analysis], [Optimization], [Strategy] format, >500 words total.
 2. **Actionable**: Suggestions must be concrete and execution plans must have high implementation value.
-3. **No Placeholders**: Do not copy placeholder text.
-4. **Language**: All content must be in English.
+3. **Comment Quality**: Each comment must be at least 40 words, strictly avoid template phrases (e.g., "meets my needs"), and must reflect the citizen's personal Bazi traits.
+4. **No Placeholders**: Do not copy placeholder text.
+5. **Language**: All content must be in English.
 """
             elif language == "zh-CN":
                 prompt_text = f"""
@@ -2381,7 +2879,7 @@ Please let the following 10 AI virtual citizens sampled from the database engage
 {text_content[:8000]}
 ---
 
-请让以下从资料库随机抽取的 10 位 AI 虚拟市民，针对这份商业计划书进行「商业可行性」、「获利模式」与「市场痛点」的激烈辩论。
+请让以下从 1,000 位虚拟市民中选出的 10 位具备代表性的 AI 虚拟市民，针对这份商业计划书进行「商业可行性」、「获利模式」与「市场痛点」的激烈辩论。
 
 📋 以下是真实市民资料（八字格局已预先计算）：
 
@@ -2417,19 +2915,37 @@ Please let the following 10 AI virtual citizens sampled from the database engage
     ],
     "result": {{
         "score": (0-100),
-        "summary": "分析报告标题\\n\\n[解析] (深入解析产品核心价值、市场缺口与设计初衷，至少 200 字)\\n\\n[优化] (结合 30 位市民的激烈辩论，提出对此模式的重构或优化方向，至少 200 字)\\n\\n[战略] (给出具备战略高度的改进意见，指引其爆发，至少 150 字)",
+        "summary": "分析报告标题\\n\\n[解析] (深入解析产品核心价值、市场缺口与设计初衷，至少 200 字)\\n\\n[优化] (结合 1,000 位市民的模拟预演结果，提出对此模式的重构或优化方向，至少 200 字)\\n\\n[战略] (给出具备战略高度的改进意见，指引其爆发，至少 150 字)",
         "objections": [
             {{"reason": "...", "percentage": 30}}
         ],
         "suggestions": [
             {{
-                "target": "具体市场细分对象",
+                "target": "具体市场细分对象 1",
                 "advice": "150字以上的具体『战术落地』建议...",
-                "element_focus": "五行",
+                "element_focus": "对应五行",
                 "execution_plan": ["步骤 1", "步骤 2", "步骤 3", "步骤 4", "步骤 5"],
-                "success_metrics": "具体指标",
-                "potential_risks": "挑战与对策",
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战与备案",
                 "score_improvement": "+X 分"
+            }},
+            {{
+                "target": "具体市场细分对象 2",
+                "advice": "150字以上的具体『战术落地』建议...",
+                "element_focus": "对应五行",
+                "execution_plan": ["步骤 1", "步骤 2", "步骤 3", "步骤 4", "步骤 5"],
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战与备案",
+                "score_improvement": "+Y 分"
+            }},
+            {{
+                "target": "具体市场细分对象 3",
+                "advice": "150字以上的具体『战术落地』建议...",
+                "element_focus": "对应五行",
+                "execution_plan": ["步骤 1", "步骤 2", "步骤 3", "步骤 4", "步骤 5"],
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战与备案",
+                "score_improvement": "+Z 分"
             }}
         ]
     }}
@@ -2438,10 +2954,98 @@ Please let the following 10 AI virtual citizens sampled from the database engage
 📌 重要规则：
 1. **分析深度**：summary 必须严格遵守 [解析]、[优化]、[战略] 三段式，总字数 500 字以上。
 2. **落地性**：三个建议 suggestions 必须完全不同，且 execution_plan 具备极高执行价值。
-3. **禁止范例内容**：绝对不得直接复制 JSON 结构中的 placeholder 文字。
-4. **语言**：所有内容必须使用简体中文。
+3. **评论品質**：每则评论必须至少 40 字，严禁使用模板化语句（如「符合我的需求」），必须体现市民个人格局。
+4. **禁止範例內容**：絕對不得直接複製 JSON 結構中的 placeholder 文字。
+5. **语言**：所有内容必须使用简体中文。
 """
             else:
+                 prompt_base_tw = f"""
+你是 MIRRA 境界系统的核心 AI 策略顾问。你正在审阅一份商业计划书（来源 {source_type.upper()} 文件），并需要提供**深度、具体、可执行**的策略建议。
+
+以下是文件内容：
+---
+{text_content[:8000]}
+---
+
+请让以下从 1,000 位虚拟市民中选出的 10 位具备代表性的 AI 虚拟市民，针对这份商业计划书进行「商业可行性」、「获利模式」与「市场痛点」的激烈辩论。
+
+📋 以下是真实市民资料（八字格局已预先计算）：
+
+{citizens_json}
+
+⚠️ **重要指示：策略建议必须非常具体且可执行**
+- 不要给出「进行 A/B 测试」这种人人都知道的泛泛建议
+- 必须根据**这个特定商业模式**的特点，给出**独特、有洞察力**的建议
+- 执行步骤要具体到「第一周做什么、第一个月达成什么、如何衡量成效」
+- 每个建议都要说明「为什么这对这个商业模式特别重要」
+
+🎯 请务必回传一个**純 JSON 字串 (不要 Markdown)**，結構如下：
+
+{{
+    "simulation_metadata": {{
+        "product_category": "商業計劃書",
+        "target_market": "台灣",
+        "sample_size": 10,
+        "bazi_distribution": {{
+            "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
+        }}
+    }},
+    "genesis": {{
+        "total_population": 1000,
+        "personas": [
+            (必須挑選 10 位市民)
+            {{"id": "...", "name": "...", "age": "...", "element": "...", "day_master": "...", "pattern": "...", "trait": "...", "decision_logic": "..."}}
+        ]
+    }},
+    "arena_comments": [
+        (必須生成精確 10 則市民針對商業模式的辯論評論)
+        {{"sentiment": "...", "text": "...", "persona": {{ ... }} }}
+    ],
+    "result": {{
+        "score": (0-100),
+        "summary": "分析報告標題\\n\\n[解析] (深入解析產品核心價值、市場缺口與設計初衷，至少 200 字)\\n\\n[優化] (結合 1,000 位市民的模擬預演結果，提出對此模式的重構或優化方向，至少 200 字)\\n\\n[戰略] (給出具備戰略高度的改進意見，指引其爆發，至少 150 字)",
+        "objections": [
+            {{"reason": "...", "percentage": 30}}
+        ],
+        "suggestions": [
+            {{
+                "target": "具体市场细分对象 1",
+                "advice": "150字以上的具体『战术落地』建议...",
+                "element_focus": "对应五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战与备案",
+                "score_improvement": "+X 分"
+            }},
+            {{
+                "target": "具体市场细分对象 2",
+                "advice": "150字以上的具体『戰術落地』建議...",
+                "element_focus": "对应五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战与备案",
+                "score_improvement": "+Y 分"
+            }},
+            {{
+                "target": "具体市场细分对象 3",
+                "advice": "150字以上的具体『戰術落地』建議...",
+                "element_focus": "对应五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "具体量化指标",
+                "potential_risks": "可能遇到的挑战與备案",
+                "score_improvement": "+Z 分"
+            }}
+        ]
+    }}
+}}
+
+📌 重要規則：
+1. **分析深度**：summary 必須嚴格遵守 [解析]、[優化]、[戰略] 三段式，總字數 500 字以上。
+2. **落地性**：三個建議 suggestions 必須完全不同，且 execution_plan 具備極高執行價值。
+3. **評論品質**：每則評論必須至少 40 字，嚴禁使用模板化語句（如「符合我的需求」），必須體現市民個人格局。
+4. **禁止範例內容**：絕對不得直接複製 JSON 結構中的 placeholder 文字。
+5. **语言**：所有內容必須使用繁體中文。
+"""
                  prompt_text = prompt_base_tw
 
             # 4. 呼叫 Gemini AI (純文字，不需圖片/PDF)
@@ -2460,17 +3064,50 @@ Please let the following 10 AI virtual citizens sampled from the database engage
             print(f"[Core TEXT] Parsed AI response keys: {list(data.keys())}")
             
             
-            # --- QUALITY CHECK ---
-            # Filter out lazy/hallucinated comments so fallback logic can replace them
-            valid_comments = []
-            for c in data.get("arena_comments", []):
+            # --- QUALITY CHECK (Sync with Image/PDF Flow) ---
+            raw_arena_comments = data.get("arena_comments", [])
+            filtered_comments = []
+            forbidden_phrases = [
+                "符合我的", "看起來不錯", "值得購買", "值得买", "看起来不错",
+                "符合我的需求", "非常喜歡", "非常喜欢", "好產品", "好产品",
+                "推薦購買", "推荐购买", "挺好的", "蠻好的", "還不錯", "还不错",
+                "looks good", "worth buying", "meets my needs", "highly recommend"
+            ]
+            for c in raw_arena_comments:
+                if not isinstance(c, dict): continue
                 text = c.get("text", "")
-                if "符合我的" in text or "看起來不錯" in text or len(text) < 10:
-                    continue  # Discard lazy comment
-                valid_comments.append(c)
+                if len(text) < 40: continue
+                if any(phrase in text for phrase in forbidden_phrases): continue
+                filtered_comments.append(c)
             
-            # Update data with filtered comments (fallback logic later will fill the gaps)
-            data["arena_comments"] = valid_comments
+            # --- 8. FALLBACK MECHANISM (Fill up to 10) ---
+            if len(filtered_comments) < 10:
+                logger.warning(f"[{sim_id}] Text Analysis: Insufficient comments ({len(filtered_comments)}). Filling fallback.")
+                already_names = {c.get("persona", {}).get("name") for c in filtered_comments if c.get("persona")}
+                
+                fallback_templates_map = {
+                    "zh-TW": ["身為投資分析的角度看，這份計劃書在{pattern}層面很有潛力，但{element}行的考量不可少。", "作為創業者，我覺得獲利模式還能再優化，特別是針對{age}歲客群的切入點。"],
+                    "zh-CN": ["身为投资分析的角度看，这份计划书在{pattern}层面很有潜力，但{element}行的考量不可少。", "作为创业者，我觉得利模式还能再优化，特别是针对{age}岁客群的切入点。"],
+                    "en": ["From an investment perspective, this plan has potential in {pattern}, but needs {element} consideration.", "As an entrepreneur, the revenue model needs optimization for the {age} age group."]
+                }
+                templates = fallback_templates_map.get(language, fallback_templates_map["zh-TW"])
+                
+                for citizen in sampled_citizens:
+                    if len(filtered_comments) >= 10: break
+                    if citizen["name"] in already_names: continue
+                    
+                    bazi = citizen.get("bazi_profile", {})
+                    text = random.choice(templates).format(
+                        pattern=bazi.get("structure", "市場"),
+                        element=bazi.get("element", "五行"),
+                        age=citizen.get("age", 30)
+                    )
+                    filtered_comments.append({
+                        "sentiment": "neutral",
+                        "text": text,
+                        "persona": {"name": citizen["name"]} # Temporary persona for matching
+                    })
+            arena_comments = filtered_comments
             # ---------------------
 
             # 6. 建構 simulation_metadata (與 PDF 流程一致)
@@ -2581,7 +3218,7 @@ Please let the following 10 AI virtual citizens sampled from the database engage
                 
                 comment["persona"] = persona
             
-            # 8. Fallback comments if not enough (ensure at least 8) - 與 PDF/Image 流程一致
+            # 8. Update DB (Final result construction)
             bazi_comment_templates = {
                 "食神格": [
                     "這個商業模式看起來挺有意思的，如果真的能落地，市場接受度應該不錯。",
@@ -2742,12 +3379,29 @@ Please let the following 10 AI virtual citizens sampled from the database engage
                 "suggestions": data.get("result", {}).get("suggestions", [])
             }
             
+            # 🧬 【ABM INTEGRATION】執行 Agent-Based Modeling 模擬
+            try:
+                abm_res = await self._run_abm_simulation(sampled_citizens, text_content, language)
+                abm_evolution_data = abm_res["evolution_data"]
+                abm_analytics = abm_res["analytics_data"]
+            except Exception as e:
+                logger.error(f"[{sim_id}] ABM Simulation Failed: {e}")
+                abm_evolution_data = None
+                abm_analytics = None
+
             # 🧬 [Sidecar] 追加計算社會科學方法論詮釋層
             methodology_sidecar = _generate_methodology_sidecar(
                 score=result_data.get("score"),
                 summary=result_data.get("summary"),
-                language=language
+                language=language, metric_advice=data.get("metric_advice")
             )
+            
+            # 🧬 【ABM EVOLUTION】添加演化數據
+            if abm_evolution_data:
+                methodology_sidecar["abm_evolution"] = abm_evolution_data
+            if abm_analytics:
+                methodology_sidecar["abm_analytics"] = abm_analytics
+
             result_data["methodology_data"] = methodology_sidecar
             
             # 10. 更新資料庫
@@ -2880,22 +3534,8 @@ Output the transcribed text directly, without any additional explanation."""
 
 
     # ===== Helpers =====
+    # NOTE: 舊版 _call_gemini_rest 已刪除，現使用第 3898 行的新版本（有 Pro 模型 600 秒 timeout）
 
-    async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg", timeout=60, image_parts=None):
-        """Helper to call Gemini REST API (Async Wrapper)"""
-        # [Fix] Prioritize Gemini 2.5 Pro as requested by the user
-        priority = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
-        
-        return await asyncio.to_thread(
-            self._run_blocking_gemini_request,
-            api_key, 
-            prompt, 
-            image_b64, 
-            pdf_b64, 
-            priority,
-            mime_type,
-            image_parts # Pass image_parts
-        )
 
     def _clean_and_parse_json(self, ai_text):
         """Helper to clean and parse JSON with robust error handling"""
@@ -2972,7 +3612,7 @@ Output the transcribed text directly, without any additional explanation."""
             }
         
         # Build comments
-        gemini_comments = data.get("comments", [])
+        gemini_comments = data.get("arena_comments") or data.get("comments") or []
         arena_comments = []
         # 強制 Key 為 String 以防萬一
         citizen_map = {str(c["id"]): c for c in sampled_citizens}
@@ -3372,7 +4012,7 @@ Output the transcribed text directly, without any additional explanation."""
                 # Increase timeout for Pro model and PDF/Audio heavy tasks
                 current_timeout = timeout
                 if "pro" in model:
-                    current_timeout = max(timeout, 300) # Pro needs time to think (5 mins)
+                    current_timeout = max(timeout, 600) # Pro needs 10 mins for detailed analysis
                 
                 # PDF needs more time regardless of model
                 if pdf_b64:
@@ -3401,115 +4041,8 @@ Output the transcribed text directly, without any additional explanation."""
         return None, last_error
 
     # NOTE: 舊版 generate_marketing_copy 已刪除，現使用第 480 行的新版本 (單篇輸出)
+    # NOTE: 舊版 refine_marketing_copy 已刪除，現使用第 725 行的新版本 (支援多語言)
 
-    async def refine_marketing_copy(self, comments, product_name, price, original_copy, style="professional", source_type="image", language="zh-TW"):
-        """優化文案 (Async) - 支持多語言"""
-        try:
-            print(f"🚀 [Copy Opt] Starting refinement for {product_name} in {language}...")
-            
-            # Construct Prompt
-            negative_comments = [c['text'] for c in comments if c.get('sentiment') == 'negative']
-            pain_points_text = "\n".join([f"- {c}" for c in negative_comments[:10]])
-            
-            # Localized Prompt Construction
-            if language == "en":
-                if not pain_points_text:
-                    pain_points_text = "(No significant negative feedback, please optimize for potential market resistance)"
-                
-                prompt = f"""
-You are a top-tier AI Copywriter. Please optimize the original marketing copy based on the product info and "Real Citizen Feedback" from the simulation.
-
-📦 Product Info:
-- Name: {product_name}
-- Price: {price}
-- Source Type: {source_type}
-
-📝 Original Copy:
-{original_copy}
-
-💔 Market Pain Points (from Citizen Objections):
-{pain_points_text}
-
-🎨 Requested Style: {style}
-(professional, friendly, luxury, minimalist, storytelling)
-
-Please output strict JSON format ONLY:
-{{
-    "pain_points": "Summarize 3 key market pain points (String, in English)",
-    "refined_copy": "Strategic advice on how to address these pain points (String, 150 words, in English)",
-    "marketing_copy": "A complete, ready-to-use marketing post (Include Title, Body, Call to Action, Hashtags) (String, in English)"
-}}
-"""
-            elif language == "zh-CN":
-                if not pain_points_text:
-                    pain_points_text = "（暂无明显负评，请针对潜在市场抗性进行优化）"
-
-                prompt = f"""
-你是顶尖的 AI 商业文案大师。请根据以下产品信息与“模拟市民的真实反馈”，优化原本的营销文案。
-
-📦 产品信息：
-- 名称：{product_name}
-- 价格：{price}
-- 来源类型：{source_type}
-
-📝 原始文案：
-{original_copy}
-
-💔 市场痛点 (来自 AI 市民的负评/疑虑)：
-{pain_points_text}
-
-🎨 要求的文案风格：{style}
-(professional: 专业稳重, friendly: 亲切活泼, luxury: 高端奢华, minimalist: 简约清爽, storytelling: 故事叙述)
-
-请输出 JSON 格式：
-{{
-    "pain_points": "归纳出的 3 个主要市场痛点 (String, 简体中文)",
-    "refined_copy": "针对痛点优化后的策略建议 (String, 200字, 简体中文)",
-    "marketing_copy": "一篇完整的实战营销贴文 (包含标题、内文、Call to Action、Hashtags) (String, 简体中文)"
-}}
-"""
-            else: # Default zh-TW
-                if not pain_points_text:
-                    pain_points_text = "（暫無明顯負評，請針對潛在市場抗性進行優化）"
-
-                prompt = f"""
-你是頂尖的 AI 商業文案大師。請根據以下產品資訊與「模擬市民的真實反饋」，優化原本的行銷文案。
-
-📦 產品資訊：
-- 名稱：{product_name}
-- 價格：{price}
-- 來源類型：{source_type}
-
-📝 原始文案：
-{original_copy}
-
-💔 市場痛點 (來自 AI 市民的負評/疑慮)：
-{pain_points_text}
-
-🎨 要求的文案風格：{style}
-(professional: 專業穩重, friendly: 親切活潑, luxury: 高端奢華, minimalist: 簡約清爽, storytelling: 故事敘述)
-
-請輸出 JSON 格式：
-{{
-    "pain_points": "歸納出的 3 個主要市場痛點 (String, 繁體中文)",
-    "refined_copy": "針對痛點優化後的策略建議 (String, 200字, 繁體中文)",
-    "marketing_copy": "一篇完整的實戰行銷貼文 (包含標題、內文、Call to Action、Hashtags) (String, 繁體中文)"
-}}
-"""
-            api_key = settings.GOOGLE_API_KEY
-            resp_text, error = await self._call_gemini_rest(api_key, prompt)
-            
-            if error:
-                print(f"❌ [Copy Opt] Gemini Error: {error}")
-                return {"error": error}
-                
-            return self._clean_and_parse_json(resp_text)
-            
-        except Exception as e:
-            print(f"❌ [Copy Opt] Exception: {e}")
-            import traceback
-            traceback.print_exc()
-            return {"error": str(e)}
 
     def _run_blocking_gemini_request(self, api_key, prompt, image_b64=None, pdf_b64=None, model_priority=None, mime_type="image/jpeg", image_parts=None):
         """Helper to run synchronous requests in a thread"""

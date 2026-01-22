@@ -6,6 +6,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import RefineCopyPanel from "@/app/components/RefineCopyPanel"
 import MethodologyModal from "@/app/components/MethodologyModal"
+import ABMEvolutionVisualization from "@/app/components/ABMEvolutionVisualization"
 import { useLanguage } from "@/app/context/LanguageContext"
 import dynamic from "next/dynamic"
 
@@ -110,6 +111,20 @@ interface SimulationData {
       style: string
     }
     entropy_warning: string
+    abm_evolution?: {
+      rounds: number[]
+      average_scores: number[]
+      logs: string[]
+      product_element?: string
+      price_ratio?: number
+    }
+    abm_analytics?: {
+      consensus: number
+      polarization: number
+      herding_strength: number
+      network_density: number
+      element_preferences?: { [key: string]: number }
+    }
   }
 }
 
@@ -1155,13 +1170,24 @@ export default function WatchPage() {
                       <div className={`absolute -bottom-2 -right-2 size-16 rounded-full opacity-20 blur-xl ${data.methodology_data.next_step.style.split(' ')[0]} group-hover/action:opacity-40 transition-opacity`}></div>
                     </Link>
 
-                    <div className="text-[10px] text-gray-500 font-mono text-center flex items-center justify-center gap-1 opacity-70">
-                      <span className="material-symbols-outlined text-[10px]">lock_clock</span>
+                    <div className="text-sm text-white font-mono text-center flex items-center justify-center gap-2">
+                      <span className="material-symbols-outlined text-sm">lock_clock</span>
                       {data.methodology_data.entropy_warning}
                     </div>
                   </div>
                 </div>
               )}
+
+              {/* 🧬 ABM 意見演化視覺化 */}
+              {data.methodology_data?.abm_evolution && (
+                <div className="col-span-1 lg:col-span-4">
+                  <ABMEvolutionVisualization
+                    data={data.methodology_data.abm_evolution}
+                    analytics={data.methodology_data.abm_analytics}
+                  />
+                </div>
+              )}
+
               <div className="col-span-1 lg:col-span-8 flex flex-col gap-6">
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                   {(() => {
@@ -1251,11 +1277,11 @@ export default function WatchPage() {
                         label: t('report.metrics.market_potential.label'),
                         value: positiveRate >= 70 ? t('report.metrics.market_potential.value_high') : positiveRate >= 40 ? t('report.metrics.market_potential.value_mid') : t('report.metrics.market_potential.value_low'),
                         sub: t('report.metrics.market_potential.sub_label'),
-                        advice: positiveRate >= 70
+                        advice: data.methodology_data?.metric_advice?.market_potential || (positiveRate >= 70
                           ? t('report.metrics.market_potential.advice_high')
                           : positiveRate >= 40
                             ? t('report.metrics.market_potential.advice_mid')
-                            : t('report.metrics.market_potential.advice_low'),
+                            : t('report.metrics.market_potential.advice_low')),
                         improvement: getBoost(w_pot),
                         icon: 'trending_up',
                         color: positiveRate >= 60 ? 'text-green-500' : 'text-amber-500'
@@ -1265,11 +1291,11 @@ export default function WatchPage() {
                         // 確保至少顯示 10‰ (業務規則：1,000 人中抽取 10 位代表)
                         value: coverageRate < 1 ? `${Math.max(coverageRate * 10, 10)}‰` : `${Math.min(coverageRate, 99)}%`,
                         sub: t('report.metrics.coverage.sub_label_prefix') + effectiveComments + t('report.metrics.coverage.sub_label_suffix'),
-                        advice: coverageRate >= 5
+                        advice: data.methodology_data?.metric_advice?.coverage || (coverageRate >= 5
                           ? t('report.metrics.coverage.advice_high')
                           : coverageRate >= 1
                             ? t('report.metrics.coverage.advice_mid')
-                            : t('report.metrics.coverage.advice_low'),
+                            : t('report.metrics.coverage.advice_low')),
                         improvement: coverageRate >= 5 ? '+1~2%' : coverageRate >= 1 ? '+5~8%' : t('report.metrics.coverage.advice_low').includes('Pro') ? 'Pro' : '+10%',
                         icon: 'verified',
                         color: 'text-blue-500'
@@ -1277,14 +1303,14 @@ export default function WatchPage() {
                       (() => {
                         // Dynamic metric based on product category
                         const productCategory = data.simulation_metadata?.product_category || 'other';
-                        const metricConfig = METRIC_CONFIG[productCategory] || METRIC_CONFIG.other;
+                        const metricConfig = getMetricConfig(t)[productCategory as keyof ReturnType<typeof getMetricConfig>] || getMetricConfig(t).other;
                         const metricLevel = sensitivityLevel === '低' ? t('report.metrics.level.strong') : sensitivityLevel === '中等' ? t('report.metrics.level.mid') : t('report.metrics.level.weak');
 
                         return {
                           label: metricConfig.label,
                           value: metricLevel,
                           sub: metricConfig.subLabel,
-                          advice: metricConfig.getAdvice(metricLevel),
+                          advice: data.methodology_data?.metric_advice?.collection_value || metricConfig.getAdvice(metricLevel),
                           improvement: getBoost(w_tech),
                           icon: 'monetization_on',
                           color: sensitivityColor
