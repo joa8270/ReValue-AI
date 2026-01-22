@@ -23,8 +23,21 @@ class Settings(BaseSettings):
     # 3. 模擬控制 (成本控管核心)
     # 預設為 MOCK 模式以防萬一
     SIMULATION_MODE: str = os.getenv("SIMULATION_MODE", "MOCK").upper()
-    MINI_BATCH_SIZE: int = int(os.getenv("MINI_BATCH_SIZE", 5))
-    FULL_BATCH_SIZE: int = int(os.getenv("FULL_BATCH_SIZE", 1000))
+    
+    @property
+    def mini_batch_size(self) -> int:
+        try:
+            return int(os.getenv("MINI_BATCH_SIZE", "5") or "5")
+        except:
+            return 5
+
+    @property
+    def full_batch_size(self) -> int:
+        try:
+            return int(os.getenv("FULL_BATCH_SIZE", "1000") or "1000")
+        except:
+            return 1000
+            
     DEFAULT_LOCATION: str = os.getenv("DEFAULT_LOCATION", "Taipei")
     
     @property
@@ -33,12 +46,10 @@ class Settings(BaseSettings):
         智慧判斷：根據目前的 SIMULATION_MODE 決定要生成多少個 AI 模擬市民
         """
         if self.SIMULATION_MODE == "MINI":
-            return self.MINI_BATCH_SIZE
+            return self.mini_batch_size
         elif self.SIMULATION_MODE == "FULL":
-            return self.FULL_BATCH_SIZE
+            return self.full_batch_size
         else:
-            # MOCK 模式下，後端不需要真的生成 Agent 物件，
-            # 而是會由 Service 層直接回傳假資料
             return 0 
 
     @property

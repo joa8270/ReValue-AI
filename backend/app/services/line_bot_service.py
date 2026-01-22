@@ -186,7 +186,6 @@ class LineBotService:
         🧬 通用 ABM 模擬執行器
         封裝了五行判斷、社交網絡構建與動態日誌生成。
         """
-        import random
         from app.core.abm_engine import ABMSimulation
         from app.services.abm_helpers import extract_price_from_context
 
@@ -2507,7 +2506,6 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             # -----------------------------------------------
 
             # 補充 arena_comments 中每個 persona 的完整八字資料
-            import random
             arena_comments = data.get("arena_comments", [])
             citizen_name_map = {c["name"]: c for c in sampled_citizens}
             
@@ -2668,7 +2666,6 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
         """處理純文字內容的商業計劃書分析 (Word/PPT/TXT) - 與 PDF 流程對齊"""
         try:
             from fastapi.concurrency import run_in_threadpool
-            import random
             
             print(f"[Core TEXT] Starting text analysis for {sim_id}, source: {source_type}")
             
