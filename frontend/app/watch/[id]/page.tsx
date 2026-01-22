@@ -125,6 +125,9 @@ interface SimulationData {
       network_density: number
       element_preferences?: { [key: string]: number }
     }
+    metric_advice?: {
+      [key: string]: string
+    }
   }
 }
 

@@ -57,6 +57,34 @@ export interface SimulationData {
     intent?: string
     suggestions?: Array<{ target: string; advice: string; execution_plan: string[]; score_improvement?: string }>
     objections?: Array<{ reason: string; percentage: string }>
+    methodology_data?: {
+        valid_until: string
+        confidence_interval: string
+        next_step: {
+            action: string
+            label: string
+            desc: string
+            style: string
+        }
+        entropy_warning: string
+        abm_evolution?: {
+            rounds: number[]
+            average_scores: number[]
+            logs: string[]
+            product_element?: string
+            price_ratio?: number
+        }
+        abm_analytics?: {
+            consensus: number
+            polarization: number
+            herding_strength: number
+            network_density: number
+            element_preferences?: { [key: string]: number }
+        }
+        metric_advice?: {
+            [key: string]: string
+        }
+    }
 }
 
 export interface CitizenFilter {
