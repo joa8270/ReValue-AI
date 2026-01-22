@@ -3637,7 +3637,6 @@ Output the transcribed text directly, without any additional explanation."""
                 bazi = citizen["bazi_profile"]
                 
                 # Auto-fill missing birthday data
-                import random
                 if not bazi.get("birth_year"):
                     try:
                         age = int(citizen.get("age", 30))
@@ -3807,7 +3806,6 @@ Output the transcribed text directly, without any additional explanation."""
             "朋友推薦過類似的產品，這個看起來也值得一試，考慮中。"
         ]
         
-        import random as rand_module
         while len(arena_comments) < 8 and sampled_citizens:
             # 找一個還沒評論過的市民
             commented_names = {c["persona"]["name"] for c in arena_comments}
@@ -3838,7 +3836,7 @@ Output the transcribed text directly, without any additional explanation."""
                 templates = default_templates
             
             # 隨機選擇一條評論，避免重複
-            text = rand_module.choice(templates)
+            text = random.choice(templates)
             
             # 混合分配情感
             sentiments = ["positive", "positive", "neutral", "neutral", "negative"]
@@ -3848,8 +3846,7 @@ Output the transcribed text directly, without any additional explanation."""
             pillars_str = bazi.get("four_pillars")
             if not pillars_str:
                 pillars = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥"]
-                import random as rand_mod
-                pillars_str = f"{rand_mod.choice(pillars)} {rand_mod.choice(pillars)} {rand_mod.choice(pillars)} {rand_mod.choice(pillars)}"
+                pillars_str = f"{random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)}"
             
             # 取得 luck_timeline
             timeline = bazi.get("luck_timeline", [])
