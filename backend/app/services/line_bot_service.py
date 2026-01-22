@@ -2432,11 +2432,25 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             else:
                  prompt_text = prompt_base_tw
 
+            # 🧬 【ABM INTEGRATION】執行 Agent-Based Modeling 模擬
+            abm_evolution_data = None
+            abm_analytics = None
+            abm_comments_data = []
+            
+            try:
+                # PDF 分析通常需要更多上下文
+                abm_res = await self._run_abm_simulation(sampled_citizens, text_context or "PDF Business Plan", language)
+                abm_evolution_data = abm_res["evolution_data"]
+                abm_analytics = abm_res["analytics_data"]
+                abm_comments_data = abm_res["comments_data"]
+            except Exception as e:
+                logger.error(f"❌ [ABM] PDF ABM模擬失敗: {e}")
+
             # 4. REST API Call
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Calling Gemini (PDF)...\n")
             api_key = settings.GOOGLE_API_KEY
-            # PDF needs more time. Set base timeout to 180s. (Pro will get 300s automatically by helper logic)
-            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, pdf_b64=pdf_b64, timeout=180)
+            # PDF needs more time. Set base timeout to 300s for large files.
+            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, pdf_b64=pdf_b64, timeout=300)
 
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Gemini Response: {str(ai_text)[:20]}...\n")
             
@@ -2444,11 +2458,20 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                 err_msg = f"All models failed for PDF. {last_error}"
                 logger.error(err_msg)
                 with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] ERROR: {err_msg}. Triggering FALLBACK.\n")
-                # Trigger fallback by providing empty JSON
                 ai_text = "{}"
 
             # 5. Process
             data = self._clean_and_parse_json(ai_text)
+            
+            # --- 🧬 整合 ABM 數據到結果中 ---
+            if abm_evolution_data:
+                data["abm_evolution"] = abm_evolution_data
+            if abm_analytics:
+                data["abm_analytics"] = abm_analytics
+            if abm_comments_data:
+                # 合併 Gemini 評論與 ABM 評論 (Gemini 優先)
+                existing_comments = data.get("arena_comments", [])
+                data["arena_comments"] = existing_comments + abm_comments_data
             
             # 6. Build Result Data
             sim_metadata = data.get("simulation_metadata", {})
@@ -3290,7 +3313,7 @@ Please let the following 10 representative AI virtual citizens, selected from a 
                 "行業內有類似成功案例，這個計劃看起來也值得一試。"
             ]
             
-            while len(arena_comments) < 8 and sampled_citizens:
+            while len(arena_comments) < 10 and sampled_citizens:
                 # 找一個還沒評論過的市民
                 commented_names = {c.get("persona", {}).get("name", "") for c in arena_comments}
                 remaining = [c for c in sampled_citizens if c["name"] not in commented_names]
@@ -3803,9 +3826,26 @@ Output the transcribed text directly, without any additional explanation."""
             "朋友推薦過類似的產品，這個看起來也值得一試，考慮中。"
         ]
         
-        while len(arena_comments) < 8 and sampled_citizens:
+        if not isinstance(arena_comments, list):
+            arena_comments = []
+            
+        # 🛡️ 深度清理與驗證評論格式
+        valid_comments = []
+        for c in arena_comments:
+            if isinstance(c, dict) and c.get("text") and len(str(c.get("text"))) > 5:
+                # 確保 persona 結構存在
+                if not c.get("persona"):
+                    c["persona"] = {}
+                valid_comments.append(c)
+        arena_comments = valid_comments
+
+        while len(arena_comments) < 10 and sampled_citizens:
             # 找一個還沒評論過的市民
-            commented_names = {c["persona"]["name"] for c in arena_comments}
+            commented_names = set()
+            for c in arena_comments:
+                if isinstance(c.get("persona"), dict) and c["persona"].get("name"):
+                    commented_names.add(c["persona"]["name"])
+                    
             remaining = [c for c in sampled_citizens if c["name"] not in commented_names]
             if not remaining:
                 break
