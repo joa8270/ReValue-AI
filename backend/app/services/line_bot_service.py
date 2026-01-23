@@ -2447,21 +2447,44 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                 logger.error(f"❌ [ABM] PDF ABM模擬失敗: {e}")
 
             # 4. REST API Call
-            with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Calling Gemini (PDF)...\n")
             api_key = settings.GOOGLE_API_KEY
-            # PDF needs more time. Set base timeout to 300s for large files.
+            # [Fix] PDF needs more time. Set base timeout to 300s for large files.
+            # Explicitly log start time and payload size
+            import datetime
+            ts_start = datetime.datetime.now().isoformat()
+            payload_len = len(pdf_b64) if pdf_b64 else 0
+            with open("debug_trace.log", "a", encoding="utf-8") as f: 
+                f.write(f"[{sim_id}] [TIME:{ts_start}] Calling Gemini REST API (PDF), Payload: {payload_len} bytes, Lang: {language}\n")
+            
             ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, pdf_b64=pdf_b64, timeout=300)
 
-            with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Gemini Response: {str(ai_text)[:20]}...\n")
+            ts_end = datetime.datetime.now().isoformat()
+            with open("debug_trace.log", "a", encoding="utf-8") as f: 
+                f.write(f"[{sim_id}] [TIME:{ts_end}] Gemini Returned (PDF). Success: {ai_text is not None}\n")
             
             if ai_text is None:
                 err_msg = f"All models failed for PDF. {last_error}"
-                logger.error(err_msg)
+                logger.error(f"[{sim_id}] {err_msg}")
                 with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] ERROR: {err_msg}. Triggering FALLBACK.\n")
                 ai_text = "{}"
 
             # 5. Process
             data = self._clean_and_parse_json(ai_text)
+            
+            # 🔍 [DEBUG] Log parsed JSON structure to diagnose "AI 分析超時" issue
+            with open("debug_trace.log", "a", encoding="utf-8") as f:
+                f.write(f"[{sim_id}] Parsed JSON Keys: {list(data.keys()) if isinstance(data, dict) else 'NOT_DICT'}\n")
+                result_obj = data.get("result", {})
+                f.write(f"[{sim_id}] result Keys: {list(result_obj.keys()) if isinstance(result_obj, dict) else 'NOT_DICT'}\n")
+                summary_val = result_obj.get("summary", "<<MISSING>>") if isinstance(result_obj, dict) else "<<RESULT_NOT_DICT>>"
+                f.write(f"[{sim_id}] result.summary (first 200 chars): {str(summary_val)[:200]}\n")
+                suggestions_val = result_obj.get("suggestions", []) if isinstance(result_obj, dict) else []
+                f.write(f"[{sim_id}] result.suggestions count: {len(suggestions_val) if isinstance(suggestions_val, list) else 'NOT_LIST'}\n")
+            
+            # [Fix] Initialize key variables to avoid UnboundLocalError
+            arena_comments = []
+            filtered_comments = []
+            personas = []
             
             # --- 🧬 整合 ABM 數據到結果中 ---
             if abm_evolution_data:
@@ -2478,11 +2501,29 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             # PDF uploads always use tech_monetization metric
             sim_metadata["source_type"] = "pdf"
             sim_metadata["product_category"] = "tech_electronics"
-            bazi_dist = sim_metadata.get("bazi_distribution", {"Fire": 20, "Water": 20, "Metal": 20, "Wood": 20, "Earth": 20})
+            
+            # --- [Fix] 確保就算 Gemini 失敗，也要有 personas 資料顯示在 UI ---
             genesis_data = data.get("genesis", {})
             personas = genesis_data.get("personas", [])
+            if not personas and sampled_citizens:
+                # 如果 Gemini 沒給 personas，從抽樣的市民中選 10 個
+                for c in sampled_citizens[:10]:
+                    bazi = c.get("bazi_profile") or {}
+                    personas.append({
+                        "id": str(c.get("id", "0")),
+                        "name": c.get("name", "AI市民"),
+                        "age": str(c.get("age", 30)),
+                        "element": bazi.get("element", "未知"),
+                        "day_master": bazi.get("day_master", "未知"),
+                        "pattern": bazi.get("structure", "未知"),
+                        "trait": c.get("traits")[0] if c.get("traits") else "積極",
+                        "decision_logic": "理性分析商業模式可行性"
+                    })
+
+            bazi_dist = sim_metadata.get("bazi_distribution", {"Fire": 20, "Water": 20, "Metal": 20, "Wood": 20, "Earth": 20})
             
             # --- 1. QUALITY FILTER FIRST (Sync with Image Flow) ---
+            # [Fix] 抓取 Gemini 返回的評論或是合併後的評論
             raw_arena_comments = data.get("arena_comments", [])
             filtered_comments = []
             forbidden_phrases = [
@@ -2528,8 +2569,10 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             arena_comments = filtered_comments
             # -----------------------------------------------
 
+            # -----------------------------------------------
+
             # 補充 arena_comments 中每個 persona 的完整八字資料
-            arena_comments = data.get("arena_comments", [])
+            # 將原本的 arena_comments 變數直接延續使用（來自 filtered_comments）
             citizen_name_map = {c["name"]: c for c in sampled_citizens}
             
             def build_luck_data(bazi, age):
@@ -3561,32 +3604,72 @@ Output the transcribed text directly, without any additional explanation."""
         """Helper to clean and parse JSON with robust error handling"""
         if not ai_text or not isinstance(ai_text, str):
             logger.error(f"Invalid AI text input for parsing: {type(ai_text)}")
+            with open("debug_trace.log", "a", encoding="utf-8") as f:
+                f.write(f"[JSON_PARSE] Invalid input: {type(ai_text)}\n")
             return {"result": {}, "arena_comments": [], "genesis": {}, "simulation_metadata": {}, "comments": [], "suggestions": []}
 
-        clean_text = ai_text
+        clean_text = ai_text.strip()  # 🔧 [Fix] Strip whitespace first
+        
+        # 🔍 [DEBUG] Log input before processing
+        with open("debug_trace.log", "a", encoding="utf-8") as f:
+            f.write(f"[JSON_PARSE] Input length: {len(ai_text)}, After strip: {len(clean_text)}\n")
+            f.write(f"[JSON_PARSE] First 100 chars after strip: {repr(clean_text[:100])}\n")
+        
+        # Check for markdown code block
         match = re.search(r"```(?:json)?\s*(.*?)\s*```", ai_text, re.DOTALL)
         if match:
-            clean_text = match.group(1)
+            clean_text = match.group(1).strip()
+            with open("debug_trace.log", "a", encoding="utf-8") as f:
+                f.write(f"[JSON_PARSE] Extracted from code block, new length: {len(clean_text)}\n")
+        
+        # 🔧 [Fix] Also try to find JSON object directly if not in code block
+        if not clean_text.startswith('{'):
+            # Try to find the first { and extract from there
+            first_brace = clean_text.find('{')
+            if first_brace != -1:
+                clean_text = clean_text[first_brace:]
+                with open("debug_trace.log", "a", encoding="utf-8") as f:
+                    f.write(f"[JSON_PARSE] Found first brace at {first_brace}\n")
         
         try:
             data = json.loads(clean_text)
             if isinstance(data, dict):
+                with open("debug_trace.log", "a", encoding="utf-8") as f:
+                    f.write(f"[JSON_PARSE] SUCCESS! Keys: {list(data.keys())}\n")
                 return data
             else:
-                logger.error(f"Gemini returned non-dict JSON: {type(data)}")
+                with open("debug_trace.log", "a", encoding="utf-8") as f:
+                    f.write(f"[JSON_PARSE] FAILED: Non-dict result: {type(data)}\n")
                 return {}
-        except json.JSONDecodeError:
-            # Simple fix attempt
+        except json.JSONDecodeError as e:
+            # 🔍 [DEBUG] Log the exact error and problematic content
+            with open("debug_trace.log", "a", encoding="utf-8") as f:
+                f.write(f"[JSON_PARSE] JSONDecodeError: {e}\n")
+                f.write(f"[JSON_PARSE] Error position: line {e.lineno}, col {e.colno}\n")
+                f.write(f"[JSON_PARSE] First 500 chars: {repr(clean_text[:500])}\n")
+            
+            # 🔧 [Fix] Remove trailing commas (common issue with AI-generated JSON)
+            # Pattern: ,\s*} or ,\s*]
             fixed_text = clean_text.strip()
+            fixed_text = re.sub(r',\s*}', '}', fixed_text)  # Remove ,} pattern
+            fixed_text = re.sub(r',\s*]', ']', fixed_text)  # Remove ,] pattern
+            
+            with open("debug_trace.log", "a", encoding="utf-8") as f:
+                f.write(f"[JSON_PARSE] Attempting fix with trailing comma removal...\n")
+            
+            # Also fix unbalanced brackets
             if fixed_text.count('{') > fixed_text.count('}'): fixed_text += '}' * (fixed_text.count('{') - fixed_text.count('}'))
             if fixed_text.count('[') > fixed_text.count(']'): fixed_text += ']' * (fixed_text.count('[') - fixed_text.count(']'))
             try:
                 data = json.loads(fixed_text)
                 if isinstance(data, dict):
+                    with open("debug_trace.log", "a", encoding="utf-8") as f:
+                        f.write(f"[JSON_PARSE] Fixed and parsed! Keys: {list(data.keys())}\n")
                     return data
                 return {}
-            except:
-                logger.error(f"Failed to parse AI JSON after cleaning: {clean_text[:200]}")
+            except Exception as fix_err:
+                with open("debug_trace.log", "a", encoding="utf-8") as f:
+                    f.write(f"[JSON_PARSE] Failed even after fixing: {fix_err}\n")
                 return {}
 
     def _build_simulation_result(self, data, sampled_citizens, sim_metadata_override=None):
@@ -4012,7 +4095,7 @@ Output the transcribed text directly, without any additional explanation."""
                 ]
             }],
             "generationConfig": {
-                "maxOutputTokens": 8192,
+                "maxOutputTokens": 65536,  # 🔧 [Fix] Increased from 8192 to prevent JSON truncation
                 "temperature": 0.7,
                 "topP": 0.9,
                 "responseMimeType": "application/json"
@@ -4028,10 +4111,13 @@ Output the transcribed text directly, without any additional explanation."""
             payload["contents"][0]["parts"].append({"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}})
 
         # [Restore] Prioritize Quality (Pro) as per User Request (reverting to GitHub-like behavior)
+        # [Restore] Prioritize Quality (Gemini 2.5 Pro)
         models = [
-            "gemini-2.5-pro", 
+            "gemini-2.5-pro",
             "gemini-2.5-flash",
             "gemini-2.0-flash",
+            "gemini-1.5-pro",
+            "gemini-1.5-flash",
             "gemini-flash-latest"
         ]
         
@@ -4052,20 +4138,33 @@ Output the transcribed text directly, without any additional explanation."""
                 if pdf_b64:
                     current_timeout = max(current_timeout, 120)
 
-                print(f"[DEBUG] Calling Gemini Model: {model} with Payload Size: {len(json.dumps(payload))} bytes, Timeout: {current_timeout}s")
+                # [Fix] Use Tuple for (connect_timeout, read_timeout) to prevent socket level early termination
+                # Most HTTP libraries interpret a single int as both, but explicit tuple is safer.
+                # Also ensure asyncio.to_thread is used to prevent blocking.
+                print(f"[DEBUG] Calling Gemini Model: {model} with Payload Size: {len(json.dumps(payload))} bytes, Exp. Read Timeout: {current_timeout}s")
+                
+                # Connection timeout: 30s, Read timeout: current_timeout
+                full_timeout_config = (30, current_timeout)
+                
                 response = await asyncio.to_thread(
                     requests.post, 
                     url, 
                     headers={'Content-Type': 'application/json'}, 
                     json=payload, 
-                    timeout=current_timeout
+                    timeout=full_timeout_config
                 )
                 print(f"[DEBUG] Gemini Model {model} returned Status: {response.status_code}")
                 
                 if response.status_code == 200:
                     try:
-                        return response.json()['candidates'][0]['content']['parts'][0]['text'], None
-                    except:
+                        raw_text = response.json()['candidates'][0]['content']['parts'][0]['text']
+                        # 🔍 [DEBUG] Log raw Gemini response for JSON parse debugging
+                        with open("debug_trace.log", "a", encoding="utf-8") as f:
+                            f.write(f"[GEMINI_RAW] Model: {model}, Response Length: {len(raw_text)} chars\n")
+                            f.write(f"[GEMINI_RAW] First 500 chars: {raw_text[:500]}\n")
+                        return raw_text, None
+                    except Exception as parse_ex:
+                        print(f"[DEBUG] Gemini Model {model} parse error: {parse_ex}")
                         continue
                 else:
                     last_error = f"{model}: {response.status_code} {response.text}"
