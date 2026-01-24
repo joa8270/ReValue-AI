@@ -770,33 +770,6 @@ export const translations = {
                 alert_no_comments: '暂无市民评论，无法进行优化',
                 alert_empty: '优化结果为空，请稍后再试',
                 alert_fail: '优化失败，请检查后端日志'
-            },
-            abm: {
-                title: 'ABM 意见演化过程',
-                subtitle: '系统透过30位AI市民进行5轮互动模拟，展现真实的社交影响力与意见演化过程。',
-                round_label: '第{round}轮',
-                score_label: '分',
-                evolution_log: '演化日志',
-                consensus: '共识度',
-                polarization: '极化程度',
-                herding_strength: '从众效应',
-                network_density: '网络密度',
-                consensus_high: '意见一致',
-                consensus_mid: '有分歧',
-                consensus_low: '两极化',
-                polarization_low: '低极化',
-                polarization_mid: '中极化',
-                polarization_high: '高极化',
-                herding_strong: '强影响',
-                herding_mid: '中等影响',
-                herding_weak: '弱影响',
-                network_label: '社交连结度',
-                element_radar_title: '五行契合度分析',
-                element_radar_desc: '展示产品五行属性能与不同族群的初始契合度与最终共鸣分数。',
-                structure_dist_title: '格局意见分布',
-                structure_dist_desc: '揭示哪种人格格局对产品的接受度最高。',
-                initial_affinity: '初始契合',
-                final_resonance: '最终共鸣'
             }
         }
     },
@@ -1183,33 +1156,6 @@ export const translations = {
                 alert_no_comments: 'No citizen comments available for optimization.',
                 alert_empty: 'Optimization result is empty, please try again later.',
                 alert_fail: 'Optimization failed, please check backend logs.'
-            },
-            abm: {
-                title: 'ABM Opinion Evolution',
-                subtitle: 'System simulates 5 rounds of interactions among 30 AI citizens, showcasing real social influence and opinion evolution.',
-                round_label: 'Round {round}',
-                score_label: ' pts',
-                evolution_log: 'Evolution Log',
-                consensus: 'Consensus',
-                polarization: 'Polarization',
-                herding_strength: 'Herding Effect',
-                network_density: 'Network Density',
-                consensus_high: 'High Agreement',
-                consensus_mid: 'Divergent',
-                consensus_low: 'Polarized',
-                polarization_low: 'Low Polarization',
-                polarization_mid: 'Mid Polarization',
-                polarization_high: 'High Polarization',
-                herding_strong: 'Strong Influence',
-                herding_mid: 'Moderate Influence',
-                herding_weak: 'Weak Influence',
-                network_label: 'Social Connectivity',
-                element_radar_title: 'Five Elements Affinity',
-                element_radar_desc: 'Visualizing product element affinity and final resonance across different element groups.',
-                structure_dist_title: 'Structure Opinion Distribution',
-                structure_dist_desc: 'Revealing which personality structures are most receptive to the product.',
-                initial_affinity: 'Initial Affinity',
-                final_resonance: 'Final Resonance'
             }
         }
     }
