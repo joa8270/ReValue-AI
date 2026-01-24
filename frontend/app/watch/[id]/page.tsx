@@ -919,12 +919,49 @@ export default function WatchPage() {
             </span>
           </button>
 
-          <div className={`flex flex-col gap-6 ${isSidebarCollapsed ? 'items-center' : ''}`}>
-            {/* Header */}
-            <div className={`${isSidebarCollapsed ? 'hidden' : ''}`}>
-              <h1 className="text-white text-base font-bold uppercase tracking-wider mb-1 mt-10">{t('report.ui.filter_title')}</h1>
-              <p className="text-gray-500 text-xs">{t('report.ui.filter_desc').replace('{count}', TOTAL_POPULATION.toLocaleString())}</p>
-            </div>
+          <div className={`flex flex-col gap-4 ${isSidebarCollapsed ? 'items-center' : ''}`}>
+            {/* === 三層數據漏斗 UI === */}
+            {!isSidebarCollapsed && (
+              <div className="mt-10 space-y-3 px-1">
+                {/* 標題 */}
+                <h1 className="text-white text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                  {t('report.ui.filter_title')}
+                </h1>
+
+                {/* 三層卡片 */}
+                <div className="space-y-2">
+                  {/* Level 1: TAM */}
+                  <div className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 rounded-lg p-2.5 border border-blue-500/20">
+                    <div className="text-blue-400 text-[10px] font-medium mb-0.5">
+                      {t('report.ui.funnel_tam')}
+                    </div>
+                    <div className="text-white text-lg font-bold">15.3M</div>
+                  </div>
+
+                  {/* Level 2: Simulated - 重點強調 */}
+                  <div className="bg-gradient-to-r from-purple-900/40 to-violet-900/40 rounded-lg p-3 border-2 border-purple-500/50 relative group shadow-lg shadow-purple-500/10">
+                    <div className="flex items-center justify-between">
+                      <div className="text-purple-400 text-[10px] font-medium">
+                        {t('report.ui.funnel_simulated')}
+                      </div>
+                      {/* Info Icon */}
+                      <span className="text-gray-500 hover:text-purple-400 transition-colors cursor-help text-xs" title={t('report.ui.sampling_tooltip')}>ⓘ</span>
+                    </div>
+                    <div className="text-white text-2xl font-bold mt-1">{(data?.genesis?.total_population || 1000).toLocaleString()}</div>
+                    <div className="text-purple-300/70 text-[10px]">{t('report.ui.ai_citizens_computing')}</div>
+                  </div>
+
+                  {/* Level 3: Focus Group */}
+                  <div className="bg-gradient-to-r from-amber-900/30 to-orange-900/30 rounded-lg p-2.5 border border-amber-500/20">
+                    <div className="text-amber-400 text-[10px] font-medium mb-0.5">
+                      {t('report.ui.funnel_focus')}
+                    </div>
+                    <div className="text-white text-lg font-bold">{data?.genesis?.sample_size || 10}</div>
+                    <div className="text-amber-300/70 text-[10px]">{t('report.ui.kol_display')}</div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Collapsed Header Icon */}
             {isSidebarCollapsed && (
@@ -939,40 +976,52 @@ export default function WatchPage() {
               <button className={`flex items-center rounded-lg bg-[#7f13ec]/10 text-white border border-[#7f13ec]/50 transition-all ${isSidebarCollapsed ? 'p-2.5 justify-center' : 'gap-3 px-3 py-2.5'}`} title={t('report.ui.all_citizens')}>
                 <span className="material-symbols-outlined fill-1 text-[#7f13ec]">groups</span>
                 {!isSidebarCollapsed && (
-                  <div className="flex flex-col items-start"><span className="text-sm font-bold">{t('report.ui.all_citizens')}</span><span className="text-[10px] opacity-70">{t('report.ui.all_citizens_sub').replace('{count}', TOTAL_POPULATION.toLocaleString())}</span></div>
+                  <div className="flex flex-col items-start"><span className="text-sm font-bold">{t('report.ui.all_citizens')}</span><span className="text-[10px] opacity-70">{t('report.ui.all_citizens_sub').replace('{count}', (data?.genesis?.total_population || 1000).toLocaleString())}</span></div>
                 )}
               </button>
 
               {!isSidebarCollapsed && <div className="h-px bg-[#302839] my-2"></div>}
               {!isSidebarCollapsed && <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3">原型</p>}
 
-              {/* Persona Buttons */}
-              {/* Persona Buttons */}
-              {[
-                { key: 'tech', bazi: '食神格', icon: 'devices', count: 342 },
-                { key: 'budget', bazi: '正財格', icon: 'savings', count: 215 },
-                { key: 'skeptic', bazi: '七殺格', icon: 'sentiment_dissatisfied', count: 140 },
-                { key: 'early', bazi: '偏財格', icon: 'rocket_launch', count: 188 },
-                { key: 'loyal', bazi: '正印格', icon: 'verified', count: 115 }
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  className={`flex items-center rounded-lg hover:bg-[#302839] text-[#ab9db9] group transition-colors ${isSidebarCollapsed ? 'p-2.5 justify-center' : 'justify-between gap-3 px-3 py-2'}`}
-                  title={isSidebarCollapsed ? `${t('report.ui.persona_types.' + item.key)}` : undefined}
-                >
-                  <div className={`flex items-center ${isSidebarCollapsed ? '' : 'gap-3'}`}>
-                    <span className="material-symbols-outlined group-hover:text-[#7f13ec] transition-colors">{item.icon}</span>
-                    {!isSidebarCollapsed && (
-                      <div className="flex flex-col items-start gap-0.5">
-                        <span className="text-sm font-medium group-hover:text-white transition-colors">{t('report.ui.persona_types.' + item.key)}</span>
-                        {/* @ts-ignore - getDecisionModels may have dynamic keys */}
-                        <span className="text-sm text-[#a855f7] font-bold tracking-wide">{getDecisionModels(t)[item.bazi]?.title || item.bazi}</span>
-                      </div>
-                    )}
-                  </div>
-                  {!isSidebarCollapsed && <span className="text-xs bg-[#231b2e] px-1.5 py-0.5 rounded text-gray-500">{item.count}</span>}
-                </button>
-              ))}
+              {/* Persona Buttons - 使用固定分佈比例顯示 1,000 位市民組成 */}
+              {(() => {
+                // 固定分佈比例（基於 1,000 位市民的合理分佈）
+                const FIXED_DISTRIBUTION = {
+                  tech: 320,    // 食神格 - 科技愛好者
+                  budget: 230,  // 正財格 - 精打細算型
+                  skeptic: 150, // 七殺格 - 懷疑論者
+                  early: 180,   // 偏財格 - 早期採用者
+                  loyal: 120    // 正印格 - 品牌忠誠者
+                };
+
+                const personaItems = [
+                  { key: 'tech', bazi: '食神格', icon: 'devices', count: FIXED_DISTRIBUTION.tech },
+                  { key: 'budget', bazi: '正財格', icon: 'savings', count: FIXED_DISTRIBUTION.budget },
+                  { key: 'skeptic', bazi: '七殺格', icon: 'sentiment_dissatisfied', count: FIXED_DISTRIBUTION.skeptic },
+                  { key: 'early', bazi: '偏財格', icon: 'rocket_launch', count: FIXED_DISTRIBUTION.early },
+                  { key: 'loyal', bazi: '正印格', icon: 'verified', count: FIXED_DISTRIBUTION.loyal }
+                ];
+
+                return personaItems.map((item) => (
+                  <button
+                    key={item.key}
+                    className={`flex items-center rounded-lg hover:bg-[#302839] text-[#ab9db9] group transition-colors ${isSidebarCollapsed ? 'p-2.5 justify-center' : 'justify-between gap-3 px-3 py-2'}`}
+                    title={isSidebarCollapsed ? `${t('report.ui.persona_types.' + item.key)}` : undefined}
+                  >
+                    <div className={`flex items-center ${isSidebarCollapsed ? '' : 'gap-3'}`}>
+                      <span className="material-symbols-outlined group-hover:text-[#7f13ec] transition-colors">{item.icon}</span>
+                      {!isSidebarCollapsed && (
+                        <div className="flex flex-col items-start gap-0.5">
+                          <span className="text-sm font-medium group-hover:text-white transition-colors">{t('report.ui.persona_types.' + item.key)}</span>
+                          {/* @ts-ignore - getDecisionModels may have dynamic keys */}
+                          <span className="text-sm text-[#a855f7] font-bold tracking-wide">{getDecisionModels(t)[item.bazi]?.title || item.bazi}</span>
+                        </div>
+                      )}
+                    </div>
+                    {!isSidebarCollapsed && <span className="text-xs bg-[#231b2e] px-1.5 py-0.5 rounded text-gray-500">{item.count}</span>}
+                  </button>
+                ));
+              })()}
             </div>
           </div>
         </aside>

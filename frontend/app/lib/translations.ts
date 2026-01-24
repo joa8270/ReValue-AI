@@ -106,6 +106,13 @@ export const translations = {
             step2_fermi_tooltip: '統計學信心水準 ±3% 誤差',
             step2_next: '下一步: 設定受眾',
             step2_back: '上一步',
+            analysis_mode: {
+                label: '評測場景設定',
+                b2c: '消費市場 (B2C)',
+                b2c_desc: '適用：實體商品、App、食品、個人服務',
+                b2b: '商業計畫 (B2B)',
+                b2b_desc: '適用：新技術、供應鏈、招商、募資'
+            },
         },
         how_it_works: {
             title: '預演如何運作',
@@ -252,6 +259,13 @@ export const translations = {
                 predict_win_rate: '，為您預判市場勝率。',
                 filter_title: '人物誌篩選',
                 filter_desc: '篩選 {count} 位 AI 市民',
+                target_audience_only: '目標受眾',
+                funnel_tam: '🌍 潛在市場',
+                funnel_simulated: '⚡ 模擬演算',
+                funnel_focus: '💬 焦點小組',
+                sampling_tooltip: '系統已完成 1,000 位 AI 市民的並行演算（信賴水準 95%）。為了方便閱讀，本報告從中篩選出最具代表性的 10 位關鍵意見領袖 (KOL) 進行深度展示。',
+                ai_citizens_computing: 'AI 市民並行運算',
+                kol_display: '關鍵意見領袖 (KOL)',
                 persona_types: {
                     tech: '科技愛好者',
                     budget: '精打細算型',
@@ -492,6 +506,13 @@ export const translations = {
             step2_fermi_tooltip: '统计学置信水准 ±3% 误差',
             step2_next: '下一步: 设定受众',
             step2_back: '上一步',
+            analysis_mode: {
+                label: '评测场景设定',
+                b2c: '消费市场 (B2C)',
+                b2c_desc: '适用：实体商品、App、食品、个人服务',
+                b2b: '商业计划 (B2B)',
+                b2b_desc: '适用：新技术、供应链、招商、募资'
+            },
         },
         how_it_works: {
             title: '预演如何运作',
@@ -638,6 +659,13 @@ export const translations = {
                 predict_win_rate: '，为您预判市场胜率。',
                 filter_title: '人物志筛选',
                 filter_desc: '筛选 {count} 位 AI 市民',
+                target_audience_only: '目标受众',
+                funnel_tam: '🌍 潜在市场',
+                funnel_simulated: '⚡ 模拟演算',
+                funnel_focus: '💬 焦点小组',
+                sampling_tooltip: '系统已完成 1,000 位 AI 市民的并行演算（置信水准 95%）。为了方便阅读，本报告从中筛选出最具代表性的 10 位关键意见领袖 (KOL) 进行深度展示。',
+                ai_citizens_computing: 'AI 市民并行运算',
+                kol_display: '关键意见领袖 (KOL)',
                 persona_types: {
                     tech: '科技爱好者',
                     budget: '精打细算型',
@@ -878,6 +906,13 @@ export const translations = {
             step2_fermi_tooltip: 'Statistical confidence ±3% margin',
             step2_next: 'Next: Set Audience',
             step2_back: 'Back',
+            analysis_mode: {
+                label: 'Analysis Scenario',
+                b2c: 'Consumer (B2C)',
+                b2c_desc: 'For Products, Apps, Food, Services',
+                b2b: 'Business (B2B)',
+                b2b_desc: 'For Tech, Supply Chain, Funding'
+            },
         },
         how_it_works: {
             title: 'How It Works',
@@ -1024,6 +1059,13 @@ export const translations = {
                 predict_win_rate: 'to predict market success rate.',
                 filter_title: 'Persona Filter',
                 filter_desc: 'Filter {count} AI Citizens',
+                target_audience_only: 'Target Audience',
+                funnel_tam: '🌍 Total Addressable Market',
+                funnel_simulated: '⚡ Simulated',
+                funnel_focus: '💬 Focus Group',
+                sampling_tooltip: 'The system has completed parallel computation of 1,000 AI citizens (95% confidence level). For easier reading, this report showcases the 10 most representative Key Opinion Leaders (KOLs).',
+                ai_citizens_computing: 'AI Citizens Computing',
+                kol_display: 'Key Opinion Leaders (KOL)',
                 persona_types: {
                     tech: 'Tech Enthusiast',
                     budget: 'Budget Conscious',

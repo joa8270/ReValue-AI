@@ -60,7 +60,8 @@ async def trigger_simulation(
     style: str = Form(None),  # 新增 style 欄位
     language: str = Form("zh-TW"),  # 新增 language 欄位
     targeting: str = Form(None), # JSON string of targeting options
-    expert_mode: str = Form("false") # "true"/"false" string
+    expert_mode: str = Form("false"), # "true"/"false" string
+    analysis_scenario: str = Form("b2c") # "b2c" / "b2b"
 ):
     from app.services.line_bot_service import LineBotService
     line_service = LineBotService()
@@ -111,7 +112,8 @@ async def trigger_simulation(
             "product_name": product_name, # 冗餘備份，確保前端引用相容
             "source_type": "pdf" if ext == "pdf" or ext in ["docx", "txt"] else "image",
             "targeting": targeting_data,
-            "expert_mode": is_expert_mode
+            "expert_mode": is_expert_mode,
+            "analysis_scenario": analysis_scenario
         }
     }
     # 建立 DB 紀錄

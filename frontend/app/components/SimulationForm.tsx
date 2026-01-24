@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square, User, Target, TrendingUp, Users, ShieldAlert } from 'lucide-react'
+import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square, User, Target, TrendingUp, Users, ShieldAlert, ShoppingBag, Briefcase } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 
 export default function SimulationForm() {
@@ -24,6 +24,8 @@ export default function SimulationForm() {
     const [targetOccupations, setTargetOccupations] = useState<string[]>([])
     const [expertMode, setExpertMode] = useState(false)
     const [tam, setTam] = useState(23000000) // Initial TAM (Taiwan Pop)
+    // Scenario State
+    const [analysisScenario, setAnalysisScenario] = useState<'b2c' | 'b2b'>('b2c')
 
     // Auto-calculate TAM
     useEffect(() => {
@@ -364,6 +366,9 @@ export default function SimulationForm() {
                 formData.append("language", language)
             }
 
+            // Add Scenario Mode
+            formData.append("analysis_scenario", analysisScenario)
+
             // Add Targeting Params
             const targetingData = {
                 age_range: targetAge,
@@ -438,6 +443,36 @@ export default function SimulationForm() {
                 <span className="p-2 bg-purple-500/20 rounded-lg text-purple-400">⚡</span>
                 {iterationAlert ? t('simulation_form.title_iteration') : t('simulation_form.title_default')}
             </h2>
+
+            {/* Scenario Switch */}
+            <div className="mb-6 bg-slate-950/50 p-1.5 rounded-xl flex gap-2">
+                <button
+                    onClick={() => setAnalysisScenario('b2c')}
+                    className={`flex-1 flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all gap-1 ${analysisScenario === 'b2c'
+                            ? 'bg-purple-900/30 border-purple-500 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
+                            : 'bg-transparent border-transparent text-slate-500 hover:bg-slate-800'
+                        }`}
+                >
+                    <div className="flex items-center gap-2">
+                        <ShoppingBag className="w-5 h-5" />
+                        <span className="font-bold">{t('simulation_form.analysis_mode.b2c')}</span>
+                    </div>
+                    <span className="text-[10px] opacity-70">{t('simulation_form.analysis_mode.b2c_desc')}</span>
+                </button>
+                <button
+                    onClick={() => setAnalysisScenario('b2b')}
+                    className={`flex-1 flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all gap-1 ${analysisScenario === 'b2b'
+                            ? 'bg-blue-900/30 border-blue-500 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                            : 'bg-transparent border-transparent text-slate-500 hover:bg-slate-800'
+                        }`}
+                >
+                    <div className="flex items-center gap-2">
+                        <Briefcase className="w-5 h-5" />
+                        <span className="font-bold">{t('simulation_form.analysis_mode.b2b')}</span>
+                    </div>
+                    <span className="text-[10px] opacity-70">{t('simulation_form.analysis_mode.b2b_desc')}</span>
+                </button>
+            </div>
 
             {/* Tabs */}
             <div className="flex p-1 bg-slate-950/50 rounded-xl mb-6">

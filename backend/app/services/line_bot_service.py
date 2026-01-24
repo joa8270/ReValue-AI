@@ -1600,6 +1600,12 @@ Reply directly in JSON format:
         try:
             with open("debug_image.log", "w", encoding="utf-8") as f: f.write(f"[{sim_id}] STARTING run_simulation_with_image_data (Lang: {language})\n")
             
+            # Fetch Scenario
+            from app.core.database import get_simulation
+            sim_data = get_simulation(sim_id)
+            analysis_scenario = sim_data.get("simulation_metadata", {}).get("analysis_scenario", "b2c") if sim_data else "b2c"
+
+            
             # 1. Process Images (Single or List)
             image_bytes_list = image_data_input if isinstance(image_data_input, list) else [image_data_input]
             image_parts = []
@@ -1931,6 +1937,161 @@ __CITIZENS_JSON__
 5. **Language**: All content must be in English.
 """
                 }
+
+                # B2B Scenario Override
+                if analysis_scenario == 'b2b':
+                    prompt_templates = {
+                        "zh-TW": """
+你是 MIRRA 鏡界系統的【首席商業評測官】。你的任務是評估這份「B2B 商業計畫 / 技術解決方案」。
+請**完全忽略**個人審美、口感或日常實用性。
+你的視角必須轉化為：CFO (財務長)、VC (創投)、CTO (技術長)。
+關注核心指標：ROI (投資回報率)、護城河 (Moat)、可擴展性 (Scalability)、供應鏈確保。
+
+__PRODUCT_CONTEXT__
+📋 以下是評測委員資料（雖然顯示為市民，請將其性格映射為商業角色）：
+- **正財格** 👉 **CFO (財務長)**：嚴查利潤空間、成本結構。
+- **七殺格** 👉 **VC (創投)**：看重顛覆性、高回報機會。
+- **傷官格** 👉 **CTO (技術長)**：質疑技術可行性、專利壁壘。
+- **正官格/正印格** 👉 **COO (營運長)**：關注合規風險、供應鏈穩定。
+
+__CITIZENS_JSON__
+
+⚠️ **重要指示：商業場景維度重定義**
+1. 📈 **原本：市場潛力** -> **市場可擴展性 (Scalability)**：TAM/SAM/SOM 分析。
+2. 💰 **原本：收藏價值** -> **技術壁壘 (Tech Moat)**：是否有專利？是否難以複製？競爭優勢。
+3. ✅ **原本：參與覆蓋率** -> **供應鏈與執行力 (Feasibility)**：團隊執行能力與產能風險。
+
+🎯 請務必回傳一個**純 JSON 字串 (不要 Markdown)**，結構與 B2C 相同（請將商業分析填入對應欄位）：
+{
+    "simulation_metadata": {
+        "product_category": "tech_electronics",
+        "target_market": "B2B / Enterprise",
+        "currency": "TWD",
+        "marketing_angle": "(B2B 商業切角，如『降低 30% OPEX』)",
+        "bazi_analysis": "(分析企業五行屬性與行業契合度)"
+    },
+    "metric_advice": {
+        "market_potential": "針對市場規模與擴展性的建議 (Scalability)",
+        "collection_value": "針對技術壁壘與護城河的建議 (Moat)",
+        "coverage": "針對執行可行性與風險的建議 (Feasibility)"
+    },
+    "result": {
+        "score": (0-100 的 B2B 投資推薦指數),
+        "market_sentiment": "值得投資/觀望/高風險 (四字簡述)",
+        "summary": "分析報告標題\\n\\n[商業模式解析] (深入解析商業邏輯、獲利模式，至少 200 字)\\n\\n[風險評估] (針對財務、技術、市場風險的評估，至少 200 字)\\n\\n[投資戰略] (給出具體的融資或擴張建議，至少 150 字)",
+        "objections": [{"reason": "商業質疑點 A", "percentage": 30}],
+        "suggestions": [
+            {
+                "target": "目標客戶/投資人 A",
+                "advice": "【針對 B2B 客戶/投資人的 Pitch 策略，至少 150 字】",
+                "element_focus": "對應五行",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "ROI/KPI",
+                "potential_risks": "風險",
+                "score_improvement": "+X 分"
+            },
+            {
+                "target": "目標客戶/投資人 B",
+                "advice": "...",
+                "element_focus": "...",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "ROI/KPI",
+                "potential_risks": "風險",
+                "score_improvement": "+Y 分"
+            },
+            {
+                "target": "目標客戶/投資人 C",
+                "advice": "...",
+                "element_focus": "...",
+                "execution_plan": ["步驟 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"],
+                "success_metrics": "ROI/KPI",
+                "potential_risks": "風險",
+                "score_improvement": "+Z 分"
+            }
+        ]
+    },
+    "comments": [
+        (必須生成精確 10 則評論)
+        {"citizen_id": "ID", "sentiment": "positive/neutral/negative", "text": "商業評委評論 (繁體中文，模擬 CFO/VC/CTO 口吻，嚴肅專業)"}
+    ]
+}
+""",
+                        "zh-CN": """
+你是 MIRRA 镜界系统的【首席商业评测官】。你的任务是评估这份「B2B 商业计划 / 技术解决方案」。
+请**完全忽略**个人审美、口感或日常实用性。
+你的视角必须转化为：CFO (财务长)、VC (创投)、CTO (技术长)。
+关注核心指标：ROI (投资回报率)、护城河 (Moat)、可扩展性 (Scalability)、供应链稳定性。
+
+__PRODUCT_CONTEXT__
+📋 以下是评测委员资料（请映射为商业角色）：
+- **正财格** 👉 **CFO**：严查利润空间。
+- **七杀格** 👉 **VC**：看重颠覆性。
+- **伤官格** 👉 **CTO**：质疑技术。
+- **正官格/正印格** 👉 **COO**：关注合规风险。
+
+__CITIZENS_JSON__
+
+⚠️ **重要指示：商业场景维度重定义**
+1. 📈 **市场潜力** -> **市场可扩展性 (Scalability)**
+2. 💰 **收藏价值** -> **技术壁垒 (Tech Moat)**
+3. ✅ **覆盖率** -> **执行可行性 (Feasibility)**
+
+🎯 回传 JSON (结构同 B2C，填入商业分析)：
+{
+    "simulation_metadata": { "product_category": "tech_electronics", "target_market": "B2B", "currency": "CNY", "marketing_angle": "(B2B 切角)", "bazi_analysis": "(企业五行分析)" },
+    "metric_advice": { "market_potential": "Scalability 建议", "collection_value": "Moat 建议", "coverage": "Feasibility 建议" },
+    "result": {
+        "score": (投资推荐指数),
+        "market_sentiment": "值得投资/观望/高风险",
+        "summary": "分析报告标题\\n\\n[商业模式] (至少 200 字)\\n\\n[风险评估] (至少 200 字)\\n\\n[投资战略] (至少 150 字)",
+        "objections": [{"reason": "商业质疑", "percentage": 30}],
+        "suggestions": [
+            { "target": "目标客户 A", "advice": "Pitch 策略...", "element_focus": "...", "execution_plan": ["步骤 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"], "success_metrics": "ROI", "potential_risks": "Risk", "score_improvement": "+X" },
+            { "target": "...", "advice": "...", "element_focus": "...", "execution_plan": ["步骤 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"], "success_metrics": "", "potential_risks": "", "score_improvement": "" },
+            { "target": "...", "advice": "...", "element_focus": "...", "execution_plan": ["步骤 1", "步驟 2", "步驟 3", "步驟 4", "步驟 5"], "success_metrics": "", "potential_risks": "", "score_improvement": "" }
+        ]
+    },
+    "comments": [ {"citizen_id": "ID", "sentiment": "...", "text": "商业评委评论 (简体中文，严严肃专业)"} ]
+}
+""",
+                        "en": """
+You are MIRRA's Chief Business Auditor. Evaluate this B2B proposal / Tech Solution.
+**IGNORE** personal aesthetics or daily utility.
+Transform your role to: CFO, VC, CTO.
+Focus on: ROI, Moat, Scalability, Supply Chain.
+
+__PRODUCT_CONTEXT__
+📋 Committee Profile (Map Bazi to Business Roles):
+- **Direct Wealth** 👉 **CFO**: Profit margin focus.
+- **Seven Killings** 👉 **VC**: High risk/reward.
+- **Hurting Officer** 👉 **CTO**: Tech feasibility.
+
+__CITIZENS_JSON__
+
+⚠️ **Dimensional Redefinition**
+1. 📈 **Market Potential** -> **Scalability (TAM/SAM)**
+2. 💰 **Collection Value** -> **Tech Moat / IP**
+3. ✅ **Coverage** -> **Feasibility / Execution**
+
+🎯 Return JSON (Fill with Business Analysis):
+{
+    "simulation_metadata": { "product_category": "tech_electronics", "target_market": "B2B", "currency": "USD", "marketing_angle": "(B2B Angle)", "bazi_analysis": "(Corporate Element Analysis)" },
+    "metric_advice": { "market_potential": "Scalability Advice", "collection_value": "Moat Advice", "coverage": "Feasibility Advice" },
+    "result": {
+        "score": (Investment Index 0-100),
+        "market_sentiment": "Investable/Risky/Watch",
+        "summary": "Title\\n\\n[Business Model] (>200 words)\\n\\n[Risk Assessment] (>200 words)\\n\\n[Strategy] (>150 words)",
+        "objections": [{"reason": "Business Objection", "percentage": 30}],
+        "suggestions": [
+            { "target": "Target Client A", "advice": "B2B Strategy...", "element_focus": "...", "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"], "success_metrics": "ROI", "potential_risks": "Risk", "score_improvement": "+X" },
+            { "target": "...", "advice": "...", "element_focus": "...", "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"], "success_metrics": "", "potential_risks": "", "score_improvement": "" },
+            { "target": "...", "advice": "...", "element_focus": "...", "execution_plan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"], "success_metrics": "", "potential_risks": "", "score_improvement": "" }
+        ]
+    },
+    "comments": [ {"citizen_id": "ID", "sentiment": "...", "text": "Business Comment (Professional, CFO/VC tone)"} ]
+}
+"""
+                    }
 
                 prompt_template = prompt_templates.get(language, prompt_templates["zh-TW"])
                 prompt_text = prompt_template.replace("__PRODUCT_CONTEXT__", product_context).replace("__CITIZENS_JSON__", citizens_json)

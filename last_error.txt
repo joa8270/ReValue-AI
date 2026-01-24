@@ -1,6 +1,6 @@
-name 'image_bytes' is not defined
+'age'
 Traceback (most recent call last):
-  File "C:\Users\Joa\Downloads\MIRRA\backend\app\services\line_bot_service.py", line 1142, in run_simulation_with_image_data
-    if image_bytes.startswith(b'\x89PNG'):
-       ^^^^^^^^^^^
-NameError: name 'image_bytes' is not defined. Did you mean: 'img_bytes'?
+  File "C:\Users\Joa\Downloads\MIRRA\backend\app\services\line_bot_service.py", line 2283, in run_simulation_with_image_data
+    "age": str(c["age"]),
+               ~^^^^^^^
+KeyError: 'age'
