@@ -100,6 +100,14 @@ interface SimulationData {
     product_name?: string
     source_type?: string
     product_category?: string
+    targeting?: {
+      age_range?: [number, number]
+      gender?: string
+      occupations?: string[]
+      tam?: number  // 動態計算的潛在市場規模
+    }
+    expert_mode?: boolean
+    analysis_scenario?: string
   }
   methodology_data?: {
     valid_until: string
@@ -935,7 +943,10 @@ export default function WatchPage() {
                     <div className="text-blue-400 text-[10px] font-medium mb-0.5">
                       {t('report.ui.funnel_tam')}
                     </div>
-                    <div className="text-white text-lg font-bold">15.3M</div>
+                    <div className="text-white text-lg font-bold">
+                      {/* 動態 TAM：從 simulation_metadata.targeting.tam 讀取，默認 18.6M */}
+                      {(data?.simulation_metadata?.targeting?.tam || 18600000).toLocaleString()}
+                    </div>
                   </div>
 
                   {/* Level 2: Simulated - 重點強調 */}

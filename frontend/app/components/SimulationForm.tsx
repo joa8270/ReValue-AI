@@ -23,13 +23,14 @@ export default function SimulationForm() {
     const [targetGender, setTargetGender] = useState<'all' | 'male' | 'female'>('all')
     const [targetOccupations, setTargetOccupations] = useState<string[]>([])
     const [expertMode, setExpertMode] = useState(false)
-    const [tam, setTam] = useState(23000000) // Initial TAM (Taiwan Pop)
+    const [tam, setTam] = useState(18600000) // Initial TAM (Taiwan Active Internet Users / Labor Force)
     // Scenario State
     const [analysisScenario, setAnalysisScenario] = useState<'b2c' | 'b2b'>('b2c')
 
-    // Auto-calculate TAM
+    // Auto-calculate TAM with Fermi Logic
     useEffect(() => {
-        let base = 23000000
+        let base = 18600000 // 台灣活躍網路使用者/勞動年齡人口（更符合 SaaS/電商受眾）
+
         // Age impact (Rough estimate)
         const ageRange = targetAge[1] - targetAge[0]
         const ageFactor = Math.min(1, ageRange / 60)
@@ -47,7 +48,9 @@ export default function SimulationForm() {
             base = base * occFactor
         }
 
-        setTam(Math.floor(base))
+        // 加入隨機雜訊，讓尾數看起來不那麼整齊，增加真實感
+        const noise = Math.floor(Math.random() * 5000)
+        setTam(Math.floor(base) + noise)
     }, [targetAge, targetGender, targetOccupations])
 
     const searchParams = useSearchParams()
@@ -373,7 +376,8 @@ export default function SimulationForm() {
             const targetingData = {
                 age_range: targetAge,
                 gender: targetGender,
-                occupations: targetOccupations
+                occupations: targetOccupations,
+                tam: tam  // 傳遞計算後的 TAM 值
             }
             formData.append("targeting", JSON.stringify(targetingData))
             formData.append("expert_mode", expertMode.toString())
@@ -449,8 +453,8 @@ export default function SimulationForm() {
                 <button
                     onClick={() => setAnalysisScenario('b2c')}
                     className={`flex-1 flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all gap-1 ${analysisScenario === 'b2c'
-                            ? 'bg-purple-900/30 border-purple-500 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
-                            : 'bg-transparent border-transparent text-slate-500 hover:bg-slate-800'
+                        ? 'bg-purple-900/30 border-purple-500 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
+                        : 'bg-transparent border-transparent text-slate-500 hover:bg-slate-800'
                         }`}
                 >
                     <div className="flex items-center gap-2">
@@ -462,8 +466,8 @@ export default function SimulationForm() {
                 <button
                     onClick={() => setAnalysisScenario('b2b')}
                     className={`flex-1 flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all gap-1 ${analysisScenario === 'b2b'
-                            ? 'bg-blue-900/30 border-blue-500 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)]'
-                            : 'bg-transparent border-transparent text-slate-500 hover:bg-slate-800'
+                        ? 'bg-blue-900/30 border-blue-500 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                        : 'bg-transparent border-transparent text-slate-500 hover:bg-slate-800'
                         }`}
                 >
                     <div className="flex items-center gap-2">
