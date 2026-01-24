@@ -868,47 +868,6 @@ export default function WatchPage() {
               <span>{isCopied ? t('report.ui.copy_link') : t('report.ui.share_project')}</span>
             </button>
 
-            {/* New PDF Download Button (Replaces Share & Old Download) */}
-            {data && data.status === 'ready' && (
-              <>
-                {!isPdfReady ? (
-                  <button
-                    onClick={() => setIsPdfReady(true)}
-                    className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#7f13ec] hover:bg-[#9d4af2] transition-colors text-white text-sm font-bold shadow-[0_0_10px_rgba(127,19,236,0.5)] gap-2 group"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-                    <span>{t('report.ui.prepare_pdf')}</span>
-                  </button>
-                ) : (
-                  <PDFDownloadLink
-                    document={<SimulationReportPDF data={data} />}
-                    fileName={`MIRRA_Report_${simId.slice(0, 8)}.pdf`}
-                    className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#7f13ec] hover:bg-[#9d4af2] transition-colors text-white text-sm font-bold shadow-[0_0_10px_rgba(127,19,236,0.5)] gap-2 group"
-                  >
-                    {/* @ts-ignore */}
-                    {({ blob, url, loading, error }) =>
-                      loading ? (
-                        <>
-                          <span className="material-symbols-outlined text-lg animate-spin">sync</span>
-                          <span>{t('report.ui.generating_pdf')}</span>
-                        </>
-                      ) : error ? (
-                        <>
-                          <span className="material-symbols-outlined text-lg">error</span>
-                          <span>{t('report.ui.pdf_failed')}: {String(error).slice(0, 10)}...</span>
-                          {console.error('PDF Generation Error:', error)}
-                        </>
-                      ) : (
-                        <>
-                          <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">download</span>
-                          <span>{t('report.ui.download_pdf')}</span>
-                        </>
-                      )
-                    }
-                  </PDFDownloadLink>
-                )}
-              </>
-            )}
             <div className="bg-center bg-no-repeat bg-cover rounded-full size-9 border border-[#302839]" style={{ backgroundImage: 'url("https://api.dicebear.com/7.x/avataaars/svg?seed=Alex")' }}></div>
           </div>
         </div>

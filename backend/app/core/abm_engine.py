@@ -189,11 +189,11 @@ class CitizenAgent:
     id: str
     name: str
     age: int
-    gender: str = "unknown" # 新增
-    occupation: str = "unknown" # 新增
     element: str  # 五行屬性
     structure: str  # 八字格局
     bazi_profile: Dict
+    gender: str = "unknown" # 新增
+    occupation: str = "unknown" # 新增
     
     # ABM核心屬性
     decision_profile: Dict = field(default_factory=dict)
@@ -367,6 +367,8 @@ class ABMSimulation:
         self.expert_mode = expert_mode
         self.iteration_count = 0
         self.network_edges = []
+        self.history = []  # Record average opinion per round
+        self.logs = []     # Record text logs
         
         # 初始化Agents
         for c in citizens:
@@ -375,11 +377,11 @@ class ABMSimulation:
                 id=str(c["id"]),
                 name=c["name"],
                 age=c["age"],
-                gender=c.get("gender", "unknown"),
-                occupation=c.get("occupation", "unknown"),
                 element=bazi.get("element", "Fire"),
                 structure=bazi.get("structure", "正官格"),
-                bazi_profile=bazi
+                bazi_profile=bazi,
+                gender=c.get("gender", "unknown"),
+                occupation=c.get("occupation", "unknown")
             )
             # Expert Mode: 增加挑戰性
             if self.expert_mode:
@@ -388,7 +390,7 @@ class ABMSimulation:
             self.agents.append(agent)
         
         print(f"🧬 [ABM] 已初始化 {len(self.agents)} 個 Agent (Expert: {expert_mode}, Target: {targeting})")
-    
+
     def build_social_network(self, network_type: str = "element_based"):
         """
         構建社交網絡（基於五行相性）
@@ -427,7 +429,7 @@ class ABMSimulation:
         
         avg_degree = np.mean([len(a.neighbors) for a in self.agents])
         print(f"📊 [ABM] 社交網絡已建立，平均度數: {avg_degree:.2f}")
-    
+
     def initialize_opinions(self):
         """初始化所有Agent的意見 (含 Targeting 與 Expert Mode 邏輯)"""
         product_element = self.product_info.get("element", "Fire")
@@ -477,6 +479,8 @@ class ABMSimulation:
             agent.calculate_initial_opinion(product_element, product_price, market_price, targeting_bonus=bonus)
         
         avg_opinion = np.mean([a.current_opinion for a in self.agents])
+        self.history.append(float(avg_opinion)) # Record initial state
+        self.logs.append(f"初始化意見分佈：平均 {avg_opinion:.1f}")
         print(f"💭 [ABM] 初始意見分佈：平均 {avg_opinion:.1f}，標準差 {np.std([a.current_opinion for a in self.agents]):.1f}")
     
     def run_iterations(self, num_iterations: int = 5, convergence_rate: float = 0.3):
@@ -493,6 +497,9 @@ class ABMSimulation:
             # 每輪隨機打亂更新順序（避免順序偏差）
             random.shuffle(self.agents)
             
+            # 記錄變化
+            changed_count = 0
+            
             for agent in self.agents:
                 # 獲取鄰居意見
                 neighbor_opinions = []
@@ -506,11 +513,19 @@ class ABMSimulation:
                         ))
                 
                 # 更新意見
+                old_op = agent.current_opinion
                 agent.update_opinion_via_interaction(neighbor_opinions, convergence_rate)
+                if abs(agent.current_opinion - old_op) > 1.0:
+                    changed_count += 1
             
             self.iteration_count += 1
-            avg_opinion = np.mean([a.current_opinion for a in self.agents])
-            print(f"🔄 [ABM] 迭代 {iteration + 1}/{num_iterations}：平均意見 {avg_opinion:.1f}")
+            avg_opinion = float(np.mean([a.current_opinion for a in self.agents]))
+            self.history.append(avg_opinion)
+            
+            # Generate log
+            log_msg = f"迭代 {self.iteration_count}: 平均意見 {avg_opinion:.1f} (活躍人數: {changed_count})"
+            self.logs.append(log_msg)
+            print(f"🔄 [ABM] {log_msg}")
     
     def identify_opinion_leaders(self, top_n: int = 5):
         """識別意見領袖（影響力最大的Agent）"""

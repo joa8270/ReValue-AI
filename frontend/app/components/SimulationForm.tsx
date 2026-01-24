@@ -25,11 +25,6 @@ export default function SimulationForm() {
     const [expertMode, setExpertMode] = useState(false)
     const [tam, setTam] = useState(23000000) // Initial TAM (Taiwan Pop)
 
-    // DEBUG: Monitor step changes
-    useEffect(() => {
-        console.log(`🔍 [DEBUG] Step changed to: ${step}`)
-    }, [step])
-
     // Auto-calculate TAM
     useEffect(() => {
         let base = 23000000
@@ -338,12 +333,10 @@ export default function SimulationForm() {
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
-        console.log('🔴 [DEBUG] handleSubmit called! Current step:', step)
         e.preventDefault()
 
         // Guard: Only allow submit on Step 2
         if (step !== 2) {
-            console.log('🟡 [DEBUG] Blocked submit - not on step 2')
             return
         }
 
@@ -725,23 +718,23 @@ export default function SimulationForm() {
                         <div className="bg-slate-950/50 rounded-xl p-6 border border-slate-800 space-y-4">
                             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                 <TrendingUp className="w-4 h-4 text-emerald-400" />
-                                Fermi Market Estimation
+                                {t('simulation_form.step2_fermi_title')}
                             </h3>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 rounded-lg bg-slate-900 border border-slate-800">
-                                    <p className="text-xs text-slate-500 mb-1">🌍 潛在市場母體 (TAM)</p>
+                                    <p className="text-xs text-slate-500 mb-1">{t('simulation_form.step2_fermi_tam')}</p>
                                     <p className="text-2xl font-bold text-white tabular-nums">
                                         {new Intl.NumberFormat('en-US').format(tam)}
                                     </p>
-                                    <p className="text-[10px] text-slate-600 mt-1">Based on Taiwan demographics</p>
+                                    <p className="text-[10px] text-slate-600 mt-1">{t('simulation_form.step2_fermi_tam_desc')}</p>
                                 </div>
                                 <div className="p-4 rounded-lg bg-slate-900 border border-slate-800 relative group">
-                                    <p className="text-xs text-slate-500 mb-1">🧪 AI 模擬取樣數 (Sample)</p>
+                                    <p className="text-xs text-slate-500 mb-1">{t('simulation_form.step2_fermi_sample')}</p>
                                     <p className="text-2xl font-bold text-purple-400 tabular-nums">1,000</p>
-                                    <p className="text-[10px] text-slate-600 mt-1">95% Confidence Interval</p>
+                                    <p className="text-[10px] text-slate-600 mt-1">{t('simulation_form.step2_fermi_sample_desc')}</p>
                                     {/* Tooltip */}
                                     <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-800 text-slate-300 text-xs p-2 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                                        統計學信心水準 ±3% 誤差
+                                        {t('simulation_form.step2_fermi_tooltip')}
                                     </div>
                                 </div>
                             </div>
@@ -752,8 +745,8 @@ export default function SimulationForm() {
                             {/* Age Slider */}
                             <div className="space-y-3">
                                 <label className="text-sm font-bold text-slate-300 flex justify-between">
-                                    <span>年齡範圍 (Age)</span>
-                                    <span className="text-purple-400">{targetAge[0]} - {targetAge[1] === 60 ? '60+' : targetAge[1]} 歲</span>
+                                    <span>{t('simulation_form.step2_age_label')}</span>
+                                    <span className="text-purple-400">{targetAge[0]} - {targetAge[1] === 60 ? '60+' : targetAge[1]} {t('simulation_form.step2_age_unit')}</span>
                                 </label>
                                 <input
                                     type="range"
@@ -778,7 +771,7 @@ export default function SimulationForm() {
 
                             {/* Gender Switch */}
                             <div className="space-y-3">
-                                <label className="text-sm font-bold text-slate-300">性別 (Gender)</label>
+                                <label className="text-sm font-bold text-slate-300">{t('simulation_form.step2_gender_label')}</label>
                                 <div className="flex bg-slate-950 rounded-lg p-1 border border-slate-800">
                                     {['all', 'male', 'female'].map((g) => (
                                         <button
@@ -788,7 +781,7 @@ export default function SimulationForm() {
                                             className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${targetGender === g ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'
                                                 }`}
                                         >
-                                            {g === 'all' ? '全部' : g === 'male' ? '男性' : '女性'}
+                                            {g === 'all' ? t('simulation_form.step2_gender_all') : g === 'male' ? t('simulation_form.step2_gender_male') : t('simulation_form.step2_gender_female')}
                                         </button>
                                     ))}
                                 </div>
@@ -796,13 +789,13 @@ export default function SimulationForm() {
 
                             {/* Occupation Tags */}
                             <div className="space-y-3">
-                                <label className="text-sm font-bold text-slate-300">職業/身份 (Occupation)</label>
+                                <label className="text-sm font-bold text-slate-300">{t('simulation_form.step2_occupation_label')}</label>
                                 <div className="flex flex-wrap gap-2">
                                     {[
-                                        { id: 'student', label: '🎓 學生' },
-                                        { id: 'office_worker', label: '💼 上班族' },
-                                        { id: 'executive', label: '👔 高階主管' },
-                                        { id: 'entrepreneur', label: '🚀 創業主' }
+                                        { id: 'student', labelKey: 'step2_occ_student' },
+                                        { id: 'office_worker', labelKey: 'step2_occ_office' },
+                                        { id: 'executive', labelKey: 'step2_occ_executive' },
+                                        { id: 'entrepreneur', labelKey: 'step2_occ_entrepreneur' }
                                     ].map((occ) => (
                                         <button
                                             key={occ.id}
@@ -819,7 +812,7 @@ export default function SimulationForm() {
                                                 : 'bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-500'
                                                 }`}
                                         >
-                                            {occ.label}
+                                            {t(`simulation_form.${occ.labelKey}`)}
                                         </button>
                                     ))}
                                 </div>
@@ -833,18 +826,25 @@ export default function SimulationForm() {
                                             <ShieldAlert className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <h4 className={`font-bold text-sm ${expertMode ? 'text-red-400' : 'text-slate-400'}`}>專家模式 (Expert Mode)</h4>
-                                            <p className="text-xs text-slate-500">開啟嚴格批判視角，模擬真實市場殘酷面</p>
+                                            <h4 className={`font-bold text-sm ${expertMode ? 'text-red-400' : 'text-slate-400'}`}>{t('simulation_form.expert_mode_title')}</h4>
+                                            <p className="text-xs text-slate-500">{t('simulation_form.expert_mode_desc')}</p>
                                         </div>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => setExpertMode(!expertMode)}
+                                        aria-label={t('simulation_form.expert_mode_title')}
                                         className={`w-12 h-6 rounded-full relative transition-colors ${expertMode ? 'bg-red-500' : 'bg-slate-700'}`}
                                     >
                                         <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${expertMode ? 'left-7' : 'left-1'}`} />
                                     </button>
                                 </div>
+                                {/* Expert Mode Detail Explanation */}
+                                {expertMode && (
+                                    <p className="mt-3 text-xs text-red-400/80 bg-red-500/5 border border-red-500/20 rounded-lg p-3">
+                                        {t('simulation_form.expert_mode_detail')}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </motion.div>
@@ -866,7 +866,7 @@ export default function SimulationForm() {
                             disabled={loading}
                             className="px-6 py-4 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
                         >
-                            上一步
+                            {t('simulation_form.step2_back')}
                         </button>
                     )}
 
@@ -876,17 +876,15 @@ export default function SimulationForm() {
                             onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                console.log('🔵 [DEBUG] Next button clicked')
                                 if (files.length === 0) {
                                     setError(t('simulation_form.error_no_file'))
                                     return
                                 }
-                                console.log('🔵 [DEBUG] Setting step to 2')
                                 setStep(2)
                             }}
                             className="flex-1 py-4 rounded-xl font-bold text-lg tracking-widest bg-slate-800 hover:bg-slate-700 text-white transition-all shadow-lg flex items-center justify-center gap-2 group"
                         >
-                            下一步: 設定受眾 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            {t('simulation_form.step2_next')} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </button>
                     ) : (
                         <button

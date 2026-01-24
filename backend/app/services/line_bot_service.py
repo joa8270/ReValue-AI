@@ -22,6 +22,7 @@ from linebot.v3.messaging import (
 )
 from app.core.config import settings
 from app.core.database import create_simulation, update_simulation, get_simulation, get_random_citizens
+from app.core.abm_engine import ABMSimulation
 
 # Alias for compatibility with main.py
 get_simulation_data = get_simulation
@@ -1489,6 +1490,110 @@ Reply directly in JSON format:
         except Exception as e:
             print(f"❌ [LineBot PDF] 下載或處理失敗: {e}")
 
+    async def _run_abm_simulation(self, sampled_citizens, text_context=None, language="zh-TW", targeting=None, expert_mode=False):
+        """
+        執行 ABM (Agent-Based Modeling) 模擬
+        
+        Args:
+            sampled_citizens: 已抽樣的市民資料列表
+            text_context: 產品描述文字
+            language: 語言設定
+            targeting: 受眾定錨設定 {"age_range": [20, 60], "gender": "male", ...}
+            expert_mode: 是否開啟專家模式
+        
+        Returns:
+            dict: {
+                "evolution_data": 意見演化數據（供前端視覺化）,
+                "analytics_data": 突現行為分析指標,
+                "comments_data": 代表性評論資料
+            }
+        """
+        import numpy as np
+        
+        print(f"🧬 [ABM] 開始 ABM 模擬流程，共 {len(sampled_citizens)} 位市民")
+        
+        # 產品資訊（從 text_context 中提取或使用默認值）
+        product_info = {
+            "element": "Fire",  # 默認五行屬性（實際應由 AI 判斷）
+            "price": 100,
+            "market_price": 100
+        }
+        
+        # 嘗試從 text_context 中提取價格資訊
+        if text_context:
+            import re
+            price_match = re.search(r'(?:價格|售價|price)[：:\s]*\$?(\d+)', text_context, re.I)
+            if price_match:
+                product_info["price"] = float(price_match.group(1))
+                product_info["market_price"] = product_info["price"] * 0.95  # 假設市場價略低
+        
+        # 初始化 ABM 模擬引擎
+        abm = ABMSimulation(
+            citizens=sampled_citizens,
+            product_info=product_info,
+            targeting=targeting,
+            expert_mode=expert_mode
+        )
+        
+        # 構建社交網絡（基於五行相性）
+        abm.build_social_network("element_based")
+        
+        # 初始化意見（含 Targeting 和 Expert Mode 邏輯）
+        abm.initialize_opinions()
+        
+        # 記錄初始狀態
+        initial_avg = np.mean([a.current_opinion for a in abm.agents])
+        
+        # 執行迭代模擬
+        convergence_rate = 0.15 if expert_mode else 0.3  # 專家模式下收斂更慢
+        abm.run_iterations(num_iterations=5, convergence_rate=convergence_rate)
+        
+        # 識別意見領袖
+        abm.identify_opinion_leaders(top_n=5)
+        
+        # 獲取分析結果
+        analytics = abm.analyze_emergence()
+        
+        # 構建演化數據（供前端視覺化）
+        final_avg = np.mean([a.current_opinion for a in abm.agents])
+        
+        evolution_data = {
+            "rounds": list(range(len(abm.history))),
+            "average_scores": [round(x, 1) for x in abm.history],
+            "logs": abm.logs,
+            "product_element": product_info.get("element", "Fire"),
+            "price_ratio": round(product_info.get("price", 100) / product_info.get("market_price", 100), 2),
+            "iterations": 5, # 保留舊欄位以防萬一
+            "element_distribution": analytics.get("element_preferences", {}),
+            "element_initial_distribution": analytics.get("element_initial_preferences", {}),
+            "structure_distribution": analytics.get("structure_preferences", {}),
+            "network_density": round(analytics.get("network_density", 0), 4),
+            "agents_snapshot": [
+                {
+                    "id": a.id,
+                    "name": a.name,
+                    "element": a.element,
+                    "structure": a.structure,
+                    "initial_opinion": round(a.initial_opinion, 1),
+                    "final_opinion": round(a.current_opinion, 1),
+                    "is_leader": a.is_opinion_leader,
+                    "sentiment": a.get_sentiment()
+                }
+                for a in abm.agents[:50]  # 只取前 50 個供前端渲染
+            ]
+        }
+        
+        # 獲取代表性評論
+        comments_data = abm.get_final_comments(num_comments=10)
+        
+        print(f"✅ [ABM] 模擬完成：初始 {initial_avg:.1f} → 最終 {final_avg:.1f} (Δ{final_avg - initial_avg:+.1f})")
+        
+        return {
+            "evolution_data": evolution_data,
+            "analytics_data": analytics,
+            "comments_data": comments_data
+        }
+
     async def run_simulation_with_image_data(self, image_data_input, sim_id, text_context=None, language="zh-TW"):
         """核心圖文分析邏輯 (Decoupled & Synced with PDF Flow) - Supports Single or Multiple Images"""
         import traceback
@@ -1608,6 +1713,8 @@ __CITIZENS_JSON__
 {
     "simulation_metadata": {
         "product_category": "(必須從以下選擇一個：tech_electronics | collectible_toy | food_beverage | fashion_accessory | home_lifestyle | other)",
+        "target_market": "台灣",
+        "currency": "TWD (新台幣)",
         "marketing_angle": "(極具洞察力的行銷切角，至少 20 字)",
         "bazi_analysis": "(深入分析產品屬性與五行規律的契合度，至少 50 字)"
     },
@@ -1690,6 +1797,8 @@ __CITIZENS_JSON__
 {
     "simulation_metadata": {
         "product_category": "(必须从以下选择一个：tech_electronics | collectible_toy | food_beverage | fashion_accessory | home_lifestyle | other)",
+        "target_market": "中国大陆",
+        "currency": "CNY (人民币)",
         "marketing_angle": "(极具洞察力的行销切角，至少 20 字)",
         "bazi_analysis": "(深入分析产品属性与五行规律的契合度，至少 50 字)"
     },
@@ -1766,6 +1875,8 @@ __CITIZENS_JSON__
 {
     "simulation_metadata": {
         "product_category": "(Must choose one: tech_electronics | collectible_toy | food_beverage | fashion_accessory | home_lifestyle | other)",
+        "target_market": "International",
+        "currency": "USD (US Dollar)",
         "marketing_angle": "(Insightful marketing angle, at least 20 words)",
         "bazi_analysis": "(Deep analysis of product attributes vs Bazi elements, at least 50 words)"
     },
@@ -2201,6 +2312,7 @@ __CITIZENS_JSON__
     "simulation_metadata": {{
         "product_category": "商業計劃書",
         "target_market": "台灣",
+        "currency": "TWD (新台幣)",
         "sample_size": 10,
         "bazi_distribution": {{
             "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
@@ -2288,7 +2400,8 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
 {{
     "simulation_metadata": {{
         "product_category": "Business Plan",
-        "target_market": "Taiwan",
+        "target_market": "International",
+        "currency": "USD (US Dollar)",
         "sample_size": 10,
         "bazi_distribution": {{
             "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
@@ -2371,7 +2484,8 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
 {{
     "simulation_metadata": {{
         "product_category": "商业计划书",
-        "target_market": "台湾",
+        "target_market": "中国大陆",
+        "currency": "CNY (人民币)",
         "sample_size": 10,
         "bazi_distribution": {{
             "Fire": (%), "Water": (%), "Metal": (%), "Wood": (%), "Earth": (%)
