@@ -85,6 +85,74 @@ ABM_LOG_TEMPLATES = {
     }
 }
 
+# 🌍 市場文化配置 (Chameleon Architecture - Globalization)
+# 根據目標市場動態注入不同的「文化外衣」到 AI 市民
+MARKET_CULTURE_CONFIG = {
+    "TW": {
+        # 台灣市場：強制使用繁體中文，避免 AI 自動飄移到英文
+        "context_override": """
+⚠️ **情境覆蓋 - 台灣市場模式 (TAIWAN MARKET MODE)**
+你現在模擬的是**台灣消費者**。
+強制要求：
+1. **語言**：所有回應（包含市民評論、建議、摘要）**必須使用繁體中文 (Traditional Chinese)**。
+2. **貨幣**：所有價格必須使用新台幣 (NT$/TWD)。
+3. **名字**：市民使用台灣常見的中文名字（如「陳小明」「林怡君」「張志豪」）。
+4. **消費習慣**：市民熟悉蝦皮、PChome、MOMO、全聯、好市多等台灣購物平台。
+5. **文化語境**：可引用雙11、週年慶、電商折扣季等台灣消費文化。
+6. **八字格局**：保持使用中文八字術語（如「正財格」「七殺格」）。
+**嚴禁使用英文回應，即使輸入內容為英文也必須以繁體中文輸出。**
+""",
+        "currency_symbol": "NT$",
+        "currency_code": "TWD",
+        "response_language": "繁體中文",
+        "target_market_name": "台灣",
+        "json_target_market": "台灣",
+        "json_currency": "TWD (新台幣)"
+    },
+    "US": {
+        "context_override": """
+⚠️ **CRITICAL CONTEXT OVERRIDE - US MARKET MODE ACTIVATED**
+You are now simulating US residents, NOT Taiwanese/Chinese citizens.
+MANDATORY REQUIREMENTS:
+1. **Currency**: All prices MUST be in USD ($). Citizens think in US Dollars.
+2. **Names**: Give each citizen a Western/American name based on their archetype (e.g., "Michael Chen", "Emily Rodriguez", "David Kim").
+3. **Mindset**: Citizens shop on Amazon, Target, Walmart. They compare prices with US market benchmarks.
+4. **Bazi Translation**: Translate Bazi traits into Western personality terms:
+   - 七殺格 → "Risk Taker" / "Bold Decision-Maker"
+   - 正財格 → "Value Shopper" / "Practical Consumer"
+   - 食神格 → "Lifestyle Enthusiast" / "Experience Seeker"
+   - 正印格 → "Quality-First Buyer" / "Long-term Investor"
+5. **Language**: ALL comments and summaries MUST be in ENGLISH.
+6. **Cultural Context**: Reference US shopping behaviors, Black Friday, Prime Day, etc.
+""",
+        "currency_symbol": "$",
+        "currency_code": "USD",
+        "response_language": "English",
+        "target_market_name": "USA",
+        "json_target_market": "United States",
+        "json_currency": "USD (US Dollar)"
+    },
+    "CN": {
+        "context_override": """
+⚠️ **情境覆蓋 - 中國大陸市場模式啟動**
+你現在模擬的是中國大陸一二線城市居民，而非台灣人。
+強制要求：
+1. **貨幣**：所有價格必須使用人民幣 (¥)。市民用人民幣思考消費。
+2. **名字**：根據市民格局給予大陸風格的名字（如「李明」「王芳」「张伟」）。
+3. **消費習慣**：市民習慣淘寶、京東、拼多多、微信支付、小紅書種草。
+4. **文化語境**：引用雙十一、618、直播帶貨等中國電商文化。
+5. **語言**：所有評論和摘要必須使用**簡體中文**。
+6. **八字保留**：八字格局名稱保持中文，無需翻譯。
+""",
+        "currency_symbol": "¥",
+        "currency_code": "CNY",
+        "response_language": "簡體中文",
+        "target_market_name": "中國大陸",
+        "json_target_market": "中国大陆",
+        "json_currency": "CNY (人民币)"
+    }
+}
+
 def _generate_methodology_sidecar(score, summary, language="zh-TW", metric_advice=None):
     """
     🧬 計算社會科學方法論外掛層 (Computational Social Science Sidecar)
@@ -1604,7 +1672,13 @@ Reply directly in JSON format:
             from app.core.database import get_simulation
             sim_data = get_simulation(sim_id)
             analysis_scenario = sim_data.get("simulation_metadata", {}).get("analysis_scenario", "b2c") if sim_data else "b2c"
-
+            
+            # 🌍 Fetch Target Market (Globalization)
+            targeting_data = sim_data.get("simulation_metadata", {}).get("targeting", {}) if sim_data else {}
+            target_market = targeting_data.get("target_market", "TW") if targeting_data else "TW"
+            market_config = MARKET_CULTURE_CONFIG.get(target_market, MARKET_CULTURE_CONFIG["TW"])
+            market_context_override = market_config.get("context_override", "")
+            logger.info(f"🌍 [Globalization] Target Market: {target_market}, Currency: {market_config['currency_code']}")
             
             # 1. Process Images (Single or List)
             image_bytes_list = image_data_input if isinstance(image_data_input, list) else [image_data_input]
@@ -2095,6 +2169,11 @@ __CITIZENS_JSON__
 
                 prompt_template = prompt_templates.get(language, prompt_templates["zh-TW"])
                 prompt_text = prompt_template.replace("__PRODUCT_CONTEXT__", product_context).replace("__CITIZENS_JSON__", citizens_json)
+                
+                # 🌍 注入市場文化覆蓋到 Prompt 開頭 (Chameleon Architecture)
+                if market_context_override:
+                    prompt_text = market_context_override + "\n\n" + prompt_text
+                    logger.info(f"[{sim_id}] Market context override injected for: {target_market}")
 
             except Exception as e:
                 logger.error(f"[{sim_id}] Prompt construction failed: {e}. Using simplified prompt.")
@@ -2430,6 +2509,15 @@ __CITIZENS_JSON__
             pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] PDF Base64 done\n")
             
+            # 🌍 Fetch Target Market (Globalization)
+            from app.core.database import get_simulation
+            sim_data = get_simulation(sim_id)
+            targeting_data = sim_data.get("simulation_metadata", {}).get("targeting", {}) if sim_data else {}
+            target_market = targeting_data.get("target_market", "TW") if targeting_data else "TW"
+            market_config = MARKET_CULTURE_CONFIG.get(target_market, MARKET_CULTURE_CONFIG["TW"])
+            market_context_override = market_config.get("context_override", "")
+            logger.info(f"🌍 [PDF Globalization] Target Market: {target_market}")
+
             # 2. 從資料庫隨機抽取市民
             from fastapi.concurrency import run_in_threadpool
             # [Fix] 使用 run_in_threadpool 抽樣 30 位市民，從中精選 10 位生成評論
@@ -2709,6 +2797,11 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
 """
             else:
                  prompt_text = prompt_base_tw
+            
+            # 🌍 注入市場文化覆蓋到 Prompt 開頭 (Chameleon Architecture)
+            if market_context_override:
+                prompt_text = market_context_override + "\n\n" + prompt_text
+                logger.info(f"[{sim_id}] PDF Market context override injected for: {target_market}")
 
             # 🧬 【ABM INTEGRATION】執行 Agent-Based Modeling 模擬
             abm_evolution_data = None
@@ -3012,6 +3105,15 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             from fastapi.concurrency import run_in_threadpool
             
             print(f"[Core TEXT] Starting text analysis for {sim_id}, source: {source_type}")
+            
+            # 🌍 Fetch Target Market (Globalization)
+            from app.core.database import get_simulation
+            sim_data = get_simulation(sim_id)
+            targeting_data = sim_data.get("simulation_metadata", {}).get("targeting", {}) if sim_data else {}
+            target_market = targeting_data.get("target_market", "TW") if targeting_data else "TW"
+            market_config = MARKET_CULTURE_CONFIG.get(target_market, MARKET_CULTURE_CONFIG["TW"])
+            market_context_override = market_config.get("context_override", "")
+            logger.info(f"🌍 [TEXT Globalization] Target Market: {target_market}")
             
             # 1. 從資料庫隨機抽取市民
             # [Fix] 抽樣 30 位市民，從中精選 10 位生成評論
@@ -3388,6 +3490,11 @@ Please let the following 10 representative AI virtual citizens, selected from a 
 5. **语言**：所有內容必須使用繁體中文。
 """
                  prompt_text = prompt_base_tw
+            
+            # 🌍 注入市場文化覆蓋到 Prompt 開頭 (Chameleon Architecture)
+            if market_context_override:
+                prompt_text = market_context_override + "\n\n" + prompt_text
+                logger.info(f"[{sim_id}] TEXT Market context override injected for: {target_market}")
 
             # 4. 呼叫 Gemini AI (純文字，不需圖片/PDF)
             api_key = settings.GOOGLE_API_KEY

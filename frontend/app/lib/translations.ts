@@ -106,6 +106,13 @@ export const translations = {
             step2_fermi_tooltip: '統計學信心水準 ±3% 誤差',
             step2_next: '下一步: 設定受眾',
             step2_back: '上一步',
+            // 🌍 市場選擇器 (Globalization)
+            step2_market_label: '目標市場',
+            step2_market_tw: '台灣',
+            step2_market_us: '美國',
+            step2_market_cn: '中國大陸',
+            step2_market_currency_warning_us: '預演將以美元 (USD) 作為計價單位，請確認您在 Step 1 輸入的定價數值是否合理。',
+            step2_market_currency_warning_cn: '預演將以人民幣 (CNY) 作為計價單位，請確認您的定價數值是否合理。',
             analysis_mode: {
                 label: '評測場景設定',
                 b2c: '消費市場 (B2C)',
@@ -506,6 +513,13 @@ export const translations = {
             step2_fermi_tooltip: '统计学置信水准 ±3% 误差',
             step2_next: '下一步: 设定受众',
             step2_back: '上一步',
+            // 🌍 市场选择器 (Globalization)
+            step2_market_label: '目标市场',
+            step2_market_tw: '台湾',
+            step2_market_us: '美国',
+            step2_market_cn: '中国大陆',
+            step2_market_currency_warning_us: '预演将以美元 (USD) 作为计价单位，请确认您在 Step 1 输入的定价数值是否合理。',
+            step2_market_currency_warning_cn: '预演将以人民币 (CNY) 作为计价单位，请确认您的定价数值是否合理。',
             analysis_mode: {
                 label: '评测场景设定',
                 b2c: '消费市场 (B2C)',
@@ -906,6 +920,13 @@ export const translations = {
             step2_fermi_tooltip: 'Statistical confidence ±3% margin',
             step2_next: 'Next: Set Audience',
             step2_back: 'Back',
+            // 🌍 Market Selector (Globalization)
+            step2_market_label: 'Target Market',
+            step2_market_tw: 'Taiwan',
+            step2_market_us: 'USA',
+            step2_market_cn: 'Mainland China',
+            step2_market_currency_warning_us: 'Simulation will use USD pricing. Please confirm your Step 1 price value is appropriate.',
+            step2_market_currency_warning_cn: 'Simulation will use CNY pricing. Please confirm your price value is appropriate.',
             analysis_mode: {
                 label: 'Analysis Scenario',
                 b2c: 'Consumer (B2C)',

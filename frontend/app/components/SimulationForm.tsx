@@ -3,7 +3,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square, User, Target, TrendingUp, Users, ShieldAlert, ShoppingBag, Briefcase } from 'lucide-react'
+import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square, User, Target, TrendingUp, Users, ShieldAlert, ShoppingBag, Briefcase, Globe } from 'lucide-react'
+
+// 🌍 市場配置常數 (Chameleon Architecture)
+const MARKET_CONFIG = {
+    TW: { basePop: 18600000, currency: 'TWD', flag: '🇹🇼', labelKey: 'step2_market_tw' },
+    US: { basePop: 335000000, currency: 'USD', flag: '🇺🇸', labelKey: 'step2_market_us' },
+    CN: { basePop: 1400000000, currency: 'CNY', flag: '🇨🇳', labelKey: 'step2_market_cn' }
+} as const;
+type MarketKey = keyof typeof MARKET_CONFIG;
 import { useLanguage } from '../context/LanguageContext'
 
 export default function SimulationForm() {
@@ -26,10 +34,13 @@ export default function SimulationForm() {
     const [tam, setTam] = useState(18600000) // Initial TAM (Taiwan Active Internet Users / Labor Force)
     // Scenario State
     const [analysisScenario, setAnalysisScenario] = useState<'b2c' | 'b2b'>('b2c')
+    // 🌍 目標市場狀態 (Globalization)
+    const [targetMarket, setTargetMarket] = useState<MarketKey>('TW')
 
-    // Auto-calculate TAM with Fermi Logic
+    // Auto-calculate TAM with Fermi Logic (連動市場選擇)
     useEffect(() => {
-        let base = 18600000 // 台灣活躍網路使用者/勞動年齡人口（更符合 SaaS/電商受眾）
+        // 🌍 根據選擇的市場取得基礎人口
+        let base = MARKET_CONFIG[targetMarket].basePop
 
         // Age impact (Rough estimate)
         const ageRange = targetAge[1] - targetAge[0]
@@ -51,7 +62,7 @@ export default function SimulationForm() {
         // 加入隨機雜訊，讓尾數看起來不那麼整齊，增加真實感
         const noise = Math.floor(Math.random() * 5000)
         setTam(Math.floor(base) + noise)
-    }, [targetAge, targetGender, targetOccupations])
+    }, [targetAge, targetGender, targetOccupations, targetMarket])
 
     const searchParams = useSearchParams()
 
@@ -372,12 +383,13 @@ export default function SimulationForm() {
             // Add Scenario Mode
             formData.append("analysis_scenario", analysisScenario)
 
-            // Add Targeting Params
+            // Add Targeting Params (含市場選擇)
             const targetingData = {
                 age_range: targetAge,
                 gender: targetGender,
                 occupations: targetOccupations,
-                tam: tam  // 傳遞計算後的 TAM 值
+                tam: tam,  // 傳遞計算後的 TAM 值
+                target_market: targetMarket  // 🌍 傳遞目標市場
             }
             formData.append("targeting", JSON.stringify(targetingData))
             formData.append("expert_mode", expertMode.toString())
@@ -753,6 +765,41 @@ export default function SimulationForm() {
                         exit={{ opacity: 0, x: 20 }}
                         className="space-y-6"
                     >
+                        {/* 🌍 Market Selector (Chameleon Architecture) */}
+                        <div className="space-y-3">
+                            <label className="text-sm font-bold text-slate-300 flex items-center gap-2">
+                                <Globe className="w-4 h-4 text-blue-400" />
+                                {t('simulation_form.step2_market_label')}
+                            </label>
+                            <div className="flex gap-2">
+                                {(Object.keys(MARKET_CONFIG) as MarketKey[]).map((key) => {
+                                    const config = MARKET_CONFIG[key];
+                                    return (
+                                        <button
+                                            key={key}
+                                            type="button"
+                                            onClick={() => setTargetMarket(key)}
+                                            className={`flex-1 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${targetMarket === key
+                                                    ? 'bg-blue-900/30 border-blue-500 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                                                    : 'bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-500'
+                                                }`}
+                                        >
+                                            <span className="text-2xl">{config.flag}</span>
+                                            <span className="text-sm font-bold">{t(`simulation_form.${config.labelKey}`)}</span>
+                                            <span className="text-[10px] opacity-70">{config.currency}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            {/* ⚠️ 貨幣提示防呆 (Currency Unit Warning) */}
+                            {targetMarket !== 'TW' && (
+                                <p className="text-xs text-amber-400/80 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 flex items-start gap-2">
+                                    <span>⚠️</span>
+                                    <span>{t(`simulation_form.step2_market_currency_warning_${targetMarket.toLowerCase()}`)}</span>
+                                </p>
+                            )}
+                        </div>
+
                         {/* Fermi Panel (Stats) */}
                         <div className="bg-slate-950/50 rounded-xl p-6 border border-slate-800 space-y-4">
                             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
