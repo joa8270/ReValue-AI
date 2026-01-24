@@ -202,16 +202,7 @@ export default function Home() {
                         </div>
 
 
-                        {/* Trust Bridge */}
-                        <div className="glass-panel p-6 rounded-xl border border-purple-500/20 bg-purple-900/10 my-8 max-w-[800px]">
-                            <h3 className="text-purple-300 font-bold mb-3 flex items-center gap-2 text-lg">
-                                <span>💡</span>
-                                {t('scientific_basis.trust_bridge_title')}
-                            </h3>
-                            <p className="text-gray-300 text-base leading-relaxed italic relative pl-4 border-l-2 border-purple-500/50">
-                                "{t('scientific_basis.trust_bridge_content')}"
-                            </p>
-                        </div>
+
 
                         {/* Content Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
