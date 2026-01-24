@@ -58,7 +58,9 @@ async def trigger_simulation(
     description: str = Form(None),
     market_prices: str = Form(None),  # JSON 字串格式的市場比價資料
     style: str = Form(None),  # 新增 style 欄位
-    language: str = Form("zh-TW")  # 新增 language 欄位
+    language: str = Form("zh-TW"),  # 新增 language 欄位
+    targeting: str = Form(None), # JSON string of targeting options
+    expert_mode: str = Form("false") # "true"/"false" string
 ):
     from app.services.line_bot_service import LineBotService
     line_service = LineBotService()
@@ -78,6 +80,18 @@ async def trigger_simulation(
             market_prices_data = json.loads(market_prices)
         except:
             pass
+            
+    # 解析受眾定錨資料
+    targeting_data = None
+    if targeting:
+        try:
+            import json
+            targeting_data = json.loads(targeting)
+        except:
+            pass
+            
+    # 解析 Expert Mode
+    is_expert_mode = expert_mode.lower() == 'true'
     
     # 建立初始狀態
     initial_data = {
@@ -95,7 +109,9 @@ async def trigger_simulation(
             "style": style,
             "language": language, # 儲存語言設定
             "product_name": product_name, # 冗餘備份，確保前端引用相容
-            "source_type": "pdf" if ext == "pdf" or ext in ["docx", "txt"] else "image"
+            "source_type": "pdf" if ext == "pdf" or ext in ["docx", "txt"] else "image",
+            "targeting": targeting_data,
+            "expert_mode": is_expert_mode
         }
     }
     # 建立 DB 紀錄

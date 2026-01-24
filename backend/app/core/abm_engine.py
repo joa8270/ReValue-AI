@@ -189,6 +189,8 @@ class CitizenAgent:
     id: str
     name: str
     age: int
+    gender: str = "unknown" # 新增
+    occupation: str = "unknown" # 新增
     element: str  # 五行屬性
     structure: str  # 八字格局
     bazi_profile: Dict
@@ -213,14 +215,15 @@ class CitizenAgent:
         )
         self.activation_threshold = random.uniform(0.3, 0.7)
     
-    def calculate_initial_opinion(self, product_element: str, product_price: float, market_price: float) -> float:
+    def calculate_initial_opinion(self, product_element: str, product_price: float, market_price: float, targeting_bonus: float = 0.0) -> float:
         """
-        計算初始意見（基於五行相性 + 價格敏感度）
+        計算初始意見（基於五行相性 + 價格敏感度 + 定錨加權）
         
         Args:
             product_element: 產品的五行屬性（由AI判斷）
             product_price: 產品售價
             market_price: 市場均價
+            targeting_bonus: 定錨加權分數 (Targeting Bonus)
         
         Returns:
             初始意見分數 (0-100)
@@ -247,7 +250,7 @@ class CitizenAgent:
         # 4. 隨機擾動 (10% weight)
         random_factor = random.uniform(-5, 5)
         
-        base_score = element_score + price_score + innovation_score + random_factor
+        base_score = element_score + price_score + innovation_score + random_factor + targeting_bonus
         
         # 大運調整（正處於好運期的人更樂觀）
         luck_bonus = self._get_current_luck_modifier()
@@ -350,14 +353,18 @@ class ABMSimulation:
         4. 突現分析：統計群體行為模式
     """
     
-    def __init__(self, citizens: List[Dict], product_info: Dict):
+    def __init__(self, citizens: List[Dict], product_info: Dict, targeting: Dict = None, expert_mode: bool = False):
         """
         Args:
             citizens: 市民資料列表（來自資料庫）
             product_info: 產品資訊 {"element": "Fire", "price": 500, "market_price": 450}
+            targeting: 受眾定錨設定 {"age_range": [20, 60], "gender": "male", ...}
+            expert_mode: 是否開啟專家模式 (高難度/嚴格)
         """
         self.agents: List[CitizenAgent] = []
         self.product_info = product_info
+        self.targeting = targeting
+        self.expert_mode = expert_mode
         self.iteration_count = 0
         self.network_edges = []
         
@@ -368,13 +375,19 @@ class ABMSimulation:
                 id=str(c["id"]),
                 name=c["name"],
                 age=c["age"],
+                gender=c.get("gender", "unknown"),
+                occupation=c.get("occupation", "unknown"),
                 element=bazi.get("element", "Fire"),
                 structure=bazi.get("structure", "正官格"),
                 bazi_profile=bazi
             )
+            # Expert Mode: 增加挑戰性
+            if self.expert_mode:
+                agent.activation_threshold += 0.2  # 更難被說服
+                
             self.agents.append(agent)
         
-        print(f"🧬 [ABM] 已初始化 {len(self.agents)} 個 Agent")
+        print(f"🧬 [ABM] 已初始化 {len(self.agents)} 個 Agent (Expert: {expert_mode}, Target: {targeting})")
     
     def build_social_network(self, network_type: str = "element_based"):
         """
@@ -416,13 +429,52 @@ class ABMSimulation:
         print(f"📊 [ABM] 社交網絡已建立，平均度數: {avg_degree:.2f}")
     
     def initialize_opinions(self):
-        """初始化所有Agent的意見"""
+        """初始化所有Agent的意見 (含 Targeting 與 Expert Mode 邏輯)"""
         product_element = self.product_info.get("element", "Fire")
         product_price = self.product_info.get("price", 100)
         market_price = self.product_info.get("market_price", 100)
         
         for agent in self.agents:
-            agent.calculate_initial_opinion(product_element, product_price, market_price)
+            bonus = 0.0
+            
+            # 1. Targeting Match Logic
+            if self.targeting:
+                is_match = True
+                
+                # Age Check
+                if "age_range" in self.targeting:
+                    r = self.targeting["age_range"]
+                    # r should be [min, max]
+                    if isinstance(r, list) and len(r) == 2:
+                        if agent.age < r[0] or agent.age > r[1]:
+                            is_match = False
+                
+                # Gender Check
+                if is_match and "gender" in self.targeting:
+                    g = self.targeting["gender"]
+                    if g != "all":
+                        # 簡單模糊比對
+                        ag_gen = str(agent.gender).lower()
+                        if g == "male" and ag_gen not in ["male", "男"]: is_match = False
+                        elif g == "female" and ag_gen not in ["female", "女"]: is_match = False
+                
+                # Occupation Check (MVP: Skip fuzzy match if risk is high, or simple id match)
+                if is_match and "occupations" in self.targeting:
+                    occs = self.targeting["occupations"]
+                    if occs and len(occs) > 0:
+                        # 假設 agent.occupation 可能是中文，這裡先不嚴格過濾，避免篩光
+                        # 若要嚴格：
+                        # if agent.occupation not in occs: is_match = False
+                        pass 
+
+                if is_match:
+                    bonus += 15.0 # 符合受眾者，初始意圖較高
+            
+            # 2. Expert Mode Logic
+            if self.expert_mode:
+                bonus -= 15.0 # 全體初始意願下降 (更殘酷)
+            
+            agent.calculate_initial_opinion(product_element, product_price, market_price, targeting_bonus=bonus)
         
         avg_opinion = np.mean([a.current_opinion for a in self.agents])
         print(f"💭 [ABM] 初始意見分佈：平均 {avg_opinion:.1f}，標準差 {np.std([a.current_opinion for a in self.agents]):.1f}")

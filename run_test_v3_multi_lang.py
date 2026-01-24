@@ -9,7 +9,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend')))
 
-from app.services.line_bot_service import MIRRALineBotService
+from app.services.line_bot_service import LineBotService
 
 # 2. 模擬數據
 mock_citizens = [

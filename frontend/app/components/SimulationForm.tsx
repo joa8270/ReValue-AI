@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square } from 'lucide-react'
+import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square, User, Target, TrendingUp, Users, ShieldAlert } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 
 export default function SimulationForm() {
@@ -17,6 +17,42 @@ export default function SimulationForm() {
     const [error, setError] = useState("")
     const [previewUrls, setPreviewUrls] = useState<string[]>([])
     const [iterationAlert, setIterationAlert] = useState<{ type: 'pivot' | 'scale'; message: string } | null>(null)
+    const [step, setStep] = useState(1) // Step 1: Upload/Identify, Step 2: Targeting
+    // Targeting State
+    const [targetAge, setTargetAge] = useState<[number, number]>([20, 60])
+    const [targetGender, setTargetGender] = useState<'all' | 'male' | 'female'>('all')
+    const [targetOccupations, setTargetOccupations] = useState<string[]>([])
+    const [expertMode, setExpertMode] = useState(false)
+    const [tam, setTam] = useState(23000000) // Initial TAM (Taiwan Pop)
+
+    // DEBUG: Monitor step changes
+    useEffect(() => {
+        console.log(`🔍 [DEBUG] Step changed to: ${step}`)
+    }, [step])
+
+    // Auto-calculate TAM
+    useEffect(() => {
+        let base = 23000000
+        // Age impact (Rough estimate)
+        const ageRange = targetAge[1] - targetAge[0]
+        const ageFactor = Math.min(1, ageRange / 60)
+        base = base * ageFactor
+
+        // Gender impact
+        if (targetGender !== 'all') base = base * 0.52
+
+        // Occupation impact
+        if (targetOccupations.length > 0) {
+            // Suppose each selected specific group reduces scope
+            // But multiple selections add up. 
+            // Simplified: 0.15 per group, max 1.0
+            const occFactor = Math.min(1, targetOccupations.length * 0.15)
+            base = base * occFactor
+        }
+
+        setTam(Math.floor(base))
+    }, [targetAge, targetGender, targetOccupations])
+
     const searchParams = useSearchParams()
 
     // Refs
@@ -302,7 +338,15 @@ export default function SimulationForm() {
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
+        console.log('🔴 [DEBUG] handleSubmit called! Current step:', step)
         e.preventDefault()
+
+        // Guard: Only allow submit on Step 2
+        if (step !== 2) {
+            console.log('🟡 [DEBUG] Blocked submit - not on step 2')
+            return
+        }
+
         if (files.length === 0) {
             setError(t('simulation_form.error_no_file'))
             return
@@ -326,6 +370,15 @@ export default function SimulationForm() {
                 formData.append("style", selectedStyle)
                 formData.append("language", language)
             }
+
+            // Add Targeting Params
+            const targetingData = {
+                age_range: targetAge,
+                gender: targetGender,
+                occupations: targetOccupations
+            }
+            formData.append("targeting", JSON.stringify(targetingData))
+            formData.append("expert_mode", expertMode.toString())
 
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
             const res = await fetch(`${API_BASE_URL}/api/web/trigger`, {
@@ -417,236 +470,385 @@ export default function SimulationForm() {
                 </button>
             </div>
 
+
+
             <form onSubmit={handleSubmit} className="space-y-6">
 
-                {/* File Upload Area */}
-                <div
-                    className={`relative border-2 border-dashed rounded-2xl p-8 transition-all text-center cursor-pointer hover:border-purple-400/50 hover:bg-slate-800/50 ${files.length > 0 ? 'border-purple-500/50 bg-purple-900/10' : 'border-slate-700 bg-slate-950/30'
-                        }`}
-                    onClick={() => files.length === 0 && fileInputRef.current?.click()}
-                >
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        multiple // Support multiple files
-                        accept={mode === 'image' ? "image/*" : ".pdf,.docx,.pptx,.txt,.webm,.mp3,.wav,.m4a"}
-                        onChange={handleFileChange}
-                    />
+                {/* Step 1: Product & Copy */}
+                {step === 1 && (
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-6"
+                    >
+                        {/* File Upload Area */}
+                        <div
+                            className={`relative border-2 border-dashed rounded-2xl p-8 transition-all text-center cursor-pointer hover:border-purple-400/50 hover:bg-slate-800/50 ${files.length > 0 ? 'border-purple-500/50 bg-purple-900/10' : 'border-slate-700 bg-slate-950/30'
+                                }`}
+                            onClick={() => files.length === 0 && fileInputRef.current?.click()}
+                        >
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                className="hidden"
+                                multiple // Support multiple files
+                                accept={mode === 'image' ? "image/*" : ".pdf,.docx,.pptx,.txt,.webm,.mp3,.wav,.m4a"}
+                                onChange={handleFileChange}
+                            />
 
-                    {files.length > 0 ? (
-                        <div className="flex flex-col items-center gap-2 w-full">
-                            {mode === 'image' && previewUrls.length > 0 ? (
-                                <div className="flex flex-wrap justify-center gap-3 w-full">
-                                    {previewUrls.map((url, index) => (
-                                        <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border border-purple-500/30 shadow-sm group/img">
-                                            <img
-                                                src={url}
-                                                alt={`Preview ${index}`}
-                                                className="w-full h-full object-cover"
-                                            />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-xs text-white">
-                                                {index + 1}
-                                            </div>
-                                            <button
-                                                type="button"
-                                                className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-red-600"
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    setFiles(prev => prev.filter((_, i) => i !== index))
-                                                }}
+                            {files.length > 0 ? (
+                                <div className="flex flex-col items-center gap-2 w-full">
+                                    {mode === 'image' && previewUrls.length > 0 ? (
+                                        <div className="flex flex-wrap justify-center gap-3 w-full">
+                                            {previewUrls.map((url, index) => (
+                                                <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border border-purple-500/30 shadow-sm group/img">
+                                                    <img
+                                                        src={url}
+                                                        alt={`Preview ${index}`}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-xs text-white">
+                                                        {index + 1}
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-red-600"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            setFiles(prev => prev.filter((_, i) => i !== index))
+                                                        }}
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {/* Add More Button */}
+                                            <div
+                                                onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                                                className="w-24 h-24 rounded-lg border-2 border-dashed border-purple-500/30 flex items-center justify-center cursor-pointer hover:bg-purple-500/10 hover:border-purple-500/50 transition-all group/add"
                                             >
-                                                <X className="w-3 h-3" />
-                                            </button>
+                                                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center group-hover/add:bg-purple-500/40">
+                                                    <span className="text-xl text-purple-400 font-bold">+</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                    ))}
-                                    {/* Add More Button */}
-                                    <div
-                                        onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                                        className="w-24 h-24 rounded-lg border-2 border-dashed border-purple-500/30 flex items-center justify-center cursor-pointer hover:bg-purple-500/10 hover:border-purple-500/50 transition-all group/add"
-                                    >
-                                        <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center group-hover/add:bg-purple-500/40">
-                                            <span className="text-xl text-purple-400 font-bold">+</span>
+                                    ) : (
+                                        <div className="p-3 bg-purple-500 rounded-full text-white mb-2">
+                                            {mode === 'image' ? <ImageIcon className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
                                         </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="p-3 bg-purple-500 rounded-full text-white mb-2">
-                                    {mode === 'image' ? <ImageIcon className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
-                                </div>
-                            )}
-                            <p className="text-purple-400 font-bold mt-2">
-                                {files.length === 1 ? files[0].name : t('simulation_form.files_selected').replace('{count}', files.length.toString())}
-                            </p>
-                            <p className="text-slate-500 text-xs">
-                                {files.length === 1
-                                    ? (files[0].size / 1024 / 1024).toFixed(2) + " MB"
-                                    : `總計 ${(files.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(2)} MB`}
-                            </p>
-                            <button
-                                type="button"
-                                onClick={(e) => { e.stopPropagation(); clearFile(); }}
-                                className="mt-2 px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-xs hover:bg-red-500/20 hover:text-red-400 transition-colors flex items-center gap-1"
-                            >
-                                <X className="w-3 h-3" /> {t('simulation_form.remove_all')}
-                            </button>
-                        </div>
-                    ) : isRecording ? (
-                        /* Recording in progress UI */
-                        <div className="flex flex-col items-center gap-4 text-red-400">
-                            <div className="relative">
-                                <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center animate-pulse">
-                                    <div className="w-3 h-3 rounded-full bg-red-500 animate-ping"></div>
-                                </div>
-                            </div>
-                            <p className="font-bold text-lg">{t('simulation_form.recording_in_progress')}</p>
-                            <p className="text-2xl font-mono">{formatTime(recordingTime)}</p>
-                            <button
-                                type="button"
-                                onClick={(e) => { e.stopPropagation(); stopRecording(); }}
-                                className="px-6 py-2 bg-red-500 text-white rounded-full font-bold flex items-center gap-2 hover:bg-red-600 transition-colors"
-                            >
-                                <Square className="w-4 h-4" /> {t('simulation_form.stop_recording')}
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center gap-3 text-slate-400">
-                            <Upload className="w-8 h-8 mb-1 opacity-50" />
-                            <p className="font-bold">{mode === 'image' ? t('simulation_form.upload_placeholder_image') : t('simulation_form.upload_placeholder_pdf')}</p>
-                            <p className="text-xs opacity-60">
-                                {mode === 'image' ? t('simulation_form.upload_support_image') : t('simulation_form.upload_support_pdf')}
-                            </p>
-                            {/* Live Recording Button (PDF mode only) */}
-                            {mode === 'pdf' && (
-                                <div className="mt-3 pt-3 border-t border-slate-700/50 w-full flex flex-col items-center gap-2">
-                                    <p className="text-xs text-slate-500">{t('simulation_form.or_voice_share')}</p>
+                                    )}
+                                    <p className="text-purple-400 font-bold mt-2">
+                                        {files.length === 1 ? files[0].name : t('simulation_form.files_selected').replace('{count}', files.length.toString())}
+                                    </p>
+                                    <p className="text-slate-500 text-xs">
+                                        {files.length === 1
+                                            ? (files[0].size / 1024 / 1024).toFixed(2) + " MB"
+                                            : `總計 ${(files.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(2)} MB`}
+                                    </p>
                                     <button
                                         type="button"
-                                        onClick={(e) => { e.stopPropagation(); startRecording(); }}
-                                        className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-bold flex items-center gap-2 hover:shadow-lg hover:shadow-purple-500/30 transition-all"
+                                        onClick={(e) => { e.stopPropagation(); clearFile(); }}
+                                        className="mt-2 px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-xs hover:bg-red-500/20 hover:text-red-400 transition-colors flex items-center gap-1"
                                     >
-                                        <Mic className="w-4 h-4" /> {t('simulation_form.start_recording')}
+                                        <X className="w-3 h-3" /> {t('simulation_form.remove_all')}
                                     </button>
                                 </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Manual Identification Button */}
-                    {mode === 'image' && files.length > 0 && (
-                        <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); handleIdentifyProduct(); }}
-                            disabled={nameLoading}
-                            className={`mt-4 w-full py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all ${nameLoading
-                                ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                                : 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:scale-[1.02] border border-purple-500/30'
-                                }`}
-                        >
-                            {nameLoading ? (
-                                <>
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    {t('simulation_form.btn_identifying')}
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles className="w-4 h-4" />
-                                    {t('simulation_form.btn_identify')}
-                                </>
-                            )}
-                        </button>
-                    )}
-                </div>
-
-                {/* Form Inputs (Image Mode Only) */}
-                <AnimatePresence>
-                    {mode === 'image' && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="space-y-4"
-                        >
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
-                                        {t('simulation_form.label_product_name')}
-                                        {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={productName}
-                                        onChange={(e) => setProductName(e.target.value)}
-                                        placeholder={nameLoading ? t('simulation_form.placeholder_product_name_loading') : t('simulation_form.placeholder_product_name')}
-                                        disabled={nameLoading}
-                                        className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''}`}
-                                    />
+                            ) : isRecording ? (
+                                /* Recording in progress UI */
+                                <div className="flex flex-col items-center gap-4 text-red-400">
+                                    <div className="relative">
+                                        <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center animate-pulse">
+                                            <div className="w-3 h-3 rounded-full bg-red-500 animate-ping"></div>
+                                        </div>
+                                    </div>
+                                    <p className="font-bold text-lg">{t('simulation_form.recording_in_progress')}</p>
+                                    <p className="text-2xl font-mono">{formatTime(recordingTime)}</p>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); stopRecording(); }}
+                                        className="px-6 py-2 bg-red-500 text-white rounded-full font-bold flex items-center gap-2 hover:bg-red-600 transition-colors"
+                                    >
+                                        <Square className="w-4 h-4" /> {t('simulation_form.stop_recording')}
+                                    </button>
                                 </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
-                                        {t('simulation_form.label_price')}
-                                        {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
-                                    </label>
-                                    <input
-                                        ref={priceInputRef}
-                                        type="text"
-                                        value={price}
-                                        onChange={(e) => { setPrice(e.target.value); setPriceSource(""); }}
-                                        placeholder={nameLoading ? t('simulation_form.placeholder_price_loading') : t('simulation_form.placeholder_price')}
-                                        disabled={nameLoading}
-                                        className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''} ${iterationAlert?.type === 'pivot' ? 'ring-2 ring-amber-500/50' : ''}`}
-                                    />
-                                    {priceSource && (
-                                        <p className="text-[10px] text-purple-400/80 ml-1 mt-1">{priceSource}</p>
+                            ) : (
+                                <div className="flex flex-col items-center gap-3 text-slate-400">
+                                    <Upload className="w-8 h-8 mb-1 opacity-50" />
+                                    <p className="font-bold">{mode === 'image' ? t('simulation_form.upload_placeholder_image') : t('simulation_form.upload_placeholder_pdf')}</p>
+                                    <p className="text-xs opacity-60">
+                                        {mode === 'image' ? t('simulation_form.upload_support_image') : t('simulation_form.upload_support_pdf')}
+                                    </p>
+                                    {/* Live Recording Button (PDF mode only) */}
+                                    {mode === 'pdf' && (
+                                        <div className="mt-3 pt-3 border-t border-slate-700/50 w-full flex flex-col items-center gap-2">
+                                            <p className="text-xs text-slate-500">{t('simulation_form.or_voice_share')}</p>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); startRecording(); }}
+                                                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-bold flex items-center gap-2 hover:shadow-lg hover:shadow-purple-500/30 transition-all"
+                                            >
+                                                <Mic className="w-4 h-4" /> {t('simulation_form.start_recording')}
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
-                            </div>
-                            <div className="space-y-1 relative">
-                                <div className="flex justify-between items-center flex-wrap gap-2">
-                                    <label className="text-xs text-slate-400 ml-1">{t('simulation_form.label_desc')}</label>
-                                    <div className="flex items-center gap-3">
-                                        {/* Style Dropdown with Label */}
-                                        <div className="flex items-center gap-2">
-                                            <label className="text-xs text-slate-400 whitespace-nowrap">{t('simulation_form.label_style')}</label>
-                                            <select
-                                                value={selectedStyle}
-                                                onChange={(e) => setSelectedStyle(e.target.value)}
-                                                className="text-sm px-3 py-2 rounded-lg border border-slate-700 bg-slate-950/50 text-slate-300 focus:outline-none focus:border-purple-500/50 cursor-pointer hover:bg-slate-800/50 transition-colors min-w-[120px]"
-                                            >
-                                                {styleOptions.map((opt) => (
-                                                    <option key={opt.value} value={opt.value}>
-                                                        {opt.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        {/* AI Write Button */}
-                                        <button
-                                            type="button"
-                                            onClick={handleAiGenerate}
-                                            disabled={aiLoading || files.length === 0 || !productName}
-                                            className={`text-sm px-4 py-2 rounded-lg border flex items-center gap-2 transition-all font-medium ${aiLoading || files.length === 0 || !productName
-                                                ? 'text-slate-600 border-slate-700 cursor-not-allowed bg-slate-900'
-                                                : 'text-purple-400 border-purple-500/50 hover:bg-purple-500/20 hover:border-purple-400 animate-pulse shadow-[0_0_15px_rgba(168,85,247,0.6)] hover:shadow-[0_0_20px_rgba(168,85,247,0.8)]'
-                                                }`}
-                                        >
+                            )}
+
+                            {/* Manual Identification Button */}
+                            {mode === 'image' && files.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); handleIdentifyProduct(); }}
+                                    disabled={nameLoading}
+                                    className={`mt-4 w-full py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all ${nameLoading
+                                        ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                                        : 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:scale-[1.02] border border-purple-500/30'
+                                        }`}
+                                >
+                                    {nameLoading ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            {t('simulation_form.btn_identifying')}
+                                        </>
+                                    ) : (
+                                        <>
                                             <Sparkles className="w-4 h-4" />
-                                            {aiLoading ? t('simulation_form.btn_ai_writing') : t('simulation_form.btn_ai_write')}
-                                        </button>
+                                            {t('simulation_form.btn_identify')}
+                                        </>
+                                    )}
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Form Inputs (Image Mode Only) */}
+                        <AnimatePresence>
+                            {mode === 'image' && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="space-y-4"
+                                >
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
+                                                {t('simulation_form.label_product_name')}
+                                                {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={productName}
+                                                onChange={(e) => setProductName(e.target.value)}
+                                                placeholder={nameLoading ? t('simulation_form.placeholder_product_name_loading') : t('simulation_form.placeholder_product_name')}
+                                                disabled={nameLoading}
+                                                className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''}`}
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
+                                                {t('simulation_form.label_price')}
+                                                {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
+                                            </label>
+                                            <input
+                                                ref={priceInputRef}
+                                                type="text"
+                                                value={price}
+                                                onChange={(e) => { setPrice(e.target.value); setPriceSource(""); }}
+                                                placeholder={nameLoading ? t('simulation_form.placeholder_price_loading') : t('simulation_form.placeholder_price')}
+                                                disabled={nameLoading}
+                                                className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''} ${iterationAlert?.type === 'pivot' ? 'ring-2 ring-amber-500/50' : ''}`}
+                                            />
+                                            {priceSource && (
+                                                <p className="text-[10px] text-purple-400/80 ml-1 mt-1">{priceSource}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1 relative">
+                                        <div className="flex justify-between items-center flex-wrap gap-2">
+                                            <label className="text-xs text-slate-400 ml-1">{t('simulation_form.label_desc')}</label>
+                                            <div className="flex items-center gap-3">
+                                                {/* Style Dropdown with Label */}
+                                                <div className="flex items-center gap-2">
+                                                    <label className="text-xs text-slate-400 whitespace-nowrap">{t('simulation_form.label_style')}</label>
+                                                    <select
+                                                        value={selectedStyle}
+                                                        onChange={(e) => setSelectedStyle(e.target.value)}
+                                                        className="text-sm px-3 py-2 rounded-lg border border-slate-700 bg-slate-950/50 text-slate-300 focus:outline-none focus:border-purple-500/50 cursor-pointer hover:bg-slate-800/50 transition-colors min-w-[120px]"
+                                                    >
+                                                        {styleOptions.map((opt) => (
+                                                            <option key={opt.value} value={opt.value}>
+                                                                {opt.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                {/* AI Write Button */}
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAiGenerate}
+                                                    disabled={aiLoading || files.length === 0 || !productName}
+                                                    className={`text-sm px-4 py-2 rounded-lg border flex items-center gap-2 transition-all font-medium ${aiLoading || files.length === 0 || !productName
+                                                        ? 'text-slate-600 border-slate-700 cursor-not-allowed bg-slate-900'
+                                                        : 'text-purple-400 border-purple-500/50 hover:bg-purple-500/20 hover:border-purple-400 animate-pulse shadow-[0_0_15px_rgba(168,85,247,0.6)] hover:shadow-[0_0_20px_rgba(168,85,247,0.8)]'
+                                                        }`}
+                                                >
+                                                    <Sparkles className="w-4 h-4" />
+                                                    {aiLoading ? t('simulation_form.btn_ai_writing') : t('simulation_form.btn_ai_write')}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <textarea
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            placeholder={aiLoading ? t('simulation_form.placeholder_desc_loading') : t('simulation_form.placeholder_desc')}
+                                            rows={5}
+                                            className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all resize-none ${aiLoading ? 'animate-pulse' : ''
+                                                }`}
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
+                )}
+
+                {/* Step 2: Targeting & Expert Mode */}
+                {step === 2 && (
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        className="space-y-6"
+                    >
+                        {/* Fermi Panel (Stats) */}
+                        <div className="bg-slate-950/50 rounded-xl p-6 border border-slate-800 space-y-4">
+                            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <TrendingUp className="w-4 h-4 text-emerald-400" />
+                                Fermi Market Estimation
+                            </h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 rounded-lg bg-slate-900 border border-slate-800">
+                                    <p className="text-xs text-slate-500 mb-1">🌍 潛在市場母體 (TAM)</p>
+                                    <p className="text-2xl font-bold text-white tabular-nums">
+                                        {new Intl.NumberFormat('en-US').format(tam)}
+                                    </p>
+                                    <p className="text-[10px] text-slate-600 mt-1">Based on Taiwan demographics</p>
+                                </div>
+                                <div className="p-4 rounded-lg bg-slate-900 border border-slate-800 relative group">
+                                    <p className="text-xs text-slate-500 mb-1">🧪 AI 模擬取樣數 (Sample)</p>
+                                    <p className="text-2xl font-bold text-purple-400 tabular-nums">1,000</p>
+                                    <p className="text-[10px] text-slate-600 mt-1">95% Confidence Interval</p>
+                                    {/* Tooltip */}
+                                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-800 text-slate-300 text-xs p-2 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                        統計學信心水準 ±3% 誤差
                                     </div>
                                 </div>
-                                <textarea
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    placeholder={aiLoading ? t('simulation_form.placeholder_desc_loading') : t('simulation_form.placeholder_desc')}
-                                    rows={5}
-                                    className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all resize-none ${aiLoading ? 'animate-pulse' : ''
-                                        }`}
-                                />
                             </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                        </div>
+
+                        {/* Controls */}
+                        <div className="space-y-6">
+                            {/* Age Slider */}
+                            <div className="space-y-3">
+                                <label className="text-sm font-bold text-slate-300 flex justify-between">
+                                    <span>年齡範圍 (Age)</span>
+                                    <span className="text-purple-400">{targetAge[0]} - {targetAge[1] === 60 ? '60+' : targetAge[1]} 歲</span>
+                                </label>
+                                <input
+                                    type="range"
+                                    min="20"
+                                    max="60"
+                                    step="5"
+                                    value={targetAge[1]}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value)
+                                        if (val > targetAge[0]) setTargetAge([targetAge[0], val])
+                                    }}
+                                    className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                                />
+                                <div className="flex justify-between text-xs text-slate-600 font-mono">
+                                    <span>20</span>
+                                    <span>30</span>
+                                    <span>40</span>
+                                    <span>50</span>
+                                    <span>60+</span>
+                                </div>
+                            </div>
+
+                            {/* Gender Switch */}
+                            <div className="space-y-3">
+                                <label className="text-sm font-bold text-slate-300">性別 (Gender)</label>
+                                <div className="flex bg-slate-950 rounded-lg p-1 border border-slate-800">
+                                    {['all', 'male', 'female'].map((g) => (
+                                        <button
+                                            key={g}
+                                            type="button"
+                                            onClick={() => setTargetGender(g as any)}
+                                            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${targetGender === g ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'
+                                                }`}
+                                        >
+                                            {g === 'all' ? '全部' : g === 'male' ? '男性' : '女性'}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Occupation Tags */}
+                            <div className="space-y-3">
+                                <label className="text-sm font-bold text-slate-300">職業/身份 (Occupation)</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {[
+                                        { id: 'student', label: '🎓 學生' },
+                                        { id: 'office_worker', label: '💼 上班族' },
+                                        { id: 'executive', label: '👔 高階主管' },
+                                        { id: 'entrepreneur', label: '🚀 創業主' }
+                                    ].map((occ) => (
+                                        <button
+                                            key={occ.id}
+                                            type="button"
+                                            onClick={() => {
+                                                if (targetOccupations.includes(occ.id)) {
+                                                    setTargetOccupations(prev => prev.filter(x => x !== occ.id))
+                                                } else {
+                                                    setTargetOccupations(prev => [...prev, occ.id])
+                                                }
+                                            }}
+                                            className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${targetOccupations.includes(occ.id)
+                                                ? 'bg-purple-500/20 border-purple-500 text-purple-300'
+                                                : 'bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-500'
+                                                }`}
+                                        >
+                                            {occ.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Expert Mode */}
+                            <div className="pt-4 border-t border-slate-800">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-2 rounded-lg transition-colors ${expertMode ? 'bg-red-500/20 text-red-500' : 'bg-slate-800 text-slate-500'}`}>
+                                            <ShieldAlert className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className={`font-bold text-sm ${expertMode ? 'text-red-400' : 'text-slate-400'}`}>專家模式 (Expert Mode)</h4>
+                                            <p className="text-xs text-slate-500">開啟嚴格批判視角，模擬真實市場殘酷面</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setExpertMode(!expertMode)}
+                                        className={`w-12 h-6 rounded-full relative transition-colors ${expertMode ? 'bg-red-500' : 'bg-slate-700'}`}
+                                    >
+                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${expertMode ? 'left-7' : 'left-1'}`} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
 
                 {/* Error Message */}
                 {error && (
@@ -655,25 +857,60 @@ export default function SimulationForm() {
                     </div>
                 )}
 
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    disabled={loading || aiLoading}
-                    className={`w-full py-4 rounded-xl font-bold text-lg tracking-widest transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg ${loading || aiLoading
-                        ? "bg-slate-700 text-slate-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white shadow-purple-500/30"
-                        }`}
-                >
-                    {loading ? (
-                        <span className="flex items-center justify-center gap-2">
-                            <span className="animate-spin text-xl">⚡</span> {t('simulation_form.submit_btn_loading')}
-                        </span>
-                    ) : (
-                        <span className="flex items-center justify-center gap-2">
-                            {t('simulation_form.submit_btn')}
-                        </span>
+                {/* Submit / Next Button */}
+                <div className="flex gap-3">
+                    {step === 2 && (
+                        <button
+                            type="button"
+                            onClick={() => setStep(1)}
+                            disabled={loading}
+                            className="px-6 py-4 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                        >
+                            上一步
+                        </button>
                     )}
-                </button>
+
+                    {step === 1 ? (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                console.log('🔵 [DEBUG] Next button clicked')
+                                if (files.length === 0) {
+                                    setError(t('simulation_form.error_no_file'))
+                                    return
+                                }
+                                console.log('🔵 [DEBUG] Setting step to 2')
+                                setStep(2)
+                            }}
+                            className="flex-1 py-4 rounded-xl font-bold text-lg tracking-widest bg-slate-800 hover:bg-slate-700 text-white transition-all shadow-lg flex items-center justify-center gap-2 group"
+                        >
+                            下一步: 設定受眾 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                    ) : (
+                        <button
+                            type="submit"
+                            disabled={loading || aiLoading}
+                            className={`flex-1 py-4 rounded-xl font-bold text-lg tracking-widest transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg ${loading || aiLoading
+                                ? "bg-slate-700 text-slate-400 cursor-not-allowed"
+                                : expertMode
+                                    ? "bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white shadow-red-500/30"
+                                    : "bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white shadow-purple-500/30"
+                                }`}
+                        >
+                            {loading ? (
+                                <span className="flex items-center justify-center gap-2">
+                                    <span className="animate-spin text-xl">⚡</span> {t('simulation_form.submit_btn_loading')}
+                                </span>
+                            ) : (
+                                <span className="flex items-center justify-center gap-2">
+                                    {expertMode ? '🔥 啟動專家級預演' : t('simulation_form.submit_btn')}
+                                </span>
+                            )}
+                        </button>
+                    )}
+                </div>
 
                 <p className="flex items-center gap-2 text-xs text-slate-500 mt-4 justify-center">
                     <Sparkles className="w-3 h-3 text-[#d8b4fe]" />

@@ -181,7 +181,7 @@ class LineBotService:
         self.line_bot_api = MessagingApi(self.api_client)
         self.line_bot_blob = MessagingApiBlob(self.api_client)
 
-    async def _run_abm_simulation(self, sampled_citizens, text_context, language="zh-TW"):
+    async def _run_abm_simulation(self, sampled_citizens, text_context, language="zh-TW", targeting=None, expert_mode=False):
         """
         🧬 通用 ABM 模擬執行器
         封裝了五行判斷、社交網絡構建與動態日誌生成。
@@ -210,8 +210,8 @@ class LineBotService:
             "market_price": price_info.get("market_price", 100)
         }
 
-        # 3. 初始化 ABM
-        abm_sim = ABMSimulation(sampled_citizens, product_info)
+        # 3. 初始化 ABM (傳遞 targeting 與 expert_mode)
+        abm_sim = ABMSimulation(sampled_citizens, product_info, targeting=targeting, expert_mode=expert_mode)
         abm_sim.build_social_network("element_based")
         abm_sim.initialize_opinions()
 
@@ -220,13 +220,16 @@ class LineBotService:
 
         # 初始狀態
         num_agents = len(abm_sim.agents)
-        initial_avg = sum(a.current_opinion for a in abm_sim.agents) / num_agents
+        initial_avg = sum(a.current_opinion for a in abm_sim.agents) / num_agents if num_agents > 0 else 0
         evolution_rounds.append({"round": 0, "average_score": round(initial_avg, 1)})
         evolution_logs.append(templates["init"].format(count=num_agents, score=initial_avg))
 
         # 4. 執行迭代 (5 輪)
+        # Expert Mode: 降低收斂速度 (0.3 -> 0.15)，模擬市場慣性與懷疑
+        conv_rate = 0.15 if expert_mode else 0.3
+        
         for i in range(5):
-            abm_sim.run_iterations(num_iterations=1, convergence_rate=0.3)
+            abm_sim.run_iterations(num_iterations=1, convergence_rate=conv_rate)
             current_avg = sum(a.current_opinion for a in abm_sim.agents) / num_agents
             evolution_rounds.append({"round": i + 1, "average_score": round(current_avg, 1)})
 
