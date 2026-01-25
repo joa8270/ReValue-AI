@@ -124,15 +124,15 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
             ) : (
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
                     <div className="bg-rose-500/10 border border-rose-500/20 rounded-lg p-3">
-                        <p className="text-xs text-rose-400 font-bold mb-1">{t.report.copy_opt.section_pain}</p>
-                        <p className="text-xs text-gray-300 leading-relaxed">{formatContent(refineResult.pain_points)}</p>
+                        <p className="text-sm text-rose-400 font-bold mb-1">{t.report.copy_opt.section_pain}</p>
+                        <p className="text-sm text-gray-300 leading-relaxed">{formatContent(refineResult.pain_points)}</p>
                     </div>
                     <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 relative group">
-                        <p className="text-xs text-emerald-400 font-bold mb-1 flex items-center gap-2">
+                        <p className="text-sm text-emerald-400 font-bold mb-1 flex items-center gap-2">
                             <span className="material-symbols-outlined text-sm">lightbulb</span>
                             {t.report.copy_opt.section_advice}
                         </p>
-                        <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">{formatContent(refineResult.refined_copy)}</p>
+                        <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{formatContent(refineResult.refined_copy)}</p>
                         <button
                             onClick={() => navigator.clipboard.writeText(formatContent(refineResult.refined_copy) || "")}
                             className="absolute top-2 right-2 p-1.5 bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-md transition-colors opacity-0 group-hover:opacity-100"
@@ -150,7 +150,7 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
                                 {t.report.copy_opt.section_copy}
                             </p>
                             <div className="relative">
-                                <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap font-medium">
+                                <p className="text-base text-gray-200 leading-relaxed whitespace-pre-wrap font-medium">
                                     {formatContent(refineResult.marketing_copy)}
                                 </p>
                                 <button
