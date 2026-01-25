@@ -85,9 +85,14 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
             if (!res.ok) throw new Error("API Request Failed")
 
             const result = await res.json()
-            if (result.refined_copy) {
+            console.log("Refine Result:", result)
+
+            // [Fix] Robustness check: Accept result if EITHER refined_copy OR marketing_copy exists
+            // Sometimes one might be empty but the other is valid.
+            if (result.refined_copy || result.marketing_copy) {
                 setRefineResult(result)
             } else {
+                console.warn("Empty result from API", result)
                 alert(t.report.copy_opt.alert_empty)
             }
         } catch (e) {

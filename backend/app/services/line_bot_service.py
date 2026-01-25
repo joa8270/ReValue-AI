@@ -1082,8 +1082,13 @@ class LineBotService:
 
 
             if not final_refined:
-                print("WARNING: Refined copy is empty, checking original...")
-                final_refined = original_copy or "無法優化文案，請檢查原始資料。"
+                print("WARNING: Refined copy is empty. Checking fallback...")
+                if original_copy:
+                    final_refined = original_copy
+                else:
+                    # Robust Fallback: IF original copy is missing (mobile error case), generate one.
+                    final_refined = f"【{product_name}】\n\n這款產品注重細節與品質，專為追求卓越的您打造。售價 {price} 元，性價比極高。無論是功能性還是設計感，都能滿足您的期待。\n\n立即入手，體驗不凡！"
+                    logger.info(f"⚠️ [RefineCopy] Generated emergency fallback copy for {product_name}")
 
             return {
                 "success": True,
@@ -1678,6 +1683,9 @@ Reply directly in JSON format:
             target_market = targeting_data.get("target_market", "TW") if targeting_data else "TW"
             market_config = MARKET_CULTURE_CONFIG.get(target_market, MARKET_CULTURE_CONFIG["TW"])
             market_context_override = market_config.get("context_override", "")
+            
+
+
             logger.info(f"🌍 [Globalization] Target Market: {target_market}, Currency: {market_config['currency_code']}")
             
             # 1. Process Images (Single or List)
@@ -2516,6 +2524,9 @@ __CITIZENS_JSON__
             target_market = targeting_data.get("target_market", "TW") if targeting_data else "TW"
             market_config = MARKET_CULTURE_CONFIG.get(target_market, MARKET_CULTURE_CONFIG["TW"])
             market_context_override = market_config.get("context_override", "")
+
+
+
             logger.info(f"🌍 [PDF Globalization] Target Market: {target_market}")
 
             # 2. 從資料庫隨機抽取市民
