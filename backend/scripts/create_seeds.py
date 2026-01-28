@@ -1,0 +1,50 @@
+
+import json
+import os
+import random
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+TARGET_FILE = os.path.join(DATA_DIR, 'citizens.json')
+
+BAZI_TYPES = [
+    "食神格 (講究體驗)", "七殺格 (行動派)", "正官格 (守規矩)", 
+    "偏財格 (機靈)", "正印格 (仁慈)", "傷官格 (叛逆)", 
+    "比肩格 (自我)", "劫財格 (競爭)"
+]
+
+MBTI_TYPES = ["INTJ", "INTP", "ENTJ", "ENTP", "INFJ", "INFP", "ENFJ", "ENFP", "ISTJ", "ISFJ", "ESTJ", "ESFJ", "ISTP", "ISFP", "ESTP", "ESFP"]
+CITIES_TW = ["Taipei", "New Taipei", "Taichung", "Kaohsiung", "Hsinchu", "Tainan"]
+JOBS_TW = ["Engineer", "Teacher", "Sales", "Designer", "PM", "Marketing", "Freelancer", "Student", "Civil Servant", "Doctor"]
+
+def create_seeds():
+    seeds = []
+    print(f"🌱 Generating 1,000 SEEDS (Defcon 1 Reset)...")
+    
+    for i in range(1000):
+        # User requested simplified structure:
+        # { "id": "Citizen_{i:04d}", "name": "Citizen_{i:04d}", "bazi": "Random", "mbti": "Random" }
+        # I will keep valid random choices for Bazi/MBTI to ensure quality, but structure is simple.
+        seed = {
+            "id": f"Citizen_{i:04d}",
+            "name": f"Citizen_{i:04d}",
+            "bazi": random.choice(BAZI_TYPES), 
+            "mbti": random.choice(MBTI_TYPES),
+            # Adding extra fields for compatibility with existing code that might expect them, 
+            # but keeping them consistent with "Random" spirit.
+            "age": random.randint(20, 60),
+            "gender": random.choice(["Male", "Female"]),
+            "city": random.choice(CITIES_TW),
+            "job": random.choice(JOBS_TW)
+        }
+        seeds.append(seed)
+        
+    os.makedirs(DATA_DIR, exist_ok=True)
+    
+    with open(TARGET_FILE, 'w', encoding='utf-8') as f:
+        json.dump(seeds, f, ensure_ascii=False, indent=2)
+        
+    print("✅ New World Created: 1,000 Seeds planted.")
+
+if __name__ == "__main__":
+    create_seeds()

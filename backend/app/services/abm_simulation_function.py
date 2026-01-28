@@ -125,6 +125,7 @@ async def run_simulation_with_image_data_abm(self, image_data_input, sim_id, tex
 
 🎯 **任務**：
 1. 為每位市民生成「符合其ABM行為邏輯」的詳細評論（繁體中文，至少60字）
+   - 🔴 **嚴格指令：必須使用提供的 `age` (年齡) 與 `occupation` (職業)，嚴禁自行編造或修改身份。**
    - 如果 opinion_change 很大（>15），評論應提到「受鄰居/朋友影響」
    - 如果是意見領袖，評論應展現說服力與影響力
    - 評論應反映最終意見分數 (final_opinion)
@@ -212,6 +213,69 @@ async def run_simulation_with_image_data_abm(self, image_data_input, sim_id, tex
         
         # 6. 解析AI回應
         data = self._clean_and_parse_json(ai_text)
+        
+        # 🛡️ GHOST CITIZEN PROTECTION (Image Flow)
+        raw_comments = data.get("comments", [])
+        valid_map = {c["name"]: c for c in sampled_citizens}
+        used_names = set()
+        sanitized_comments = []
+        
+        # Collect used real names first
+        for c in raw_comments:
+            if not isinstance(c, dict): continue
+            # Check citizen_name or name or look up by ID?
+            # AI often returns "name" or just "citizen_id"
+            c_name = c.get("name")
+            if not c_name and c.get("citizen_id") in valid_map: 
+                 # Maybe ID is name? No, ID is UUID.
+                 # Need map by ID too
+                 pass
+            
+            # Let's map by ID and Name to be safe
+            pass 
+
+        # Simplified Logic:
+        # We need to ensure 'citizen_id' (or name) in comment matches a real citizen.
+        # If not, replace with unused one.
+        
+        # Map by ID (primary) and Name (secondary)
+        citizen_id_map = {str(c["id"]): c for c in sampled_citizens}
+        citizen_name_map = {c["name"]: c for c in sampled_citizens}
+        
+        unused_citizens_img = [c for c in sampled_citizens] # copy
+        
+        for c in raw_comments:
+            if not isinstance(c, dict): continue
+            
+            real_c = None
+            cid = str(c.get("citizen_id", ""))
+            cname = c.get("name", "")
+            
+            if cid in citizen_id_map:
+                real_c = citizen_id_map[cid]
+            elif cname in citizen_name_map:
+                real_c = citizen_name_map[cname]
+                
+            if real_c:
+                # Valid citizen
+                c["citizen_id"] = str(real_c["id"])
+                c["name"] = real_c["name"] # Enforce name
+                if real_c in unused_citizens_img:
+                    unused_citizens_img.remove(real_c)
+            else:
+                # GHOST! Replace.
+                if unused_citizens_img:
+                    real_c = unused_citizens_img.pop(0)
+                    c["citizen_id"] = str(real_c["id"])
+                    c["name"] = real_c["name"]
+                    c["occupation"] = real_c.get("occupation", "未知")
+                    # logger.warning(f"👻 [ABM-Image] Replaced ghost with {real_c['name']}")
+                else:
+                    continue # Should not happen if we sampled 30
+            
+            sanitized_comments.append(c)
+            
+        data["comments"] = sanitized_comments
         
         # 7. 合併ABM數據與AI生成結果
         if use_abm and abm_data:

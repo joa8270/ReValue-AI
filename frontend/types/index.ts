@@ -33,10 +33,25 @@ export interface Persona {
     current_luck?: { name: string; description: string }
     luck_timeline?: { age_start: number; age_end: number; name: string; description: string }[]
 
+
     displayAge?: string
     fullBirthday?: string
     luckCycle?: string
     detailedTrait?: string
+
+    // Global Identity
+    profiles?: {
+        TW?: CitizenProfile
+        US?: CitizenProfile
+        CN?: CitizenProfile
+    }
+}
+
+export interface CitizenProfile {
+    name: string
+    city: string
+    job: string
+    pain: string
 }
 
 export interface SimulationData {

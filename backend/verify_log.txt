@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "C:\Users\Joa\Downloads\MIRRA\backend\verify_abm_nan.py", line 7, in <module>
+    from app.core.abm_engine import ABMSimulation
+  File "C:\Users\Joa\Downloads\MIRRA\backend\app\core\abm_engine.py", line 595
+    return {
+           ^
+SyntaxError: '{' was never closed

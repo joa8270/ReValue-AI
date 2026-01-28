@@ -1,0 +1,74 @@
+[
+  {
+    "id": "agent_0000",
+    "bazi": "食神格 (講究體驗)",
+    "profiles": {
+      "TW": {
+        "name": "Citizen_0000",
+        "city": "台南",
+        "job": "行銷總監",
+        "pain": "未知 (需補充)"
+      },
+      "US": {
+        "name": "Ethan Chen",
+        "city": "San Francisco Bay Area",
+        "job": "Marketing Director, SaaS Startup",
+        "pain": "H-1B Visa & Green Card Backlog, Layoff Concerns, High Cost of Living, Cultural Adaptation"
+      },
+      "CN": {
+        "name": "陈浩",
+        "city": "杭州",
+        "job": "阿里巴巴 P8 Marketing Leader",
+        "pain": "35 岁危机, 996 ICU, 内卷, 房贷压力, Age Discrimination"
+      }
+    }
+  },
+  {
+    "id": "agent_0001",
+    "bazi": "傷官格 (挑剔美感)",
+    "profiles": {
+      "TW": {
+        "name": "Citizen_0001",
+        "city": "新竹",
+        "job": "退休教師",
+        "pain": "未知 (需補充)"
+      },
+      "US": {
+        "name": "Catherine Smith",
+        "city": "波士頓",
+        "job": "Independent Educational Consultant",
+        "pain": "競爭激烈、客戶來源不穩定、醫療保險"
+      },
+      "CN": {
+        "name": "李梅",
+        "city": "上海",
+        "job": "私立國際學校升學指導",
+        "pain": "政策風險、家長壓力、退休金與醫療"
+      }
+    }
+  },
+  {
+    "id": "agent_0002",
+    "bazi": "七殺格 (衝動購買)",
+    "profiles": {
+      "TW": {
+        "name": "Citizen_0002",
+        "city": "新北",
+        "job": "行銷總監",
+        "pain": "未知 (需補充)"
+      },
+      "US": {
+        "name": "Ethan Chen",
+        "city": "San Francisco Bay Area",
+        "job": "Growth Marketing VP, Series B Startup",
+        "pain": "Green Card Backlog, Layoffs in Tech, Healthcare Costs"
+      },
+      "CN": {
+        "name": "陈锋",
+        "city": "深圳",
+        "job": "某互聯網大廠市場部總監",
+        "pain": "35 歲危機, 996 ICU, 房貸壓力"
+      }
+    }
+  }
+]

@@ -42,10 +42,10 @@ async def root():
 
 # --- 市民庫 API ---
 @app.get("/citizens")
-async def list_citizens(limit: int = 100, offset: int = 0):
+async def list_citizens(limit: int = 100, offset: int = 0, search: str = None):
     """獲取市民庫資料"""
-    citizens = get_all_citizens(limit=limit, offset=offset)
-    total = get_citizens_count()
+    citizens = get_all_citizens(limit=limit, offset=offset, search=search)
+    total = get_citizens_count(search=search)
     return {
         "total": total,
         "limit": limit,

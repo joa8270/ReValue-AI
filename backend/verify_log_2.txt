@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "C:\Users\Joa\Downloads\MIRRA\backend\verify_abm_nan.py", line 59, in <module>
+    test_abm_nan_handling()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Joa\Downloads\MIRRA\backend\verify_abm_nan.py", line 10, in test_abm_nan_handling
+    print("\U0001f9ea Testing ABM Engine regarding NaN handling...")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'cp950' codec can't encode character '\U0001f9ea' in position 0: illegal multibyte sequence

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square, User, Target, TrendingUp, Users, ShieldAlert, ShoppingBag, Briefcase, Globe } from 'lucide-react'
+import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square, User, Target, TrendingUp, Users, ShieldAlert, ShoppingBag, Briefcase, Globe, Dices } from 'lucide-react'
 
 // 🌍 市場配置常數 (Chameleon Architecture)
 const MARKET_CONFIG = {
@@ -31,6 +31,7 @@ export default function SimulationForm() {
     const [targetGender, setTargetGender] = useState<'all' | 'male' | 'female'>('all')
     const [targetOccupations, setTargetOccupations] = useState<string[]>([])
     const [expertMode, setExpertMode] = useState(false)
+    const [forceRandom, setForceRandom] = useState(false) // [New] Force Random Mode
     const [tam, setTam] = useState(18600000) // Initial TAM (Taiwan Active Internet Users / Labor Force)
     // Scenario State
     const [analysisScenario, setAnalysisScenario] = useState<'b2c' | 'b2b'>('b2c')
@@ -393,6 +394,7 @@ export default function SimulationForm() {
             }
             formData.append("targeting", JSON.stringify(targetingData))
             formData.append("expert_mode", expertMode.toString())
+            formData.append("force_random", forceRandom.toString()) // [New] Pass force_random flag
 
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
             const res = await fetch(`${API_BASE_URL}/api/web/trigger`, {
@@ -780,8 +782,8 @@ export default function SimulationForm() {
                                             type="button"
                                             onClick={() => setTargetMarket(key)}
                                             className={`flex-1 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${targetMarket === key
-                                                    ? 'bg-blue-900/30 border-blue-500 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)]'
-                                                    : 'bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-500'
+                                                ? 'bg-blue-900/30 border-blue-500 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                                                : 'bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-500'
                                                 }`}
                                         >
                                             <span className="text-2xl">{config.flag}</span>
@@ -931,6 +933,32 @@ export default function SimulationForm() {
                                         {t('simulation_form.expert_mode_detail')}
                                     </p>
                                 )}
+                            </div>
+
+                            {/* Force Random Mode (New) */}
+                            <div className="pt-4 border-t border-slate-800">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-2 rounded-lg transition-colors ${forceRandom ? 'bg-cyan-500/20 text-cyan-500' : 'bg-slate-800 text-slate-500'}`}>
+                                            <Dices className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className={`font-bold text-sm ${forceRandom ? 'text-cyan-400' : 'text-slate-400'}`}>
+                                                {t('simulation_form.force_random_title') || "隨機重抽 (True Randomness)"}
+                                            </h4>
+                                            <p className="text-xs text-slate-500">
+                                                {t('simulation_form.force_random_desc') || "開啟後將忽略檔案快取，強制重新隨機抽取每一位市民。"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setForceRandom(!forceRandom)}
+                                        className={`w-12 h-6 rounded-full relative transition-colors ${forceRandom ? 'bg-cyan-600' : 'bg-slate-700'}`}
+                                    >
+                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${forceRandom ? 'left-7' : 'left-1'}`} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </motion.div>

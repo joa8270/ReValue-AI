@@ -1,0 +1,11 @@
+Testing ABM Engine regarding NaN handling...
+Traceback (most recent call last):
+  File "C:\Users\Joa\Downloads\MIRRA\backend\verify_abm_nan.py", line 59, in <module>
+    test_abm_nan_handling()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Joa\Downloads\MIRRA\backend\verify_abm_nan.py", line 16, in test_abm_nan_handling
+    sim = ABMSimulation(citizens, product)
+  File "C:\Users\Joa\Downloads\MIRRA\backend\app\core\abm_engine.py", line 392, in __init__
+    print(f"\U0001f9ec [ABM] 已初始化 {len(self.agents)} 個 Agent (Expert: {expert_mode}, Target: {targeting})")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'cp950' codec can't encode character '\U0001f9ec' in position 0: illegal multibyte sequence

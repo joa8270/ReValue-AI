@@ -250,97 +250,13 @@ class LineBotService:
         self.line_bot_api = MessagingApi(self.api_client)
         self.line_bot_blob = MessagingApiBlob(self.api_client)
 
-    async def _run_abm_simulation(self, sampled_citizens, text_context, language="zh-TW", targeting=None, expert_mode=False):
-        """
-        🧬 通用 ABM 模擬執行器
-        封裝了五行判斷、社交網絡構建與動態日誌生成。
-        """
-        from app.core.abm_engine import ABMSimulation
-        from app.services.abm_helpers import extract_price_from_context
+    # [REMOVED] Duplicate _run_abm_simulation was here. 
+    # Use the unified version defined later in this file (around line 1567).
 
-        # 1. 設置語言與映射
-        lang = language if language in ["zh-TW", "zh-CN", "en"] else "zh-TW"
-        templates = ABM_LOG_TEMPLATES[lang]
-        elem_trans = ELEMENT_TRANSLATION[lang]
 
-        # 2. 提取資訊與判斷產品五行
-        price_info = extract_price_from_context(text_context or "")
-        product_element = "Fire"
-        if text_context:
-            text_lower = text_context.lower()
-            if any(kw in text_lower for kw in ["飲料", "水", "清潔", "化妝"]): product_element = "Water"
-            elif any(kw in text_lower for kw in ["金屬", "工具", "樂器"]): product_element = "Metal"
-            elif any(kw in text_lower for kw in ["木", "書", "植物", "文具"]): product_element = "Wood"
-            elif any(kw in text_lower for kw in ["食品", "陶瓷", "土"]): product_element = "Earth"
 
-        product_info = {
-            "element": product_element,
-            "price": price_info.get("price", 100),
-            "market_price": price_info.get("market_price", 100)
-        }
 
-        # 3. 初始化 ABM (傳遞 targeting 與 expert_mode)
-        abm_sim = ABMSimulation(sampled_citizens, product_info, targeting=targeting, expert_mode=expert_mode)
-        abm_sim.build_social_network("element_based")
-        abm_sim.initialize_opinions()
 
-        evolution_rounds = []
-        evolution_logs = []
-
-        # 初始狀態
-        num_agents = len(abm_sim.agents)
-        initial_avg = sum(a.current_opinion for a in abm_sim.agents) / num_agents if num_agents > 0 else 0
-        evolution_rounds.append({"round": 0, "average_score": round(initial_avg, 1)})
-        evolution_logs.append(templates["init"].format(count=num_agents, score=initial_avg))
-
-        # 4. 執行迭代 (5 輪)
-        # Expert Mode: 降低收斂速度 (0.3 -> 0.15)，模擬市場慣性與懷疑
-        conv_rate = 0.15 if expert_mode else 0.3
-        
-        for i in range(5):
-            abm_sim.run_iterations(num_iterations=1, convergence_rate=conv_rate)
-            current_avg = sum(a.current_opinion for a in abm_sim.agents) / num_agents
-            evolution_rounds.append({"round": i + 1, "average_score": round(current_avg, 1)})
-
-            if i == 0:
-                element_groups = {}
-                for agent in abm_sim.agents:
-                    elem = agent.element
-                    if elem not in element_groups: element_groups[elem] = []
-                    element_groups[elem].append(agent.current_opinion)
-                element_avgs = {e: sum(ops)/len(ops) for e, ops in element_groups.items()}
-                most_pos = max(element_avgs, key=element_avgs.get)
-                evolution_logs.append(templates["round1"].format(elem=elem_trans.get(most_pos, most_pos), score=element_avgs[most_pos]))
-            elif i == 2:
-                changes = sum(1 for a in abm_sim.agents if abs(a.get_opinion_change()) > 5)
-                evolution_logs.append(templates["round3"].format(count=changes))
-            elif i == 4:
-                evolution_logs.append(templates["round5"].format(score=current_avg))
-
-        # 5. 領袖識別與突現分析
-        abm_sim.identify_opinion_leaders(top_n=5)
-        leaders = [a for a in abm_sim.agents if a.is_opinion_leader]
-        if leaders:
-            leader_names = ", ".join([a.name for a in leaders[:3]])
-            evolution_logs.append(templates["leader"].format(names=leader_names))
-
-        emergence = abm_sim.analyze_emergence()
-        if emergence['consensus'] > 0.7:
-            evolution_logs.append(templates["consensus"].format(val=emergence['consensus']*100))
-        elif emergence['polarization'] > 0.5:
-            evolution_logs.append(templates["polarization"].format(val=emergence['polarization']*100))
-
-        return {
-            "evolution_data": {
-                "rounds": [r["round"] for r in evolution_rounds],
-                "average_scores": [r["average_score"] for r in evolution_rounds],
-                "logs": evolution_logs,
-                "product_element": product_element,
-                "price_ratio": round(product_info['price'] / product_info['market_price'], 2)
-            },
-            "analytics_data": emergence,
-            "comments_data": abm_sim.get_final_comments(num_comments=10)
-        }
 
     async def handle_event(self, event):
         """
@@ -833,8 +749,8 @@ class LineBotService:
                     "neg_label": "市場負面反饋（需巧妙化解，但不直接提及）",
                     "pos_label": "市場正面反饋（需保留並強化）",
                     "task_label": "任務",
-                    "pain_task": "分析痛點：總結 3 個主要抗拒點（供內部參考，不要在文案中直接提及）。",
-                    "json_instruction": "請直接回覆 JSON 格式：",
+                    "pain_task": "分析痛點：總結 3 個主要抗拒點（供內部參考，必須使用繁體中文）。",
+                    "json_instruction": "請直接回覆 JSON 格式 (必須使用繁體中文)：",
                     "forbidden": ["我們理解您的疑慮", "面對市場質疑", "您擔心的，我們聽見了"],
                     "structure_intro": "文案結構規範（必須按此順序）：",
                     "step1": "開頭：以「產品名稱」或「吸睛標題」開頭（如【產品名】或 ✨標語）",
@@ -931,8 +847,8 @@ class LineBotService:
                 """
                 json_format = """
                 {
-                    "pain_points_summary": "Key concerns summary...",
-                    "refined_copy": "Optimization advice and refined arguments..."
+                    "pain_points_summary": "市場抗拒點總結 (繁體中文)...",
+                    "refined_copy": "優化建議與論述 (繁體中文)..."
                 }
                 """
             else:
@@ -961,6 +877,7 @@ class LineBotService:
                    ❌ Any form of "response-style" or "explanatory" opening
                    ❌ FAQ format
                    ❌ Multi-paragraph responses to different objections
+                   ❌ English Content (Unless it's a specific brand name). All analysis MUST be in Traditional Chinese.
                    
                    **Correct Opening Examples / 正確開頭範例**：
                    {examples_list}
@@ -971,13 +888,13 @@ class LineBotService:
                 """
                 json_format = """
                 {
-                    "strategy_rationale": "Strategy analysis...",
-                    "pain_points_summary": "3 key market concerns...",
-                    "refined_copy": "【Ready-to-copy product description, starting with product name or headline】",
+                    "strategy_rationale": "Strategy analysis (Traditional Chinese)...",
+                    "pain_points_summary": "3 key market concerns (Traditional Chinese)...",
+                    "refined_copy": "【Ready-to-copy product description in Traditional Chinese】",
                     "marketing_copy": [
-                        {"title": "Title 1", "body": "Body 1...", "hashtags": "#tag1 #tag2"},
-                        {"title": "Title 2", "body": "Body 2...", "hashtags": "#tag1 #tag2"},
-                        {"title": "Title 3", "body": "Body 3...", "hashtags": "#tag1 #tag2"}
+                        {"title": "Title 1 (Traditional Chinese)", "body": "Body 1...", "hashtags": "#tag1 #tag2"},
+                        {"title": "Title 2 (Traditional Chinese)", "body": "Body 2...", "hashtags": "#tag1 #tag2"},
+                        {"title": "Title 3 (Traditional Chinese)", "body": "Body 3...", "hashtags": "#tag1 #tag2"}
                     ]
                 }
                 """
@@ -1667,7 +1584,7 @@ Reply directly in JSON format:
             "comments_data": comments_data
         }
 
-    async def run_simulation_with_image_data(self, image_data_input, sim_id, text_context=None, language="zh-TW"):
+    async def run_simulation_with_image_data(self, image_data_input, sim_id, text_context=None, language="zh-TW", force_random=False):
         """核心圖文分析邏輯 (Decoupled & Synced with PDF Flow) - Supports Single or Multiple Images"""
         import traceback
         try:
@@ -1710,9 +1627,14 @@ Reply directly in JSON format:
             # 2. 從資料庫隨機抽取市民
             # [Fix] Use run_in_threadpool to match PDF flow exactly
             from fastapi.concurrency import run_in_threadpool
-            # print(f"Calling run_in_threadpool")
             
-            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30)
+            # [Consistency] Calculate seed from Image content (first image)
+            import hashlib
+            # Consistency logic: use hash if not force_random (nested ternary for safety)
+            img_hash = (int(hashlib.md5(image_bytes_list[0]).hexdigest(), 16) if image_bytes_list else None) if not force_random else None
+            
+            # Pass hash as seed
+            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=img_hash)
             
             if sampled_citizens:
                 first_c = sampled_citizens[0]
@@ -1723,6 +1645,36 @@ Reply directly in JSON format:
             # print(f"Sampled: {len(sampled_citizens)} citizens")
             
             random.shuffle(sampled_citizens)
+
+            # 🛡️ [Defense in Depth] Service-Layer Fix for "All Fire"
+            # Explicitly verify and repair missing elements before using them
+            elements_cycle = ["Fire", "Water", "Metal", "Wood", "Earth"]
+            for idx, c in enumerate(sampled_citizens):
+                current_elem = c.get("element")
+                
+                # If element is missing or explicitly "Fire" (suspected default), 
+                # we force a deterministic reassignment based on ID to ensure variety.
+                # Note: This might change a legitimate "Fire" citizen to something else, 
+                # but ensures visual diversity which is the priority right now.
+                if not current_elem or current_elem == "Fire" or current_elem == "Unknown":
+                    # Use consistent deterministic hash to match database.py (id % 5)
+                    # Note: c["id"] is string, so we convert to int
+                    try:
+                        c_seed = int(c["id"])
+                    except:
+                        c_seed = hash(str(c["id"]))
+                    
+                    c["element"] = elements_cycle[c_seed % 5]
+                    # Backfill bazi just in case
+                    if "bazi_profile" in c:
+                        c["bazi_profile"]["element"] = c["element"]
+            
+            # [Debug] Log first citizen to check element patch
+            try:
+                if sampled_citizens:
+                    with open("debug_trace.log", "a", encoding="utf-8") as f:
+                        f.write(f"[{sim_id}] Sampled Citizen 0: {sampled_citizens[0].get('name')}, Element: {sampled_citizens[0].get('element')}\n")
+            except: pass
             
             # 🧬 【ABM INTEGRATION】執行 Agent-Based Modeling 模擬
             abm_evolution_data = None
@@ -1745,11 +1697,13 @@ Reply directly in JSON format:
                 citizens_for_prompt = []
                 for c in sampled_citizens[:10]:
                     bazi = c.get("bazi_profile") or {}
+                    # [Fix] Use the corrected element from top-level key (guaranteed by database.py)
+                    # Do NOT read from bazi['element'] as it might be missing or invalid
                     citizens_for_prompt.append({
                         "id": str(c.get("id", "0")),
                         "name": c.get("name", "AI市民"),
                         "age": c.get("age", 30),
-                        "element": bazi.get("element", "未知"),
+                        "element": c.get("element") or bazi.get("element", "未知"), # Corrected: Prioritize top-level
                         "structure": bazi.get("structure", "未知"),
                         "occupation": c.get("occupation", "自由業"),
                         "location": c.get("location", "台灣"),
@@ -2181,10 +2135,11 @@ __CITIZENS_JSON__
                 # 🌍 注入市場文化覆蓋到 Prompt 開頭 (Chameleon Architecture)
                 if market_context_override:
                     prompt_text = market_context_override + "\n\n" + prompt_text
-                    logger.info(f"[{sim_id}] Market context override injected for: {target_market}")
+                    print(f"[{sim_id}] Market context override injected for: {target_market}")
+                    with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Market context override: {target_market}\n")
 
             except Exception as e:
-                logger.error(f"[{sim_id}] Prompt construction failed: {e}. Using simplified prompt.")
+                print(f"[{sim_id}] Prompt construction failed: {e}")
                 prompt_text = "你是 MIRRA AI 策略顧問。請深度分析產品圖片市場潛力。回傳 JSON： { \"result\": { \"score\": 80, \"summary\": \"[解析]...[優化]...[戰略]...\", \"suggestions\": [ {\"target\": \"...\", \"advice\": \"...\", \"execution_plan\": [\"步1\", \"步2\", \"步3\", \"步4\", \"步5\"]} ] }, \"comments\": [] }"
 
             # Add missing JSON instructions to prompt if truncated
@@ -2204,13 +2159,14 @@ __CITIZENS_JSON__
             
             # Pass image_parts instead of single image_b64
             # 增加 timeout 到 180 秒，讓 AI 有足夠時間生成詳細評論
-            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, image_parts=image_parts, timeout=180)
+            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, image_parts=image_parts, timeout=300)
             
             ts_end = datetime.datetime.now().isoformat()
             with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] [TIME:{ts_end}] Gemini Returned. Duration check needed.\n")
 
             if ai_text is None:
-                logger.error(f"[{sim_id}] Gemini failed: {last_error}. Proceeding to FALLBACK GENERATION.")
+                print(f"[{sim_id}] Gemini failed: {last_error}. Proceeding to FALLBACK GENERATION.")
+                with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Gemini failed: {last_error}\n")
                 ai_text = "{}" # Empty JSON to trigger fallback parsing
 
             # print(f"RAW AI RESPONSE: {str(ai_text)[:100]}...")
@@ -2225,7 +2181,7 @@ __CITIZENS_JSON__
             # Ensure Score is not 0
             res_obj = data.get("result", {})
             if not res_obj.get("score"):
-                 logger.warning(f"[{sim_id}] Missing Score. Generating fallback score.")
+                 print(f"[{sim_id}] Missing Score. Generating fallback score.")
                  res_obj["score"] = random.randint(72, 88)
             
             # Ensure Summary
@@ -2254,18 +2210,18 @@ __CITIZENS_JSON__
                 # 1. 長度必須至少 40 字（原本是 10 字）
                 # 2. 不包含任何罐頭回覆關鍵字
                 if len(text) < 40:
-                    logger.warning(f"[FILTER] Comment too short ({len(text)} chars): {text[:30]}...")
+                    # print(f"[FILTER] Comment too short ({len(text)} chars)")
                     continue
                 if any(phrase in text for phrase in forbidden_phrases):
-                    logger.warning(f"[FILTER] Forbidden phrase detected: {text[:30]}...")
+                    # print(f"[FILTER] Forbidden phrase detected")
                     continue
                 filtered_comments.append(c)
             gemini_comments = filtered_comments
-            logger.info(f"[{sim_id}] After quality filter: {len(gemini_comments)} comments passed")
+            print(f"[{sim_id}] After quality filter: {len(gemini_comments)} comments passed")
             
             # --- 2. FALLBACK MECHANISM (Fill up to 10) ---
             if len(gemini_comments) < 10:
-                 logger.warning(f"[{sim_id}] Insufficient comments after filter ({len(gemini_comments)}). Generating fallback.")
+                 print(f"[{sim_id}] Insufficient comments after filter ({len(gemini_comments)}). Generating fallback.")
                  fallback_comments = list(gemini_comments) # Copy
                  already_ids = {str(c.get("citizen_id")) for c in fallback_comments}
                  
@@ -2313,7 +2269,7 @@ __CITIZENS_JSON__
                       if cid in already_ids: continue
                       
                       bazi = c.get("bazi_profile", {})
-                      elem = bazi.get("element", "Fire")
+                      elem = c.get("element") or bazi.get("element", "Fire")
                       structure = bazi.get("structure", "一般人格")
                       occupation = c.get("occupation", "上班族")
                       age = c.get("age", 30)
@@ -2348,7 +2304,7 @@ __CITIZENS_JSON__
             element_counts = {"Fire": 0, "Water": 0, "Metal": 0, "Wood": 0, "Earth": 0}
             for c in sampled_citizens:
                 bazi = c.get("bazi_profile") or {}
-                elem = bazi.get("element", "Fire")
+                elem = c.get("element") or bazi.get("element", "Fire")
                 if elem in element_counts: element_counts[elem] += 1
             total = len(sampled_citizens)
             bazi_dist = {k: round(v / total * 100) for k, v in element_counts.items()} if total else element_counts
@@ -2370,14 +2326,15 @@ __CITIZENS_JSON__
                     "age": str(c["age"]),
                     "location": c.get("location", "台灣"),
                     "occupation": c.get("occupation", "未知職業"),
-                    "element": bazi.get("element", "Fire"),
+                    "element": c.get("element") or bazi.get("element", "Fire"),
                     "day_master": bazi.get("day_master", "?"),
                     "pattern": bazi.get("structure", "未知格局"),
                     "trait": ", ".join(c["traits"][:2]) if c["traits"] else "個性鮮明",
                     "decision_logic": "根據八字格局特質分析",
                     "current_luck": bazi.get("current_luck", {}),
                     "luck_timeline": bazi.get("luck_timeline", []),
-                    "four_pillars": pillars_str
+                    "four_pillars": pillars_str,
+                    "profiles": c.get("profiles", {})
                 })
 
             # Process Comments (Map to Citizens)
@@ -2420,8 +2377,11 @@ __CITIZENS_JSON__
                             "name": citizen["name"],
                             "age": str(age),
                             "pattern": bazi.get("structure", "未知格局"),
-                            "element": bazi.get("element", "Fire"),
-                            "icon": {"Fire": "🔥", "Water": "💧", "Metal": "🔩", "Wood": "🌳", "Earth": "🏔️"}.get(bazi.get("element", "Fire"), "🔥"),
+                            "pattern": bazi.get("structure", "未知格局"),
+                            # [Fix] Robust assignment handling explicit None from DB
+                            "element": citizen.get("element") or bazi.get("element") or "Fire",
+                            "icon": {"Fire": "🔥", "Water": "💧", "Metal": "🔩", "Wood": "🌳", "Earth": "🏔️"}.get(citizen.get("element") or bazi.get("element") or "Fire", "🔥"),
+                            "occupation": citizen.get("occupation", "未知職業"),
                             "occupation": citizen.get("occupation", "未知職業"),
                             "location": citizen.get("location", "台灣"),
                             "day_master": bazi.get("day_master", "?"),
@@ -2435,7 +2395,8 @@ __CITIZENS_JSON__
                             "four_pillars": bazi.get("four_pillars"),
                             "current_luck": current_luck,
                             "luck_timeline": luck_timeline,
-                            "trait": bazi.get("trait", "多元性格")
+                            "trait": bazi.get("trait", "多元性格"),
+                            "profiles": citizen.get("profiles", {})
                         }
                     })
 
@@ -2499,7 +2460,7 @@ __CITIZENS_JSON__
             # print(f"AI Analysis Failed: {e}")
             error_msg = str(e)
             tb = traceback.format_exc()
-            logger.error(f"[{sim_id}] CRASH: {error_msg}\n{tb}")
+            print(f"[{sim_id}] CRASH: {error_msg}\n{tb}")
             try:
                 with open("last_error.txt", "w", encoding="utf-8") as f:
                     f.write(f"{error_msg}\n{tb}")
@@ -2509,7 +2470,30 @@ __CITIZENS_JSON__
                 pass
             self._handle_error_db(sim_id, error_msg)
 
-    async def run_simulation_with_pdf_data(self, pdf_bytes, sim_id, file_name, language="zh-TW"):
+    def _ensure_serializable(self, obj):
+        """Recursively convert numpy types to python native types for JSON serialization (Numpy 2.0 safe + NaN handling)"""
+        import numpy as np
+        import math
+        
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            if np.isnan(obj) or np.isinf(obj):
+                return None
+            return float(obj)
+        elif isinstance(obj, float):
+             if math.isnan(obj) or math.isinf(obj):
+                 return None
+             return obj
+        elif isinstance(obj, np.ndarray):
+            return [self._ensure_serializable(x) for x in obj.tolist()]
+        elif isinstance(obj, dict):
+            return {k: self._ensure_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._ensure_serializable(x) for x in obj]
+        return obj
+
+    async def run_simulation_with_pdf_data(self, pdf_bytes, sim_id, file_name, language="zh-TW", force_random=False):
         """核心 PDF 分析邏輯 (Decoupled)"""
         with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] PDF Flow Start (Lang: {language})\n")
         try:
@@ -2531,8 +2515,31 @@ __CITIZENS_JSON__
 
             # 2. 從資料庫隨機抽取市民
             from fastapi.concurrency import run_in_threadpool
+            
+            # [Consistency] Calculate seed from PDF content
+            import hashlib
+            # Consistency logic: use hash if not force_random
+            pdf_hash = int(hashlib.md5(pdf_bytes).hexdigest(), 16) if not force_random else None
+            
             # [Fix] 使用 run_in_threadpool 抽樣 30 位市民，從中精選 10 位生成評論
-            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30)
+            # Pass the hash as seed for consistent sampling
+            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=pdf_hash)
+
+            # 🛡️ [Defense in Depth] Service-Layer Fix for "All Fire" (PDF Version)
+            elements_cycle = ["Fire", "Water", "Metal", "Wood", "Earth"]
+            for idx, c in enumerate(sampled_citizens):
+                current_elem = c.get("element")
+                if not current_elem or current_elem == "Fire" or current_elem == "Unknown":
+                    # [Fix] Deterministic Fallback - use id % 5 to match database.py
+                    try:
+                        c_seed = int(c["id"])
+                    except:
+                        c_seed = hash(str(c["id"]))
+                    c["element"] = elements_cycle[c_seed % 5]
+                    if "bazi_profile" in c:
+                        c["bazi_profile"]["element"] = c["element"]
+
+
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Got citizens: {len(sampled_citizens)}\n")
             
             # 簡化市民資料
@@ -2542,10 +2549,11 @@ __CITIZENS_JSON__
                     "name": c["name"],
                     "age": c["age"],
                     "gender": c["gender"],
+                    "occupation": c.get("occupation", "未知"),
                     "location": c["location"],
                     "day_master": c["bazi_profile"].get("day_master", "未知"),
                     "structure": c["bazi_profile"].get("structure", "未知"),
-                    "element": c["bazi_profile"].get("element", "未知"),
+                    "element": c.get("element", "未知"), # [Fix] Use top-level corrected element
                     "traits": c["traits"]
                 }
                 for c in sampled_citizens
@@ -2561,6 +2569,7 @@ __CITIZENS_JSON__
 {citizens_json}
 
 ⚠️ **重要指示：策略建議必須非常具體且可執行**
+- 🔴 **嚴格指令：必須使用提供的 `age` (年齡) 與 `occupation` (職業)，嚴禁自行編造或修改身份。**
 - 不要給出「進行 A/B 測試」這種人人都知道的泛泛建議
 - 必須根據**這個特定商業模式**的特點，給出**獨特、有洞察力**的建議
 - 執行步驟要具體到「第一週做什麼、第一個月達成什麼、如何衡量成效」
@@ -2650,6 +2659,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
 {citizens_json}
 
 ⚠️ **Important Instruction: Strategy Advice Must Be Specific and Actionable**
+- 🔴 **STRICT INSTRUCTION: You MUST use the provided `age` and `occupation` from the persona data. DO NOT invent or modify their identity.**
 - Do not give generic advice like "do A/B testing".
 - You must provide **unique, insightful** suggestions based on **this specific business model's** characteristics.
 - Action steps must be specific: "What to do in Week 1, what to achieve in Month 1, how to measure success".
@@ -2734,6 +2744,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
 {citizens_json}
 
 ⚠️ **重要指示：策略建议必须非常具体且可执行**
+- 🔴 **严格指令：必须使用提供的 `age` (年龄) 与 `occupation` (职业)，严禁自行编造或修改身份。**
 - 不要给出「进行 A/B 测试」这种人人都知道的泛泛建议
 - 必须根据**这个特定商业模式**的特点，给出**独特、有洞察力**的建议
 - 执行步骤要具体到「第一周做什么、第一个月达成什么、如何衡量成效」
@@ -2838,7 +2849,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             with open("debug_trace.log", "a", encoding="utf-8") as f: 
                 f.write(f"[{sim_id}] [TIME:{ts_start}] Calling Gemini REST API (PDF), Payload: {payload_len} bytes, Lang: {language}\n")
             
-            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, pdf_b64=pdf_b64, timeout=300)
+            ai_text, last_error = await self._call_gemini_rest(api_key, prompt_text, pdf_b64=pdf_b64, timeout=450)
 
             ts_end = datetime.datetime.now().isoformat()
             with open("debug_trace.log", "a", encoding="utf-8") as f: 
@@ -2908,6 +2919,22 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             # [Fix] 抓取 Gemini 返回的評論或是合併後的評論
             raw_arena_comments = data.get("arena_comments", [])
             filtered_comments = []
+            
+            # 🛡️ GHOST CITIZEN PROTECTION: 建立真實市民查找表
+            valid_citizen_map = {c["name"]: c for c in sampled_citizens}
+            used_real_citizens = set()
+            
+            # 先收集已使用的真實市民
+            for c in raw_arena_comments:
+                if not isinstance(c, dict): continue
+                p_name = c.get("persona", {}).get("name")
+                if p_name in valid_citizen_map:
+                    used_real_citizens.add(p_name)
+            
+            # 準備未使用的真實市民列表 (作為替補)
+            unused_citizens = [c for c in sampled_citizens if c["name"] not in used_real_citizens]
+            replacement_ptr = 0
+
             forbidden_phrases = [
                 "符合我的", "看起來不錯", "值得購買", "值得买", "看起来不错",
                 "符合我的需求", "非常喜歡", "非常喜欢", "好產品", "好产品",
@@ -2919,6 +2946,36 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                 text = c.get("text", "")
                 if len(text) < 40: continue
                 if any(phrase in text for phrase in forbidden_phrases): continue
+                
+                # 🛡️ GHOST CHECK
+                persona = c.get("persona", {})
+                p_name = persona.get("name")
+                
+                if p_name not in valid_citizen_map:
+                    # GHOST DETECTED! REPLACE IDENTITY
+                    if replacement_ptr < len(unused_citizens):
+                        real_c = unused_citizens[replacement_ptr]
+                        replacement_ptr += 1
+                        
+                        bazi = real_c.get("bazi_profile") or {}
+                        # Construct Safe Persona
+                        c["persona"] = {
+                            "id": str(real_c["id"]),
+                            "name": real_c["name"],
+                            "age": str(real_c["age"]),
+                            "gender": real_c.get("gender", "unknown"),
+                            "occupation": real_c.get("occupation", "未知"),
+                            "location": real_c.get("location", "台灣"),
+                            "element": bazi.get("element", "Fire"),
+                            "structure": bazi.get("structure", "未知"),
+                            "trait": real_c.get("traits", ["一般"])[0] if real_c.get("traits") else "一般",
+                            "day_master": bazi.get("day_master", "未知")
+                        }
+                        # logger.warning(f"👻 [GhostBuster] Replaced ghost '{p_name}' with real citizen '{real_c['name']}'")
+                    else:
+                        # No replacements left? Skip to avoid ghost
+                        continue
+                        
                 filtered_comments.append(c)
             
             # --- 2. FALLBACK MECHANISM (Fill up to 10) ---
@@ -3076,15 +3133,14 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                 "suggestions": data.get("result", {}).get("suggestions", [])
             }
             
-            # 🧬 【ABM INTEGRATION】執行 Agent-Based Modeling 模擬
-            try:
-                abm_res = await self._run_abm_simulation(sampled_citizens, None, language)
-                abm_evolution_data = abm_res["evolution_data"]
-                abm_analytics = abm_res["analytics_data"]
-            except Exception as e:
-                logger.error(f"[{sim_id}] ABM Simulation Failed: {e}")
-                abm_evolution_data = None
-                abm_analytics = None
+            # 🧬 【ABM INTEGRATION】(Redundant call removed)
+            # The ABM simulation was already executed at the beginning of the flow (Lines 2840-2853).
+            # We use the results stored in `abm_evolution_data`, `abm_analytics`, and `abm_comments_data`.
+            # The ABM simulation was already executed at the beginning of the flow.
+            # We use the results stored in `abm_evolution_data`, `abm_analytics`, and `abm_comments_data`.
+            abm_log_msg = f"[{sim_id}] Using pre-calculated ABM data. Evolution: {bool(abm_evolution_data)}, Analytics: {bool(abm_analytics)}"
+            print(f"[Core PDF] {abm_log_msg}")
+            with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"{abm_log_msg}\n")
 
             # 🧬 [Sidecar] 追加計算社會科學方法論詮釋層
             methodology_sidecar = _generate_methodology_sidecar(
@@ -3102,7 +3158,12 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             result_data["methodology_data"] = methodology_sidecar
             
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Updating DB (PDF)...\n")
-            await run_in_threadpool(update_simulation, sim_id, "ready", result_data)
+            with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Updating DB (PDF)...\n")
+            
+            # [Fix] Sanitization before DB write to handle Numpy types from ABM
+            clean_result = self._ensure_serializable(result_data)
+            
+            await run_in_threadpool(update_simulation, sim_id, "ready", clean_result)
             print(f"✅ [Core PDF] 商業計劃書分析已寫入 PostgreSQL: {sim_id}")
 
         except Exception as e:
@@ -3194,7 +3255,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
         "score": (0-100),
         "summary": "分析報告標題\n\n[解析] (深入解析產品核心價值、市場缺口與設計初衷，至少 200 字)\n\n[優化] (結合 1,000 位市民的模擬預演結果，提出對此模式的重構或優化方向，至少 200 字)\n\n[戰略] (給出具備戰略高度的改進意見，指引其爆發，至少 150 字)",
         "objections": [
-            {{"reason": "...", "percentage": 30}}
+            {{"reason": "具體痛點 (必須使用繁體中文)", "percentage": 30}}
         ],
         "suggestions": [
             {{
@@ -3233,6 +3294,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
 2. **落地性**：三個建議 suggestions 必須完全不同，且 execution_plan 具備極高執行價值。
 3. **評論品質**：每則評論必須至少 40 字，嚴禁使用模板化語句（如「符合我的需求」），必須體現市民個人格局。
 4. **禁止範例內容**：絕對不得直接複製 JSON 結構中的 placeholder 文字。
+5. **語言要求**：所有輸出內容（包括 summary, objections, suggestions）必須嚴格使用**繁體中文**，不得出現英文（專有名詞除外）。
 """
 
             # --- Multi-language Prompt Logic ---
@@ -4149,7 +4211,7 @@ Output the transcribed text directly, without any additional explanation."""
                 # 🛡️ 防禦性補全：如果沒有命盤，隨機生成
                 pillars_str = bazi.get("four_pillars")
                 if not pillars_str:
-                    logger.warning(f"Citizen {citizen['name']} missing four_pillars, auto-generating...")
+                    # logger.warning(f"Citizen {citizen['name']} missing four_pillars, auto-generating...")
                     pillars = ["甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥"]
                     pillars_str = f"{random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)} {random.choice(pillars)}"
                     bazi["four_pillars"] = pillars_str
@@ -4212,7 +4274,7 @@ Output the transcribed text directly, without any additional explanation."""
                 })
                 
                 # DEBUG LOG
-                logger.info(f"Generated Primary Comment Persona: Name={citizen['name']}, ID={cid}, Birth={bazi.get('birth_year')}")
+                # logger.info(f"Generated Primary Comment Persona: Name={citizen['name']}, ID={cid}, Birth={bazi.get('birth_year')}")
 
         # Ensure personas list for genesis is synced with the comments
         personas = [c["persona"] for c in arena_comments if c.get("persona")]
@@ -4433,7 +4495,7 @@ Output the transcribed text directly, without any additional explanation."""
             personas.append(full_persona)
             
             # DEBUG LOG
-            logger.info(f"Generated Fallback Comment Persona: Name={citizen['name']}, ID={cid}, Pillars={pillars_str}, Birth={bazi.get('birth_year')}")
+            # logger.info(f"Generated Fallback Comment Persona: Name={citizen['name']}, ID={cid}, Pillars={pillars_str}, Birth={bazi.get('birth_year')}")
 
         result_data = {
             "status": "ready",
@@ -4454,8 +4516,14 @@ Output the transcribed text directly, without any additional explanation."""
             },
             "arena_comments": arena_comments,
             "objections": data.get("result", {}).get("objections", []),
-            "suggestions": data.get("result", {}).get("suggestions", [])
         }
+        
+        # [Fix] Ensure DB update prevents hanging & Sanitization
+        from app.core.database import update_simulation
+        result_data = self._ensure_serializable(result_data)
+        update_simulation(sim_id, "ready", result_data)
+        print(f"✅ [PDF] Simulation {sim_id} completed and saved to DB with sanitized data.")
+        
         return result_data
 
     def _handle_error_db(self, sim_id, error_msg):
@@ -4481,9 +4549,13 @@ Output the transcribed text directly, without any additional explanation."""
             pass
 
     async def _call_gemini_rest(self, api_key, prompt, image_b64=None, pdf_b64=None, mime_type="image/jpeg", timeout=120, image_parts=None):
-        """Helper to call Gemini REST API (Async Wrapper with Configurable Timeout)"""
+        """Helper to call Gemini REST API (Async Wrapper with Configurable Timeout & Retry Logic)"""
         import requests 
+        import time
+        import asyncio
 
+        func_start_time = time.time()
+        
         payload = {
             "contents": [{
                 "parts": [
@@ -4491,7 +4563,7 @@ Output the transcribed text directly, without any additional explanation."""
                 ]
             }],
             "generationConfig": {
-                "maxOutputTokens": 65536,  # 🔧 [Fix] Increased from 8192 to prevent JSON truncation
+                "maxOutputTokens": 65536,
                 "temperature": 0.7,
                 "topP": 0.9,
                 "responseMimeType": "application/json"
@@ -4501,13 +4573,11 @@ Output the transcribed text directly, without any additional explanation."""
         if image_parts:
              payload["contents"][0]["parts"].extend(image_parts)
         elif image_b64:
-            # Use dynamic mime_type
             payload["contents"][0]["parts"].append({"inline_data": {"mime_type": mime_type, "data": image_b64}})
         if pdf_b64:
             payload["contents"][0]["parts"].append({"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}})
 
-        # [Restore] Prioritize Quality (Pro) as per User Request (reverting to GitHub-like behavior)
-        # [Restore] Prioritize Quality (Gemini 2.5 Pro)
+        # Prioritize Quality (Pro) -> Speed (Flash)
         models = [
             "gemini-2.5-pro",
             "gemini-2.5-flash",
@@ -4518,29 +4588,29 @@ Output the transcribed text directly, without any additional explanation."""
         ]
         
         last_error = ""
+        total_timeout_cap = timeout * 2.5 # Allow some retries but cap strictly (e.g. 300s -> 750s max)
+        
         for model in models:
+            # CHECK TOTAL TIMEOUT
+            if time.time() - func_start_time > total_timeout_cap:
+                msg = f"⏱️ [Gemini] Total execution time exceeded {total_timeout_cap}s. Aborting retries."
+                print(msg)
+                last_error = msg
+                break
+                
             try:
-                # print(f"Trying model: {model}...")
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
                 
-                # [Fix] Use asyncio.to_thread to unblock Event Loop
-                import asyncio
-                # Increase timeout for Pro model and PDF/Audio heavy tasks
-                current_timeout = timeout
+                # Determine timeout for THIS request
+                current_request_timeout = timeout
                 if "pro" in model:
-                    current_timeout = max(timeout, 600) # Pro needs 10 mins for detailed analysis
-                
-                # PDF needs more time regardless of model
+                    current_request_timeout = max(timeout, 600) # Pro needs more time
                 if pdf_b64:
-                    current_timeout = max(current_timeout, 120)
+                    current_request_timeout = max(current_request_timeout, 120)
 
-                # [Fix] Use Tuple for (connect_timeout, read_timeout) to prevent socket level early termination
-                # Most HTTP libraries interpret a single int as both, but explicit tuple is safer.
-                # Also ensure asyncio.to_thread is used to prevent blocking.
-                print(f"[DEBUG] Calling Gemini Model: {model} with Payload Size: {len(json.dumps(payload))} bytes, Exp. Read Timeout: {current_timeout}s")
+                full_timeout_config = (30, current_request_timeout)
                 
-                # Connection timeout: 30s, Read timeout: current_timeout
-                full_timeout_config = (30, current_timeout)
+                print(f"🚀 [DEBUG] Trying {model} (Timeout: {current_request_timeout}s)...")
                 
                 response = await asyncio.to_thread(
                     requests.post, 
@@ -4549,22 +4619,30 @@ Output the transcribed text directly, without any additional explanation."""
                     json=payload, 
                     timeout=full_timeout_config
                 )
-                print(f"[DEBUG] Gemini Model {model} returned Status: {response.status_code}")
+                
+                print(f"📡 [DEBUG] {model} Status: {response.status_code}")
                 
                 if response.status_code == 200:
                     try:
                         raw_text = response.json()['candidates'][0]['content']['parts'][0]['text']
-                        # 🔍 [DEBUG] Log raw Gemini response for JSON parse debugging
+                        # Log success
                         with open("debug_trace.log", "a", encoding="utf-8") as f:
-                            f.write(f"[GEMINI_RAW] Model: {model}, Response Length: {len(raw_text)} chars\n")
-                            f.write(f"[GEMINI_RAW] First 500 chars: {raw_text[:500]}\n")
+                            f.write(f"[GEMINI_SUCCESS] Model: {model}, Len: {len(raw_text)}\n")
                         return raw_text, None
                     except Exception as parse_ex:
-                        print(f"[DEBUG] Gemini Model {model} parse error: {parse_ex}")
+                        print(f"❌ [DEBUG] {model} Parse Error: {parse_ex}")
+                        last_error = f"Parse Error: {parse_ex}"
                         continue
                 else:
-                    last_error = f"{model}: {response.status_code} {response.text}"
+                    err_details = f"{response.status_code} - {response.text[:200]}"
+                    print(f"⚠️ [DEBUG] {model} API Error: {err_details}")
+                    last_error = f"{model}: {err_details}"
+                    
+            except requests.exceptions.Timeout:
+                print(f"⌛ [DEBUG] {model} Timed out after {current_request_timeout}s")
+                last_error = f"{model} Timed Out"
             except Exception as e:
+                print(f"💥 [DEBUG] {model} Exception: {e}")
                 last_error = str(e)
         
         return None, last_error

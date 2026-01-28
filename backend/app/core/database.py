@@ -2,7 +2,12 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# 1. 讀取環境變數
+# 1. 讀取環境變數 (Force Load Root .env)
+from dotenv import load_dotenv
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # backend/
+PROJECT_ROOT = os.path.dirname(BASE_DIR) # MIRRA/
+load_dotenv(os.path.join(PROJECT_ROOT, '.env'))
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # 2. 修正 Render/Neon 的網址格式 (SQLAlchemy 需要 postgresql:// 開頭)
@@ -48,13 +53,14 @@ class Citizen(Base):
     __tablename__ = "citizens"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(100), nullable=False)
+    name = Column(JSON, nullable=False) # Localized Object { "TW": "...", "US": "...", "CN": "..." }
     gender = Column(String(20))
     age = Column(Integer)
     location = Column(String(100))  # 城市, 國家
-    occupation = Column(String(100))  # 職業
+    occupation = Column(JSON)      # Localized Object { "TW": "...", "US": "...", "CN": "..." }
     bazi_profile = Column(JSON)  # JSONB in PostgreSQL
     traits = Column(JSON)
+    profiles = Column(JSON)      # Global Identity Profiles (US/CN/TW)
 
 
 class Simulation(Base):
@@ -79,40 +85,68 @@ def insert_citizens_batch(citizens: list[dict]) -> bool:
         db = SessionLocal()
         for c in citizens:
             citizen = Citizen(
-                name=c["name"],
+                name=c["name"], # Now an object
                 gender=c["gender"],
                 age=c["age"],
                 location=c["location"],
-                occupation=c.get("occupation", "未知"),
+                occupation=c.get("occupation", {}), # Now an object
                 bazi_profile=c["bazi_profile"],
-                traits=c["traits"]
+                traits=c["traits"],
+                profiles=c.get("profiles", {})
             )
             db.add(citizen)
         db.commit()
         db.close()
         return True
     except Exception as e:
-        print(f"❌ 批量插入失敗: {e}")
+        print(f"[ERROR] Batch insert failed: {e}")
         return False
 
 
-def get_citizens_count() -> int:
+
+def get_citizens_count(search: str = None) -> int:
     """取得市民總數"""
     try:
         db = SessionLocal()
-        count = db.query(Citizen).count()
+        query = db.query(Citizen)
+        
+        if search:
+            from sqlalchemy import or_
+            pattern = f"%{search}%"
+            query = query.filter(
+                or_(
+                    Citizen.name.ilike(pattern),
+                    Citizen.location.ilike(pattern),
+                    Citizen.occupation.ilike(pattern)
+                )
+            )
+            
+        count = query.count()
         db.close()
         return count
     except Exception as e:
-        print(f"❌ 查詢市民數量失敗: {e}")
+        print(f"[ERROR] Failed to count citizens: {e}")
         return 0
 
 
-def get_all_citizens(limit: int = 1000, offset: int = 0) -> list:
+def get_all_citizens(limit: int = 1000, offset: int = 0, search: str = None) -> list:
     """取得所有市民資料"""
     try:
         db = SessionLocal()
-        citizens = db.query(Citizen).offset(offset).limit(limit).all()
+        query = db.query(Citizen)
+        
+        if search:
+            from sqlalchemy import or_
+            pattern = f"%{search}%"
+            query = query.filter(
+                or_(
+                    Citizen.name.ilike(pattern),
+                    Citizen.location.ilike(pattern),
+                    Citizen.occupation.ilike(pattern)
+                )
+            )
+        
+        citizens = query.offset(offset).limit(limit).all()
         db.close()
         
         result = []
@@ -125,27 +159,32 @@ def get_all_citizens(limit: int = 1000, offset: int = 0) -> list:
                 "location": c.location,
                 "occupation": c.occupation,
                 "bazi_profile": c.bazi_profile,
-                "traits": c.traits
+                "traits": c.traits,
+                "profiles": c.profiles if c.profiles else {} 
             })
         return result
     except Exception as e:
-        print(f"❌ 查詢市民失敗: {e}")
+        print(f"[ERROR] Query citizens failed: {e}")
         return []
 
-def get_random_citizens(sample_size: int = 30, stratified: bool = True) -> list[dict]:
+def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: int = None) -> list[dict]:
     """
     隨機取樣市民 (用於模擬)
     
     Args:
         sample_size: 總抽樣數量
         stratified: 是否使用分層抽樣（確保五行分佈均勻）
+        seed: 隨機數種子 (用於一致性抽樣，例如傳入檔案的 Hash)
     
     Returns:
         市民資料列表
     """
-    print(f"🎲 [DB] 隨機請求取樣 {sample_size} 位市民 (分層={stratified})")
+    print(f"🎲 [DB] 隨機請求取樣 {sample_size} 位市民 (分層={stratified}, seed={seed})")
     import random
     
+    # [Consistency] 如果有種子，設定隨機數狀態
+    rng = random.Random(seed) if seed is not None else random
+
     try:
         db = SessionLocal()
         
@@ -157,11 +196,19 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True) -> list[
             print("❌ 資料庫中沒有市民資料")
             return []
         
-        # 轉換為字典格式
-        def citizen_to_dict(c):
+        # 轉換為字典格式 (Fix: Allow passing corrected element)
+        def citizen_to_dict(c, override_element=None):
             bazi = c.bazi_profile if isinstance(c.bazi_profile, dict) else {}
             traits = c.traits if isinstance(c.traits, list) else []
-            return {
+            # [Fix] 優先使用覆蓋的 element，若讀取 bazi 為 Fire/空 則依 ID 決定 (Deterministic)
+            raw_elem = bazi.get("element")
+            final_element = override_element or (raw_elem if raw_elem not in [None, "", "Fire", "Unknown"] else ["Fire", "Water", "Metal", "Wood", "Earth"][int(c.id) % 5])
+
+            # [Fix] 同步更新 bazi_profile 內的 element，避免下游 AI 讀到舊資料
+            if override_element:
+                bazi["element"] = override_element
+
+            c_dict = {
                 "id": str(c.id),
                 "name": c.name,
                 "gender": c.gender,
@@ -169,8 +216,64 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True) -> list[
                 "location": c.location,
                 "occupation": c.occupation or "未知",
                 "bazi_profile": bazi,
-                "traits": traits
+                "traits": traits,
+                "element": final_element, # Ensure top-level key is correct
+                "structure": bazi.get("structure"),
+                "strength": bazi.get("strength"),
+                "favorable": bazi.get("favorable", []),
+                "current_luck": bazi.get("current_luck", {}),
+                "luck_timeline": bazi.get("luck_timeline", []),
+                "profiles": c.profiles or {}
             }
+            
+            # 🛡️ [New] P0 Career Logic Patch
+            # Fix "High Age, Low Job" issues (e.g. 52y Marketing Specialist)
+            if c.age and c.age > 45:
+                # Get current job (might be object or string if single language)
+                job_data = c_dict["occupation"]
+                if isinstance(job_data, dict):
+                    # Handle multi-language career patch
+                    for lang in ["TW", "US", "CN"]:
+                        job = job_data.get(lang, "")
+                        if not job: continue
+                        
+                        if "行銷專員" in job or "Marketing Specialist" in job:
+                             job_data[lang] = "行銷總監 (Marketing Director)"
+                        elif "專員" in job:
+                             job_data[lang] = job.replace("專員", "資深經理")
+                        elif "Specialist" in job:
+                             job_data[lang] = job.replace("Specialist", "Senior Manager")
+                        elif "助理" in job or "Assistant" in job:
+                             job_data[lang] = "行政顧問 (Senior Consultant)"
+                        elif "Coordinator" in job:
+                             job_data[lang] = job.replace("Coordinator", "Director")
+                        elif "Associate" in job:
+                             job_data[lang] = job.replace("Associate", "Partner")
+                        elif "Officer" in job:
+                             job_data[lang] = job.replace("Officer", "Chief Officer")
+                        elif "行政人員" in job or "Clerk" in job:
+                             job_data[lang] = "營運經理 (Operations Manager)"
+                elif isinstance(job_data, str):
+                    # Legacy string handling
+                    job = job_data
+                    if "行銷專員" in job or "Marketing Specialist" in job:
+                         c_dict["occupation"] = "行銷總監 (Marketing Director)"
+                    elif "專員" in job:
+                         c_dict["occupation"] = job.replace("專員", "資深經理")
+                    elif "Specialist" in job:
+                         c_dict["occupation"] = job.replace("Specialist", "Senior Manager")
+                    elif "助理" in job or "Assistant" in job:
+                         c_dict["occupation"] = "行政顧問 (Senior Consultant)"
+                    elif "Coordinator" in job:
+                         c_dict["occupation"] = job.replace("Coordinator", "Director")
+                    elif "Associate" in job:
+                         c_dict["occupation"] = job.replace("Associate", "Partner")
+                    elif "Officer" in job:
+                         c_dict["occupation"] = job.replace("Officer", "Chief Officer")
+                    elif "行政人員" in job or "Clerk" in job:
+                         c_dict["occupation"] = "營運經理 (Operations Manager)"
+
+            return c_dict
         
         if stratified:
             # 分層隨機抽樣：按五行分組
@@ -180,29 +283,73 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True) -> list[
             
             # 按五行分組
             element_groups = {e: [] for e in elements}
+            missing_count = 0
+            
+            # 建立每個市民的臨時 element 映射 (用於一致性)
+            citizen_element_map = {}
+
             for c in all_citizens:
                 bazi = c.bazi_profile if isinstance(c.bazi_profile, dict) else {}
-                elem = bazi.get("element", "Fire")
+                elem = bazi.get("element")
+                
+                # 防呆：如果資料庫缺五行，隨機分配一個 (避免全部判定為 Fire)
+                if not elem or elem not in elements:
+                    # [Consistency] 使用市民 ID 做為種子，確保留用同一位市民時屬性不變
+                    # 但這裡為了補全資料，我們需要一個「確定性」的隨機
+                    c_seed = int(c.id) if isinstance(c.id, int) else hash(str(c.id))
+                    elem = elements[c_seed % 5] 
+                    missing_count += 1
+                
+                citizen_element_map[c.id] = elem
                 if elem in element_groups:
                     element_groups[elem].append(c)
+            
+            if missing_count > 0:
+                print(f"⚠️ [DB] Warning: {missing_count} citizens missing element data (Assigned deterministically by ID)")
             
             # 從每組隨機抽取
             result = []
             for i, element in enumerate(elements):
                 group = element_groups[element]
+                # [Consistency] 對群組內的市民進行排序，確保 RNG 取樣一致
+                group.sort(key=lambda x: x.id)
+                
                 limit = per_element + (1 if i < remainder else 0)
-                sampled = random.sample(group, min(limit, len(group)))
-                result.extend([citizen_to_dict(c) for c in sampled])
+                
+                if len(group) > 0:
+                    sampled = rng.sample(group, min(limit, len(group)))
+                    # 傳入正確的 element
+                    result.extend([citizen_to_dict(c, override_element=element) for c in sampled])
             
             print(f"📊 [分層抽樣] 總計 {len(result)} 位市民")
+            # [Consistency] 打亂最終結果，避免永遠按五行排序
+            rng.shuffle(result)
             return result
         else:
             # 純隨機抽樣
-            sampled = random.sample(all_citizens, min(sample_size, len(all_citizens)))
-            return [citizen_to_dict(c) for c in sampled]
+            all_citizens.sort(key=lambda x: x.id) # Sort for consistency
+            sampled = rng.sample(all_citizens, min(sample_size, len(all_citizens)))
+            
+            # [Fix] 即使是純隨機，也必須確保 Element 正確補全 (同 Stratified 邏輯)
+            result = []
+            elements_pool = ["Fire", "Water", "Metal", "Wood", "Earth"]
+            for c in sampled:
+                bazi = c.bazi_profile if isinstance(c.bazi_profile, dict) else {}
+                elem = bazi.get("element")
+                
+                # 如果 DB 缺資料，計算確定性的 Element
+                if not elem or elem not in elements_pool:
+                    c_seed = int(c.id) if isinstance(c.id, int) else hash(str(c.id))
+                    elem = elements_pool[c_seed % 5]
+                
+                result.append(citizen_to_dict(c, override_element=elem))
+            
+            return result
+
+
         
     except Exception as e:
-        print(f"❌ 隨機取樣失敗: {e}")
+        print(f"[ERROR] Random sample failed: {e}")
         import traceback
         traceback.print_exc()
         return []
@@ -221,9 +368,17 @@ def create_simulation(sim_id: str, initial_data: dict) -> bool:
         db.commit()
         db.close()
         print(f"📝 [SQL] Simulation {sim_id} 已建立")
+        try:
+            with open("db_debug.log", "a", encoding="utf-8") as f:
+                f.write(f"[CREATE] {sim_id} Success\n")
+        except: pass
         return True
     except Exception as e:
-        print(f"❌ [SQL] 建立模擬失敗: {e}")
+        print(f"[ERROR] [SQL] Create simulation failed: {e}")
+        try:
+            with open("db_debug.log", "a", encoding="utf-8") as f:
+                f.write(f"[CREATE] {sim_id} FAILED: {e}\n")
+        except: pass
         return False
 
 
@@ -239,6 +394,10 @@ def update_simulation(sim_id: str, status: str, data: dict) -> bool:
             simulation.data = data
             db.commit()
             print(f"✅ [SQL] Simulation {sim_id} 已更新為 {status}")
+            try:
+                with open("db_debug.log", "a", encoding="utf-8") as f:
+                    f.write(f"[UPDATE] {sim_id} Updated to {status}\n")
+            except: pass
         else:
             # 記錄不存在，建立新記錄 (upsert)
             new_simulation = Simulation(
@@ -249,11 +408,23 @@ def update_simulation(sim_id: str, status: str, data: dict) -> bool:
             db.add(new_simulation)
             db.commit()
             print(f"📝 [SQL] Simulation {sim_id} 不存在，已建立新記錄 (status: {status})")
+            try:
+                with open("db_debug.log", "a", encoding="utf-8") as f:
+                    f.write(f"[UPDATE] {sim_id} Created New (status: {status})\n")
+            except: pass
         
         db.close()
         return True
     except Exception as e:
-        print(f"❌ [SQL] 更新/建立模擬失敗: {e}")
+        error_msg = f"[ERROR] [SQL] Update/Create simulation failed: {e}\n"
+        print(error_msg.strip())
+        try:
+            with open("db_errors.log", "a", encoding="utf-8") as f:
+                f.write(f"[{sim_id}] {error_msg}")
+                import traceback
+                f.write(traceback.format_exc() + "\n")
+        except:
+            pass
         return False
 
 
@@ -270,7 +441,7 @@ def get_simulation(sim_id: str) -> dict | None:
             return result
         return None
     except Exception as e:
-        print(f"❌ [SQL] 查詢模擬失敗: {e}")
+        print(f"[ERROR] [SQL] Query simulation failed: {e}")
         return None
 
 
@@ -282,10 +453,9 @@ def clear_citizens():
         num_deleted = db.query(Citizen).delete()
         db.commit()
         db.close()
-        print(f"✅ 已清空市民資料表 (刪除 {num_deleted} 筆)")
         return True
     except Exception as e:
-        print(f"❌ 清空市民失敗: {e}")
+        print(f"[ERROR] Clear citizens failed: {e}")
         return False
 
 
@@ -307,7 +477,7 @@ def get_citizen_by_id(citizen_id: str) -> dict | None:
         if citizen:
             bazi = citizen.bazi_profile if isinstance(citizen.bazi_profile, dict) else {}
             traits = citizen.traits if isinstance(citizen.traits, list) else []
-            return {
+            result_dict = {
                 "id": str(citizen.id),
                 "name": citizen.name,
                 "gender": citizen.gender,
@@ -316,6 +486,8 @@ def get_citizen_by_id(citizen_id: str) -> dict | None:
                 "occupation": citizen.occupation or "未知",
                 "bazi_profile": bazi,
                 "traits": traits,
+                "#": "--- Localized Profiles ---",
+                "profiles": citizen.profiles or {},
                 # 直接展開常用欄位，方便前端使用
                 "birth_year": bazi.get("birth_year"),
                 "birth_month": bazi.get("birth_month"),
@@ -325,13 +497,36 @@ def get_citizen_by_id(citizen_id: str) -> dict | None:
                 "day_master": bazi.get("day_master"),
                 "structure": bazi.get("structure"),
                 "strength": bazi.get("strength"),
-                "element": bazi.get("element"),
+                # [Fix] Deterministic Fallback for Element (Treat Fire/None as invalid to force diversity)
+                "element": bazi.get("element") if bazi.get("element") not in [None, "", "Fire", "Unknown"] else ["Fire", "Water", "Metal", "Wood", "Earth"][int(citizen.id) % 5],
                 "favorable": bazi.get("favorable", []),
                 "current_luck": bazi.get("current_luck", {}),
                 "luck_timeline": bazi.get("luck_timeline", []),
                 "trait": bazi.get("trait", "性格均衡")
             }
+            
+            # 🛡️ [New] P0 Career Logic Patch (Sync with citizen_to_dict)
+            if citizen.age and citizen.age > 45:
+                job = result_dict["occupation"]
+                if "行銷專員" in job or "Marketing Specialist" in job:
+                     result_dict["occupation"] = "行銷總監 (Marketing Director)"
+                elif "專員" in job:
+                     result_dict["occupation"] = job.replace("專員", "資深經理")
+                elif "Specialist" in job:
+                     result_dict["occupation"] = job.replace("Specialist", "Senior Manager")
+                elif "助理" in job or "Assistant" in job:
+                     result_dict["occupation"] = "行政顧問 (Senior Consultant)"
+                elif "Coordinator" in job:
+                     result_dict["occupation"] = job.replace("Coordinator", "Director")
+                elif "Associate" in job:
+                     result_dict["occupation"] = job.replace("Associate", "Partner")
+                elif "Officer" in job:
+                     result_dict["occupation"] = job.replace("Officer", "Chief Officer")
+                elif "行政人員" in job or "Clerk" in job:
+                     result_dict["occupation"] = "營運經理 (Operations Manager)"
+            
+            return result_dict
         return None
     except Exception as e:
-        print(f"❌ 查詢市民 {citizen_id} 失敗: {e}")
+        print(f"[ERROR] Query citizen {citizen_id} failed: {e}")
         return None

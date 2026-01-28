@@ -267,7 +267,9 @@ def get_dayun_sequence(gender, year_gan, m_gan_idx, m_zhi_idx, day_master):
             "gan": TIANGAN[cur_g], 
             "age_start": start_age+(i*10), 
             "age_end": start_age+(i*10)+9,
-            "description": f"{luck_term}：{luck_desc}"
+            "age_end": start_age+(i*10)+9,
+            "description": f"{luck_term}：{luck_desc}",
+            "ten_god": ten_god  # Added for localization
         })
     return pillars
 

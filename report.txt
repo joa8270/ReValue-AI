@@ -1,0 +1,6 @@
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+--- Career Logic Patch Report ---
+1. [Target] 蔡雅婷 (52y): 行銷專員 -> 行銷總監 (Marketing Director)
+2. [Other] 洪俊傑 (54y): 行銷專員 -> 行銷總監 (Marketing Director)
+3. [Other] 賴家妤 (67y): 行銷專員 -> 行銷總監 (Marketing Director)
+4. [Other] 鄭惠君 (70y): 行銷專員 -> 行銷總監 (Marketing Director)

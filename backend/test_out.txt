@@ -1,0 +1,16 @@
+Original types:
+a: <class 'numpy.int64'>
+Traceback (most recent call last):
+  File "C:\Users\Joa\Downloads\MIRRA\backend\test_serializable.py", line 48, in <module>
+    test()
+    ~~~~^^
+  File "C:\Users\Joa\Downloads\MIRRA\backend\test_serializable.py", line 33, in test
+    clean = _ensure_serializable(data)
+  File "C:\Users\Joa\Downloads\MIRRA\backend\test_serializable.py", line 11, in _ensure_serializable
+    elif isinstance(obj, (np.float_, np.float16, np.float32, np.float64)):
+                          ^^^^^^^^^
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\site-packages\numpy\__init__.py", line 791, in __getattr__
+    raise AttributeError(
+    ...<3 lines>...
+    )
+AttributeError: `np.float_` was removed in the NumPy 2.0 release. Use `np.float64` instead.

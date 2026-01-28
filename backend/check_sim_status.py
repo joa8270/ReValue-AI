@@ -1,18 +1,16 @@
-from sqlalchemy import create_engine, text
-import json
+from app.core.database import SessionLocal, Simulation
+import sys
 
-engine = create_engine("sqlite:///./test.db")
-
-sim_id = "5ef8187e-d459-451f-8717-1f4a9b6c4b88"
-
-with engine.connect() as conn:
-    result = conn.execute(text("SELECT status, data FROM simulations WHERE sim_id = :sim_id"), {"sim_id": sim_id})
-    row = result.fetchone()
-    if row:
-        print(f"STATUS: {row[0]}")
-        # Print a snippet of data to verify it's not empty
-        data_str = str(row[1])
-        print(f"DATA_LENGTH: {len(data_str)}")
-        print(f"DATA_SNIPPET: {data_str[:100]}")
+def check_sim(sim_id):
+    db = SessionLocal()
+    sim = db.query(Simulation).filter(Simulation.sim_id == sim_id).first()
+    if sim:
+        print(f"ID: {sim.sim_id}")
+        print(f"Status: {sim.status}")
+        print(f"Summary: {sim.data.get('summary', 'None')[:50]}...")
     else:
-        print("NOT_FOUND")
+        print(f"Simulation {sim_id} not found")
+    db.close()
+
+if __name__ == "__main__":
+    check_sim("9ee2b556-9577-4351-80de-88f576dc187c")

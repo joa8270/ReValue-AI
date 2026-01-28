@@ -372,12 +372,14 @@ class ABMSimulation:
         
         # 初始化Agents
         for c in citizens:
-            bazi = c.get("bazi_profile", {})
+            # 優先使用 top-level element (已被 database.py 的隨機補丁修正)
+            element = c.get("element") or bazi.get("element", "Fire")
+            
             agent = CitizenAgent(
                 id=str(c["id"]),
                 name=c["name"],
                 age=c["age"],
-                element=bazi.get("element", "Fire"),
+                element=element,
                 structure=bazi.get("structure", "正官格"),
                 bazi_profile=bazi,
                 gender=c.get("gender", "unknown"),
@@ -478,7 +480,8 @@ class ABMSimulation:
             
             agent.calculate_initial_opinion(product_element, product_price, market_price, targeting_bonus=bonus)
         
-        avg_opinion = np.mean([a.current_opinion for a in self.agents])
+        avg_opinion = np.mean([a.current_opinion for a in self.agents]) if self.agents else 0.0
+        if np.isnan(avg_opinion): avg_opinion = 0.0
         self.history.append(float(avg_opinion)) # Record initial state
         self.logs.append(f"初始化意見分佈：平均 {avg_opinion:.1f}")
         print(f"💭 [ABM] 初始意見分佈：平均 {avg_opinion:.1f}，標準差 {np.std([a.current_opinion for a in self.agents]):.1f}")
@@ -519,7 +522,8 @@ class ABMSimulation:
                     changed_count += 1
             
             self.iteration_count += 1
-            avg_opinion = float(np.mean([a.current_opinion for a in self.agents]))
+            avg_opinion = float(np.mean([a.current_opinion for a in self.agents])) if self.agents else 0.0
+            if np.isnan(avg_opinion): avg_opinion = 0.0
             self.history.append(avg_opinion)
             
             # Generate log
@@ -591,14 +595,14 @@ class ABMSimulation:
         structure_avg = {struct: float(np.mean(ops)) for struct, ops in structure_groups.items()}
         
         return {
-            "average_opinion": float(np.mean(opinions)),
-            "opinion_std": float(np.std(opinions)),
-            "polarization": float(polarization),
-            "consensus": float(consensus),
-            "herding_strength": float(herding_strength),
-            "element_preferences": element_avg,
-            "element_initial_preferences": element_initial_avg,
-            "structure_preferences": structure_avg,
+            "average_opinion": float(np.nan_to_num(np.mean(opinions))),
+            "opinion_std": float(np.nan_to_num(np.std(opinions))),
+            "polarization": float(np.nan_to_num(polarization)),
+            "consensus": float(np.nan_to_num(consensus)),
+            "herding_strength": float(np.nan_to_num(herding_strength)),
+            "element_preferences": {k: float(np.nan_to_num(v)) for k, v in element_avg.items()},
+            "element_initial_preferences": {k: float(np.nan_to_num(v)) for k, v in element_initial_avg.items()},
+            "structure_preferences": {k: float(np.nan_to_num(v)) for k, v in structure_avg.items()},
             "total_iterations": self.iteration_count,
             "network_density": len(self.network_edges) / (len(self.agents) * (len(self.agents) - 1) / 2) if len(self.agents) > 1 else 0
         }
@@ -639,6 +643,9 @@ class ABMSimulation:
             comments.append({
                 "citizen_id": agent.id,
                 "name": agent.name,
+                "age": agent.age,
+                "gender": agent.gender,
+                "occupation": agent.occupation,
                 "element": agent.element,
                 "structure": agent.structure,
                 "sentiment": agent.get_sentiment(),

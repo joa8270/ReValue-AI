@@ -4,6 +4,9 @@ from app.core.database import create_simulation, insert_citizens_batch, get_citi
 import uuid
 import sys
 import os
+import json
+
+print("👉 [WEB] Module web.py loaded!", flush=True)
 
 # 確保可以導入 create_citizens
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -61,8 +64,16 @@ async def trigger_simulation(
     language: str = Form("zh-TW"),  # 新增 language 欄位
     targeting: str = Form(None), # JSON string of targeting options
     expert_mode: str = Form("false"), # "true"/"false" string
+    force_random: str = Form("false"), # "true"/"false" string
     analysis_scenario: str = Form("b2c") # "b2c" / "b2b"
 ):
+    print(f"👉 [WEB] trigger_simulation called! force_random={force_random}", flush=True)  
+    try:
+        with open("debug_trace.log", "a", encoding="utf-8") as f:
+            f.write(f"👉 [WEB] trigger_simulation called with force_random={force_random}, expert_mode={expert_mode}\n")
+    except Exception as e:
+        print(f"Failed to write log: {e}")
+
     from app.services.line_bot_service import LineBotService
     line_service = LineBotService()
 
@@ -91,8 +102,9 @@ async def trigger_simulation(
         except:
             pass
             
-    # 解析 Expert Mode
+    # 解析 Expert Mode & Force Random
     is_expert_mode = expert_mode.lower() == 'true'
+    is_force_random = force_random.lower() == 'true'
     
     # 建立初始狀態
     initial_data = {
@@ -113,6 +125,7 @@ async def trigger_simulation(
             "source_type": "pdf" if ext == "pdf" or ext in ["docx", "txt"] else "image",
             "targeting": targeting_data,
             "expert_mode": is_expert_mode,
+            "force_random": is_force_random,
             "analysis_scenario": analysis_scenario
         }
     }
@@ -148,7 +161,15 @@ async def trigger_simulation(
     
     if ext == "pdf":
         # PDF 處理 (現有流程，暫時只取第一個)
-        background_tasks.add_task(line_service.run_simulation_with_pdf_data, main_file_bytes, sim_id, main_filename, language)
+        with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"👉 [WEB] Dispatching PDF task\n")
+        background_tasks.add_task(
+            line_service.run_simulation_with_pdf_data, 
+            main_file_bytes, 
+            sim_id, 
+            main_filename, 
+            language,
+            is_force_random # Pass force_random flag
+        )
     elif ext in document_extensions:
         # Word/PPT/TXT: 解析文字後傳給文字分析流程
         parsed_text = parse_document(main_file_bytes, main_filename)
@@ -168,7 +189,15 @@ async def trigger_simulation(
     else:
         # 預設為圖片處理 (支援多圖)
         # 傳遞 file_bytes_list 給 run_simulation_with_image_data
-        background_tasks.add_task(line_service.run_simulation_with_image_data, file_bytes_list, sim_id, text_context, language)
+        with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"👉 [WEB] Dispatching Image task. File count: {len(file_bytes_list)}\n")
+        background_tasks.add_task(
+            line_service.run_simulation_with_image_data, 
+            file_bytes_list, 
+            sim_id, 
+            text_context, 
+            language,
+            is_force_random # Pass force_random flag
+        )
         
     return {"status": "ok", "sim_id": sim_id}
 

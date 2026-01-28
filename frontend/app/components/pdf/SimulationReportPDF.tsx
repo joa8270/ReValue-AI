@@ -260,13 +260,25 @@ const BaziChart = ({ distribution }: { distribution: any }) => {
     );
 }
 
+// --- Localized Helper ---
+const getLocalizedValue = (val: any, lang: string): string => {
+    if (!val) return "";
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object') {
+        const key = lang === 'zh-TW' ? 'TW' : lang === 'zh-CN' ? 'CN' : 'US';
+        return val[key] || val['TW'] || ""; // Fallback to TW
+    }
+    return String(val);
+};
+
 // --- Main Report ---
 
 interface SimulationReportPDFProps {
     data: any;
+    language: string;
 }
 
-const SimulationReportPDF: React.FC<SimulationReportPDFProps> = ({ data }) => {
+const SimulationReportPDF: React.FC<SimulationReportPDFProps> = ({ data, language }) => {
     const score = data.score || 0;
     const productName = data.product_name || data.productName || '未命名產品';
     const productPrice = data.price || data.market_prices?.avg_price || 'N/A';
@@ -396,6 +408,8 @@ const SimulationReportPDF: React.FC<SimulationReportPDFProps> = ({ data }) => {
                         const borderColor = isPos ? '#10b981' : isNeg ? '#ef4444' : '#475569';
                         const elemMap: Record<string, string> = { "Fire": "火", "Water": "水", "Metal": "金", "Wood": "木", "Earth": "土" };
                         const elem = elemMap[comment.persona?.element] || "命";
+                        const localizedName = getLocalizedValue(comment.persona?.name, language);
+                        const localizedJob = getLocalizedValue(comment.persona?.occupation, language);
 
                         return (
                             <View key={i} style={[styles.personaCard, { width: '48%', borderLeftColor: borderColor }]}>
@@ -404,14 +418,14 @@ const SimulationReportPDF: React.FC<SimulationReportPDFProps> = ({ data }) => {
                                         <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: borderColor, alignItems: 'center', justifyContent: 'center' }}>
                                             <Text style={{ fontSize: 7, color: '#fff' }}>{elem}</Text>
                                         </View>
-                                        <Text style={styles.personaName}>{comment.persona?.name || '匿名'}</Text>
+                                        <Text style={styles.personaName}>{localizedName || '匿名'}</Text>
                                     </View>
                                     <Text style={[styles.badge, isPos ? styles.positiveBadge : isNeg ? styles.negativeBadge : styles.neutralBadge]}>
                                         {isPos ? 'POS' : isNeg ? 'NEG' : 'NEU'}
                                     </Text>
                                 </View>
                                 <Text style={{ fontSize: 7, color: '#64748b', marginBottom: 3 }}>
-                                    {comment.persona?.age}歲 | {comment.persona?.occupation || '市民'} | {comment.persona?.pattern || '格局未知'}
+                                    {comment.persona?.age}歲 | {localizedJob || '市民'} | {comment.persona?.pattern || '格局未知'}
                                 </Text>
                                 <Text style={styles.personaText}>
                                     "{(comment.text || '').slice(0, 120)}{(comment.text || '').length > 120 ? '...' : ''}"
@@ -439,6 +453,8 @@ const SimulationReportPDF: React.FC<SimulationReportPDFProps> = ({ data }) => {
                             const borderColor = isPos ? '#10b981' : isNeg ? '#ef4444' : '#475569';
                             const elemMap: Record<string, string> = { "Fire": "火", "Water": "水", "Metal": "金", "Wood": "木", "Earth": "土" };
                             const elem = elemMap[comment.persona?.element] || "命";
+                            const localizedName = getLocalizedValue(comment.persona?.name, language);
+                            const localizedJob = getLocalizedValue(comment.persona?.occupation, language);
 
                             return (
                                 <View key={i} style={[styles.personaCard, { width: '48%', borderLeftColor: borderColor }]}>
@@ -447,14 +463,14 @@ const SimulationReportPDF: React.FC<SimulationReportPDFProps> = ({ data }) => {
                                             <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: borderColor, alignItems: 'center', justifyContent: 'center' }}>
                                                 <Text style={{ fontSize: 7, color: '#fff' }}>{elem}</Text>
                                             </View>
-                                            <Text style={styles.personaName}>{comment.persona?.name || '匿名'}</Text>
+                                            <Text style={styles.personaName}>{localizedName || '匿名'}</Text>
                                         </View>
                                         <Text style={[styles.badge, isPos ? styles.positiveBadge : isNeg ? styles.negativeBadge : styles.neutralBadge]}>
                                             {isPos ? 'POS' : isNeg ? 'NEG' : 'NEU'}
                                         </Text>
                                     </View>
                                     <Text style={{ fontSize: 7, color: '#64748b', marginBottom: 3 }}>
-                                        {comment.persona?.age}歲 | {comment.persona?.occupation || '市民'}
+                                        {comment.persona?.age}歲 | {localizedJob || '市民'}
                                     </Text>
                                     <Text style={styles.personaText}>
                                         "{(comment.text || '').slice(0, 120)}{(comment.text || '').length > 120 ? '...' : ''}"

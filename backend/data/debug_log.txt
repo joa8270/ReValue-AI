@@ -1,0 +1,81 @@
+2026-01-27 03:16:23,972 - WARNING - \u26a0\ufe0f CrewAI 未安裝或安裝失敗，將使用 Lightweight Fallback 模式執行任務。
+C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\site-packages\langchain_core\_api\deprecation.py:26: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.fields import FieldInfo as FieldInfoV1
+2026-01-27 03:16:25,608 - WARNING - \U0001f9f9 Clearing existing output file: C:\Users\Joa\Downloads\MIRRA\backend\data\citizens_global_v2.json
+2026-01-27 03:16:25,608 - INFO - \U0001f525 Project REINCARNATION V2 Start. Total: 1000
+2026-01-27 03:16:25,609 - INFO - \u26a1 Processing Batch 0-2...
+2026-01-27 03:16:25,609 - INFO - \U0001f680 開始轉生: Citizen_0000 (偏財格 (機靈))
+2026-01-27 03:16:26,785 - INFO - \U0001f680 Starting Crew (Fallback Mode)
+2026-01-27 03:16:26,786 - INFO - \U0001f449 Agent Cultural Anthropologist (文化人類學家) working on task...
+2026-01-27 03:16:26,785 - INFO - \U0001f680 開始轉生: Citizen_0001 (食神格 (講究體驗))
+2026-01-27 03:16:26,788 - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 03:16:27,989 - INFO - \U0001f680 Starting Crew (Fallback Mode)
+2026-01-27 03:16:27,991 - INFO - \U0001f449 Agent Cultural Anthropologist (文化人類學家) working on task...
+2026-01-27 03:16:27,992 - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 03:17:06,322 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-01-27 03:17:06,323 - INFO - \U0001f449 Agent Data Engineer (資料工程師) working on task...
+2026-01-27 03:17:06,324 - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 03:17:11,061 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-01-27 03:17:11,062 - INFO - \U0001f449 Agent Data Engineer (資料工程師) working on task...
+2026-01-27 03:17:11,063 - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 03:17:12,730 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-01-27 03:17:12,731 - ERROR - JSON Parsing failed in fallback: 1 validation error for GlobalIdentity
+name_tw
+  Field required [type=missing, input_value={'US': {'name': 'Brian Ch... 'Lifestyle' Illusion"}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+2026-01-27 03:17:12,731 - ERROR - \u274c 處理失敗 Citizen_0001: 1 validation error for GlobalIdentity
+name_tw
+  Field required [type=missing, input_value={'US': {'name': '', 'city... 'job': '', 'pain': ''}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+Traceback (most recent call last):
+  File "C:\Users\Joa\Downloads\MIRRA\backend\scripts\reincarnate_citizens.py", line 257, in process_single_citizen
+    result = await asyncio.to_thread(crew.kickoff)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\asyncio\threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "C:\Users\Joa\Downloads\MIRRA\backend\scripts\reincarnate_citizens.py", line 112, in kickoff
+    result = task.output_pydantic(US={"name":"", "city":"", "job":"", "pain":""}, CN={"name":"", "city":"", "job":"", "pain":""})
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\site-packages\pydantic\main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for GlobalIdentity
+name_tw
+  Field required [type=missing, input_value={'US': {'name': '', 'city... 'job': '', 'pain': ''}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+2026-01-27 03:17:17,762 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-01-27 03:17:17,763 - ERROR - JSON Parsing failed in fallback: 1 validation error for GlobalIdentity
+name_tw
+  Field required [type=missing, input_value={'US': {'name': 'Alex Che...“高P油\u817b男”'}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+2026-01-27 03:17:17,763 - ERROR - \u274c 處理失敗 Citizen_0000: 1 validation error for GlobalIdentity
+name_tw
+  Field required [type=missing, input_value={'US': {'name': '', 'city... 'job': '', 'pain': ''}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+Traceback (most recent call last):
+  File "C:\Users\Joa\Downloads\MIRRA\backend\scripts\reincarnate_citizens.py", line 257, in process_single_citizen
+    result = await asyncio.to_thread(crew.kickoff)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\asyncio\threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "C:\Users\Joa\Downloads\MIRRA\backend\scripts\reincarnate_citizens.py", line 112, in kickoff
+    result = task.output_pydantic(US={"name":"", "city":"", "job":"", "pain":""}, CN={"name":"", "city":"", "job":"", "pain":""})
+  File "C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\site-packages\pydantic\main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for GlobalIdentity
+name_tw
+  Field required [type=missing, input_value={'US': {'name': '', 'city... 'job': '', 'pain': ''}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+2026-01-27 03:17:17,764 - INFO - \U0001f4be Saving 0 citizens to C:\Users\Joa\Downloads\MIRRA\backend\data\citizens_global_v2.json...
+2026-01-27 03:17:17,765 - INFO - \U0001f389 All Done! Generated 0 citizens.
+[DEBUG] Processing only 2 citizens.
+DEBUG: Processing Citizen_0000...
+DEBUG: Processing Citizen_0001...
