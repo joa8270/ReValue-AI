@@ -175,7 +175,7 @@ def get_all_citizens(limit: int = 1000, offset: int = 0, search: str = None) -> 
 
 def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: int = None, filters: dict = None) -> list[dict]:
     """
-    隨機取樣市民 (用於模擬)
+    隨機取樣市民 (用於模擬)，支援代理人購買邏輯 (Proxy Buying)
     
     Args:
         sample_size: 總抽樣數量
@@ -184,13 +184,63 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: in
         filters: 篩選條件 {"age_min": 20, "age_max": 45, "occupation": "Executive"}
     
     Returns:
-        市民資料列表
+        市民資料列表 (包含 proxy_role 欄位)
     """
-    print(f"🎲 [DB] 隨機請求取樣 {sample_size} 位市民 (分層={stratified}, seed={seed}, filters={filters})")
     import random
     
     # [Consistency] 如果有種子，設定隨機數狀態
     rng = random.Random(seed) if seed is not None else random
+
+    # 🟢 代理人邏輯判斷 (Proxy Logic)
+    proxy_role = None
+    target_age_min = 0
+    target_age_max = 100
+    
+    if filters:
+        target_age_min = int(filters.get("age_min") or 0)
+        target_age_max = int(filters.get("age_max") or 100)
+        
+        print(f"🎲 [DB] 原始篩選條件: {filters} (Range: {target_age_min}-{target_age_max})")
+
+        # Scene B: 嬰幼兒產品 (Baby Formula/Diapers) -> Parents (25-45)
+        if target_age_max < 12:
+            print(f"👶 [DB] 觸發「嬰幼兒代理人」模式 (Target: 0-{target_age_max}y -> Proxy: 25-45y Parents)")
+            filters["age_min"] = 25
+            filters["age_max"] = 45
+            proxy_role = "parent" # 標記身份
+            
+        # Scene C: 高齡照護 (Elderly Care) -> Mixed (50% Real Elderly + 50% Children)
+        elif target_age_min > 75:
+            print(f"👵 [DB] 觸發「高齡照護混合」模式 (Target: {target_age_min}y+ -> Mixed)")
+            
+            # Recursive Call for Mixed Sampling
+            half_size = sample_size // 2
+            
+            # Group 1: 真實老人 (>75)
+            f1 = filters.copy()
+            f1["age_min"] = 75
+            f1["age_max"] = 100
+            
+            # Group 2: 中年子女 (40-60)
+            f2 = filters.copy()
+            f2["age_min"] = 40
+            f2["age_max"] = 60
+            
+            print(f"   -> Sampling Group 1 (Elderly): {half_size}")
+            g1 = get_random_citizens(half_size, stratified, seed, f1)
+            
+            print(f"   -> Sampling Group 2 (Children): {sample_size - half_size}")
+            # Ensure distinct seed for second group if seeded
+            seed2 = seed + 1 if seed is not None else None
+            g2 = get_random_citizens(sample_size - half_size, stratified, seed2, f2)
+            
+            # Inject Roles
+            for c in g1: c["proxy_role"] = "elderly_self"
+            for c in g2: c["proxy_role"] = "elderly_caregiver"
+            
+            result = g1 + g2
+            rng.shuffle(result)
+            return result
 
     try:
         db = SessionLocal()
@@ -211,8 +261,6 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: in
                 if isinstance(occ_filter, list) and len(occ_filter) > 0:
                     conditions = []
                     for key in occ_filter:
-                        # Search for key in the JSON list (e.g. "executive")
-                        # Using ilike on Text cast is robust for both SQLite and Postgres simple arrays
                         conditions.append(cast(Citizen.persona_categories, Text).ilike(f'%"{key}"%'))
                     query = query.filter(or_(*conditions))
                     
@@ -254,10 +302,10 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: in
                 "strength": bazi.get("strength"),
                 "favorable": bazi.get("favorable", []),
                 "current_luck": bazi.get("current_luck", {}),
-                "current_luck": bazi.get("current_luck", {}),
                 "luck_timeline": bazi.get("luck_timeline", []),
                 "profiles": c.profiles or {},
-                "persona_categories": c.persona_categories or [] # [Fix] Expose tags to frontend/verify scripts
+                "persona_categories": c.persona_categories or [],
+                "proxy_role": proxy_role  # [New] Inject Proxy Role
             }
             
             # 🛡️ [New] P0 Career Logic Patch

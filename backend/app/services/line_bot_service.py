@@ -1681,6 +1681,12 @@ Reply directly in JSON format:
                 elem_counts[e] = elem_counts.get(e, 0) + 1
             print(f"📊 [PRE-ABM] Sampled Elements: {elem_counts}")
             
+            # [Debug] Trace Element Consistency
+            with open("debug_element.log", "w", encoding="utf-8") as f:
+                 f.write(f"[{sim_id}] Sampled Citizens Elements:\n")
+                 for c in sampled_citizens:
+                     f.write(f"ID: {c.get('id')} | Name: {c.get('name')} | Element: {c.get('element')} | BaziElement: {c.get('bazi_profile', {}).get('element')}\n")
+            
             try:
                 with open("debug_trace.log", "a", encoding="utf-8") as f:
                     f.write(f"[{sim_id}] Low-Level Element Distribution: {elem_counts}\n")
@@ -1724,9 +1730,27 @@ Reply directly in JSON format:
                         "structure": bazi.get("structure", "未知"),
                         "occupation": c.get("occupation", "自由業"),
                         "location": c.get("location", "台灣"),
-                        "traits": c.get("traits", [])[:2] if c.get("traits") else []
+                        "traits": c.get("traits", [])[:2] if c.get("traits") else [],
+                        "proxy_role": c.get("proxy_role") # [Proxy] Inject Role for LLM
                     })
                 citizens_json = json.dumps(citizens_for_prompt, ensure_ascii=False)
+                
+                # [Proxy] Detect Role and Generate Instruction
+                proxy_roles = {c.get("proxy_role") for c in sampled_citizens if c.get("proxy_role")}
+                proxy_instruction = ""
+                if "parent" in proxy_roles:
+                    proxy_instruction = """
+⚠️ **特殊情境：代理人購買 (Proxy Buying Mode)**
+- 這些市民是 **25-45 歲的父母**，正在為 **0-12 歲的孩子** 挑選產品。
+- 請模擬「家長心態」：他們更在意安全性、健康成分、教育價值，而非僅僅是個人喜好。
+- 評論中應展現父母的關愛與焦慮（例如：「這對寶寶好嗎？」「材質安全嗎？」）。"""
+                elif "elderly_caregiver" in proxy_roles:
+                    proxy_instruction = """
+⚠️ **特殊情境：孝親/照護混合模式 (Elderly Care Mode)**
+- 人群中包含 **真實長者 (75歲+)** 與 **代理人子女 (40-60歲)**。
+- 代理人子女關注：照護便利性、安全性、是否能減輕負擔。
+- 真實長者關注：尊嚴、易用性、是否被尊重。
+- 請在分析中區分這兩類人的不同觀點。"""
                 
             # 構建產品補充資訊
                 product_context = ""
@@ -1739,7 +1763,8 @@ Reply directly in JSON format:
                 prompt_templates = {
                     "zh-TW": """
 你是 MIRRA 鏡界系統的核心 AI 策略顧問。請分析這張（或多張）產品圖片，我們已針對 1,000 位虛擬市民進行初步模擬，並從中「選出」以下 10 位具備代表性的 AI 市民，請模擬他們對產品的反應。你需要提供**深度、具體、可執行**的行銷策略建議。
-__PRODUCT_CONTEXT__
+(__PRODUCT_CONTEXT__)
+(__PROXY_INSTRUCTION__)
 📋 以下是真實市民資料（八字格局已預先計算）：
 
 __CITIZENS_JSON__
@@ -2147,7 +2172,7 @@ __CITIZENS_JSON__
                     }
 
                 prompt_template = prompt_templates.get(language, prompt_templates["zh-TW"])
-                prompt_text = prompt_template.replace("__PRODUCT_CONTEXT__", product_context).replace("__CITIZENS_JSON__", citizens_json)
+                prompt_text = prompt_template.replace("__PRODUCT_CONTEXT__", product_context).replace("__CITIZENS_JSON__", citizens_json).replace("__PROXY_INSTRUCTION__", proxy_instruction)
                 
                 # 🌍 注入市場文化覆蓋到 Prompt 開頭 (Chameleon Architecture)
                 if market_context_override:
@@ -2426,6 +2451,7 @@ __CITIZENS_JSON__
                     "product_category": data.get("simulation_metadata", {}).get("product_category", "未分類"),
                     "marketing_angle": data.get("simulation_metadata", {}).get("marketing_angle", "未分類"),
                     "bazi_analysis": data.get("simulation_metadata", {}).get("bazi_analysis", ""),
+                    "targeting": targeting_data,  # 🧱 [Fix] Persist TAM/Targeting Data
                     "sample_size": 8,
                     "bazi_distribution": bazi_dist
                 },
@@ -3130,6 +3156,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                     persona["day_master"] = bazi.get("day_master", "未知")
                     persona["strength"] = bazi.get("strength", "中和")
                     persona["favorable"] = bazi.get("favorable", ["木", "火"])
+                    persona["element"] = citizen.get("element") or bazi.get("element", "Fire") # 🧱 [Fix] Ensure element is present
                     persona["current_luck"] = current_luck
                     persona["luck_timeline"] = luck_timeline
                 else:
@@ -3151,6 +3178,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                     persona["day_master"] = bazi.get("day_master", "未知")
                     persona["strength"] = bazi.get("strength", "中和")
                     persona["favorable"] = bazi.get("favorable", ["木", "火"])
+                    persona["element"] = fallback.get("element") or bazi.get("element", "Fire") # 🧱 [Fix] Ensure element is present in fallback
                     persona["current_luck"] = current_luck
                     persona["luck_timeline"] = luck_timeline
                 
@@ -3161,8 +3189,12 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                 "status": "ready",
                 "score": data.get("result", {}).get("score", 70),
                 "intent": data.get("result", {}).get("market_sentiment", "分析完成"),
+
                 "summary": data.get("result", {}).get("summary", "AI 分析超時，無法生成完整報告。請稍後重試。"),
-                "simulation_metadata": sim_metadata,
+                "simulation_metadata": {
+                    **sim_metadata,
+                    "targeting": targeting_data # 🧱 [Fix] Persist TAM/Targeting Data in PDF Flow
+                },
                 "genesis": {
                      "total_population": 1000,
                      "sample_size": len(personas),
@@ -3792,6 +3824,7 @@ Please let the following 10 representative AI virtual citizens, selected from a 
                     persona["day_master"] = bazi.get("day_master", "未知")
                     persona["strength"] = bazi.get("strength", "中和")
                     persona["favorable"] = bazi.get("favorable", ["木", "火"])
+                    persona["element"] = citizen.get("element") or bazi.get("element", "Fire") # 🧱 [Fix] Ensure element is present
                     persona["current_luck"] = current_luck
                     persona["luck_timeline"] = luck_timeline
                 else:
@@ -3813,6 +3846,7 @@ Please let the following 10 representative AI virtual citizens, selected from a 
                     persona["day_master"] = bazi.get("day_master", "未知")
                     persona["strength"] = bazi.get("strength", "中和")
                     persona["favorable"] = bazi.get("favorable", ["木", "火"])
+                    persona["element"] = fallback.get("element") or bazi.get("element", "Fire") # 🧱 [Fix] Ensure element is present in fallback
                     persona["current_luck"] = current_luck
                     persona["luck_timeline"] = luck_timeline
                 
@@ -3967,9 +4001,13 @@ Please let the following 10 representative AI virtual citizens, selected from a 
                 "status": "ready",
                 "score": score,
                 "intent": data.get("result", {}).get("market_sentiment", "分析完成"),
-                "summary": data.get("result", {}).get("summary", "AI 分析完成"),
-                "simulation_metadata": sim_metadata,
+                "summary": data.get("result", {}).get("summary", "AI 分析超时，无法生成完整报告。请稍后重试。"),
+                "simulation_metadata": {
+                    **sim_metadata,
+                    "targeting": targeting_data # 🧱 [Fix] Persist TAM/Targeting Data in Text Flow
+                },
                 "genesis": {
+
                      "total_population": 1000,
                      "sample_size": len(personas),
                      "personas": personas

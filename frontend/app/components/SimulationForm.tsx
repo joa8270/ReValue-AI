@@ -13,6 +13,7 @@ const MARKET_CONFIG = {
 } as const;
 type MarketKey = keyof typeof MARKET_CONFIG;
 import { useLanguage } from '../context/LanguageContext'
+import DualRangeSlider from './DualRangeSlider'
 
 export default function SimulationForm() {
     const router = useRouter()
@@ -45,7 +46,8 @@ export default function SimulationForm() {
 
         // Age impact (Rough estimate)
         const ageRange = targetAge[1] - targetAge[0]
-        const ageFactor = Math.min(1, ageRange / 60)
+
+        const ageFactor = Math.min(1, ageRange / 100)
         base = base * ageFactor
 
         // Gender impact
@@ -830,30 +832,30 @@ export default function SimulationForm() {
 
                         {/* Controls */}
                         <div className="space-y-6">
-                            {/* Age Slider */}
-                            <div className="space-y-3">
+                            {/* Age Slider (Dual) */}
+                            <div className="space-y-4">
                                 <label className="text-sm font-bold text-slate-300 flex justify-between">
                                     <span>{t('simulation_form.step2_age_label')}</span>
-                                    <span className="text-purple-400">{targetAge[0]} - {targetAge[1] === 60 ? '60+' : targetAge[1]} {t('simulation_form.step2_age_unit')}</span>
+                                    <span className="text-purple-400 font-mono text-lg">
+                                        {targetAge[0]} - {targetAge[1] === 100 ? '100+' : targetAge[1]} {t('simulation_form.step2_age_unit')}
+                                    </span>
                                 </label>
-                                <input
-                                    type="range"
-                                    min="20"
-                                    max="60"
-                                    step="5"
-                                    value={targetAge[1]}
-                                    onChange={(e) => {
-                                        const val = parseInt(e.target.value)
-                                        if (val > targetAge[0]) setTargetAge([targetAge[0], val])
-                                    }}
-                                    className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
-                                />
-                                <div className="flex justify-between text-xs text-slate-600 font-mono">
+                                <div className="px-2">
+                                    <DualRangeSlider
+                                        min={0}
+                                        max={100}
+                                        step={1}
+                                        value={targetAge}
+                                        onChange={setTargetAge}
+                                    />
+                                </div>
+                                <div className="flex justify-between text-[10px] text-slate-600 font-mono px-1">
+                                    <span>0</span>
                                     <span>20</span>
-                                    <span>30</span>
                                     <span>40</span>
-                                    <span>50</span>
-                                    <span>60+</span>
+                                    <span>60</span>
+                                    <span>80</span>
+                                    <span>100</span>
                                 </div>
                             </div>
 

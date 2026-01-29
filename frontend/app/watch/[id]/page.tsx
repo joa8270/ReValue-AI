@@ -932,7 +932,7 @@ export default function WatchPage() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             {/* New PDF Download Button (Replaces Share & Old Download) */}
-            {data && (
+            {data && false && ( // 暫時隱藏
               <PDFDownloadLink
                 document={<SimulationReportPDF data={data} language={language} />}
                 fileName={`MIRRA_Report_${data.simulation_metadata?.product_name || 'Project'}_${language}.pdf`}
