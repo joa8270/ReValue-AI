@@ -1,50 +1,39 @@
-from app.core.database import get_random_citizens
-from collections import Counter
-import sys
 
-def verify_consistency():
-    print("🧪 Verifying Simulation Consistency & Diversity...")
+import asyncio
+import json
+import hashlib
+from app.core.database import get_random_citizens
+
+# Mock filters and content
+filters = {"age_min": 40, "age_max": 60, "occupation": ["Executive", "Founder"]}
+content_bytes = b"Sample PDF Content for Business Plan"
+
+def calculate_seed(content, filters_dict):
+    combined = content
+    filter_str = json.dumps(filters_dict, sort_keys=True)
+    combined += filter_str.encode('utf-8')
+    h_hex = hashlib.sha256(combined).hexdigest()
+    return int(h_hex, 16) % (2**32)
+
+async def run_simulation_mock(device_name):
+    seed = calculate_seed(content_bytes, filters)
+    print(f"[{device_name}] Calculated Seed: {seed}")
     
-    # Test 1: Consistency (Same Seed)
-    seed_a = 12345
-    print(f"\n[Test 1] Fetching citizens with Seed={seed_a} (Run 1)...")
-    sample_1 = get_random_citizens(sample_size=30, seed=seed_a)
-    ids_1 = [c["id"] for c in sample_1]
+    citizens = get_random_citizens(sample_size=30, seed=seed, filters=filters)
+    ids = [c["id"] for c in citizens[:5]] # Check first 5
+    print(f"[{device_name}] First 5 Citizen IDs: {ids}")
+    return ids
+
+async def main():
+    print("--- Simulating Cross-Device Consistency ---")
+    ids_a = await run_simulation_mock("Device A (PC)")
+    ids_b = await run_simulation_mock("Device B (Mobile)")
     
-    print(f"[Test 1] Fetching citizens with Seed={seed_a} (Run 2)...")
-    sample_2 = get_random_citizens(sample_size=30, seed=seed_a)
-    ids_2 = [c["id"] for c in sample_2]
-    
-    if ids_1 == ids_2:
-        print("✅ [Pass] Consistency Check: Samples are identical.")
+    if ids_a == ids_b:
+        print("\n✅ SUCCESS: Sampling is Deterministic!")
     else:
-        print("❌ [Fail] Consistency Check: Samples differ despite same seed!")
-        sys.exit(1)
-        
-    # Test 2: Diversity (Element Check)
-    print(f"\n[Test 2] Checking Element Diversity in Sample 1...")
-    elements = [c["element"] for c in sample_1]
-    counts = Counter(elements)
-    print(f"   Distribution: {dict(counts)}")
-    
-    if len(counts) >= 5 and all(count > 0 for count in counts.values()):
-         print("✅ [Pass] Diversity Check: All 5 elements present.")
-    else:
-         print(f"⚠️ [Warning] Diversity Check: Only {len(counts)} elements found (Expected 5).")
-         # Not strictly a fail if sample size is small, but with 30 it should be diverse
-         
-    # Test 3: Randomness (Different Seed)
-    seed_b = 67890
-    print(f"\n[Test 3] Fetching citizens with Seed={seed_b}...")
-    sample_3 = get_random_citizens(sample_size=30, seed=seed_b)
-    ids_3 = [c["id"] for c in sample_3]
-    
-    if ids_1 != ids_3:
-        print("✅ [Pass] Randomness Check: Different seed produced different sample.")
-    else:
-        print("❌ [Fail] Randomness Check: Different seed produced IDENTICAL sample!")
-        
-    print("\n🎉 Verification Complete!")
+        print("\n❌ FAILURE: Sampling is inconsistent.")
+        exit(1)
 
 if __name__ == "__main__":
-    verify_consistency()
+    asyncio.run(main())

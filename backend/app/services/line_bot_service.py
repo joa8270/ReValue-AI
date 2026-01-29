@@ -1628,10 +1628,27 @@ Reply directly in JSON format:
             # [Fix] Use run_in_threadpool to match PDF flow exactly
             from fastapi.concurrency import run_in_threadpool
             
-            # [Consistency] Calculate seed from Image content (first image)
+            # [Consistency] Calculate seed from Image content + Text + Filters
             import hashlib
-            # Consistency logic: use hash if not force_random (nested ternary for safety)
-            img_hash = (int(hashlib.md5(image_bytes_list[0]).hexdigest(), 16) if image_bytes_list else None) if not force_random else None
+            
+            # Combine all inputs for rigorous determinism
+            # 1. Images Content
+            combined_content = b"".join(image_bytes_list)
+            # 2. Add Text Context
+            if text_context:
+                combined_content += text_context.encode('utf-8')
+            # 3. Add Filters (sorted string)
+            filter_str = json.dumps(sim_filters, sort_keys=True)
+            combined_content += filter_str.encode('utf-8')
+            
+            # Generate Seed
+            if not force_random:
+                img_hash_hex = hashlib.sha256(combined_content).hexdigest()
+                img_hash = int(img_hash_hex, 16) % (2**32) # Convert to 32-bit int
+                print(f"🎲 [Consistency] Generated Seed from Content+Filters: {img_hash}")
+            else:
+                img_hash = None
+                print(f"🎲 [Consistency] Force Random active. Seed: None")
             
             # [Filter] Extract user targeting options (Fix: Apply Age/Occupation filters)
             sim_filters = {}
@@ -2591,6 +2608,25 @@ __CITIZENS_JSON__
                     sim_filters["occupation"] = [persona]
 
             # [Fix] 使用 run_in_threadpool 抽樣 30 位市民，從中精選 10 位生成評論
+            
+            # [Consistency] Calculate seed from PDF content + Filters
+            import hashlib
+            
+            # Combine all inputs for rigorous determinism
+            combined_content = pdf_bytes
+            # Add Filters (sorted string)
+            filter_str = json.dumps(sim_filters, sort_keys=True)
+            combined_content += filter_str.encode('utf-8')
+            
+            # Generate Seed
+            if not force_random:
+                pdf_hash_hex = hashlib.sha256(combined_content).hexdigest()
+                pdf_hash = int(pdf_hash_hex, 16) % (2**32)
+                print(f"🎲 [Consistency] PDF Flow Seed: {pdf_hash}")
+            else:
+                pdf_hash = None
+                print(f"🎲 [Consistency] Force Random active. Seed: None")
+
             # Pass the hash as seed for consistent sampling
             sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=pdf_hash, filters=sim_filters)
 
@@ -3286,8 +3322,26 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                     sim_filters["occupation"] = [persona]
 
             # 1. 從資料庫隨機抽取市民
+             # [Consistency] Calculate seed from Text content + Filters
+            import hashlib
+            
+            # Combine all inputs for rigorous determinism
+            combined_content = text_content.encode('utf-8') if text_content else b""
+            # Add Filters (sorted string)
+            filter_str = json.dumps(sim_filters, sort_keys=True)
+            combined_content += filter_str.encode('utf-8')
+            
+            # Generate Seed
+            if not force_random:
+                txt_hash_hex = hashlib.sha256(combined_content).hexdigest()
+                txt_hash = int(txt_hash_hex, 16) % (2**32)
+                print(f"🎲 [Consistency] Text Flow Seed: {txt_hash}")
+            else:
+                txt_hash = None
+                print(f"🎲 [Consistency] Force Random active. Seed: None")
+
             # [Fix] 抽樣 30 位市民 with filters
-            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, filters=sim_filters)
+            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=txt_hash, filters=sim_filters)
             
             # [Debug] Check element distribution before Prompt
             elem_counts = {}
