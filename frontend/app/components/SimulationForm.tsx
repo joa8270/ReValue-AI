@@ -811,7 +811,7 @@ export default function SimulationForm() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 rounded-lg bg-slate-900 border border-slate-800">
                                     <p className="text-xs text-slate-500 mb-1">{t('simulation_form.step2_fermi_tam')}</p>
-                                    <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white tabular-nums text-ellipsis overflow-hidden">
+                                    <p className="text-base sm:text-xl lg:text-2xl font-bold text-white tabular-nums">
                                         {new Intl.NumberFormat('en-US').format(tam)}
                                     </p>
                                     <p className="text-[10px] text-slate-600 mt-1">{t('simulation_form.step2_fermi_tam_desc')}</p>
@@ -939,11 +939,11 @@ export default function SimulationForm() {
                             <div className="pt-4 border-t border-slate-800">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-lg transition-colors ${forceRandom ? 'bg-cyan-500/20 text-cyan-500' : 'bg-slate-800 text-slate-500'}`}>
+                                        <div className={`p-2 rounded-lg transition-colors ${forceRandom ? 'bg-purple-500/20 text-purple-500' : 'bg-slate-800 text-slate-500'}`}>
                                             <Dices className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <h4 className={`font-bold text-sm ${forceRandom ? 'text-cyan-400' : 'text-slate-400'}`}>
+                                            <h4 className={`font-bold text-sm ${forceRandom ? 'text-purple-400' : 'text-slate-400'}`}>
                                                 {t('simulation_form.force_random_title') || "隨機重抽 (True Randomness)"}
                                             </h4>
                                             <p className="text-xs text-slate-500">
@@ -954,7 +954,8 @@ export default function SimulationForm() {
                                     <button
                                         type="button"
                                         onClick={() => setForceRandom(!forceRandom)}
-                                        className={`w-12 h-6 rounded-full relative transition-colors ${forceRandom ? 'bg-cyan-600' : 'bg-slate-700'}`}
+                                        aria-label={t('simulation_form.force_random_title')}
+                                        className={`w-12 h-6 rounded-full relative transition-colors ${forceRandom ? 'bg-purple-600' : 'bg-slate-700'}`}
                                     >
                                         <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${forceRandom ? 'left-7' : 'left-1'}`} />
                                     </button>
