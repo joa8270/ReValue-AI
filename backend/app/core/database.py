@@ -15,16 +15,21 @@ if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # 3. 建立連線引擎
+import json
+
+def json_serializer(obj):
+    return json.dumps(obj, ensure_ascii=False)
+
 if not DATABASE_URL:
     # 本地開發防呆：如果沒設環境變數，就用一個暫時的 SQLite
     current_file_dir = os.path.dirname(os.path.abspath(__file__))
     backend_dir = os.path.dirname(os.path.dirname(current_file_dir))
     db_path = os.path.join(backend_dir, "test.db")
     print(f"[DB] No DATABASE_URL found, using local SQLite ({db_path})")
-    engine = create_engine(f"sqlite:///{db_path}", connect_args={"check_same_thread": False})
+    engine = create_engine(f"sqlite:///{db_path}", connect_args={"check_same_thread": False}, json_serializer=json_serializer)
 else:
     print(f"[DB] Connecting to PostgreSQL: {DATABASE_URL[:50]}...")
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(DATABASE_URL, json_serializer=json_serializer)
 
 # 🔄 Force Update: 2026-01-14 01:15
 
@@ -61,6 +66,7 @@ class Citizen(Base):
     bazi_profile = Column(JSON)  # JSONB in PostgreSQL
     traits = Column(JSON)
     profiles = Column(JSON)      # Global Identity Profiles (US/CN/TW)
+    persona_categories = Column(JSON) # [New] Standardized Tags (e.g. ['student', 'executive'])
 
 
 class Simulation(Base):
@@ -111,13 +117,13 @@ def get_citizens_count(search: str = None) -> int:
         query = db.query(Citizen)
         
         if search:
-            from sqlalchemy import or_
+            from sqlalchemy import or_, cast, Text
             pattern = f"%{search}%"
             query = query.filter(
                 or_(
-                    Citizen.name.ilike(pattern),
+                    cast(Citizen.name, Text).ilike(pattern),
                     Citizen.location.ilike(pattern),
-                    Citizen.occupation.ilike(pattern)
+                    cast(Citizen.occupation, Text).ilike(pattern)
                 )
             )
             
@@ -136,13 +142,13 @@ def get_all_citizens(limit: int = 1000, offset: int = 0, search: str = None) -> 
         query = db.query(Citizen)
         
         if search:
-            from sqlalchemy import or_
+            from sqlalchemy import or_, cast, Text
             pattern = f"%{search}%"
             query = query.filter(
                 or_(
-                    Citizen.name.ilike(pattern),
+                    cast(Citizen.name, Text).ilike(pattern),
                     Citizen.location.ilike(pattern),
-                    Citizen.occupation.ilike(pattern)
+                    cast(Citizen.occupation, Text).ilike(pattern)
                 )
             )
         
@@ -167,19 +173,20 @@ def get_all_citizens(limit: int = 1000, offset: int = 0, search: str = None) -> 
         print(f"[ERROR] Query citizens failed: {e}")
         return []
 
-def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: int = None) -> list[dict]:
+def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: int = None, filters: dict = None) -> list[dict]:
     """
     隨機取樣市民 (用於模擬)
     
     Args:
         sample_size: 總抽樣數量
         stratified: 是否使用分層抽樣（確保五行分佈均勻）
-        seed: 隨機數種子 (用於一致性抽樣，例如傳入檔案的 Hash)
+        seed: 隨機數種子 (用於一致性抽樣)
+        filters: 篩選條件 {"age_min": 20, "age_max": 45, "occupation": "Executive"}
     
     Returns:
         市民資料列表
     """
-    print(f"🎲 [DB] 隨機請求取樣 {sample_size} 位市民 (分層={stratified}, seed={seed})")
+    print(f"🎲 [DB] 隨機請求取樣 {sample_size} 位市民 (分層={stratified}, seed={seed}, filters={filters})")
     import random
     
     # [Consistency] 如果有種子，設定隨機數狀態
@@ -188,21 +195,46 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: in
     try:
         db = SessionLocal()
         
-        # 先獲取所有市民（使用 ORM 避免 SQL 兼容性問題）
-        all_citizens = db.query(Citizen).all()
+        # Build query with filters
+        query = db.query(Citizen)
+        
+        if filters:
+            if "age_min" in filters and filters["age_min"] is not None:
+                query = query.filter(Citizen.age >= int(filters["age_min"]))
+            if "age_max" in filters and filters["age_max"] is not None:
+                query = query.filter(Citizen.age <= int(filters["age_max"]))
+            if "occupation" in filters and filters["occupation"]:
+                from sqlalchemy import or_, cast, Text
+                occ_filter = filters["occupation"]
+                
+                # Check if filter is a list of keys (e.g. ['student', 'executive'])
+                if isinstance(occ_filter, list) and len(occ_filter) > 0:
+                    conditions = []
+                    for key in occ_filter:
+                        # Search for key in the JSON list (e.g. "executive")
+                        # Using ilike on Text cast is robust for both SQLite and Postgres simple arrays
+                        conditions.append(cast(Citizen.persona_categories, Text).ilike(f'%"{key}"%'))
+                    query = query.filter(or_(*conditions))
+                    
+                # Single string fallback
+                elif isinstance(occ_filter, str):
+                    query = query.filter(cast(Citizen.persona_categories, Text).ilike(f'%"{occ_filter}"%'))
+
+        # 獲取符合條件的市民
+        all_citizens = query.all()
         db.close()
         
         if not all_citizens:
-            print("❌ 資料庫中沒有市民資料")
+            print(f"❌ 資料庫中沒有符合條件的市民 (Filters: {filters})")
             return []
         
         # 轉換為字典格式 (Fix: Allow passing corrected element)
         def citizen_to_dict(c, override_element=None):
             bazi = c.bazi_profile if isinstance(c.bazi_profile, dict) else {}
             traits = c.traits if isinstance(c.traits, list) else []
-            # [Fix] 優先使用覆蓋的 element，若讀取 bazi 為 Fire/空 則依 ID 決定 (Deterministic)
+            # [Fix] 優先使用覆蓋的 element，若讀取 bazi 為空則依 ID 決定 (Deterministic)
             raw_elem = bazi.get("element")
-            final_element = override_element or (raw_elem if raw_elem not in [None, "", "Fire", "Unknown"] else ["Fire", "Water", "Metal", "Wood", "Earth"][int(c.id) % 5])
+            final_element = override_element or (raw_elem if raw_elem not in [None, "", "Unknown"] else ["Fire", "Water", "Metal", "Wood", "Earth"][int(c.id) % 5])
 
             # [Fix] 同步更新 bazi_profile 內的 element，避免下游 AI 讀到舊資料
             if override_element:
@@ -222,8 +254,10 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: in
                 "strength": bazi.get("strength"),
                 "favorable": bazi.get("favorable", []),
                 "current_luck": bazi.get("current_luck", {}),
+                "current_luck": bazi.get("current_luck", {}),
                 "luck_timeline": bazi.get("luck_timeline", []),
-                "profiles": c.profiles or {}
+                "profiles": c.profiles or {},
+                "persona_categories": c.persona_categories or [] # [Fix] Expose tags to frontend/verify scripts
             }
             
             # 🛡️ [New] P0 Career Logic Patch
@@ -497,8 +531,8 @@ def get_citizen_by_id(citizen_id: str) -> dict | None:
                 "day_master": bazi.get("day_master"),
                 "structure": bazi.get("structure"),
                 "strength": bazi.get("strength"),
-                # [Fix] Deterministic Fallback for Element (Treat Fire/None as invalid to force diversity)
-                "element": bazi.get("element") if bazi.get("element") not in [None, "", "Fire", "Unknown"] else ["Fire", "Water", "Metal", "Wood", "Earth"][int(citizen.id) % 5],
+                # [Fix] Deterministic Fallback for Element (Treat None/Unknown as invalid, but accept Fire)
+                "element": bazi.get("element") if bazi.get("element") not in [None, "", "Unknown"] else ["Fire", "Water", "Metal", "Wood", "Earth"][int(citizen.id) % 5],
                 "favorable": bazi.get("favorable", []),
                 "current_luck": bazi.get("current_luck", {}),
                 "luck_timeline": bazi.get("luck_timeline", []),

@@ -84,6 +84,23 @@ const DECISION_MODELS_EN: Record<string, { title: string; desc: string }> = {
     "Warrior (Blade)": { title: "Goal-Oriented Efficient", desc: "Extremely goal-driven. Overcomes all obstacles. Fast, precise, and ruthless decisions." },
 };
 
+const DECISION_MODELS_CN: Record<string, { title: string; desc: string }> = {
+    "正官格": { title: "逻辑审慎型", desc: "决策前必先评估风险与合规性，偏好有前例可循的方案，重视SOP与权责划分。" },
+    "七殺格": { title: "果断执行型", desc: "面对危机敢于下重注，决策速度快，重视结果大于过程，关键时刻能展现魄力。" },
+    "正財格": { title: "稳健数据型", desc: "重视成本效益分析 (CP值)，每一分钱都要花在刀口上，偏好低风险、稳定回报的选择。" },
+    "偏財格": { title: "机会捕捉型", desc: "商业嗅觉敏锐，愿意为高潜在回报承担风险，决策豪爽，善于利用杠杆。" },
+    "正印格": { title: "长远规划型", desc: "决策着重长期价值与品牌信誉，不喜欢短视近利的行为，会考虑对整体的影响。" },
+    "偏印格": { title: "创新反骨型", desc: "讨厌随波逐流，喜欢独特、非主流的选择，决策带有直觉色彩，常有出人意表的洞见。" },
+    "食神格": { title: "品味直觉型", desc: "重视个人喜好与美感体验，决策较感性，追求「感觉对了」与心理舒适度。" },
+    "傷官格": { title: "颠覆突破型", desc: "喜欢打破常规，不按牌理出牌，决策往往挑战现状，旨在证明自己的独特能力。" },
+    "建祿格": { title: "务实自主型", desc: "相信自己的判断，不轻易被话术影响，重视实际掌控权与执行可行性。" },
+    "羊刃格": { title: "效率目标型", desc: "目标导向极强，为了达成目的可以排除万难，决策快狠准，不喜欢拖泥带水。" },
+    "從財格": { title: "顺势而为型", desc: "懂得利用大环境趋势，决策灵活，适应力强，哪里有利就往哪里去。" },
+    "從殺格": { title: "权力导向型", desc: "具有强烈的企图心，决策服务于地位的提升与影响力的扩大。" },
+    "從兒格": { title: "智慧策略型", desc: "靠才华与创意取胜，决策灵活多变，不喜欢被死板的规则束缚。" },
+    "專旺格": { title: "坚持本色型", desc: "意志坚定，一条路走到黑，在专业领域有极强的决策自信。" }
+};
+
 const CURRENT_STATE_EN: Record<string, string> = {
     "正官格": "The energy favors discipline, order, and career advancement. It is a good time for steady progress and adhering to established plans.",
     "七殺格": "You are facing a period of transformation and challenge. Decisive action and bold leadership are required to overcome obstacles.",
@@ -112,9 +129,14 @@ function generateMockPillars() {
 // Fallback for unknown structures
 const DEFAULT_DECISION_MODEL = { title: "多元策略型", desc: "能根據不同情境調整決策模式，兼具理性與感性。" };
 const DEFAULT_DECISION_MODEL_EN = { title: "Adaptive Strategist", desc: "Adjusts decision modes based on context. Balances rationality and sensibility." };
+const DEFAULT_DECISION_MODEL_CN = { title: "多元策略型", desc: "能根据不同情境调整决策模式，兼具理性与感性。" };
 
 function getDecisionModel(structure: string | undefined, market: string = 'TW') {
-    if (!structure) return market === 'US' ? DEFAULT_DECISION_MODEL_EN : DEFAULT_DECISION_MODEL;
+    if (!structure) {
+        if (market === 'US') return DEFAULT_DECISION_MODEL_EN;
+        if (market === 'CN') return DEFAULT_DECISION_MODEL_CN;
+        return DEFAULT_DECISION_MODEL;
+    }
 
     // Check for "Follow" types or "Strong" types that might not be in basic EN map yet
     // For now, mapping the standard 10 gods.
@@ -128,6 +150,11 @@ function getDecisionModel(structure: string | undefined, market: string = 'TW') 
         }
         // Fallback if specific EN model not found
         return DEFAULT_DECISION_MODEL_EN;
+    }
+
+    if (market === 'CN') {
+        const key = Object.keys(DECISION_MODELS_CN).find(k => structure.includes(k));
+        return key ? DECISION_MODELS_CN[key] : DEFAULT_DECISION_MODEL_CN;
     }
 
     const key = Object.keys(DECISION_MODELS).find(k => structure.includes(k));
@@ -371,9 +398,14 @@ function translateBazi(text: string | undefined, market: string) {
     if (market === 'US') return BAZI_TRANSLATIONS[text] || text;
     if (market === 'CN') {
         const cn_mapping: Record<string, string> = {
-            "身強": "身强", "身弱": "身弱", "中和": "中和",
-            "七殺格": "七杀格", "傷官格": "伤官格", "羊刃格": "羊刃格",
-            "從財格": "从财格", "從殺格": "从杀格", "從兒格": "从儿格", "專旺格": "专旺格",
+            // Strength
+            "身強": "身强", "身弱": "身弱", "中和": "中和", "極強": "极强", "極弱": "极弱",
+            // Structures
+            "比肩格": "比肩格", "劫財格": "劫财格", "食神格": "食神格", "傷官格": "伤官格",
+            "偏財格": "偏财格", "正財格": "正财格", "七殺格": "七杀格", "正官格": "正官格",
+            "偏印格": "偏印格", "正印格": "正印格", "建祿格": "建禄格", "羊刃格": "羊刃格",
+            "從財格": "从财格", "從殺格": "从杀格", "從兒格": "从儿格", "專旺格": "专旺格", "從強格": "从强格",
+            // Elements
             "金": "金", "木": "木", "水": "水", "火": "火", "土": "土"
         };
         return cn_mapping[text] || text;

@@ -22,42 +22,47 @@ export default function RefineCopyPanel({ simId, currentCopy, productName, arena
     // Helper to format content as plain text, even if it's an object/JSON
     const formatContent = (content: any): string => {
         if (!content) return "";
-        if (typeof content === 'string') {
-            // Check if string is actually a JSON string
-            if (content.trim().startsWith('{') || content.trim().startsWith('[')) {
-                try {
-                    const parsed = JSON.parse(content);
-                    return formatContent(parsed); // Recurse
-                } catch (e) {
-                    return content; // Not valid JSON, return as is
-                }
+
+        let target = content;
+
+        // Handle JSON string
+        if (typeof content === 'string' && content.trim().startsWith('{')) {
+            try {
+                target = JSON.parse(content);
+            } catch (e) {
+                return content;
             }
-            return content;
         }
-        if (typeof content === 'object') {
-            // Flatten object values into a single string
+
+        // 1. Localization Check (Priority)
+        if (typeof target === 'object' && target !== null) {
+            const key = language === 'zh-TW' ? 'TW' : language === 'zh-CN' ? 'CN' : 'US';
+            if (target[key]) return String(target[key]);
+            // Fallback chain: TW -> CN -> US
+            if (target['TW']) return String(target['TW']);
+            if (target['CN']) return String(target['CN']);
+            if (target['US']) return String(target['US']);
+        }
+
+        // 2. Original Flattening Logic (for non-localized complex objects)
+        if (typeof target === 'object' && target !== null) {
             let text = "";
-            // Common keys to prioritize
             const order = ['headline', 'title', 'body', 'content', 'call_to_action', 'cta', 'hashtags'];
 
-            // First add prioritized keys
             order.forEach(key => {
-                if (content[key]) {
-                    text += content[key] + "\n\n";
+                if (target[key]) text += target[key] + "\n\n";
+            });
+
+            Object.keys(target).forEach(key => {
+                if (!order.includes(key) && typeof target[key] === 'string') {
+                    text += `【${key}】 ${target[key]}\n\n`;
                 }
             });
 
-            // Then add any other string values not in priority list
-            Object.keys(content).forEach(key => {
-                if (!order.includes(key) && typeof content[key] === 'string') {
-                    // specific exclusion for internal keys if any
-                    text += `【${key}】 ${content[key]}\n\n`;
-                }
-            });
-
-            return text.trim() || JSON.stringify(content, null, 2); // Fallback if empty
+            return text.trim() || JSON.stringify(target, null, 2);
         }
-        return String(content);
+
+        return String(target);
     }
 
     const handleRefineCopy = async () => {

@@ -150,22 +150,35 @@ const getElementConfig = (t: any) => ({
 
 // ===== DECISION MODELS (Dynamic) =====
 const getDecisionModels = (t: any) => ({
-  "正官格": t('bazi.structures.正官格'),
-  "七殺格": t('bazi.structures.七殺格'),
-  "正財格": t('bazi.structures.正財格'),
-  "偏財格": t('bazi.structures.偏財格'),
-  "正印格": t('bazi.structures.正印格'),
-  "偏印格": t('bazi.structures.偏印格'),
-  "食神格": t('bazi.structures.食神格'),
-  "傷官格": t('bazi.structures.傷官格'),
-  "建祿格": t('bazi.structures.建祿格'),
-  "羊刃格": t('bazi.structures.羊刃格'),
-  "從財格": t('bazi.structures.從財格'),
-  "從殺格": t('bazi.structures.從殺格'),
-  "從兒格": t('bazi.structures.從兒格'),
-  "從強格": t('bazi.structures.從強格'),
-  "專旺格": t('bazi.structures.專旺格'),
-  "default": { title: 'Adaptive Strategy', desc: 'Adjusts decision model based on context.' }
+  "正官格": { title: t('bazi.decision_models.正官格.title'), desc: t('bazi.decision_models.正官格.desc') },
+  "七殺格": { title: t('bazi.decision_models.七殺格.title'), desc: t('bazi.decision_models.七殺格.desc') },
+  "七杀格": { title: t('bazi.decision_models.七殺格.title'), desc: t('bazi.decision_models.七殺格.desc') }, // Simplified mapping
+  "正財格": { title: t('bazi.decision_models.正財格.title'), desc: t('bazi.decision_models.正財格.desc') },
+  "正财格": { title: t('bazi.decision_models.正財格.title'), desc: t('bazi.decision_models.正財格.desc') }, // Simplified mapping
+  "偏財格": { title: t('bazi.decision_models.偏財格.title'), desc: t('bazi.decision_models.偏財格.desc') },
+  "偏财格": { title: t('bazi.decision_models.偏財格.title'), desc: t('bazi.decision_models.偏財格.desc') }, // Simplified mapping
+  "正印格": { title: t('bazi.decision_models.正印格.title'), desc: t('bazi.decision_models.正印格.desc') },
+  "偏印格": { title: t('bazi.decision_models.偏印格.title'), desc: t('bazi.decision_models.偏印格.desc') },
+  "食神格": { title: t('bazi.decision_models.食神格.title'), desc: t('bazi.decision_models.食神格.desc') },
+  "傷官格": { title: t('bazi.decision_models.傷官格.title'), desc: t('bazi.decision_models.傷官格.desc') },
+  "伤官格": { title: t('bazi.decision_models.傷官格.title'), desc: t('bazi.decision_models.傷官格.desc') }, // Simplified mapping
+  "建祿格": { title: t('bazi.decision_models.建祿格.title'), desc: t('bazi.decision_models.建祿格.desc') },
+  "建禄格": { title: t('bazi.decision_models.建祿格.title'), desc: t('bazi.decision_models.建祿格.desc') }, // Simplified mapping
+  "羊刃格": { title: t('bazi.decision_models.羊刃格.title'), desc: t('bazi.decision_models.羊刃格.desc') },
+  "從財格": { title: t('bazi.decision_models.從財格.title'), desc: t('bazi.decision_models.從財格.desc') },
+  "从财格": { title: t('bazi.decision_models.從財格.title'), desc: t('bazi.decision_models.從財格.desc') }, // Simplified mapping
+  "從殺格": { title: t('bazi.decision_models.從殺格.title'), desc: t('bazi.decision_models.從殺格.desc') },
+  "从杀格": { title: t('bazi.decision_models.從殺格.title'), desc: t('bazi.decision_models.從殺格.desc') }, // Simplified mapping
+  "從兒格": { title: t('bazi.decision_models.從兒格.title'), desc: t('bazi.decision_models.從兒格.desc') },
+  "从兒格": { title: t('bazi.decision_models.從兒格.title'), desc: t('bazi.decision_models.從兒格.desc') }, // Simplified mapping
+  "從強格": { title: t('bazi.decision_models.從強格.title'), desc: t('bazi.decision_models.從強格.desc') },
+  "从强格": { title: t('bazi.decision_models.從強格.title'), desc: t('bazi.decision_models.從強格.desc') }, // Simplified mapping
+  "專旺格": { title: t('bazi.decision_models.專旺格.title'), desc: t('bazi.decision_models.專旺格.desc') },
+  "专旺格": { title: t('bazi.decision_models.專旺格.title'), desc: t('bazi.decision_models.專旺格.desc') }, // Simplified mapping
+  "default": {
+    title: t('bazi.decision_models.default.title') || '多元策略型',
+    desc: t('bazi.decision_models.default.desc') || '能根據不同情境調整決策模式。'
+  }
 });
 
 function getDecisionModel(structure: string | undefined, t: any) {
@@ -234,19 +247,33 @@ interface EnrichedPersona extends Persona {
  */
 const getLocalizedValue = (val: any, lang: string): string => {
   if (!val) return "";
-  if (typeof val === 'string') return val;
-  if (typeof val === 'object') {
-    const key = lang === 'zh-TW' ? 'TW' : lang === 'zh-CN' ? 'CN' : 'US';
-    return val[key] || val['TW'] || ""; // Fallback to TW
+
+  let target = val;
+
+  // 如果是字串，嘗試解析它是否為 JSON 物件
+  if (typeof val === 'string' && val.trim().startsWith('{')) {
+    try {
+      target = JSON.parse(val);
+    } catch (e) {
+      // 解析失敗則維持原樣
+      return val;
+    }
   }
-  return String(val);
+
+  if (typeof target === 'object' && target !== null) {
+    const key = lang === 'zh-TW' ? 'TW' : lang === 'zh-CN' ? 'CN' : 'US';
+    // 依序回退：目標語系 -> 繁體 -> 簡體 -> 英文
+    return target[key] || target['TW'] || target['CN'] || target['US'] || "";
+  }
+
+  return String(target);
 };
 
 /**
  * 直接使用後端傳來的市民資料，不再生成假資料
  * 所有資料應該已在 line_bot_service.py 的 _build_simulation_result 中完整填充
  */
-const enrichCitizenData = (p: Persona, t: any): EnrichedPersona => {
+const enrichCitizenData = (p: Persona, t: any, lang: string): EnrichedPersona => {
   // 1. 日主
   const dm = p.day_master || t('report.ui.unknown') || "未知";
 
@@ -258,15 +285,20 @@ const enrichCitizenData = (p: Persona, t: any): EnrichedPersona => {
     fullBirthday = t('report.ui.birthday_unknown');
   }
 
-  // 3. 當前大運
+  // 3. 當前大運 (Dynamic localizable)
   let luckCycle = "";
-  if (p.current_luck && p.current_luck.ten_god) {
-    // Use Ten God translation key if available
-    luckCycle = t(`bazi.ten_gods.${p.current_luck.ten_god}`) || p.current_luck.name;
-  } else if (p.current_luck && p.current_luck.description) {
-    luckCycle = p.current_luck.description;
-  } else if (p.current_luck && p.current_luck.name) {
-    luckCycle = `${p.current_luck.name}`;
+  if (p.current_luck) {
+    // Priority: 1. Ten God Translation, 2. Localized Description, 3. Localized Name
+    if (p.current_luck.ten_god) {
+      luckCycle = t(`bazi.luck_descriptions.${p.current_luck.ten_god}`) || getLocalizedValue(p.current_luck.description, lang);
+    } else {
+      const desc = getLocalizedValue(p.current_luck.description, lang);
+      if (desc) luckCycle = desc;
+      else {
+        const name = getLocalizedValue(p.current_luck.name, lang);
+        luckCycle = name || t('report.ui.unknown_stage');
+      }
+    }
   } else {
     luckCycle = t('report.ui.unknown_stage');
   }
@@ -276,8 +308,8 @@ const enrichCitizenData = (p: Persona, t: any): EnrichedPersona => {
   const detailedTrait = t(`bazi.elements.${elementKey}.detailed`) || t('bazi.elements.General.detailed');
 
   // 5. 決策邏輯 (Dynamic)
-  let decisionLogic = p.decision_logic;
-  if (!decisionLogic || decisionLogic.includes("根據八字格局特質分析")) {
+  let decisionLogic = getLocalizedValue(p.decision_logic, lang);
+  if (!decisionLogic || decisionLogic.includes("根據八字格局特質分析") || decisionLogic.includes("根据八字格局特质分析")) {
     const dmModel = getDecisionModel(p.pattern, t);
     decisionLogic = `【${dmModel.title}】${dmModel.desc}`;
   }
@@ -285,7 +317,8 @@ const enrichCitizenData = (p: Persona, t: any): EnrichedPersona => {
   // 6. 大運時間軸 - Localized
   const luck_timeline = p.luck_timeline?.map(l => ({
     ...l,
-    name: l.ten_god ? (t(`bazi.ten_gods.${l.ten_god}`) || l.name) : l.name
+    name: l.ten_god ? (t(`bazi.ten_gods.${l.ten_god}`) || l.name) : l.name,
+    description: l.ten_god ? (t(`bazi.luck_descriptions.${l.ten_god}`) || getLocalizedValue(l.description, lang)) : getLocalizedValue(l.description, lang)
   })) || [];
 
   // 7. 喜用五行 - Localized
@@ -302,9 +335,18 @@ const enrichCitizenData = (p: Persona, t: any): EnrichedPersona => {
   // 8. 身強身弱
   const strength = t(`bazi.strength.${p.strength}`) || p.strength || "中和";
 
+  // Handle traits (array or string)
+  let traitDisplay = "";
+  if (Array.isArray(p.trait)) {
+    traitDisplay = p.trait.map(tr => t(`bazi.traits.${tr}`) || tr).join('、');
+  } else {
+    traitDisplay = getLocalizedValue(p.trait, lang);
+  }
+
   return {
     ...p,
     day_master: dm,
+    trait: traitDisplay,
     age: p.age,
     displayAge: p.age,
     fullBirthday,
@@ -338,28 +380,9 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
         const data = await res.json();
 
         if (!data.error) {
-          // 用 API 資料補充/覆蓋現有資料
-          const updatedCitizen: EnrichedPersona = {
-            ...citizen,
-            birth_year: data.birth_year || citizen.birth_year,
-            birth_month: data.birth_month || citizen.birth_month,
-            birth_day: data.birth_day || citizen.birth_day,
-            birth_shichen: data.birth_shichen || citizen.birth_shichen,
-            four_pillars: data.four_pillars || citizen.four_pillars,
-            day_master: data.day_master || citizen.day_master,
-            strength: data.strength || citizen.strength,
-            favorable: data.favorable || citizen.favorable,
-            current_luck: data.current_luck || citizen.current_luck,
-            luck_timeline: data.luck_timeline || citizen.luck_timeline,
-            trait: data.trait || citizen.trait,
-            // 重新計算顯示欄位
-            fullBirthday: data.birth_year && data.birth_month && data.birth_day
-              ? `${data.birth_year}年${data.birth_month}月${data.birth_day}日${data.birth_shichen ? ` ${data.birth_shichen}` : ''}`
-              : citizen.fullBirthday,
-            luckCycle: data.current_luck?.description
-              || (data.current_luck?.name ? `目前行${data.current_luck.name}` : citizen.luckCycle)
-          };
-          setEnrichedData(updatedCitizen);
+          // 使用統一的 enrichCitizenData 處理 API 資料並在地化
+          const enriched = enrichCitizenData(data, t, language);
+          setEnrichedData(enriched);
         }
       } catch (err) {
         console.error("Failed to fetch citizen data:", err);
@@ -396,7 +419,7 @@ function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose:
                   <span className="text-slate-400">•</span>
                   <span className="text-slate-300 font-medium">{displayCitizen.displayAge || displayCitizen.age} {t('report.ui.age')}</span>
                   <span className="text-slate-400">•</span>
-                  <span className="text-slate-400">{displayCitizen.location || 'Taiwan'}</span>
+                  <span className="text-slate-400">{getLocalizedValue(displayCitizen.location, language) || 'Taiwan'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
                   <span className="material-symbols-outlined text-[14px]">calendar_month</span>
@@ -640,19 +663,25 @@ export default function WatchPage() {
 
   const lastSummaryRef = useRef("")
   useEffect(() => {
-    if (data?.summary) {
-      if (data.summary === lastSummaryRef.current) return
-      lastSummaryRef.current = data.summary
-      setTypedSummary("")
-      let i = 0
+    const summaryText = getLocalizedValue(data?.summary, language);
+    if (summaryText) {
+      const summaryKey = `${summaryText}_${language}`;
+      if (summaryKey === lastSummaryRef.current) return;
+      lastSummaryRef.current = summaryKey;
+
+      setTypedSummary("");
+      let i = 0;
       const timer = setInterval(() => {
-        i++
-        if (i <= data.summary.length) setTypedSummary(data.summary.slice(0, i))
-        else clearInterval(timer)
-      }, 10)
-      return () => clearInterval(timer)
+        i++;
+        if (i <= summaryText.length) {
+          setTypedSummary(summaryText.slice(0, i));
+        } else {
+          clearInterval(timer);
+        }
+      }, 10);
+      return () => clearInterval(timer);
     }
-  }, [data?.summary])
+  }, [data?.summary, language]);
 
   // 決定是否顯示加載動畫：
   // 1. 資料尚未載入 (!data)
@@ -1451,10 +1480,13 @@ export default function WatchPage() {
                   <div className="space-y-4 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
                     {data.arena_comments?.map((comment, i) => {
                       const persona = comment.persona;
-                      const elem = elementConfig[persona.element] || elementConfig.Fire;
+                      // [Fix] Normalize element key (capitalize first letter) to handle "wood"/"Wood" mismatch
+                      const rawElem = persona.element || "Fire";
+                      const normalizedElem = rawElem.charAt(0).toUpperCase() + rawElem.slice(1).trim();
+                      const elem = elementConfig[normalizedElem] || elementConfig[rawElem] || elementConfig.Fire;
                       const isPositive = comment.sentiment === 'positive';
                       return (
-                        <div key={i} className={`group relative p-4 rounded-xl border transition-all duration-300 transform bg-[#1a1a1f] hover:translate-x-1 cursor-pointer ${isPositive ? 'border-l-4 border-l-green-500 border-[#302839]' : comment.sentiment === 'negative' ? 'border-l-4 border-l-rose-500 border-[#302839]' : 'border-l-4 border-l-gray-500 border-[#302839]'}`} onClick={() => setSelectedCitizen(enrichCitizenData(persona, t))}>
+                        <div key={i} className={`group relative p-4 rounded-xl border transition-all duration-300 transform bg-[#1a1a1f] hover:translate-x-1 cursor-pointer ${isPositive ? 'border-l-4 border-l-green-500 border-[#302839]' : comment.sentiment === 'negative' ? 'border-l-4 border-l-rose-500 border-[#302839]' : 'border-l-4 border-l-gray-500 border-[#302839]'}`} onClick={() => setSelectedCitizen(enrichCitizenData(persona, t, language))}>
                           <div className="flex items-start gap-3">
                             <div className={`size-10 flex-none rounded-xl ${elem.bg} flex items-center justify-center text-xl shadow-lg group-hover:scale-110 transition-transform`}>{elem.icon}</div>
                             <div className="min-w-0 flex-1">
@@ -1481,22 +1513,16 @@ export default function WatchPage() {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between mb-1">
                             <h4 className="text-white text-sm font-bold">
-                              {typeof s.target === 'object' && s.target !== null
-                                ? (s.target.point || s.target.title || s.target.text || JSON.stringify(s.target))
-                                : (s.target || '策略目標')}
+                              {getLocalizedValue(s.target, language) || '策略目標'}
                             </h4>
                             {s.score_improvement && (
                               <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">
-                                {typeof s.score_improvement === 'object' && s.score_improvement !== null
-                                  ? (s.score_improvement.point || s.score_improvement.text || s.score_improvement.value || JSON.stringify(s.score_improvement))
-                                  : s.score_improvement}
+                                {getLocalizedValue(s.score_improvement, language)}
                               </span>
                             )}
                           </div>
                           <p className="text-sm text-gray-200 leading-relaxed">
-                            {typeof s.advice === 'object' && s.advice !== null
-                              ? (s.advice.point || s.advice.text || s.advice.description || JSON.stringify(s.advice))
-                              : (s.advice || '載入中...')}
+                            {getLocalizedValue(s.advice, language) || '載入中...'}
                           </p>
                         </div>
                       </div>
@@ -1513,9 +1539,7 @@ export default function WatchPage() {
                               <li key={j} className="flex items-start gap-2 text-xs text-gray-300 hover:text-white transition-colors">
                                 <span className="text-cyan-500/70 mt-0.5 font-mono">{j + 1}.</span>
                                 <span>
-                                  {typeof step === 'object' && step !== null
-                                    ? (step.point ? step.point + (step.description ? `: ${step.description}` : '') : (step.text || JSON.stringify(step)))
-                                    : step}
+                                  {getLocalizedValue(step, language)}
                                 </span>
                               </li>
                             )) || <li className="text-xs text-gray-600 italic">{t('report.ui.generating_plan')}</li>}
@@ -1530,11 +1554,7 @@ export default function WatchPage() {
                               {t('report.ui.success_metrics')}
                             </p>
                             <p className="text-xs text-green-300">
-                              {typeof s.success_metrics === 'object' && s.success_metrics !== null
-                                ? (Array.isArray(s.success_metrics)
-                                  ? s.success_metrics.map((m: any) => (m.point || m.text || JSON.stringify(m))).join('; ')
-                                  : (s.success_metrics.point || JSON.stringify(s.success_metrics)))
-                                : s.success_metrics}
+                              {getLocalizedValue(s.success_metrics, language)}
                             </p>
                           </div>
                         )}
@@ -1547,11 +1567,7 @@ export default function WatchPage() {
                               {t('report.ui.potential_risks')}
                             </p>
                             <p className="text-[11px] text-amber-300">
-                              {typeof s.potential_risks === 'object' && s.potential_risks !== null
-                                ? (Array.isArray(s.potential_risks)
-                                  ? s.potential_risks.map((r: any) => (r.point || r.text || JSON.stringify(r))).join('; ')
-                                  : (s.potential_risks.point || JSON.stringify(s.potential_risks)))
-                                : s.potential_risks}
+                              {getLocalizedValue(s.potential_risks, language)}
                             </p>
                           </div>
                         )}

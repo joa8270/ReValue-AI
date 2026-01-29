@@ -1633,8 +1633,36 @@ Reply directly in JSON format:
             # Consistency logic: use hash if not force_random (nested ternary for safety)
             img_hash = (int(hashlib.md5(image_bytes_list[0]).hexdigest(), 16) if image_bytes_list else None) if not force_random else None
             
+            # [Filter] Extract user targeting options (Fix: Apply Age/Occupation filters)
+            sim_filters = {}
+            if targeting_data:
+                # Age Range (e.g., "20-45")
+                # Age Range (e.g., "20-45" or [20, 45])
+                age_range = targeting_data.get("age_range", "")
+                if isinstance(age_range, (list, tuple)) and len(age_range) == 2:
+                    sim_filters["age_min"] = int(age_range[0])
+                    sim_filters["age_max"] = int(age_range[1])
+                elif isinstance(age_range, str) and "-" in age_range:
+                    try:
+                        amin, amax = age_range.split("-")
+                        sim_filters["age_min"] = int(amin)
+                        sim_filters["age_max"] = int(amax)
+                    except: pass
+                
+                # Occupation/Persona (e.g., "Entrepreneur")
+                occupations = targeting_data.get("occupations", [])
+                persona = targeting_data.get("persona", "")
+                
+                # [Clean Architecture] Pass raw keys directly. Database now has 'persona_categories' normalization.
+                if isinstance(occupations, list) and len(occupations) > 0:
+                    sim_filters["occupation"] = occupations
+                    
+                # Backward compatibility for "persona" string
+                elif persona and persona != "All":
+                    sim_filters["occupation"] = [persona]
+
             # Pass hash as seed
-            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=img_hash)
+            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=img_hash, filters=sim_filters)
             
             if sampled_citizens:
                 first_c = sampled_citizens[0]
@@ -1646,28 +1674,17 @@ Reply directly in JSON format:
             
             random.shuffle(sampled_citizens)
 
-            # 🛡️ [Defense in Depth] Service-Layer Fix for "All Fire"
-            # Explicitly verify and repair missing elements before using them
-            elements_cycle = ["Fire", "Water", "Metal", "Wood", "Earth"]
-            for idx, c in enumerate(sampled_citizens):
-                current_elem = c.get("element")
-                
-                # If element is missing or explicitly "Fire" (suspected default), 
-                # we force a deterministic reassignment based on ID to ensure variety.
-                # Note: This might change a legitimate "Fire" citizen to something else, 
-                # but ensures visual diversity which is the priority right now.
-                if not current_elem or current_elem == "Fire" or current_elem == "Unknown":
-                    # Use consistent deterministic hash to match database.py (id % 5)
-                    # Note: c["id"] is string, so we convert to int
-                    try:
-                        c_seed = int(c["id"])
-                    except:
-                        c_seed = hash(str(c["id"]))
-                    
-                    c["element"] = elements_cycle[c_seed % 5]
-                    # Backfill bazi just in case
-                    if "bazi_profile" in c:
-                        c["bazi_profile"]["element"] = c["element"]
+            # [Debug] Check element distribution before ABM
+            elem_counts = {}
+            for c in sampled_citizens:
+                e = c.get("element", "None")
+                elem_counts[e] = elem_counts.get(e, 0) + 1
+            print(f"📊 [PRE-ABM] Sampled Elements: {elem_counts}")
+            
+            try:
+                with open("debug_trace.log", "a", encoding="utf-8") as f:
+                    f.write(f"[{sim_id}] Low-Level Element Distribution: {elem_counts}\n")
+            except: pass
             
             # [Debug] Log first citizen to check element patch
             try:
@@ -2521,24 +2538,47 @@ __CITIZENS_JSON__
             # Consistency logic: use hash if not force_random
             pdf_hash = int(hashlib.md5(pdf_bytes).hexdigest(), 16) if not force_random else None
             
+            # [Filter] Extract user targeting options (Fix: Apply Age/Occupation filters)
+            sim_filters = {}
+            if targeting_data:
+                # Age Range (e.g., "20-45" or [20, 45])
+                age_range = targeting_data.get("age_range", "")
+                if isinstance(age_range, (list, tuple)) and len(age_range) == 2:
+                    sim_filters["age_min"] = int(age_range[0])
+                    sim_filters["age_max"] = int(age_range[1])
+                elif isinstance(age_range, str) and "-" in age_range:
+                    try:
+                        amin, amax = age_range.split("-")
+                        sim_filters["age_min"] = int(amin)
+                        sim_filters["age_max"] = int(amax)
+                    except: pass
+                
+                # Occupation/Persona (e.g., "Entrepreneur")
+                occupations = targeting_data.get("occupations", [])
+                persona = targeting_data.get("persona", "")
+                
+                # [Clean Architecture] Pass raw keys directly. Database now has 'persona_categories' normalization.
+                if isinstance(occupations, list) and len(occupations) > 0:
+                    sim_filters["occupation"] = occupations
+                # Backward compatibility for "persona" string
+                elif persona and persona != "All":
+                    sim_filters["occupation"] = [persona]
+
             # [Fix] 使用 run_in_threadpool 抽樣 30 位市民，從中精選 10 位生成評論
             # Pass the hash as seed for consistent sampling
-            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=pdf_hash)
+            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=pdf_hash, filters=sim_filters)
 
-            # 🛡️ [Defense in Depth] Service-Layer Fix for "All Fire" (PDF Version)
-            elements_cycle = ["Fire", "Water", "Metal", "Wood", "Earth"]
-            for idx, c in enumerate(sampled_citizens):
-                current_elem = c.get("element")
-                if not current_elem or current_elem == "Fire" or current_elem == "Unknown":
-                    # [Fix] Deterministic Fallback - use id % 5 to match database.py
-                    try:
-                        c_seed = int(c["id"])
-                    except:
-                        c_seed = hash(str(c["id"]))
-                    c["element"] = elements_cycle[c_seed % 5]
-                    if "bazi_profile" in c:
-                        c["bazi_profile"]["element"] = c["element"]
-
+            # [Debug] Check element distribution before Prompt
+            elem_counts = {}
+            for c in sampled_citizens:
+                e = c.get("element", "None")
+                elem_counts[e] = elem_counts.get(e, 0) + 1
+            print(f"📊 [PRE-PDF] Sampled Elements: {elem_counts}")
+            
+            try:
+                with open("debug_trace.log", "a", encoding="utf-8") as f:
+                    f.write(f"[{sim_id}] Low-Level Element Distribution (PDF): {elem_counts}\n")
+            except: pass
 
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Got citizens: {len(sampled_citizens)}\n")
             
@@ -3187,9 +3227,48 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             market_context_override = market_config.get("context_override", "")
             logger.info(f"🌍 [TEXT Globalization] Target Market: {target_market}")
             
+            # [Filter] Extract user targeting options (Fix: Apply Age/Occupation filters)
+            sim_filters = {}
+            if targeting_data:
+                # Age Range (e.g., "20-45" or [20, 45])
+                age_range = targeting_data.get("age_range", "")
+                if isinstance(age_range, (list, tuple)) and len(age_range) == 2:
+                    sim_filters["age_min"] = int(age_range[0])
+                    sim_filters["age_max"] = int(age_range[1])
+                elif isinstance(age_range, str) and "-" in age_range:
+                    try:
+                        amin, amax = age_range.split("-")
+                        sim_filters["age_min"] = int(amin)
+                        sim_filters["age_max"] = int(amax)
+                    except: pass
+                
+                # Occupation/Persona (e.g., "Entrepreneur")
+                occupations = targeting_data.get("occupations", [])
+                persona = targeting_data.get("persona", "")
+                
+                # [Clean Architecture] Pass raw keys directly. Database now has 'persona_categories' normalization.
+                if isinstance(occupations, list) and len(occupations) > 0:
+                    sim_filters["occupation"] = occupations
+                # Backward compatibility for "persona" string
+                elif persona and persona != "All":
+                    sim_filters["occupation"] = [persona]
+
             # 1. 從資料庫隨機抽取市民
-            # [Fix] 抽樣 30 位市民，從中精選 10 位生成評論
-            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30)
+            # [Fix] 抽樣 30 位市民 with filters
+            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, filters=sim_filters)
+            
+            # [Debug] Check element distribution before Prompt
+            elem_counts = {}
+            for c in sampled_citizens:
+                e = c.get("element", "None")
+                elem_counts[e] = elem_counts.get(e, 0) + 1
+            print(f"📊 [PRE-TEXT] Sampled Elements: {elem_counts}")
+            
+            try:
+                with open("debug_trace.log", "a", encoding="utf-8") as f:
+                    f.write(f"[{sim_id}] Low-Level Element Distribution (TEXT): {elem_counts}\n")
+            except: pass
+
             print(f"[Core TEXT] Sampled {len(sampled_citizens)} citizens")
             
             # 2. 準備市民資料給 Gemini (與 PDF 流程一致)
@@ -3202,7 +3281,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                     "location": c["location"],
                     "day_master": c["bazi_profile"].get("day_master", "未知"),
                     "structure": c["bazi_profile"].get("structure", "未知"),
-                    "element": c["bazi_profile"].get("element", "未知"),
+                    "element": c.get("element", "未知"), # [Fix] Use top-level corrected element
                     "traits": c["traits"]
                 }
                 for c in sampled_citizens

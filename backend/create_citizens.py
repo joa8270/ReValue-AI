@@ -371,7 +371,7 @@ def generate_citizen(idx):
         "gender": "男" if g=="male" else "女",
         "age": age,
         "location": weighted_random_choice({"台北, 台灣":20, "新北, 台灣":15, "台中, 台灣":12, "高雄, 台灣":10, "台南, 台灣":8}),
-        "occupation": get_valid_occupation(age),
+        "occupation": {"TW": get_valid_occupation(age)}, # Ensure JSON Object format
         "bazi_profile": {
             **bz, 
             "birth_year": bd["year"],
