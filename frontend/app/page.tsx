@@ -6,7 +6,7 @@ import SimulationForm from './components/SimulationForm';
 import { useLanguage } from './context/LanguageContext';
 
 export default function Home() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     return (
         <div className="min-h-screen bg-[#141118] font-sans antialiased text-white overflow-x-hidden">
@@ -230,7 +230,25 @@ export default function Home() {
                                     <h3 className="text-white text-lg font-bold">{t('scientific_basis.card2_title')}</h3>
                                     <p className="text-amber-400 font-mono text-xs uppercase tracking-wider mb-1">{t('scientific_basis.card2_subtitle')}</p>
                                     <p className="text-gray-400 text-sm leading-relaxed">
-                                        {t('scientific_basis.card2_desc')}
+                                        {t('scientific_basis.card2_desc_p1')}
+                                        <a
+                                            href={language === 'zh-CN' ? 'https://baike.baidu.com/item/八字' : 'https://zh.wikipedia.org/zh-tw/八字'}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-amber-400/80 hover:text-amber-300 underline decoration-amber-500/30 hover:decoration-amber-300 transition-colors"
+                                        >
+                                            {t('scientific_basis.card2_desc_link1')}
+                                        </a>
+                                        {t('scientific_basis.card2_desc_p2')}
+                                        <a
+                                            href={language === 'zh-CN' ? 'https://baike.baidu.com/item/MBTI' : 'https://zh.wikipedia.org/zh-tw/邁爾斯-布里格斯性格分類法'}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-amber-400/80 hover:text-amber-300 underline decoration-amber-500/30 hover:decoration-amber-300 transition-colors"
+                                        >
+                                            {t('scientific_basis.card2_desc_link2')}
+                                        </a>
+                                        {t('scientific_basis.card2_desc_p3')}
                                     </p>
                                 </div>
                             </div>

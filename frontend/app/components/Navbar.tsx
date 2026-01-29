@@ -28,7 +28,7 @@ export default function Navbar() {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <span className="text-purple-500 text-2xl">∞</span>
-                        <h2 className="text-white text-lg font-bold tracking-wider">MIRRA</h2>
+                        <h2 className="text-white text-lg font-bold tracking-wider">MIRRA // 鏡界</h2>
                     </Link>
 
                     {/* Desktop Menu */}

@@ -811,14 +811,14 @@ export default function SimulationForm() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 rounded-lg bg-slate-900 border border-slate-800">
                                     <p className="text-xs text-slate-500 mb-1">{t('simulation_form.step2_fermi_tam')}</p>
-                                    <p className="text-2xl font-bold text-white tabular-nums">
+                                    <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white tabular-nums text-ellipsis overflow-hidden">
                                         {new Intl.NumberFormat('en-US').format(tam)}
                                     </p>
                                     <p className="text-[10px] text-slate-600 mt-1">{t('simulation_form.step2_fermi_tam_desc')}</p>
                                 </div>
                                 <div className="p-4 rounded-lg bg-slate-900 border border-slate-800 relative group">
                                     <p className="text-xs text-slate-500 mb-1">{t('simulation_form.step2_fermi_sample')}</p>
-                                    <p className="text-2xl font-bold text-purple-400 tabular-nums">1,000</p>
+                                    <p className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-400 tabular-nums">1,000</p>
                                     <p className="text-[10px] text-slate-600 mt-1">{t('simulation_form.step2_fermi_sample_desc')}</p>
                                     {/* Tooltip */}
                                     <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-800 text-slate-300 text-xs p-2 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">

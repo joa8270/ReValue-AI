@@ -19,14 +19,14 @@ mock_citizens = [
 
 async def verify_lang(lang):
     print(f"--- 🌐 正在驗證語言: {lang} ---")
-    service = MIRRALineBotService()
+    service = LineBotService()
     
     # 模擬 Gemini 返回空數據 (超時情境)
     empty_data = {}
     
     try:
         # 呼叫修復後的數據構建函數
-        result = service._build_simulation_result(empty_data, mock_citizens, lang)
+        result = service._build_simulation_result(empty_data, mock_citizens, {"language": lang})
         
         # 驗證 1: 參與市民數
         comment_count = len(result.get("arena_comments", []))
@@ -42,22 +42,25 @@ async def verify_lang(lang):
         
         if lang == "en":
             # 英文版應該包含英文單字
-            if "potential" in first_comment.lower() or "investment" in first_comment.lower():
+            keywords = ["product", "design", "price", "consider", "features", "quality"]
+            if any(k in first_comment.lower() for k in keywords):
                 print(f"✅ [{lang}] 檢測到英文關鍵字")
             else:
-                print(f"❌ [{lang}] 未檢測到英文，Fallback 可能失效")
+                print(f"❌ [{lang}] 未檢測到英文，Fallback 可能失效: {first_comment}")
                 return False
         elif lang == "zh-CN":
-             if "计划书" in first_comment or "创业者" in first_comment:
+             keywords = ["产品", "设计", "价格", "考虑", "品质", "体验"]
+             if any(k in first_comment for k in keywords):
                 print(f"✅ [{lang}] 檢測到簡體關鍵字")
              else:
-                print(f"❌ [{lang}] 未檢測到簡體關鍵字")
+                print(f"❌ [{lang}] 未檢測到簡體關鍵字: {first_comment}")
                 return False
         else:
-            if "計劃書" in first_comment or "創業者" in first_comment:
+            keywords = ["產品", "設計", "價格", "考慮", "品質", "體驗"]
+            if any(k in first_comment for k in keywords):
                 print(f"✅ [{lang}] 檢測到繁體關鍵字")
             else:
-                print(f"❌ [{lang}] 未檢測到繁體關鍵字")
+                print(f"❌ [{lang}] 未檢測到繁體關鍵字: {first_comment}")
                 return False
                 
         return True

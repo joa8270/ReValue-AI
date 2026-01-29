@@ -4209,7 +4209,7 @@ Output the transcribed text directly, without any additional explanation."""
                     f.write(f"[JSON_PARSE] Failed even after fixing: {fix_err}\n")
                 return {}
 
-    def _build_simulation_result(self, data, sampled_citizens, sim_metadata_override=None):
+    def _build_simulation_result(self, data, sampled_citizens, sim_metadata_override=None, sim_id="test-sim-id"):
         """Helper to build final result structure"""
         # Logic extracted from original code to build result_data
         # ... simplified for brevity as it copies logic ...
@@ -4360,94 +4360,170 @@ Output the transcribed text directly, without any additional explanation."""
 
         # Fallback comments if not enough (ensure at least 8)
         # 大幅增加評論模板，更豐富、更符合八字個性
-        bazi_comment_templates = {
-            "食神格": [
-                "這產品看起來挺有質感的，用起來應該很享受！特別喜歡它的設計感，每天使用心情都會很好。",
-                "哇，這設計蠻有品味的！我一向注重生活品質，這種細節處理得不錯，值得入手。",
-                "我比較在意使用體驗，這個產品從外觀到手感都很舒服，感覺會是生活中的小確幸。",
-                "作為一個愛好者，我覺得這個產品很療癒，光是看著就很開心，實用性倒是其次。"
-            ],
-            "傷官格": [
-                "設計還可以，但我覺得有些地方可以更有創意一點。不過整體來說還是有它的特色。",
-                "嗯...我有一些改進的想法：如果能加強某些功能會更完美。不過概念是好的。",
-                "說實話，市面上類似的產品很多，這個需要做出差異化才能真正吸引我。",
-                "我欣賞創新的嘗試，但執行面還有進步空間。潛力是有的，就看後續迭代了。"
-            ],
-            "正財格": [
-                "CP值如何？我比較在意性價比。這個價格如果品質穩定，我會考慮入手。",
-                "價格和品質的平衡很重要，這個看起來還可以。希望用料實在，不是虛有其表。",
-                "作為一個務實的人，我會先看評價和口碑，確保每一分錢都花得值得。",
-                "我會做功課比較幾家再決定。這個如果有優惠或分期，吸引力會更大。"
-            ],
-            "偏財格": [
-                "感覺有潛力！可以考慮投資看看。這個市場定位蠻聰明的，抓住了痛點。",
-                "這個切入點不錯，商機蠻大的！如果團隊執行力強，發展前景看好。",
-                "我看到了機會！這類產品現在正流行，時機點抓得不錯，值得關注。",
-                "有意思！這個如果能做成系列產品或打造品牌，未來增值空間很大。"
-            ],
-            "正官格": [
-                "品質和規格都符合標準嗎？我比較謹慎，需要確認各項認證和保固條款。",
-                "需要多了解一下細節，再做決定。穩定性和售後服務是我最在意的。",
-                "這個品牌口碑如何？我傾向選擇有信譽的廠商，這樣更有保障。",
-                "有沒有專業測試報告？作為理性消費者，我需要客觀數據來支持購買決定。"
-            ],
-            "七殺格": [
-                "直接說重點，這東西能不能解決實際痛點？如果是為了虛榮心買的，我沒興趣。效率和結果才是我最在意的，我需要能打仗的工具。",
-                "別跟我繞圈子，市場優勢在哪？憑什麼讓我選你？如果真的有硬實力，我會毫不猶豫下單，否則別浪費我時間。",
-                "我只關心性能和回報。這產品如果能幫我省下 20% 的時間，那它就值這個價。執行力不足的方案，我看都不看。",
-                "這東西看起來很有侵略性，適合開拓新市場。我喜歡這種帶有突破性的設計，只要它能扛得起高強度的壓力。"
-            ],
-            "正印格": [
-                "這對長期發展有幫助嗎？我比較看重長遠價值，不喜歡曇花一現的東西。",
-                "品牌信譽很重要，這個公司可靠嗎？我寧可多花點錢也要買安心。",
-                "有沒有學習資源或使用指南？我希望能真正了解和掌握這個產品。",
-                "我會先請教有經驗的朋友，聽聽他們的意見再決定。謹慎一點總是好的。"
-            ],
-            "偏印格": [
-                "這個概念挺特別的，跟市面上的不太一樣。我喜歡有獨特想法的產品。",
-                "有點意思，但我需要更多時間思考。直覺告訴我這個有些門道。",
-                "設計理念很有深度，不是一般大眾能馬上理解的。這反而吸引我。",
-                "我不跟風，這個產品有它獨特的氣質，適合有品味的人。"
-            ],
-            "比肩格": [
-                "這個我身邊很多朋友都在用，看來真的不錯。大家說好才是真的好。",
-                "我會問問同事的意見，如果他們也覺得可以，我就跟一波。",
-                "這類產品我有使用經驗，這個新品看起來在一些細節上有進步。",
-                "價格公道，品質過得去，符合我的預期。不求最好，但求實用。"
-            ],
-            "劫財格": [
-                "這個值得跟朋友們分享！好東西就是要一起用才有意思。",
-                "如果有團購或優惠活動，我可以幫忙揪人，大家一起買更划算。",
-                "我已經想好要推薦給誰了，這個產品剛好適合我幾個朋友的需求。",
-                "生活嘛，開心最重要！這個能讓朋友聚會更有趣，值得入手。"
-            ],
+        # 確保語言設定正確
+        language = sim_metadata_override.get("language", "zh-TW") if sim_metadata_override else "zh-TW"
+
+        # 大幅增加評論模板，更豐富、更符合八字個性 (多語言支援)
+        bazi_comment_templates_map = {
+            "zh-TW": {
+                "食神格": [
+                    "這產品看起來挺有質感的，用起來應該很享受！特別喜歡它的設計感，每天使用心情都會很好。",
+                    "哇，這設計蠻有品味的！我一向注重生活品質，這種細節處理得不錯，值得入手。",
+                    "我比較在意使用體驗，這個產品從外觀到手感都很舒服，感覺會是生活中的小確幸。",
+                    "作為一個愛好者，我覺得這個產品很療癒，光是看著就很開心，實用性倒是其次。"
+                ],
+                "傷官格": [
+                    "設計還可以，但我覺得有些地方可以更有創意一點。不過整體來說還是有它的特色。",
+                    "嗯...我有一些改進的想法：如果能加強某些功能會更完美。不過概念是好的。",
+                    "說實話，市面上類似的產品很多，這個需要做出差異化才能真正吸引我。",
+                    "我欣賞創新的嘗試，但執行面還有進步空間。潛力是有的，就看後續迭代了。"
+                ],
+                "正財格": [
+                    "CP值如何？我比較在意性價比。這個價格如果品質穩定，我會考慮入手。",
+                    "價格和品質的平衡很重要，這個看起來還可以。希望用料實在，不是虛有其表。",
+                    "作為一個務實的人，我會先看評價和口碑，確保每一分錢都花得值得。",
+                    "我會做功課比較幾家再決定。這個如果有優惠或分期，吸引力會更大。"
+                ],
+                "偏財格": [
+                    "感覺有潛力！可以考慮投資看看。這個市場定位蠻聰明的，抓住了痛點。",
+                    "這個切入點不錯，商機蠻大的！如果團隊執行力強，發展前景看好。",
+                    "我看到了機會！這類產品現在正流行，時機點抓得不錯，值得關注。",
+                    "有意思！這個如果能做成系列產品或打造品牌，未來增值空間很大。"
+                ],
+                "正官格": [
+                    "品質和規格都符合標準嗎？我比較謹慎，需要確認各項認證和保固條款。",
+                    "需要多了解一下細節，再做決定。穩定性和售後服務是我最在意的。",
+                    "這個品牌口碑如何？我傾向選擇有信譽的廠商，這樣更有保障。",
+                    "有沒有專業測試報告？作為理性消費者，我需要客觀數據來支持購買決定。"
+                ],
+                "七殺格": [
+                    "直接說重點，這東西能不能解決實際痛點？如果是為了虛榮心買的，我沒興趣。效率和結果才是我最在意的，我需要能打仗的工具。",
+                    "別跟我繞圈子，市場優勢在哪？憑什麼讓我選你？如果真的有硬實力，我會毫不猶豫下單，否則別浪費我時間。",
+                    "我只關心性能和回報。這產品如果能幫我省下 20% 的時間，那它就值這個價。執行力不足的方案，我看都不看。",
+                    "這東西看起來很有侵略性，適合開拓新市場。我喜歡這種帶有突破性的設計，只要它能扛得起高強度的壓力。"
+                ],
+                "正印格": [
+                    "這對長期發展有幫助嗎？我比較看重長遠價值，不喜歡曇花一現的東西。",
+                    "品牌信譽很重要，這個公司可靠嗎？我寧可多花點錢也要買安心。",
+                    "有沒有學習資源或使用指南？我希望能真正了解和掌握這個產品。",
+                    "我會先請教有經驗的朋友，聽聽他們的意見再決定。謹慎一點總是好的。"
+                ],
+                "偏印格": [
+                    "這個概念挺特別的，跟市面上的不太一樣。我喜歡有獨特想法的產品。",
+                    "有點意思，但我需要更多時間思考。直覺告訴我這個有些門道。",
+                    "設計理念很有深度，不是一般大眾能馬上理解的。這反而吸引我。",
+                    "我不跟風，這個產品有它獨特的氣質，適合有品味的人。"
+                ],
+                "比肩格": [
+                    "這個我身邊很多朋友都在用，看來真的不錯。大家說好才是真的好。",
+                    "我會問問同事的意見，如果他們也覺得可以，我就跟一波。",
+                    "這類產品我有使用經驗，這個新品看起來在一些細節上有進步。",
+                    "價格公道，品質過得去，符合我的預期。不求最好，但求實用。"
+                ],
+                "劫財格": [
+                    "這個值得跟朋友們分享！好東西就是要一起用才有意思。",
+                    "如果有團購或優惠活動，我可以幫忙揪人，大家一起買更划算。",
+                    "我已經想好要推薦給誰了，這個產品剛好適合我幾個朋友的需求。",
+                    "生活嘛，開心最重要！這個能讓朋友聚會更有趣，值得入手。"
+                ]
+            },
+            "zh-CN": {
+                "食神格": ["这产品看起来挺有质感的，用起来应该很享受！特别喜欢它的设计感。", "哇，这设计蛮有品味的！我一向注重生活品质，值得入手。", "我比较在意使用体验，这个产品从外观到手感都很舒服。", "作为一个爱好者，我觉得这个产品很疗愈，光是看着就很开心。"],
+                "伤官格": ["设计还可以，但我觉得有些地方可以更有创意一点。", "嗯...我有一些改进的想法：如果能加强某些功能会更完美。", "说实话，市面上类似的产品很多，这个需要做出差异化。", "我欣赏创新的尝试，但执行面还有进步空间。"],
+                "正财格": ["性价比如何？我比较在意CP值。如果价格合适我会考虑。", "价格和品质的平衡很重要，这个看起来还可以。", "作为一个务实的人，我会先看评价和口碑，确保每一分钱都花得值得。", "我会做功课比较几家再决定。"],
+                "偏财格": ["感觉有潜力！可以考虑投资看看。这个市场定位蛮聪明的。", "这个切入点不错，商机蛮大的！", "我看到了机会！这类产品现在正流行，时机点抓得不错。", "有意思！这个如果能做成系列产品，未来增值空间很大。"],
+                "正官格": ["品质和规格都符合标准吗？我比较谨慎，需要确认各项认证。", "需要多了解一下细节，再做决定。稳定性是我最在意的。", "这个品牌口碑如何？我倾向选择有信誉的厂商。", "有没有专业测试报告？我需要客观数据支持。"],
+                "七杀格": ["直接说重点，这东西能不能解决实际痛点？效率和结果才是我最在意的。", "别跟我绕圈子，市场优势在哪？", "我只关心性能和回报。如果能帮我省时间，那它就值这个价。", "这东西看起来很有侵略性，适合开拓新市场。"],
+                "正印格": ["这对长期发展有帮助吗？我比较看重长远价值。", "品牌信誉很重要，这个公司可靠吗？", "有没有学习资源或使用指南？我希望能真正了解这个产品。", "我会先请教有经验的朋友，听听他们的意见再决定。"],
+                "偏印格": ["这个概念挺特别的，跟市面上的不太一样的。我喜欢有独特想法的产品。", "有点意思，但我需要更多时间思考。", "设计理念很有深度，不是一般大众能马上理解的。", "我不跟风，这个产品有它独特的气质。"],
+                "比肩格": ["这个我身边很多朋友都在用，看来真的不错。", "我会问问同事的意见，如果他们也觉得可以，我就跟一波。", "这类产品我有使用经验，这一代看起来有进步。", "价格公道，品质过得去，符合我的预期。"],
+                "劫财格": ["这个值得跟朋友们分享！好东西就是要一起用才有意思。", "如果有团购或优惠活动，我可以帮忙揪人。", "我已经想好要推荐给谁了，这产品刚好多适合我几个朋友。", "生活嘛，开心最重要！这个能让朋友聚会更有趣。"]
+            },
+            "en": {
+                "食神格": ["It looks aesthetic and high quality! I really enjoy using well-designed products.", "Wow, great taste! I value quality of life, and this seems worth it.", "User experience is key for me, and this feels very comfortable.", "It's so therapeutic just looking at it. Functionality is secondary to joy."],
+                "傷官格": ["The design is okay, but I think it could be more creative.", "I have some ideas for improvement; adding certain features would make it perfect.", "Honestly, there are many similar products. This needs to differentiate itself.", "I appreciate the innovation, but execution needs refinement."],
+                "正財格": ["How's the value for money? If the quality matches the price, I'll buy it.", "Balance between price and quality is important. This looks acceptable.", "As a pragmatist, I check reviews first to ensure every penny is well spent.", "I'll compare a few brands first. Discounts or installments would be attractive."],
+                "偏財格": ["Potential investment! This market positioning is smart.", "Good entry point, huge business opportunity! If execution is strong, it looks promising.", "I see an opportunity! This trend is hot right now.", "Interesting! If this becomes a brand series, the value will grow."],
+                "正官格": ["Does it meet standards? I need to check certifications and warranty.", "I need more details before deciding. Stability and service are my priorities.", "How's the brand reputation? I prefer reputable manufacturers.", "Any professional test reports? I rely on objective data."],
+                "七殺格": ["Get to the point: does it solve the problem? I only care about results/efficiency.", "What's the competitive advantage? Why should I choose you?", "I only care about performance/ROI. If it saves me time, it's worth it.", "Looks aggressive, suitable for breaking into new markets. I like bold designs."],
+                "正印格": ["Does this help in the long run? I value long-term value.", "Brand reputation matters. Is this company reliable?", "Are there user guides? I want to fully master this product.", "I'll ask experienced friends first. Caution is always good."],
+                "偏印格": ["Unique concept, different from the market. I like original ideas.", "Interesting, but I need time to think. My intuition says there's depth here.", "Deep design philosophy, not for everyone. That attracts me.", "I don't follow trends. This product has a unique vibe."],
+                "比肩格": ["My friends use this, so it must be good. Social proof matters.", "I'll ask my colleagues. If they approve, I'm in.", "I have experience with this type of product. This looks improved.", "Fair price, decent quality. Meets my expectations."],
+                "劫財格": ["Worth sharing with friends! Good things are meant to be shared.", "Any group buy discounts? I can bring people in.", "I know exactly who to recommend this to.", "Life is about fun! This makes gatherings more interesting."]
+            }
         }
         
-        # 根據職業增加更多個性化評論
-        occupation_comments = {
-            "工程師": "從技術角度來看，這個產品的設計邏輯是合理的，執行面也不錯。",
-            "設計師": "視覺呈現蠻有質感的，色彩搭配和排版都很用心，看得出專業度。",
-            "老師": "這個對學生或家庭來說實用嗎？我會考慮教育意義和安全性。",
-            "醫生": "健康相關的產品我比較謹慎，需要確認有無相關認證。",
-            "創業家": "商業模式有創意，如果能解決真正的市場痛點，會有發展空間。",
-            "學生": "價格是我最在意的，如果有學生優惠就更好了！",
-            "經理": "團隊協作方面有優勢嗎？我會考慮導入公司使用的可能性。",
-            "自由業": "靈活性很重要，這個能配合我不固定的工作模式嗎？",
+        # 根據職業增加更多個性化評論 (Mapping for Fallback)
+        occupation_comments_map = {
+             "zh-TW": {
+                "工程師": "從技術角度來看，這個產品的設計邏輯是合理的，執行面也不錯。",
+                "設計師": "視覺呈現蠻有質感的，色彩搭配和排版都很用心，看得出專業度。",
+                "老師": "這個對學生或家庭來說實用嗎？我會考慮教育意義和安全性。",
+                "醫生": "健康相關的產品我比較謹慎，需要確認有無相關認證。",
+                "創業家": "商業模式有創意，如果能解決真正的市場痛點，會有發展空間。",
+                "學生": "價格是我最在意的，如果有學生優惠就更好了！",
+                "經理": "團隊協作方面有優勢嗎？我會考慮導入公司使用的可能性。",
+                "自由業": "靈活性很重要，這個能配合我不固定的工作模式嗎？",
+             },
+             "zh-CN":{
+                "工程師": "从技术角度来看，这个产品的设计逻辑是合理的。",
+                "設計師": "视觉呈现蛮有质感的，色彩搭配很用心。",
+                "老師": "这个对学生或家庭来说实用吗？我会考虑安全性。",
+                "醫生": "健康相关的产品我比较谨慎，需要确认认证。",
+                "創業家": "商业模式有创意，如果能解决真正痛点会有发展。",
+                "學生": "价格是我最在意的，如果有学生优惠就更好了！",
+                "經理": "团队协作方面有优势吗？我会考虑导入公司。",
+                "自由業": "灵活性很重要，这个能配合我吗？"
+             },
+             "en": {
+                "工程師": "From a technical perspective, the design logic is sound and execution is good.",
+                "設計師": "Visually appealing, great color scheme and layout. Shows professionalism.",
+                "老師": "Is this practical for students/families? I consider safety and education.",
+                "醫生": "I'm cautious about health products. Are there certifications?",
+                "創業家": "Creative business model. If it solves real pain points, it will grow.",
+                "學生": "Price is my main concern. Any student discounts?",
+                "經理": "Any advantages for team collaboration? I might bring this to my company.",
+                "自由業": "Flexibility is key. Does this fit my irregular workflow?"
+             }
         }
         
-        default_templates = [
-            "這個產品確實有它的特色，我會考慮購買，但還需要再觀察一下市場反應。",
-            "價格合理的話我願意試試看，畢竟嘗試新東西也是一種生活態度。",
-            "設計蠻有想法的，如果質量穩定，這個價位算是可以接受的選擇。",
-            "整體來說符合我的預期，不算驚艷但也沒什麼大問題，可以列入購物清單。",
-            "我會持續關注這個產品，等更多用戶評價出來再決定是否入手。",
-            "第一印象不錯，但我習慣貨比三家，確保這是最佳選擇再下手。",
-            "對我來說這是個新領域，需要更多了解，但產品本身看起來有誠意。",
-            "朋友推薦過類似的產品，這個看起來也值得一試，考慮中。"
-        ]
-        
-        if not isinstance(arena_comments, list):
-            arena_comments = []
+        default_templates_map = {
+            "zh-TW": [
+                "這個產品確實有它的特色，我會考慮購買，但還需要再觀察一下市場反應。",
+                "價格合理的話我願意試試看，畢竟嘗試新東西也是一種生活態度。",
+                "設計蠻有想法的，如果質量穩定，這個價位算是可以接受的選擇。",
+                "整體來說符合我的預期，不算驚艷但也沒什麼大問題，可以列入購物清單。",
+                "我會持續關注這個產品，等更多用戶評價出來再決定是否入手。",
+                "第一印象不錯，但我習慣貨比三家，確保這是最佳選擇再下手。",
+                "對我來說這是個新領域，需要更多了解，但產品本身看起來有誠意。",
+                "朋友推薦過類似的產品，這個看起來也值得一試，考慮中。"
+            ],
+            "zh-CN": [
+                "这个产品确实有它的特色，我会考虑购买，但还需要再观察一下。",
+                "价格合理的话我愿意试试看，毕竟尝试新东西也是一种态度。",
+                "设计蛮有想法的，如果质量稳定，这个价位可以接受。",
+                "整体来说符合预期，不算惊艳但也没什么大问题。",
+                "我会持续关注这个产品，等更多用户评价出来再决定。",
+                "第一印象不错，但我习惯货比三家。",
+                "对我来说这是个新领域，需要更多了解，但这产品看起来有诚意。",
+                "朋友推荐过类似的产品，这个看起来也值得一试。"
+            ],
+            "en": [
+                "This product has unique features. I'll consider it but will watch the market first.",
+                "I'm willing to try if the price is reasonable. Trying new things is a lifestyle.",
+                "The design is thoughtful. If quality is stable, the price is acceptable.",
+                "Overall meets expectations. Not amazing but no major issues. Added to list.",
+                "I'll keep an eye on this and wait for more user reviews before buying.",
+                "First impression is good, but I always compare options before committing.",
+                "A new field for me, I need to know more. But the product looks sincere.",
+                "Friends recommended similar products. This one looks worth a try too."
+            ]
+        }
+
+        # Select patterns based on language
+        bazi_comment_templates = bazi_comment_templates_map.get(language, bazi_comment_templates_map["zh-TW"])
+        occupation_comments = occupation_comments_map.get(language, occupation_comments_map["zh-TW"])
+        default_templates = default_templates_map.get(language, default_templates_map["zh-TW"])
             
         # 🛡️ 深度清理與驗證評論格式
         valid_comments = []
