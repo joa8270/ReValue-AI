@@ -12,7 +12,7 @@ def start_system():
     cwd = os.getcwd()
     frontend_dir = os.path.join(cwd, "frontend")
     
-    print("🚀 MIRRA System Launch Sequence Initiated...")
+    print("MIRRA System Launch Sequence Initiated...")
     
     # 1. Start Backend
     print("[1/2] Starting Backend (Uvicorn)...")
@@ -30,10 +30,10 @@ def start_system():
         cwd=frontend_dir
     )
     
-    print("\n✨ SYSTEM ONLINE ✨")
+    print("\nSYSTEM ONLINE")
     print("------------------------------------------------")
-    print("📡 Backend API: http://localhost:8000")
-    print("👁️ Frontend UI: http://localhost:3000")
+    print("Backend API: http://localhost:8000")
+    print("Frontend UI: http://localhost:3000")
     print("------------------------------------------------")
     print("Press Ctrl+C to shutdown.")
     
@@ -49,7 +49,7 @@ def start_system():
                 break
                 
     except KeyboardInterrupt:
-        print("\n🛑 Shutting down MIRRA services...")
+        print("\nShutting down MIRRA services...")
     finally:
         # Graceful Shutdown
         backend_process.terminate()

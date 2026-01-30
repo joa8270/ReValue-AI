@@ -23,6 +23,14 @@ export const translations = {
         cta_secondary: '瀏覽市民',
 
         bazi: {
+            stems: {
+                jia: '甲', yi: '乙', bing: '丙', ding: '丁', wu: '戊',
+                ji: '己', geng: '庚', xin: '辛', ren: '壬', gui: '癸'
+            },
+            branches: {
+                zi: '子', chou: '丑', yin: '寅', mao: '卯', chen: '辰', si: '巳',
+                wu: '午', wei: '未', shen: '申', you: '酉', xu: '戌', hai: '亥'
+            },
             elements: {
                 Wood: { word: '木', trait: '成長與創新', detailed: '仁慈、有創造力，具有良好的成長潛力與彈性。' },
                 Fire: { word: '火', trait: '熱情與直覺', detailed: '熱情洋溢，行動力強，但有時過於急躁。' },
@@ -528,6 +536,14 @@ export const translations = {
         },
 
         bazi: {
+            stems: {
+                jia: '甲', yi: '乙', bing: '丙', ding: '丁', wu: '戊',
+                ji: '己', geng: '庚', xin: '辛', ren: '壬', gui: '癸'
+            },
+            branches: {
+                zi: '子', chou: '丑', yin: '寅', mao: '卯', chen: '辰', si: '巳',
+                wu: '午', wei: '未', shen: '申', you: '酉', xu: '戌', hai: '亥'
+            },
             elements: {
                 Wood: { word: '木', trait: '成长与创新', detailed: '仁慈、有创造力，具有良好的成长潜力与弹性。' },
                 Fire: { word: '火', trait: '热情与直觉', detailed: '热情洋溢，行动力强，但有时过于急躁。' },
@@ -1031,6 +1047,14 @@ export const translations = {
         },
 
         bazi: {
+            stems: {
+                jia: 'Jia', yi: 'Yi', bing: 'Bing', ding: 'Ding', wu: 'Wu',
+                ji: 'Ji', geng: 'Geng', xin: 'Xin', ren: 'Ren', gui: 'Gui'
+            },
+            branches: {
+                zi: 'Zi', chou: 'Chou', yin: 'Yin', mao: 'Mao', chen: 'Chen', si: 'Si',
+                wu: 'Wu', wei: 'Wei', shen: 'Shen', you: 'You', xu: 'Xu', hai: 'Hai'
+            },
             elements: {
                 Wood: { word: 'Wood', trait: 'Growth & Innovation', detailed: 'Benevolent, creative, with good growth potential and flexibility.' },
                 Fire: { word: 'Fire', trait: 'Passionate & Intuitive', detailed: 'Passionate and action-oriented, but sometimes too impulsive.' },

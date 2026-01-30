@@ -1,10 +1,47 @@
 
-import { Persona, SimulationData, CitizenFilter } from "@/types";
+import { Persona, SimulationData, CitizenFilter, Skill, BaZiRequest } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export const api = {
+    // Skills
+    async getSkills(): Promise<Skill[]> {
+        try {
+            const res = await fetch(`${API_URL}/api/skills`);
+            if (res.ok) {
+                return await res.json();
+            }
+            console.warn("Failed to fetch skills");
+            return [];
+        } catch (error) {
+            console.error("API/Skills: Error", error);
+            // Return Mock Skills for Plan Mode visualization if backend is offline
+            return [
+                { id: "1", slug: "bazi-calc", name: "BaZi Calculator", description: "Calculate Four Pillars based on birth date.", version: "1.0" },
+                { id: "2", slug: "demo-skill", name: "Demo Skill", description: "A placeholder for future skills.", version: "0.1" }
+            ];
+        }
+    },
+
+    async executeBaZiCalc(data: BaZiRequest): Promise<any> {
+        try {
+            const res = await fetch(`${API_URL}/api/skills/bazi-calc/execute`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                return await res.json();
+            }
+            throw new Error("Execution failed");
+        } catch (error) {
+            console.error("API/BaZi: Error", error);
+            throw error;
+        }
+    },
+
     // Citizens
+
     async getCitizens(filter?: CitizenFilter): Promise<Persona[]> {
         try {
             // Fallback strategy: Fetch a "Master" simulation to represent the population.

@@ -16,7 +16,7 @@ def run_system():
     cwd = os.getcwd()
     frontend_dir = os.path.join(cwd, "frontend")
     
-    print("🚀 MIRRA System Launching...")
+    print(">> MIRRA System Launching...")
     print("------------------------------------------------")
     
     # 1. Start Backend
@@ -30,10 +30,10 @@ def run_system():
     frontend_cmd = [npm_cmd, "run", "dev"]
     frontend_process = subprocess.Popen(frontend_cmd, cwd=frontend_dir)
     
-    print("\n✅ SYSTEM ACTIVE")
+    print("\n>> SYSTEM ACTIVE")
     print("------------------------------------------------")
-    print("📡 Backend API: http://localhost:8000")
-    print("👁️ Frontend UI: http://localhost:4000")
+    print("Backend API: http://localhost:8000")
+    print("Frontend UI: http://localhost:4000")
     print("------------------------------------------------")
     print("(Press Ctrl+C to stop all services)")
 
@@ -48,7 +48,7 @@ def run_system():
                 print("!! Frontend process ended unexpectedly.")
                 break
     except KeyboardInterrupt:
-        print("\n🛑 Stopping sequence initiated...")
+        print("\n>> Stopping sequence initiated...")
     finally:
         # Graceful Shutdown
         print("Terminating Backend...")

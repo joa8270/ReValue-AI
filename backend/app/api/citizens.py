@@ -28,3 +28,24 @@ async def list_citizens(
 async def citizens_count():
     """獲取市民總數"""
     return {"count": get_citizens_count()}
+
+
+@router.get("/genesis")
+async def get_genesis_citizens():
+    """Retrieve genesis prototype citizens from JSON"""
+    import json
+    import os
+    
+    # Path to backend/app/data/citizens.json
+    # current file is backend/app/api/citizens.py
+    # we need to go up to backend/app/data
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    file_path = os.path.join(base_dir, "app", "data", "citizens.json")
+    
+    if not os.path.exists(file_path):
+        return {"citizens": [], "total": 0, "message": "Genesis data not found"}
+        
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        
+    return data

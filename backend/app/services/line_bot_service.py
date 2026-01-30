@@ -1628,28 +1628,6 @@ Reply directly in JSON format:
             # [Fix] Use run_in_threadpool to match PDF flow exactly
             from fastapi.concurrency import run_in_threadpool
             
-            # [Consistency] Calculate seed from Image content + Text + Filters
-            import hashlib
-            
-            # Combine all inputs for rigorous determinism
-            # 1. Images Content
-            combined_content = b"".join(image_bytes_list)
-            # 2. Add Text Context
-            if text_context:
-                combined_content += text_context.encode('utf-8')
-            # 3. Add Filters (sorted string)
-            filter_str = json.dumps(sim_filters, sort_keys=True)
-            combined_content += filter_str.encode('utf-8')
-            
-            # Generate Seed
-            if not force_random:
-                img_hash_hex = hashlib.sha256(combined_content).hexdigest()
-                img_hash = int(img_hash_hex, 16) % (2**32) # Convert to 32-bit int
-                print(f"🎲 [Consistency] Generated Seed from Content+Filters: {img_hash}")
-            else:
-                img_hash = None
-                print(f"🎲 [Consistency] Force Random active. Seed: None")
-            
             # [Filter] Extract user targeting options (Fix: Apply Age/Occupation filters)
             sim_filters = {}
             if targeting_data:
@@ -1678,8 +1656,31 @@ Reply directly in JSON format:
                 elif persona and persona != "All":
                     sim_filters["occupation"] = [persona]
 
+            # [Consistency] Calculate seed from Image content + Text + Filters
+            import hashlib
+            
+            # Combine all inputs for rigorous determinism
+            # 1. Images Content
+            combined_content = b"".join(image_bytes_list)
+            # 2. Add Text Context
+            if text_context:
+                combined_content += text_context.encode('utf-8')
+            # 3. Add Filters (sorted string)
+            filter_str = json.dumps(sim_filters, sort_keys=True)
+            combined_content += filter_str.encode('utf-8')
+            
+            # Generate Seed
+            if not force_random:
+                img_hash_hex = hashlib.sha256(combined_content).hexdigest()
+                img_hash = int(img_hash_hex, 16) % (2**32) # Convert to 32-bit int
+                print(f"🎲 [Consistency] Generated Seed from Content+Filters: {img_hash}")
+            else:
+                img_hash = None
+                print(f"🎲 [Consistency] Force Random active. Seed: None")
+
             # Pass hash as seed
             sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=img_hash, filters=sim_filters)
+            print(f"正在從 1000 位真實市民中抽選評論者... (Sampled: {len(sampled_citizens)})")
             
             if sampled_citizens:
                 first_c = sampled_citizens[0]
@@ -2252,28 +2253,60 @@ __CITIZENS_JSON__
             # Ensure Comments
             gemini_comments = data.get("comments", [])
             
-            # --- 1. QUALITY FILTER FIRST (Before Fallback) ---
+            # --- 1. QUALITY FILTER & GHOST BUSTER (Before Fallback) ---
             # Filter out lazy/hallucinated comments from Gemini matchers
             # 加強過濾條件：要求至少 40 字且排除更多罐頭回覆
             filtered_comments = []
+            
+            # 🛡️ GHOST CITIZEN PROTECTION: 建立真實市民查找表
+            valid_citizen_map_id = {str(c["id"]): c for c in sampled_citizens}
+            used_real_citizens = set()
+            
+            # 先收集已使用的真實市民 (By ID)
+            for c in gemini_comments:
+                if not isinstance(c, dict): continue
+                raw_id = c.get("citizen_id")
+                c_id = str(raw_id) if raw_id is not None else ""
+                if c_id in valid_citizen_map_id:
+                    used_real_citizens.add(c_id)
+            
+            # 準備未使用的真實市民列表 (作為替補)
+            unused_citizens = [c for c in sampled_citizens if str(c["id"]) not in used_real_citizens]
+            replacement_ptr = 0
+            
             forbidden_phrases = [
-                "符合我的", "看起來不錯", "值得購買", "值得买", "看起来不错",
-                "符合我的需求", "非常喜歡", "非常喜欢", "好產品", "好产品",
-                "推薦購買", "推荐购买", "挺好的", "蠻好的", "還不錯", "还不错",
-                "looks good", "worth buying", "meets my needs", "highly recommend"
+                "符合我的需求", "AI generated", "As an AI"
             ]
             for c in gemini_comments:
                 if not isinstance(c, dict): continue
                 text = c.get("text", "")
                 # 過濾條件：
-                # 1. 長度必須至少 40 字（原本是 10 字）
+                # 1. 長度必須至少 10 字（放寬限制）
                 # 2. 不包含任何罐頭回覆關鍵字
-                if len(text) < 40:
-                    # print(f"[FILTER] Comment too short ({len(text)} chars)")
+                if len(text) < 10:
+                    print(f"[FILTER] Comment too short ({len(text)} chars): {text[:20]}...")
                     continue
                 if any(phrase in text for phrase in forbidden_phrases):
                     # print(f"[FILTER] Forbidden phrase detected")
                     continue
+                
+                # 🛡️ GHOST CHECK (ID Based for Image Flow)
+                raw_id = c.get("citizen_id")
+                c_id = str(raw_id) if raw_id is not None else ""
+                
+                if c_id not in valid_citizen_map_id:
+                    # GHOST DETECTED! REPLACE IDENTITY
+                    if replacement_ptr < len(unused_citizens):
+                        real_c = unused_citizens[replacement_ptr]
+                        replacement_ptr += 1
+                        
+                        # Replace ID (Image flow uses ID primarily)
+                        c["citizen_id"] = str(real_c["id"])
+                        # logger.warning(f"👻 [GhostBuster] Replaced ghost ID '{c_id}' with real citizen ID '{real_c['id']}'")
+                    else:
+                        # No replacements left? Skip to avoid ghost
+                        continue
+                        
                 filtered_comments.append(c)
             gemini_comments = filtered_comments
             print(f"[{sim_id}] After quality filter: {len(gemini_comments)} comments passed")
@@ -2629,6 +2662,7 @@ __CITIZENS_JSON__
 
             # Pass the hash as seed for consistent sampling
             sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=pdf_hash, filters=sim_filters)
+            print(f"正在從 1000 位真實市民中抽選評論者... (Sampled: {len(sampled_citizens)})")
 
             # [Debug] Check element distribution before Prompt
             elem_counts = {}
@@ -3046,7 +3080,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             for c in raw_arena_comments:
                 if not isinstance(c, dict): continue
                 text = c.get("text", "")
-                if len(text) < 40: continue
+                if len(text) < 15: continue
                 if any(phrase in text for phrase in forbidden_phrases): continue
                 
                 # 🛡️ GHOST CHECK
@@ -3203,6 +3237,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                     luck_timeline, current_luck = build_luck_data(bazi, age)
                     
                     persona["id"] = str(fallback.get("id", random.randint(1, 1000)))
+                    persona["name"] = fallback.get("name", "Unknown Citizen") # 🧱 [Fix] Overwrite Ghost Name
                     persona["age"] = str(age)
                     persona["occupation"] = fallback.get("occupation", "未知職業")
                     persona["location"] = fallback.get("location", "台灣")
@@ -3342,6 +3377,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
 
             # [Fix] 抽樣 30 位市民 with filters
             sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=txt_hash, filters=sim_filters)
+            print(f"正在從 1000 位真實市民中抽選評論者... (Sampled: {len(sampled_citizens)})")
             
             # [Debug] Check element distribution before Prompt
             elem_counts = {}
@@ -3750,9 +3786,25 @@ Please let the following 10 representative AI virtual citizens, selected from a 
             print(f"[Core TEXT] Parsed AI response keys: {list(data.keys())}")
             
             
-            # --- QUALITY CHECK (Sync with Image/PDF Flow) ---
+            # --- QUALITY CHECK & GHOST BUSTER (Sync with Image/PDF Flow) ---
             raw_arena_comments = data.get("arena_comments", [])
             filtered_comments = []
+            
+            # 🛡️ GHOST CITIZEN PROTECTION: 建立真實市民查找表
+            valid_citizen_map = {c["name"]: c for c in sampled_citizens}
+            used_real_citizens = set()
+            
+            # 先收集已使用的真實市民
+            for c in raw_arena_comments:
+                if not isinstance(c, dict): continue
+                p_name = c.get("persona", {}).get("name")
+                if p_name in valid_citizen_map:
+                    used_real_citizens.add(p_name)
+            
+            # 準備未使用的真實市民列表 (作為替補)
+            unused_citizens = [c for c in sampled_citizens if c["name"] not in used_real_citizens]
+            replacement_ptr = 0
+
             forbidden_phrases = [
                 "符合我的", "看起來不錯", "值得購買", "值得买", "看起来不错",
                 "符合我的需求", "非常喜歡", "非常喜欢", "好產品", "好产品",
@@ -3762,8 +3814,38 @@ Please let the following 10 representative AI virtual citizens, selected from a 
             for c in raw_arena_comments:
                 if not isinstance(c, dict): continue
                 text = c.get("text", "")
-                if len(text) < 40: continue
+                if len(text) < 15: continue
                 if any(phrase in text for phrase in forbidden_phrases): continue
+                
+                # 🛡️ GHOST CHECK
+                persona = c.get("persona", {})
+                p_name = persona.get("name")
+                
+                if p_name not in valid_citizen_map:
+                    # GHOST DETECTED! REPLACE IDENTITY
+                    if replacement_ptr < len(unused_citizens):
+                        real_c = unused_citizens[replacement_ptr]
+                        replacement_ptr += 1
+                        
+                        bazi = real_c.get("bazi_profile") or {}
+                        # Construct Safe Persona
+                        c["persona"] = {
+                            "id": str(real_c["id"]),
+                            "name": real_c["name"],
+                            "age": str(real_c["age"]),
+                            "gender": real_c.get("gender", "unknown"),
+                            "occupation": real_c.get("occupation", "未知"),
+                            "location": real_c.get("location", "台灣"),
+                            "element": bazi.get("element", "Fire"),
+                            "structure": bazi.get("structure", "未知"),
+                            "trait": real_c.get("traits", ["一般"])[0] if real_c.get("traits") else "一般",
+                            "day_master": bazi.get("day_master", "未知")
+                        }
+                        # logger.warning(f"👻 [GhostBuster] Replaced ghost '{p_name}' with real citizen '{real_c['name']}'")
+                    else:
+                        # No replacements left? Skip to avoid ghost
+                        continue
+                        
                 filtered_comments.append(c)
             
             # --- 8. FALLBACK MECHANISM (Fill up to 10) ---
@@ -3889,6 +3971,7 @@ Please let the following 10 representative AI virtual citizens, selected from a 
                     luck_timeline, current_luck = build_luck_data(bazi, age)
                     
                     persona["id"] = str(fallback.get("id", random.randint(1, 1000)))
+                    persona["name"] = fallback.get("name", "Unknown Citizen") # 🧱 [Fix] Overwrite Ghost Name
                     persona["age"] = str(age)
                     persona["occupation"] = fallback.get("occupation", "未知職業")
                     persona["location"] = fallback.get("location", "台灣")

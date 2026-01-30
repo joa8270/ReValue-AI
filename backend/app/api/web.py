@@ -6,7 +6,7 @@ import sys
 import os
 import json
 
-print("👉 [WEB] Module web.py loaded!", flush=True)
+print(">> [WEB] Module web.py loaded!", flush=True)
 
 # 確保可以導入 create_citizens
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))

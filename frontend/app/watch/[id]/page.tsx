@@ -19,7 +19,11 @@ const PDFDownloadLink = dynamic(
 )
 import SimulationReportPDF from "@/app/components/pdf/SimulationReportPDF"
 
+
+import SharedCitizenModal, { Citizen as SharedCitizen } from "@/app/components/CitizenModal"
+
 // ===== Type Definitions (Bazi V3) =====
+
 interface BaziDistribution {
   Fire: number
   Water: number
@@ -269,286 +273,93 @@ const getLocalizedValue = (val: any, lang: string): string => {
   return String(target);
 };
 
-/**
- * 直接使用後端傳來的市民資料，不再生成假資料
- * 所有資料應該已在 line_bot_service.py 的 _build_simulation_result 中完整填充
- */
-const enrichCitizenData = (p: Persona, t: any, lang: string): EnrichedPersona => {
-  // 1. 日主
-  const dm = p.day_master || t('report.ui.unknown') || "未知";
 
-  // 2. 生日
-  let fullBirthday = "";
-  if (p.birth_year && p.birth_month && p.birth_day) {
-    fullBirthday = `${p.birth_year}/${p.birth_month}/${p.birth_day}`;
-  } else {
-    fullBirthday = t('report.ui.birthday_unknown');
-  }
-
-  // 3. 當前大運 (Dynamic localizable)
-  let luckCycle = "";
-  if (p.current_luck) {
-    // Priority: 1. Ten God Translation, 2. Localized Description, 3. Localized Name
-    if (p.current_luck.ten_god) {
-      luckCycle = t(`bazi.luck_descriptions.${p.current_luck.ten_god}`) || getLocalizedValue(p.current_luck.description, lang);
-    } else {
-      const desc = getLocalizedValue(p.current_luck.description, lang);
-      if (desc) luckCycle = desc;
-      else {
-        const name = getLocalizedValue(p.current_luck.name, lang);
-        luckCycle = name || t('report.ui.unknown_stage');
-      }
-    }
-  } else {
-    luckCycle = t('report.ui.unknown_stage');
-  }
-
-  // 4. 性格特質描述 (Dynamic) - Updated to use bazi.elements
-  const elementKey = p.element || "General";
-  const detailedTrait = t(`bazi.elements.${elementKey}.detailed`) || t('bazi.elements.General.detailed');
-
-  // 5. 決策邏輯 (Dynamic)
-  let decisionLogic = getLocalizedValue(p.decision_logic, lang);
-  if (!decisionLogic || decisionLogic.includes("根據八字格局特質分析") || decisionLogic.includes("根据八字格局特质分析")) {
-    const dmModel = getDecisionModel(p.pattern, t);
-    decisionLogic = `【${dmModel.title}】${dmModel.desc}`;
-  }
-
-  // 6. 大運時間軸 - Localized
-  const luck_timeline = p.luck_timeline?.map(l => ({
-    ...l,
-    name: l.ten_god ? (t(`bazi.ten_gods.${l.ten_god}`) || l.name) : l.name,
-    description: l.ten_god ? (t(`bazi.luck_descriptions.${l.ten_god}`) || getLocalizedValue(l.description, lang)) : getLocalizedValue(l.description, lang)
-  })) || [];
-
-  // 7. 喜用五行 - Localized
-  const favorable = p.favorable?.map(elem => {
-    // elem might be "Fire", "Wood" (English) or "火", "木" (Chinese from legacy)
-    // Map legacy Chinese to English keys if needed, but assuming DB has English keys now? 
-    // Actually DB `favorable` is likely ["Wood", "Fire"] from create_citizens.py logic.
-    // But let's check input. If it is English Key, translate it.
-    // If it is Chinese, try to find Key.
-    // Simple approach: try translating as key first.
-    return t(`bazi.elements.${elem}.word`) !== `bazi.elements.${elem}.word` ? t(`bazi.elements.${elem}.word`) : elem;
-  }) || [];
-
-  // 8. 身強身弱
-  const strength = t(`bazi.strength.${p.strength}`) || p.strength || "中和";
-
-  // Handle traits (array or string)
-  let traitDisplay = "";
-  if (Array.isArray(p.trait)) {
-    traitDisplay = p.trait.map(tr => t(`bazi.traits.${tr}`) || tr).join('、');
-  } else {
-    traitDisplay = getLocalizedValue(p.trait, lang);
-  }
+// Adapter to convert WatchPage Persona to Shared Citizen format
+function adaptPersonaToCitizen(p: Persona | any, market: 'TW' | 'US' | 'CN'): SharedCitizen {
+  // Construct a best-effort Citizen object from the Persona data
+  const isObj = (v: any) => typeof v === 'object' && v !== null;
 
   return {
-    ...p,
-    day_master: dm,
-    trait: traitDisplay,
-    age: p.age,
-    displayAge: p.age,
-    fullBirthday,
-    luckCycle,
-    detailedTrait,
-    decision_logic: decisionLogic,
-    luck_timeline,
-    favorable,
-    strength
-  };
-};
+    id: p.id,
+    name: isObj(p.name) ? (p.name[market] || p.name['TW'] || "Unknown") : (p.name || "Unknown"),
+    gender: p.gender || (Math.random() > 0.5 ? 'Male' : 'Female'), // Fallback
+    age: parseInt(p.age) || 30,
+    location: isObj(p.location) ? (p.location[market] || p.location['TW'] || "Taiwan") : (p.location || "Taiwan"),
+    region: "TW", // Default
+    traits: Array.isArray(p.trait) ? p.trait : (p.trait ? [p.trait] : []),
+    occupation: p.occupation,
+    bazi_profile: {
+      birth_year: p.birth_year,
+      birth_month: p.birth_month,
+      birth_day: p.birth_day,
+      birth_hour: p.birth_hour,
+      four_pillars: p.four_pillars,
+      strength: p.strength,
+      structure: p.pattern,
+      favorable_elements: p.favorable,
+      element: p.element, // Day Master Element
+      day_master: p.day_master, // Day Master Stem
+      current_state: p.current_luck?.description, // Map description to state
+      luck_timeline: p.luck_timeline // Pass through
+    },
+    profiles: {
+      TW: {
+        name: isObj(p.name) ? (p.name['TW'] || p.name) : p.name,
+        city: isObj(p.location) ? (p.location['TW'] || p.location) : p.location,
+        job: isObj(p.occupation) ? (p.occupation['TW'] || p.occupation) : p.occupation,
+        pain: "",
+        traits: Array.isArray(p.trait) ? p.trait : [p.trait]
+      },
+      US: {
+        name: isObj(p.name) ? (p.name['US'] || p.name) : p.name,
+        city: isObj(p.location) ? (p.location['US'] || p.location) : p.location,
+        job: isObj(p.occupation) ? (p.occupation['US'] || p.occupation) : p.occupation,
+        pain: "",
+        traits: Array.isArray(p.trait) ? p.trait : [p.trait]
+      },
+      CN: {
+        name: isObj(p.name) ? (p.name['CN'] || p.name) : p.name,
+        city: isObj(p.location) ? (p.location['CN'] || p.location) : p.location,
+        job: isObj(p.occupation) ? (p.occupation['CN'] || p.occupation) : p.occupation,
+        pain: "",
+        traits: Array.isArray(p.trait) ? p.trait : [p.trait]
+      }
+    }
+  }
+}
 
+function CitizenModal({ citizen, onClose }: { citizen: Persona; onClose: () => void }) {
+  const { language } = useLanguage();
+  const market = language === 'zh-TW' ? 'TW' : language === 'zh-CN' ? 'CN' : 'US';
+  const [sharedCitizen, setSharedCitizen] = useState<SharedCitizen | null>(null);
 
-function CitizenModal({ citizen, onClose }: { citizen: EnrichedPersona; onClose: () => void }) {
-  if (!citizen) return null;
-  const { t, language } = useLanguage();
-  const elementConfig = getElementConfig(t);
-  const [showDetails, setShowDetails] = useState(false);
-  const [enrichedData, setEnrichedData] = useState<EnrichedPersona>(citizen);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // 當 Modal 開啟時，從 API 取得完整的市民資料
   useEffect(() => {
-    const fetchCompleteData = async () => {
-      if (!citizen.id) return;
+    // 1. Optimistically adapt initial data so modal opens instantly
+    const initial = adaptPersonaToCitizen(citizen, market);
+    setSharedCitizen(initial);
 
-      setIsLoading(true);
+    // 2. Fetch full data from API to ensure we have complete Bazi/Profiles
+    const fetchFull = async () => {
       try {
+        if (!citizen.id) return;
         const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
         const res = await fetch(`${API_BASE_URL}/api/web/citizen/${citizen.id}`);
         const data = await res.json();
 
-        if (!data.error) {
-          // 使用統一的 enrichCitizenData 處理 API 資料並在地化
-          const enriched = enrichCitizenData(data, t, language);
-          setEnrichedData(enriched);
+        if (!data.error && data.id) {
+          // API returns standard Citizen structure
+          setSharedCitizen(data as SharedCitizen);
         }
-      } catch (err) {
-        console.error("Failed to fetch citizen data:", err);
+      } catch (e) {
+        console.error("Bg fetch failed, keeping optimistic data", e);
       }
-      setIsLoading(false);
-    };
+    }
+    fetchFull();
+  }, [citizen, citizen.id, market]);
 
-    fetchCompleteData();
-  }, [citizen.id]);
+  if (!sharedCitizen) return null;
 
-  // 使用 enrichedData 替代 citizen（用於顯示）
-  const displayCitizen = enrichedData;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>
-      <div className="relative bg-slate-900 border border-purple-500/30 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl shadow-purple-900/50" onClick={(e) => e.stopPropagation()}>
-        <div className="p-6 border-b border-white/10 bg-slate-900/95 sticky top-0 z-10 flex justify-between items-start">
-          <div className="flex items-center gap-5">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center text-4xl shadow-xl border border-white/10">
-              {elementConfig[displayCitizen.element]?.icon || '👤'}
-            </div>
-            <div>
-              <div className="flex items-baseline gap-3">
-                <h2 className="text-3xl font-black text-white tracking-tight">
-                  {getLocalizedValue(displayCitizen.name, language)}
-                </h2>
-                <span className="text-xs font-mono text-slate-500 px-2 py-1 bg-white/5 rounded-full border border-white/5">{t('report.ui.id') || "ID"}: {displayCitizen.id ? String(displayCitizen.id).padStart(8, '0').slice(0, 8) : '????'}</span>
-              </div>
-              <div className="flex flex-col gap-1.5 mt-2">
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30 font-bold">
-                    {getLocalizedValue(displayCitizen.occupation, language) || 'AI Citizen'}
-                  </span>
-                  <span className="text-slate-400">•</span>
-                  <span className="text-slate-300 font-medium">{displayCitizen.displayAge || displayCitizen.age} {t('report.ui.age')}</span>
-                  <span className="text-slate-400">•</span>
-                  <span className="text-slate-400">{getLocalizedValue(displayCitizen.location, language) || 'Taiwan'}</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
-                  <span className="material-symbols-outlined text-[14px]">calendar_month</span>
-                  <span>{isLoading ? t('report.ui.preparing') : displayCitizen.fullBirthday || t('report.ui.birthday_unknown')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full">
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
-
-        <div className="overflow-y-auto p-6 space-y-6 custom-scrollbar">
-          <section>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]"></span>
-              <h3 className="text-sm font-bold text-purple-400 uppercase tracking-widest">{t('report.ui.current_status')}</h3>
-            </div>
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-900/20 to-slate-900 border border-purple-500/30 text-slate-200 leading-relaxed text-lg shadow-inner">
-              {displayCitizen.detailedTrait}
-            </div>
-          </section>
-
-          <section className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
-              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t('report.ui.bazi_structure')}</div>
-              <div className="text-xl font-black text-white">{getDecisionModel(displayCitizen.pattern, t).title}</div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
-              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t('report.ui.energy_strength')}</div>
-              <div className="text-xl font-black text-white">{displayCitizen.strength || "中和"}</div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
-              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t('report.ui.favorable_elements')}</div>
-              <div className="flex gap-1.5 flex-wrap">
-                {displayCitizen.favorable?.map(e => (
-                  <span key={e} className="text-sm font-bold text-emerald-400 flex items-center">
-                    {elementConfig[e]?.icon}{elementConfig[e]?.cn || e}
-                  </span>
-                )) || <span className="text-slate-500">{t('report.ui.balance')}</span>}
-              </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
-              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t('report.ui.character_tag')}</div>
-              <div className="text-xl font-black text-amber-400 truncate">{displayCitizen.trait?.split(',')[0] || "多元性格"}</div>
-            </div>
-          </section>
-
-          {showDetails && (
-            <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-              <section>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>
-                  <h3 className="text-sm font-bold text-cyan-500 uppercase tracking-widest">{t('report.ui.decision_model')}</h3>
-                </div>
-                <div className="p-5 rounded-2xl bg-slate-800/30 border border-cyan-500/20 text-slate-200 leading-relaxed text-sm">
-                  {displayCitizen.decision_logic}
-                </div>
-              </section>
-
-              <div className="grid grid-cols-1 gap-6">
-                <section>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                    <h3 className="text-sm font-bold text-amber-500 uppercase tracking-widest">{t('report.ui.current_luck')}</h3>
-                  </div>
-                  <div className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20">
-                    <div className="text-amber-100/80 leading-relaxed">
-                      {isLoading ? t('report.ui.preparing') : displayCitizen.luckCycle || t('report.ui.no_luck_desc')}
-                    </div>
-                  </div>
-                </section>
-                <section>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">{t('report.ui.bazi_chart')}</h3>
-                  </div>
-                  <div className="p-6 rounded-2xl bg-slate-950 border border-white/10 text-center font-mono text-xl md:text-2xl text-white tracking-widest shadow-inner">
-                    {isLoading ? t('report.ui.preparing') : (
-                      typeof displayCitizen.four_pillars === 'string'
-                        ? displayCitizen.four_pillars
-                        : (displayCitizen.four_pillars && typeof displayCitizen.four_pillars === 'object'
-                          ? `${(displayCitizen.four_pillars as any).year || ''} ${(displayCitizen.four_pillars as any).month || ''} ${(displayCitizen.four_pillars as any).day || ''} ${(displayCitizen.four_pillars as any).hour || ''}`.trim()
-                          : t('report.ui.no_bazi_data')
-                        )
-                    )}
-                  </div>
-                </section>
-              </div>
-
-              <section>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
-                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">{t('report.ui.luck_timeline')}</h3>
-                </div>
-                <div className="space-y-3">
-                  {displayCitizen.luck_timeline?.length > 0 ? displayCitizen.luck_timeline.map((pillar, idx) => {
-                    const ageMs = parseInt(displayCitizen.age || "30");
-                    const isCurrent = ageMs >= pillar.age_start && ageMs <= pillar.age_end;
-                    return (
-                      <div key={idx} className={`p-4 rounded-xl border transition-all ${isCurrent ? 'bg-purple-900/30 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.1)]' : 'bg-slate-800/30 border-white/5 opacity-70 hover:opacity-100'}`}>
-                        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
-                          <div className="flex items-center gap-3 min-w-[120px]">
-                            <span className={`text-xs font-bold ${isCurrent ? 'text-purple-300' : 'text-slate-500'}`}>{pillar.age_start}-{pillar.age_end}{t('report.ui.age')}</span>
-                            <span className={`text-lg font-bold ${isCurrent ? 'text-white' : 'text-slate-300'}`}>{pillar.name}</span>
-                          </div>
-                          {isCurrent && <span className="text-[10px] bg-purple-500 text-white px-2 py-0.5 rounded-full font-bold tracking-wider">CURRENT</span>}
-                        </div>
-                        {pillar.description && (
-                          <div className={`text-sm leading-relaxed ${isCurrent ? 'text-purple-100' : 'text-slate-400'}`}>
-                            {pillar.description}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  }) : <div className="text-slate-500 text-center py-4">{isLoading ? t('report.ui.preparing') : t('report.ui.no_timeline_data')}</div>}
-                </div>
-              </section>
-            </div>
-          )}
-
-          <button onClick={() => setShowDetails(!showDetails)} className="w-full py-4 rounded-xl bg-purple-500/10 border border-purple-500/30 text-base font-bold text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/50 transition-all flex items-center justify-center gap-2 group">
-            {showDetails ? <>{t('report.ui.collapse')} <span className="group-hover:-translate-y-1 transition-transform">↑</span></> : <>{t('report.ui.expand')} <span className="group-hover:translate-y-1 transition-transform">↓</span></>}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  return <SharedCitizenModal citizen={sharedCitizen} market={market} onClose={onClose} />
 }
 
 export default function WatchPage() {
@@ -1486,15 +1297,16 @@ export default function WatchPage() {
                       const elem = elementConfig[normalizedElem] || elementConfig[rawElem] || elementConfig.Fire;
                       const isPositive = comment.sentiment === 'positive';
                       return (
-                        <div key={i} className={`group relative p-4 rounded-xl border transition-all duration-300 transform bg-[#1a1a1f] hover:translate-x-1 cursor-pointer ${isPositive ? 'border-l-4 border-l-green-500 border-[#302839]' : comment.sentiment === 'negative' ? 'border-l-4 border-l-rose-500 border-[#302839]' : 'border-l-4 border-l-gray-500 border-[#302839]'}`} onClick={() => setSelectedCitizen(enrichCitizenData(persona, t, language))}>
+                        <div key={i} className={`group relative p-4 rounded-xl border transition-all duration-300 transform bg-[#1a1a1f] hover:translate-x-1 cursor-pointer ${isPositive ? 'border-l-4 border-l-green-500 border-[#302839]' : comment.sentiment === 'negative' ? 'border-l-4 border-l-rose-500 border-[#302839]' : 'border-l-4 border-l-gray-500 border-[#302839]'}`} onClick={() => setSelectedCitizen(persona)}>
                           <div className="flex items-start gap-3">
                             <div className={`size-10 flex-none rounded-xl ${elem.bg} flex items-center justify-center text-xl shadow-lg group-hover:scale-110 transition-transform`}>{elem.icon}</div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center justify-between mb-1">
                                 <div className="flex items-center gap-2"><span className="text-xs font-bold text-white">{getLocalizedValue(persona.name, language)}</span><span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${elem.bg} text-white opacity-80`}>{elem.cn}</span></div>
+
                                 <div className="flex flex-col items-end"><span className={`text-[10px] font-bold ${isPositive ? 'text-green-400' : comment.sentiment === 'negative' ? 'text-rose-400' : 'text-gray-400'}`}>{isPositive ? 'POSITIVE' : comment.sentiment === 'negative' ? 'NEGATIVE' : 'NEUTRAL'}</span><span className="text-xs font-mono text-purple-400 mt-0.5 font-bold">{comment.score} <span className="text-[9px] text-gray-600">/ 100</span></span></div>
                               </div>
-                              <p className="text-sm text-gray-300 leading-relaxed italic">"{comment.text}"</p>
+                              <p className="text-sm text-gray-300 leading-relaxed italic">&quot;{comment.text}&quot;</p>
                             </div>
                           </div>
                         </div>

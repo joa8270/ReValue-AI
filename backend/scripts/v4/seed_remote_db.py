@@ -36,30 +36,59 @@ def seed_remote():
         return
 
     with open(DATA_FILE, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+        json_data = json.load(f)
+    
+    # Handle { "citizens": [...] } structure
+    if isinstance(json_data, dict) and "citizens" in json_data:
+        data = json_data["citizens"]
+    else:
+        # Fallback if it is a list
+        data = json_data
+        
     print(f"[INFO] Loaded {len(data)} citizens from local JSON.")
     
     # Transform
     db_records = []
     for item in data:
-        tw_profile = item.get("profiles", {}).get("TW", {})
+        profiles = item.get("profiles", {})
+        tw = profiles.get("TW", {})
+        cn = profiles.get("CN", {})
+        us = profiles.get("US", {})
+        
+        # Construct Localized Objects for DB JSON Columns
+        name_obj = {
+            "TW": tw.get("name", item.get("name")),
+            "CN": cn.get("name"),
+            "US": us.get("name")
+        }
+        
+        occupation_obj = {
+            "TW": tw.get("job"),
+            "CN": cn.get("job"),
+            "US": us.get("job")
+        }
+        
         record = {
-            "name": item.get("name"),
+            "name": name_obj, # DB expects JSON
             "gender": item.get("gender"),
             "age": item.get("age"),
-            "location": tw_profile.get("city", "Unknown"),
-            "occupation": tw_profile.get("job", "Unknown"),
+            "location": tw.get("city", item.get("location")), # Default to TW city
+            "occupation": occupation_obj, # DB expects JSON
             "bazi_profile": item.get("bazi_profile", {}),
-            "traits": [item.get("mbti")] if isinstance(item.get("mbti"), str) else item.get("traits", []),
-            "profiles": item.get("profiles")
+            "traits": item.get("traits", []),
+            "profiles": profiles
         }
         db_records.append(record)
 
     # Seed
     print("[INFO] Clearing Remote Table...")
-    clear_citizens()
+    # Using clear_citizens might fail if table doesn't exist? No, create_all runs on import.
+    try:
+        clear_citizens()
+    except Exception as e:
+        print(f"[WARN] Clear failed (maybe table missing): {e}")
     
-    print(f"[INFO] Uploading {len(db_records)} records to Neon DB...")
+    print(f"[INFO] Uploading {len(db_records)} records to DB...")
     success = insert_citizens_batch(db_records)
     
     if success:

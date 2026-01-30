@@ -16,8 +16,15 @@ from app.services.line_bot_service import LineBotService, get_simulation_data
 from app.core.config import settings
 from app.core.database import get_all_citizens, get_citizens_count
 from app.api.web import router as web_router
+from app.services.skill_registry import skill_registry # Import Skill Registry
 
 app = FastAPI()
+
+# Initialize Skill Registry
+@app.on_event("startup")
+async def startup_event():
+    print(">> [System] Starting up... Scanning for Skills...")
+    skill_registry.discover_skills()
 
 # 🔄 Force Update: 2026-01-14 01:15
 
@@ -39,8 +46,53 @@ app.include_router(web_router, prefix="/api/web", tags=["Web Trigger"])
 async def root():
     return {"status": "alive", "message": "MIRRA Backend is running with PostgreSQL!"}
 
+@app.get("/api/health")
+async def health_check():
+    """系統健康檢查接口"""
+    return {"status": "ok", "version": "1.0"}
+
+# --- Skills API ---
+@app.get("/api/skills")
+async def list_skills():
+    """列出所有可用技能"""
+    return skill_registry.list_skills()
+
+@app.post("/api/skills/{slug}/execute")
+async def execute_skill(slug: str, request: Request):
+    """執行特定技能"""
+    skill = skill_registry.get_skill(slug)
+    if not skill:
+        raise HTTPException(status_code=404, detail=f"Skill '{slug}' not found")
+    
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+        
+    try:
+        result = await skill.execute(body)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Skill execution failed: {str(e)}")
 
 # --- 市民庫 API ---
+@app.get("/citizens/genesis")
+async def get_genesis_citizens():
+    """Retrieve genesis prototype citizens from JSON"""
+    import json
+    
+    # Path to backend/data/citizens.json (Corrected path)
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # backend/
+    file_path = os.path.join(base_dir, "data", "citizens.json")
+    
+    if not os.path.exists(file_path):
+        return {"citizens": [], "total": 0, "message": "Genesis data not found"}
+        
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        
+    return data
+
 @app.get("/citizens")
 async def list_citizens(limit: int = 100, offset: int = 0, search: str = None):
     """獲取市民庫資料"""

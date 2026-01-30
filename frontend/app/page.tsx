@@ -1,12 +1,35 @@
 "use client"
 
 import Link from 'next/link';
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import SimulationForm from './components/SimulationForm';
 import { useLanguage } from './context/LanguageContext';
 
 export default function Home() {
     const { t, language } = useLanguage();
+    const [healthStatus, setHealthStatus] = useState<{status: string, version: string} | null>(null);
+    const [isOffline, setIsOffline] = useState(true); // Default to offline until proven otherwise
+
+    useEffect(() => {
+        // Check backend health
+        const checkHealth = async () => {
+            try {
+                const res = await fetch('http://localhost:8000/api/health');
+                if (res.ok) {
+                    const data = await res.json();
+                    setHealthStatus(data);
+                    setIsOffline(false);
+                } else {
+                    setIsOffline(true);
+                }
+            } catch (error) {
+                console.error("Health check failed:", error);
+                setIsOffline(true);
+            }
+        };
+        
+        checkHealth();
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#141118] font-sans antialiased text-white overflow-x-hidden">
@@ -27,12 +50,24 @@ export default function Home() {
 
                         <div className="flex flex-col gap-4 text-left max-w-[900px] z-10">
                             {/* Status Badge */}
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 mb-2 w-fit">
+                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border mb-2 w-fit ${
+                                isOffline 
+                                ? "border-red-500/30 bg-red-500/10" 
+                                : "border-emerald-500/30 bg-emerald-500/10"
+                            }`}>
                                 <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-500 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                                        isOffline ? "bg-red-500" : "bg-emerald-500"
+                                    }`}></span>
+                                    <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                                        isOffline ? "bg-red-500" : "bg-emerald-500"
+                                    }`}></span>
                                 </span>
-                                <span className="text-xs font-medium text-purple-400 uppercase tracking-widest">{t('hero.status')}</span>
+                                <span className={`text-xs font-medium uppercase tracking-widest ${
+                                    isOffline ? "text-red-400" : "text-emerald-400"
+                                }`}>
+                                    {isOffline ? "🔴 系統離線" : `🟢 系統運作中 (v${healthStatus?.version || '...'})`}
+                                </span>
                             </div>
 
                             {/* Main Title */}
@@ -68,7 +103,12 @@ export default function Home() {
                                 <span className="mr-2">👥</span>
                                 {t('hero.cta_secondary')}
                             </Link>
+                            {/* <Link href="/dashboard" className="flex min-w-[140px] cursor-pointer items-center justify-center rounded-lg h-12 px-6 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 backdrop-blur-sm transition-all text-purple-300 text-base font-bold hover:shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                                <span className="mr-2">⚡</span>
+                                Dashboard
+                            </Link> */}
                         </div>
+
                     </div>
                 </div>
             </section>

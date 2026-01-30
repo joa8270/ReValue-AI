@@ -109,3 +109,19 @@ export interface CitizenFilter {
     element?: string
     structure?: string
 }
+
+export interface Skill {
+    id: string
+    slug: string
+    name: string
+    description: string
+    version: string
+}
+
+export interface BaZiRequest {
+    year: number
+    month: number
+    day: number
+    hour: number
+}
+
