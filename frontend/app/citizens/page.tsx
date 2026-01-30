@@ -36,6 +36,7 @@ interface BaziProfile {
         localized_description?: Record<string, string>
     }>
     luck_timeline?: any[] // Added for debugging/V6 compatibility
+    localized_state?: Record<string, string> // Added for Multiverse support
 }
 
 interface Citizen {
@@ -49,10 +50,10 @@ interface Citizen {
     traits: string[]
 
     occupation: string | Record<string, string>
-    profiles?: {
-        TW?: { name: string; city: string; job: string; pain: string }
-        US?: { name: string; city: string; job: string; pain: string }
-        CN?: { name: string; city: string; job: string; pain: string }
+    profiles: {
+        TW: { name: string; city: string; job: string; pain: string }
+        US: { name: string; city: string; job: string; pain: string }
+        CN: { name: string; city: string; job: string; pain: string }
     }
 }
 
@@ -570,7 +571,7 @@ function CitizenModal({ citizen, market, onClose }: { citizen: Citizen; market: 
                             </div>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full shrink-0">
+                    <button onClick={onClose} aria-label="Close" className="text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full shrink-0">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -589,7 +590,7 @@ function CitizenModal({ citizen, market, onClose }: { citizen: Citizen; market: 
                                     {CURRENT_STATE_EN[citizen.bazi_profile.structure || ""] || "The analysis reflects a period of unique energy flow."}
                                 </span>
                             ) : (
-                                (citizen.bazi_profile as any).localized_state?.[market] || citizen.bazi_profile.current_state
+                                citizen.bazi_profile.localized_state?.[market] || citizen.bazi_profile.current_state
                             )}
                         </div>
                     </section>
@@ -808,8 +809,9 @@ function CitizensContent() {
 
     // STRICT FILTERING LOGIC
     const filteredCitizens = citizens.filter(c => {
-        // 1. Region Filter (Strict)
-        if (c.region && c.region !== market) return false;
+        // 1. Region Filter: REMOVED for Multiverse Logic (One Soul, Three Masks)
+        // We want to show the SAME 1000 citizens, just different masks.
+
         // 2. Search Filter
         if (debouncedSearch) {
             const term = debouncedSearch.toLowerCase();
@@ -835,16 +837,14 @@ function CitizensContent() {
         setCurrentPage(1);
     }, [market]);
 
-    // Helper to get active profile data (Simplified for new strict data)
+    // Helper to get active profile data (Multiverse Switch)
     const getProfile = (c: Citizen) => {
-        // Since data is now strictly generated for the region, 
-        // we can just return the root properties directly.
-        // Fallback logic kept just in case of mixed data.
+        const p = c.profiles[market] || c.profiles['TW'];
         return {
-            name: c.name,
-            city: c.location,
-            job: typeof c.occupation === 'string' ? c.occupation : "Unknown",
-            pain: c.profiles?.[market]?.pain
+            name: p.name,
+            city: p.city,
+            job: p.job,
+            pain: p.pain
         }
     }
 

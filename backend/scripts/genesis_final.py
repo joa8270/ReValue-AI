@@ -1,9 +1,10 @@
 """
-MIRRA Genesis Final - Strict Regional Data Generation
-Generates 1000 citizens:
-- 340 TW (Traditional Chinese, Taiwan Cities)
-- 330 US (English, US Cities)
-- 330 CN (Simplified Chinese, China Cities)
+MIRRA Genesis Final - Multiverse Identity (One Soul, Three Masks)
+Generates 1000 Unique Souls.
+Each Soul has:
+- 1 Core ID
+- 3 Profiles (TW, CN, US)
+- Shared Bazi Destiny
 """
 import os
 import sys
@@ -12,7 +13,7 @@ import random
 import datetime
 from faker import Faker
 
-# Add backend to path for imports if needed, but we will keep this self-contained for "Final" stability
+# Add backend to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # Initialize Fakers
@@ -20,8 +21,7 @@ fake_tw = Faker('zh_TW')
 fake_cn = Faker('zh_CN')
 fake_us = Faker('en_US')
 
-# ===== Shared Data & Logic (Adapted from create_citizens.py) =====
-# Reusing the core Bazi logic to ensure consistency
+# ===== Shared Data =====
 
 LOCATIONS_TW = ["台北, 台灣", "新北, 台灣", "桃園, 台灣", "台中, 台灣", "高雄, 台灣", "台南, 台灣", "新竹, 台灣"]
 LOCATIONS_CN = ["北京, 中國", "上海, 中國", "廣州, 中國", "深圳, 中國", "成都, 中國", "杭州, 中國", "武漢, 中國"]
@@ -46,20 +46,20 @@ PRODUCED_BY = {v: k for k, v in PRODUCING.items()}
 CONTROLLED_BY = {v: k for k, v in CONTROLLING.items()}
 
 STRUCTURES = [
-    {"name": "正官格", "type": "Normal", "trait": "正直守法，重視名譽"},
-    {"name": "七殺格", "type": "Normal", "trait": "威權果斷，富冒險精神"},
-    {"name": "正財格", "type": "Normal", "trait": "勤儉務實，重視穩定收入"},
-    {"name": "偏財格", "type": "Normal", "trait": "豪爽大方，善於交際"},
-    {"name": "正印格", "type": "Normal", "trait": "仁慈聰慧，重精神層面"},
-    {"name": "偏印格", "type": "Normal", "trait": "機智敏銳，特立獨行"},
-    {"name": "食神格", "type": "Normal", "trait": "溫和樂觀，重視享受"},
-    {"name": "傷官格", "type": "Normal", "trait": "才華洋溢，傲氣叛逆"},
-    {"name": "建祿格", "type": "Normal", "trait": "白手起家，獨立自主"},
-    {"name": "羊刃格", "type": "Normal", "trait": "性情剛烈，衝動急躁"},
-    {"name": "從財格", "type": "Cong", "trait": "識時務者，隨波逐流"},
-    {"name": "從殺格", "type": "Cong", "trait": "依附權威，追求權力"},
-    {"name": "從兒格", "type": "Cong", "trait": "聰明絕頂，追求自由"},
-    {"name": "專旺格", "type": "Dominant", "trait": "個性極強，堅持己見"},
+    {"name": "正官格", "en": "Direct Officer", "trait": "正直守法，重視名譽", "trait_en": "Honest and law-abiding, values reputation"},
+    {"name": "七殺格", "en": "Seven Killings", "trait": "威權果斷，富冒險精神", "trait_en": "Decisive and authoritative, adventurous"},
+    {"name": "正財格", "en": "Direct Wealth", "trait": "勤儉務實，重視穩定收入", "trait_en": "Thrifty and pragmatic, values stable income"},
+    {"name": "偏財格", "en": "Indirect Wealth", "trait": "豪爽大方，善於交際", "trait_en": "Generous and sociable, good with people"},
+    {"name": "正印格", "en": "Direct Resource", "trait": "仁慈聰慧，重精神層面", "trait_en": "Kind and intelligent, values spiritual life"},
+    {"name": "偏印格", "en": "Indirect Resource", "trait": "機智敏銳，特立獨行", "trait_en": "Witty and sharp, independent thinker"},
+    {"name": "食神格", "en": "Eating God", "trait": "溫和樂觀，重視享受", "trait_en": "Gentle and optimistic, enjoys life"},
+    {"name": "傷官格", "en": "Hurting Officer", "trait": "才華洋溢，傲氣叛逆", "trait_en": "Talented and arrogant, rebellious"},
+    {"name": "建祿格", "en": "Self Prosperity", "trait": "白手起家，獨立自主", "trait_en": "Self-made, independent and autonomous"},
+    {"name": "羊刃格", "en": "Goat Blade", "trait": "性情剛烈，衝動急躁", "trait_en": "Fierce temperament, impulsive and impatient"},
+    {"name": "從財格", "en": "Follow Wealth", "trait": "識時務者，隨波逐流", "trait_en": "Adaptable, goes with the flow"},
+    {"name": "從殺格", "en": "Follow Power", "trait": "依附權威，追求權力", "trait_en": "Follows authority, seeks power"},
+    {"name": "從兒格", "en": "Follow Child", "trait": "聰明絕頂，追求自由", "trait_en": "Extremely smart, seeks freedom"},
+    {"name": "專旺格", "en": "Dominant Element", "trait": "個性極強，堅持己見", "trait_en": "Strong personality, insists on own views"}
 ]
 
 PERSONALITY_CORE = {
@@ -93,7 +93,6 @@ LIFE_PHASE_NOW = {
 }
 
 def t_cn(text: str) -> str:
-    # Simple conversion mapping for core terms
     mapping = {
         "正官格": "正官格", "七殺格": "七杀格", "正財格": "正财格", "偏財格": "偏财格",
         "正印格": "正印格", "偏印格": "偏印格", "食神格": "食神格", "傷官格": "伤官格",
@@ -102,15 +101,13 @@ def t_cn(text: str) -> str:
         "運": "运", "期": "期", "人脈": "人脉", "競爭": "竞争", "收穫": "收获", "機會": "机会",
         "升遷": "升迁", "挑戰": "挑战", "學習": "学习", "沉澱": "沉淀"
     }
-    for k, v in mapping.items():
-        text = text.replace(k, v)
+    for k, v in mapping.items(): text = text.replace(k, v)
     return text
 
 def get_ten_god(me, target):
     my_elem = TIANGAN_ELEMENT[me]
     target_elem = TIANGAN_ELEMENT[target]
     is_same_pol = TIANGAN_POLARITY[me] == TIANGAN_POLARITY[target]
-    
     if my_elem == target_elem: return "Bi Jian" if is_same_pol else "Jie Cai"
     if PRODUCED_BY[my_elem] == target_elem: return "PiAn Yin" if is_same_pol else "Zheng Yin"
     if PRODUCING[my_elem] == target_elem: return "Shi Shen" if is_same_pol else "Shang Guan"
@@ -135,11 +132,8 @@ def calculate_bazi_pillars(bd):
     m_zhi_idx = (bd["month"] + 1) % 12
     d_gan_idx = random.randint(0, 9)
     d_zhi_idx = random.randint(0, 11)
-    
-    # Calculate Hour Gan
     h_zhi_idx = DIZHI.index(bd["shichen_branch"])
     h_gan_idx = (d_gan_idx * 2 + h_zhi_idx) % 10
-    
     return {
         "year_pillar": TIANGAN[y_idx] + DIZHI[y_zhi_idx],
         "year_gan": TIANGAN[y_idx],
@@ -147,29 +141,24 @@ def calculate_bazi_pillars(bd):
         "month_gan_idx": m_gan_idx,
         "month_zhi_idx": m_zhi_idx,
         "day_pillar": TIANGAN[d_gan_idx] + DIZHI[d_zhi_idx],
-        "day_master": TIANGAN[d_gan_idx], # Just the Stem
+        "day_master": TIANGAN[d_gan_idx],
         "hour_pillar": TIANGAN[h_gan_idx] + DIZHI[h_zhi_idx],
         "element": TIANGAN_ELEMENT[TIANGAN[d_gan_idx]]
     }
 
 def get_dayun_sequence(gender, year_gan, m_gan_idx, m_zhi_idx, day_master):
     is_yang_year = TIANGAN_POLARITY[year_gan] == "Yang"
-    is_male = (gender == "Male") # Normalized gender check
+    is_male = (gender == "Male")
     direction = 1 if (is_yang_year and is_male) or (not is_yang_year and not is_male) else -1
-    
     start_age = random.randint(2, 9)
     pillars = []
-    
     cur_g, cur_z = m_gan_idx, m_zhi_idx
-    
     for i in range(8):
         cur_g = (cur_g + direction) % 10
         cur_z = (cur_z + direction) % 12
         pillar = TIANGAN[cur_g] + DIZHI[cur_z]
-        
         ten_god = get_ten_god(day_master, TIANGAN[cur_g])
         term, desc = LIFE_PHASE_NOW.get(ten_god, ("平穩運", "平穩過渡"))
-        
         pillars.append({
             "pillar": pillar,
             "gan": TIANGAN[cur_g],
@@ -181,51 +170,28 @@ def get_dayun_sequence(gender, year_gan, m_gan_idx, m_zhi_idx, day_master):
     return pillars
 
 def get_job(region):
-    if region == 'TW':
-        return random.choice(["工程師", "產品經理", "行銷專員", "教師", "公務員", "設計師", "業務", "會計師"])
-    if region == 'CN':
-        return random.choice(["算法工程师", "产品经理", "运营专员", "教师", "公务员", "UI设计师", "销售经理", "财务主管"])
-    # US
+    if region == 'TW': return random.choice(["工程師", "產品經理", "行銷專員", "教師", "公務員", "設計師", "業務", "會計師"])
+    if region == 'CN': return random.choice(["算法工程师", "产品经理", "运营专员", "教师", "公务员", "UI设计师", "销售经理", "财务主管"])
     return random.choice(["Software Engineer", "Product Manager", "Marketing Specialist", "Teacher", "Civil Servant", "Designer", "Sales Rep", "Accountant"])
 
-# ===== Generator Function =====
+# ===== Multiverse Generator =====
 
-def generate_citizen_for_region(region, idx):
-    # 1. Basic Info
+def generate_multiverse_soul(idx):
+    # 1. Core Identity (The Soul)
     gender_code = random.choice(['M', 'F'])
     age = random.randint(18, 65)
-    
-    if region == 'TW':
-        fake = fake_tw
-        name = fake.name() # Traditional
-        location = random.choice(LOCATIONS_TW)
-        gender = "男" if gender_code == 'M' else "女"
-    elif region == 'CN':
-        fake = fake_cn
-        name = fake.name() # Simplified
-        location = random.choice(LOCATIONS_CN)
-        gender = "男" if gender_code == 'M' else "女"
-    else: # US
-        fake = fake_us
-        name = fake.name_male() if gender_code == 'M' else fake.name_female()
-        location = random.choice(LOCATIONS_US)
-        gender = "Male" if gender_code == 'M' else "Female"
-
-    # 2. Bazi Calc
     bd = generate_birthdate(age)
     bz = calculate_bazi_pillars(bd)
     struct = random.choice(STRUCTURES)
     
-    # Normalize gender for Dayun calc (Male/Female)
     calc_gender = "Male" if gender_code == 'M' else "Female"
     luck_seq = get_dayun_sequence(calc_gender, bz["year_gan"], bz["month_gan_idx"], bz["month_zhi_idx"], bz["day_master"])
-    
-    # 3. Construct Luck Timeline (Localized)
+
+    # 2. Luck Timeline (Shared but Localized)
     luck_timeline = []
     current_luck = None
     
     for l in luck_seq:
-        # Create Localized Descriptions
         desc_tw = l['description']
         desc_cn = t_cn(desc_tw)
         desc_us = f"Luck Cycle: {l['ten_god']} ({l['age_start']}-{l['age_end']})"
@@ -234,7 +200,7 @@ def generate_citizen_for_region(region, idx):
             "age_start": l['age_start'],
             "age_end": l['age_end'],
             "pillar": l['pillar'],
-            "description": desc_tw, # Legacy support
+            "description": desc_tw,
             "localized_description": {
                 "TW": desc_tw,
                 "CN": desc_cn,
@@ -244,29 +210,45 @@ def generate_citizen_for_region(region, idx):
         luck_timeline.append(item)
         if l['age_start'] <= age <= l['age_end']:
             current_luck = item
-            
     if not current_luck: current_luck = luck_timeline[0]
 
-    # 4. Generate Current State Text (Localized)
+    # 3. Current State (Shared but Localized)
     term, desc = PERSONALITY_CORE.get(struct["name"], ("多元格局", "個性多元"))
     pronoun = "She" if gender_code == 'F' else "He"
     state_tw = f"{term}：{desc}。"
     state_cn = t_cn(state_tw)
-    state_us = f"Personality: {struct['name']} type. {pronoun} is currently in {current_luck['localized_description']['US']}."
+    state_us = f"Personality: {struct['en']} type. {pronoun} is currently in {current_luck['localized_description']['US']}."
 
-    # 5. Assemble Object
+    # 4. Generate 3 Masks (Profiles)
+    
+    # TW
+    name_tw = fake_tw.name()
+    city_tw = random.choice(LOCATIONS_TW)
+    job_tw = get_job('TW')
+    pain_tw = random.choice(["房價太高", "薪水凍漲", "交通擁擠", "奧客太多", "政治紛擾"])
+    
+    # CN
+    name_cn = fake_cn.name()
+    city_cn = random.choice(LOCATIONS_CN)
+    job_cn = get_job('CN')
+    pain_cn = random.choice(["内卷严重", "房价压力", "就业竞争", "催婚压力", "职场PUA"])
+    
+    # US
+    name_us = fake_us.name_male() if gender_code == 'M' else fake_us.name_female()
+    city_us = random.choice(LOCATIONS_US)
+    job_us = get_job('US')
+    pain_us = random.choice(["Cost of Living", "Healthcare Costs", "Job Security", "Student Loans", "Political Division"])
+
+    # 5. Assemble The Soul
     return {
         "id": str(idx),
-        "region": region, # CRITICAL FOR FILTERING
-        "name": name,
-        "gender": gender,
         "age": age,
-        "location": location,
-        "occupation": get_job(region), # Now a STRING based on region
+        "gender": "Male" if gender_code == 'M' else "Female",
         "bazi_profile": {
             **bz,
             "structure": struct["name"],
-            "strength": "Balanced", # Simplified
+            "structure_en": struct["en"],
+            "strength": "Balanced",
             "luck_timeline": luck_timeline,
             "current_luck": current_luck,
             "current_state": state_tw,
@@ -276,33 +258,33 @@ def generate_citizen_for_region(region, idx):
                 "US": state_us
             }
         },
-        "traits": [struct["type"]] # Simplified
+        "profiles": {
+            "TW": {"name": name_tw, "city": city_tw, "job": job_tw, "pain": pain_tw},
+            "CN": {"name": name_cn, "city": city_cn, "job": job_cn, "pain": pain_cn},
+            "US": {"name": name_us, "city": city_us, "job": job_us, "pain": pain_us}
+        },
+        # Top-level fallback
+        "name": name_tw,
+        "location": city_tw,
+        "occupation": job_tw,
+        "traits": [struct["trait"]]
     }
 
 def main():
-    print(f"Generating 1000 Citizens with Strict Regional Config...")
+    print(f"Generating 1000 Multiverse Souls (One Soul, Three Masks)...")
     citizens = []
     
-    # Generate 340 TW
-    for i in range(340):
-        citizens.append(generate_citizen_for_region('TW', len(citizens) + 1))
+    for i in range(1000):
+        citizens.append(generate_multiverse_soul(i + 1))
         
-    # Generate 330 CN
-    for i in range(330):
-        citizens.append(generate_citizen_for_region('CN', len(citizens) + 1))
-        
-    # Generate 330 US
-    for i in range(330):
-        citizens.append(generate_citizen_for_region('US', len(citizens) + 1))
-        
-    print(f"Total Generated: {len(citizens)}")
+    print(f"Total Unique Souls Generated: {len(citizens)}")
     
     # Write JSON
     output_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "citizens.json")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     data = {
-        "meta": {"generated_at": datetime.datetime.now().isoformat(), "version": "final_strict"},
+        "meta": {"generated_at": datetime.datetime.now().isoformat(), "version": "multiverse_one_soul"},
         "citizens": citizens,
         "total": len(citizens)
     }
