@@ -780,6 +780,21 @@ function CitizensContent() {
     const fetchCitizens = async () => {
         setLoading(true)
         try {
+            // First try local static file (Most robust for Vercel)
+            try {
+                const res = await fetch('/citizens.json')
+                if (res.ok) {
+                    const data = await res.json()
+                    setCitizens(data.citizens || [])
+                    setTotal(data.total || 0)
+                    setLoading(false)
+                    return
+                }
+            } catch (e) {
+                console.warn("Local fetch failed, trying API...", e)
+            }
+
+            // Fallback to API if local fails (e.g. dev mode without file copy)
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
             const res = await fetch(`${API_BASE_URL}/citizens/genesis`)
             const data = await res.json()
