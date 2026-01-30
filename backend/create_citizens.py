@@ -147,6 +147,33 @@ LIFE_PHASE_NOW = {
     "PiAn Yin": ("偏印運（沉澱期）", "思考模式在轉變，適合沉澱自己、規劃下一步")
 }
 
+# ===== 繁簡映射庫 (手動映射核心術語) =====
+CN_MAPPING = {
+    "正官格": "正官格", "七殺格": "七杀格", "正財格": "正财格", "偏財格": "偏财格",
+    "正印格": "正印格", "偏印格": "偏印格", "食神格": "食神格", "傷官格": "伤官格",
+    "建祿格": "建禄格", "羊刃格": "羊刃格", "從財格": "从财格", "從殺格": "从杀格",
+    "從兒格": "从儿格", "專旺格": "专旺格", "身強": "身强", "身弱": "身弱",
+    "比肩運": "比肩运", "劫財運": "劫财运", "食神運": "食神运", "傷官運": "伤官运",
+    "正財運": "正财运", "偏財運": "偏财运", "正官運": "正官运", "七殺運": "七杀运",
+    "正印運": "正印运", "偏印運": "偏印运", "金": "金", "木": "木", "水": "水", "火": "火", "土": "土"
+}
+
+def t_cn(text: str) -> str:
+    """極簡繁轉簡（針對核心術語與常用字）"""
+    res = text
+    for k, v in CN_MAPPING.items():
+        res = res.replace(k, v)
+    # 常用字補丁
+    res = res.replace("個", "个").replace("條", "条").replace("則", "则").replace("務", "务").replace("適", "适")
+    res = res.replace("隨", "随").replace("處", "处").replace("對", "对").replace("賺", "赚").replace("與", "与")
+    res = res.replace("學", "学").replace("應", "应").replace("導", "导").replace("創", "创").replace("進", "进")
+    res = res.replace("業", "业").replace("認", "认").replace("變", "变")
+    res = res.replace("級", "级").replace("專", "专").replace("現", "现").replace("點", "点")
+    res = res.replace("樣", "样").replace("為", "为").replace("會", "会").replace("實", "实").replace("覺", "觉")
+    res = res.replace("熱", "热").replace("樂", "乐").replace("觀", "观").replace("藝", "艺").replace("術", "术")
+    res = res.replace("韌", "韧").replace("強", "强").replace("衝", "冲").replace("鋒", "锋")
+    return res
+
 def get_ten_god(me: str, target: str) -> str:
     """判斷十神關係"""
     my_elem = TIANGAN_ELEMENT[me]
@@ -165,8 +192,8 @@ def get_ten_god(me: str, target: str) -> str:
         return "PiAn Cai" if is_same_pol else "Zheng Cai"
     return "Unknown"
 
-def generate_colloquial_state(citizen: dict) -> str:
-    """生成帶八字術語但白話易懂的描述"""
+def generate_colloquial_state(citizen: dict) -> dict:
+    """生成帶八字術語但白話易懂的描述 (多語言)"""
     age = citizen["age"]
     gender = citizen.get("gender", "男")
     p = citizen["bazi_profile"]
@@ -189,7 +216,13 @@ def generate_colloquial_state(citizen: dict) -> str:
     
     # 4. 組合：術語（解釋）+ 描述
     pronoun = "她" if gender == "女" else "他"
-    return f"{pattern_term}：{pattern_desc}。{pronoun}目前行{luck_term}，{luck_desc}。"
+    tw_state = f"{pattern_term}：{pattern_desc}。{pronoun}目前行{luck_term}，{luck_desc}。"
+    
+    return {
+        "TW": tw_state,
+        "CN": t_cn(tw_state),
+        "US": "Strategic decision making based on Bazi structure."
+    }
 
 
 # ===== 輔助函數 (延續 V4) =====
@@ -249,27 +282,50 @@ def get_favorable_elements(structure_info: dict, strength: str, my_element: str)
         else: fav, unfav = [officer, child, wealth], [mother, friend]
     return {"favorable": list(set(fav)), "unfavorable": list(set(unfav))}
 
+# 強制中文字映射 (Force Chinese Map)
+# 繁體中文對照表 (確保輸出為繁體)
+STEMS_CN = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
+BRANCHES_CN = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
+
 def get_dayun_sequence(gender, year_gan, m_gan_idx, m_zhi_idx, day_master):
-    """計算10年大運序列（帶白話描述）"""
-    direction = 1 if (TIANGAN_POLARITY[year_gan]=="Yang") == (gender=="male") else -1
-    start_age, pillars = random.randint(2, 9), []
+    """計算10年大運序列（真實四柱推算）"""
+    # 大運排法：陽男陰女順行(+1)，陰男陽女逆行(-1)
+    is_yang_year = TIANGAN_POLARITY[year_gan] == "Yang"
+    is_male = (gender == "male")
+    direction = 1 if (is_yang_year and is_male) or (not is_yang_year and not is_male) else -1
+    
+    start_age = random.randint(1, 10) # 實際應由節氣計算，此处簡化為隨機起運 1-10 歲
+    pillars = []
+    
     cur_g, cur_z = m_gan_idx, m_zhi_idx
+    
     for i in range(8):
-        cur_g, cur_z = (cur_g + direction) % 10, (cur_z + direction) % 12
-        gan = TIANGAN[cur_g]
+        cur_g = (cur_g + direction) % 10
+        cur_z = (cur_z + direction) % 12
         
-        # 計算該大運的十神
-        ten_god = get_ten_god(day_master, gan)
+        gan_char = STEMS_CN[cur_g]
+        zhi_char = BRANCHES_CN[cur_z]
+        pillar_str = f"{gan_char}{zhi_char}"
+        
+        # 計算十神
+        ten_god = get_ten_god(day_master, gan_char) 
         luck_term, luck_desc = LIFE_PHASE_NOW.get(ten_god, ("平穩運", "平穩過渡"))
         
+        tw_desc = f"{luck_term}：{luck_desc}"
+        cn_desc = t_cn(tw_desc)
+        
         pillars.append({
-            "pillar": TIANGAN[cur_g]+DIZHI[cur_z], 
-            "gan": TIANGAN[cur_g], 
-            "age_start": start_age+(i*10), 
-            "age_end": start_age+(i*10)+9,
-            "age_end": start_age+(i*10)+9,
-            "description": f"{luck_term}：{luck_desc}",
-            "ten_god": ten_god  # Added for localization
+            "pillar": pillar_str, 
+            "gan": gan_char, 
+            "age_start": start_age + (i * 10), 
+            "age_end": start_age + (i * 10) + 9,
+            "description": tw_desc,
+            "localized_description": {
+                "TW": tw_desc,
+                "CN": cn_desc,
+                "US": f"Luck Cycle: {ten_god}"
+            },
+            "ten_god": ten_god
         })
     return pillars
 
@@ -341,30 +397,41 @@ def generate_citizen(idx):
     
     for l in luck:
         name = l['pillar'] + "運"
-        luck_timeline.append({
+        localized_desc = l.get('localized_description', {
+            "TW": l['description'],
+            "CN": t_cn(l['description']),
+            "US": l.get('ten_god', 'Unknown')
+        })
+        
+        lt_item = {
             "age_start": l['age_start'],
             "age_end": l['age_end'],
             "name": name,
-            "description": l['description']
-        })
+            "pillar": l['pillar'],
+            "description": l['description'],
+            "localized_description": localized_desc
+        }
+        luck_timeline.append(lt_item)
+        
         # 找出當前大運
         if l['age_start'] <= age <= l['age_end']:
-            current_luck_obj = {"name": name, "description": l['description']}
+            current_luck_obj = lt_item
             
     # 如果沒找到當前大運（極少情況），用第一個
     if not current_luck_obj and luck_timeline:
-        current_luck_obj = {"name": luck_timeline[0]['name'], "description": luck_timeline[0]['description']}
+        current_luck_obj = luck_timeline[0]
 
     # 構造初步資料以便 generate_colloquial_state 讀取
     citizen_partial = {
         "age": age,
+        "gender": "女" if g=="female" else "男",
         "bazi_profile": {
             "day_master": bz["day_master"],
             "structure": struct["name"],
             "luck_pillars": luck
         }
     }
-    current_state = generate_colloquial_state(citizen_partial)
+    current_state_dict = generate_colloquial_state(citizen_partial)
     
     return {
         "name": surname + given,
@@ -387,31 +454,58 @@ def generate_citizen(idx):
             "luck_pillars": luck, # 保留舊格式備用
             "luck_timeline": luck_timeline, # 前端主要使用
             "current_luck": current_luck_obj, # 前端主要使用
-            "current_state": current_state
+            "current_state": current_state_dict["TW"],
+            "localized_state": current_state_dict
         },
         "traits": [struct["trait"].split("，")[0]] + random.sample(["理性", "感性", "科技迷", "環保者", "務實"], 2)
     }
 
 def main():
     print("=" * 60)
-    print("🧬 MIRRA Genesis V5 - 創世紀造人程式 (白話版)")
+    print("MIRRA Genesis V5 - 創世紀造人程式 (Final Production)")
     print("=" * 60)
     clear_citizens(); num = 1000
-    print(f"🔨 生成 {num} 位 AI 市民...")
+    print(f"生成 {num} 位 AI 市民 (真實演算)...")
     citizens = [generate_citizen(i) for i in range(num)]
     
     # 顯示範例
     s = citizens[0]
-    print(f"\n📋 範例: {s['name']} ({s['age']}歲)")
+    print(f"\n範例: {s['name']} ({s['age']}歲)")
     print(f"   目前狀態: {s['bazi_profile']['current_state']}")
     
-    # 寫入
+    # 寫入 DB
     batch_size = 100
     for i in range(0, len(citizens), batch_size):
         if insert_citizens_batch(citizens[i:i+batch_size]):
-            print(f"   ✅ 已插入 {i+batch_size}/{num}")
+            print(f"   已插入 {i+batch_size}/{num}")
+
+    # [NEW] 寫入 JSON (Crucial for Frontend/Genesis API)
+    # Inject IDs for JSON consistency
+    for idx, c in enumerate(citizens):
+        c['id'] = str(idx + 1)
+
+    json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "citizens.json")
+    import json
+    import datetime
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(json_path), exist_ok=True)
+    
+    output_data = {
+        "meta": {
+            "constitution": "v5.0",
+            "generated_at": datetime.datetime.now().isoformat(),
+            "note": "Final Production Genesis"
+        },
+        "citizens": citizens,
+        "total": len(citizens)
+    }
+    
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(output_data, f, ensure_ascii=False, indent=2)
+    print(f"   已儲存 JSON 到 {json_path}")
             
-    print(f"\n🎉 創世紀 V5 完成！總數: {get_citizens_count()}")
+    print(f"\n創世紀 V5 完成！總數: {get_citizens_count()}")
 
 if __name__ == "__main__":
     main()

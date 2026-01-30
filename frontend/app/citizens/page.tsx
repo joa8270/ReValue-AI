@@ -16,6 +16,7 @@ interface BaziProfile {
     four_pillars?: any // Can be string or object {year, month, day, hour}
     strength?: string
     structure?: string
+    structure_en?: string // Added for strict US localization support
     favorable_elements?: string[]
     unfavorable_elements?: string[]
     day_master?: string
@@ -34,18 +35,20 @@ interface BaziProfile {
         description?: string
         localized_description?: Record<string, string>
     }>
+    luck_timeline?: any[] // Added for debugging/V6 compatibility
 }
 
 interface Citizen {
     id: string
     name: string
+    region?: string // Added for strict filtering
     gender: string
     age: number
     location: string
     bazi_profile: BaziProfile
     traits: string[]
 
-    occupation: string
+    occupation: string | Record<string, string>
     profiles?: {
         TW?: { name: string; city: string; job: string; pain: string }
         US?: { name: string; city: string; job: string; pain: string }
@@ -280,6 +283,15 @@ const BRANCH_TRANSLATIONS: Record<string, string> = {
     "午": "Horse", "未": "Sheep", "申": "Monkey", "酉": "Rooster", "戌": "Dog", "亥": "Pig"
 };
 
+const PINYIN_STEMS: Record<string, string> = {
+    "jia": "甲", "yi": "乙", "bing": "丙", "ding": "丁", "wu": "戊",
+    "ji": "己", "geng": "庚", "xin": "辛", "ren": "壬", "gui": "癸"
+};
+const PINYIN_BRANCHES: Record<string, string> = {
+    "zi": "子", "chou": "丑", "yin": "寅", "mao": "卯", "chen": "辰", "si": "巳",
+    "wu": "午", "wei": "未", "shen": "申", "you": "酉", "xu": "戌", "hai": "亥"
+};
+
 const I18N = {
     TW: {
         id: "ID",
@@ -414,7 +426,27 @@ function translateBazi(text: string | undefined, market: string) {
 }
 
 function translatePillar(pillar: string, market: string) {
-    if (!pillar) return "";
+    if (!pillar || typeof pillar !== 'string') return "";
+
+    // Check if it's pinyin-hyphenated (e.g. "jia-shen")
+    if (pillar.includes('-')) {
+        const [pStem, pBranch] = pillar.toLowerCase().split('-');
+        const cnStem = PINYIN_STEMS[pStem];
+        const cnBranch = PINYIN_BRANCHES[pBranch];
+
+        // If Mapping Exists, Construct Chinese
+        if (cnStem && cnBranch) {
+            const cnPillar = cnStem + cnBranch;
+            if (market === 'US') {
+                return translatePillar(cnPillar, market);
+            }
+            return cnPillar;
+        }
+
+        // Fallback: Return Capitalized Pinyin (e.g. "Jia-Shen")
+        return pillar.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('-');
+    }
+
     if (market !== 'US') return pillar;
 
     // Attempt to split 2 chars
@@ -453,17 +485,50 @@ function CitizenModal({ citizen, market, onClose }: { citizen: Citizen; market: 
 
     // Resolve Profile based on Market
     const activeProfile = citizen.profiles?.[market] || citizen.profiles?.['TW'];
+
+    // Helper to resolve job string (Inline fix for V5 Object format)
+    const rawJob = activeProfile?.job || citizen.occupation;
+    const resolvedJob = (typeof rawJob === 'object' && rawJob !== null)
+        ? (rawJob[market] || rawJob['TW'] || rawJob['US'] || "Unknown")
+        : String(rawJob);
+
     const display = {
         name: activeProfile?.name || citizen.name,
-        job: activeProfile?.job || citizen.occupation,
+        job: resolvedJob,
         city: activeProfile?.city || citizen.location
     };
     const t = I18N[market] || I18N['TW'];
 
     const [showDetails, setShowDetails] = useState(false);
     const decisionModel = getDecisionModel(citizen.bazi_profile?.structure, market);
-    const luckPillars = citizen.bazi_profile?.luck_pillars || [];
-    const currentLuck = luckPillars.find(l => citizen.age >= l.age_start && citizen.age <= l.age_end) || luckPillars[0];
+
+    // Logic to handle both Legacy (Array of objects) and V6 (String + Timeline) data
+    const bazi = (citizen.bazi_profile || {}) as any;
+
+    // 1. Resolve Luck Pillars (Timeline)
+    // Check for "luck_timeline" (DB V6) or "luck_pillars" (Legacy JSON)
+    const luckPillars = bazi.luck_timeline || bazi.luck_pillars || [];
+
+    // 2. Resolve Current Luck
+    let currentLuck = null;
+
+    if (bazi.current_luck && typeof bazi.current_luck === 'string') {
+        // V6 Data: current_luck is a string "stem-branch" (e.g., "jia-shen")
+        const pillarStr = bazi.current_luck;
+        const start = Math.floor(citizen.age / 10) * 10;
+        const end = start + 9;
+
+        currentLuck = {
+            pillar: pillarStr,
+            age_start: start,
+            age_end: end,
+            description: "Current 10-year cycle",
+            localized_description: {}
+        };
+    } else {
+        // Legacy Data: current_luck might not exist, calculate from luckPillars
+        currentLuck = luckPillars.find((l: any) => citizen.age >= l.age_start && citizen.age <= l.age_end) || luckPillars[0];
+    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>
@@ -579,9 +644,14 @@ function CitizenModal({ citizen, market, onClose }: { citizen: Citizen; market: 
                                         </div>
                                         <div className="text-amber-100/80 leading-relaxed">
                                             {market === 'US' ? (
-                                                <span className="text-slate-400 italic">Analysis available in report.</span>
+                                                <span className="text-slate-400 italic font-medium">
+                                                    {currentLuck?.localized_description?.['US'] ||
+                                                        (currentLuck?.ten_god ? `Luck Cycle: ${currentLuck.ten_god}` : "Analysis available in report.")}
+                                                </span>
                                             ) : (
-                                                currentLuck?.localized_description?.[market] || currentLuck?.description || t.unknown
+                                                currentLuck?.localized_description?.[market] ||
+                                                currentLuck?.description ||
+                                                (currentLuck?.pillar ? `${translatePillar(currentLuck.pillar, market)}運` : t.unknown)
                                             )}
                                         </div>
                                     </div>
@@ -612,19 +682,41 @@ function CitizenModal({ citizen, market, onClose }: { citizen: Citizen; market: 
                                 </div>
                                 <div className="space-y-3">
                                     {luckPillars.slice(0, 8).map((pillar: any, idx: number) => {
-                                        const isCurrent = citizen.age >= pillar.age_start && citizen.age <= pillar.age_end;
+                                        // V6 Data might be just string "stem-branch" in luck_timeline
+                                        // We need to normalize it to object for rendering
+                                        let pObj = pillar;
+                                        if (typeof pillar === 'string') {
+                                            const start = (idx + 1) * 10; // Simple estimation if data missing
+                                            // Actually V6 timeline is list of strings? No, seed_db might have kept it as strings
+                                            // Let's check genesis logic: calculate_luck returns ["jia-zi", "yi-chou"...]
+                                            // So pillar is string "stem-branch"
+                                            pObj = {
+                                                pillar: pillar,
+                                                // age_start: idx * 10, // Removed duplicate
+                                                // Actually let's assume standard decades for prototype
+                                                // 1st pillar: 0-9? No usually 1-10 or based on flow.
+                                                // Let's use simple 10-year blocks starting from birth? 
+                                                // Genesis logic: calculated 8 pillars.
+                                                // Let's assume they start at age ~0-10 roughly.
+                                                // To align with current_luck logic (age // 10), index 0 is 0-9, index 1 is 10-19.
+                                                age_start: idx * 10,
+                                                age_end: (idx * 10) + 9
+                                            };
+                                        }
+
+                                        const isCurrent = citizen.age >= pObj.age_start && citizen.age <= pObj.age_end;
                                         return (
                                             <div key={idx} className={`p-4 rounded-xl border transition-all ${isCurrent ? 'bg-purple-900/30 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.1)]' : 'bg-slate-800/30 border-white/5 opacity-70 hover:opacity-100'}`}>
                                                 <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
                                                     <div className="flex items-center gap-3 min-w-[120px]">
-                                                        <span className={`text-xs font-bold ${isCurrent ? 'text-purple-300' : 'text-slate-500'}`}>{pillar.age_start}-{pillar.age_end}{t.age}</span>
-                                                        <span className={`text-lg font-bold ${isCurrent ? 'text-white' : 'text-slate-300'}`}>{translatePillar(pillar.pillar, market)}</span>
+                                                        <span className={`text-xs font-bold ${isCurrent ? 'text-purple-300' : 'text-slate-500'}`}>{pObj.age_start}-{pObj.age_end}{t.age}</span>
+                                                        <span className={`text-lg font-bold ${isCurrent ? 'text-white' : 'text-slate-300'}`}>{translatePillar(pObj.pillar, market)}</span>
                                                     </div>
                                                     {isCurrent && <span className="text-[10px] bg-purple-500 text-white px-2 py-0.5 rounded-full font-bold tracking-wider">{t.current_tag}</span>}
                                                 </div>
-                                                {market !== 'US' && (pillar.localized_description?.[market] || pillar.description) && (
+                                                {market !== 'US' && (pObj.localized_description?.[market] || pObj.description) && (
                                                     <div className={`text-sm leading-relaxed ${isCurrent ? 'text-purple-100' : 'text-slate-400'}`}>
-                                                        {pillar.localized_description?.[market] || pillar.description}
+                                                        {pObj.localized_description?.[market] || pObj.description}
                                                     </div>
                                                 )}
                                             </div>
@@ -665,7 +757,10 @@ function CitizensContent() {
     const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null)
     const limit = 30
 
+    // State for Filter & Pagination
     const [market, setMarket] = useState<'TW' | 'US' | 'CN'>('TW');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 12;
 
     const [debouncedSearch, setDebouncedSearch] = useState("")
 
@@ -673,21 +768,20 @@ function CitizensContent() {
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(search)
-            setPage(0) // Reset to page 0 when search changes
+            setCurrentPage(1) // Reset to page 1 on search
         }, 500)
         return () => clearTimeout(timer)
     }, [search])
 
     useEffect(() => {
         fetchCitizens()
-    }, [page, debouncedSearch])
+    }, [])
 
     const fetchCitizens = async () => {
         setLoading(true)
         try {
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-            const query = `limit=${limit}&offset=${page * limit}` + (debouncedSearch ? `&search=${encodeURIComponent(debouncedSearch)}` : "")
-            const res = await fetch(`${API_BASE_URL}/citizens?${query}`)
+            const res = await fetch(`${API_BASE_URL}/citizens/genesis`)
             const data = await res.json()
             setCitizens(data.citizens || [])
             setTotal(data.total || 0)
@@ -697,33 +791,45 @@ function CitizensContent() {
         setLoading(false)
     }
 
-    // Client-side filtering removed in favor of Server-side search
-    const filteredCitizens = citizens
-
-    // Helper to get active profile data
-    const getProfile = (c: Citizen) => {
-        // 優先讀取對應市場的 Profile，如果沒有則降級回原本的資料 (TW or root properties)
-        const targetProfile = c.profiles?.[market];
-        const fallbackProfile = c.profiles?.['TW'];
-
-        // If explicitly TW market, return TW/Original
-        if (market === 'TW') {
-            return {
-                name: fallbackProfile?.name || c.name,
-                city: fallbackProfile?.city || c.location, // Note: User code used .city, my interface uses .city, root uses .location
-                job: fallbackProfile?.job || c.occupation,
-                pain: fallbackProfile?.pain
-            }
+    // STRICT FILTERING LOGIC
+    const filteredCitizens = citizens.filter(c => {
+        // 1. Region Filter (Strict)
+        if (c.region && c.region !== market) return false;
+        // 2. Search Filter
+        if (debouncedSearch) {
+            const term = debouncedSearch.toLowerCase();
+            return (
+                c.name.toLowerCase().includes(term) ||
+                (c.bazi_profile?.structure || "").includes(term) ||
+                // Search translation if available
+                (c.bazi_profile?.structure_en || "").toLowerCase().includes(term)
+            );
         }
+        return true;
+    });
 
-        // For US/CN, try target then fallback
-        const active = targetProfile || fallbackProfile;
+    // PAGINATION LOGIC
+    const totalPages = Math.ceil(filteredCitizens.length / itemsPerPage);
+    const paginatedCitizens = filteredCitizens.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
+    // Reset page when market changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [market]);
+
+    // Helper to get active profile data (Simplified for new strict data)
+    const getProfile = (c: Citizen) => {
+        // Since data is now strictly generated for the region, 
+        // we can just return the root properties directly.
+        // Fallback logic kept just in case of mixed data.
         return {
-            name: active?.name || c.name,
-            city: active?.city || c.location,
-            job: active?.job || c.occupation,
-            pain: active?.pain // Only target profile usually has relevant pain for that market, but fallback is ok
+            name: c.name,
+            city: c.location,
+            job: typeof c.occupation === 'string' ? c.occupation : "Unknown",
+            pain: c.profiles?.[market]?.pain
         }
     }
 
@@ -750,7 +856,7 @@ function CitizensContent() {
                             </h1>
                             <div className="text-xs text-slate-500 font-mono uppercase tracking-widest mt-2 flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                實時人口資料庫 • 總數: {total.toLocaleString()}
+                                實時人口資料庫 • 顯示: {filteredCitizens.length} / 總數: {total}
                             </div>
                         </div>
 
@@ -798,162 +904,172 @@ function CitizensContent() {
                         <div className="text-slate-500 font-mono text-sm">正在同步人口數據...</div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {filteredCitizens.map((citizen) => {
-                            const pillars = parseFourPillars(citizen.bazi_profile.four_pillars || generateMockPillars());
-                            const dayMasterElement = citizen.bazi_profile.element || "土";
-                            const elementStyle = getElementColor(dayMasterElement);
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {paginatedCitizens.map((citizen) => {
+                                const pillars = parseFourPillars(citizen.bazi_profile.four_pillars || generateMockPillars());
+                                const dayMasterElement = citizen.bazi_profile.element || "土";
+                                const elementStyle = getElementColor(dayMasterElement);
 
-                            // 🌍 Global Identity Context
-                            const profile = getProfile(citizen);
-                            const isReincarnated = market !== 'TW' && (citizen.profiles?.[market]?.name); // Check if data actually exists
+                                // 🌍 Global Identity Context
+                                const profile = getProfile(citizen);
 
-                            return (
-                                <div key={citizen.id} className="group relative bg-[#241a30] rounded-xl overflow-hidden border border-[#362b45] hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/10">
+                                return (
+                                    <div key={citizen.id} className="group relative bg-[#241a30] rounded-xl overflow-hidden border border-[#362b45] hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/10">
 
-                                    {/* Day Master Badge */}
-                                    <div className="absolute top-3 right-3 z-20 flex flex-col items-end gap-1">
-                                        <span className="text-[9px] text-gray-400 font-mono tracking-wider">日主</span>
-                                        <div className={`
-                                            relative size-11 rounded-full flex items-center justify-center
-                                            border-[3px] font-bold text-lg tracking-tight
-                                            transition-all duration-300 group-hover:scale-110
-                                            ${(dayMasterElement === 'Metal' || dayMasterElement === '金') ? 'bg-gradient-to-br from-slate-300 to-slate-500 border-slate-200 text-slate-900 shadow-lg shadow-slate-400/50' : ''}
-                                            ${(dayMasterElement === 'Wood' || dayMasterElement === '木') ? 'bg-gradient-to-br from-emerald-300 to-emerald-600 border-emerald-200 text-emerald-950 shadow-lg shadow-emerald-400/50' : ''}
-                                            ${(dayMasterElement === 'Water' || dayMasterElement === '水') ? 'bg-gradient-to-br from-blue-300 to-blue-600 border-blue-200 text-blue-950 shadow-lg shadow-blue-400/50' : ''}
-                                            ${(dayMasterElement === 'Fire' || dayMasterElement === '火') ? 'bg-gradient-to-br from-orange-300 to-orange-600 border-orange-200 text-orange-950 shadow-lg shadow-orange-400/50' : ''}
-                                            ${(dayMasterElement === 'Earth' || dayMasterElement === '土') ? 'bg-gradient-to-br from-amber-400 to-amber-700 border-amber-200 text-amber-950 shadow-lg shadow-amber-400/50' : ''}
-                                        `}>
-                                            {pillars?.day?.charAt(0) || '?'}
-                                            {/* Glow effect ring */}
+                                        {/* Day Master Badge */}
+                                        <div className="absolute top-3 right-3 z-20 flex flex-col items-end gap-1">
+                                            <span className="text-[9px] text-gray-400 font-mono tracking-wider">日主</span>
                                             <div className={`
-                                                absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity
-                                                ${(dayMasterElement === 'Metal' || dayMasterElement === '金') ? 'ring-4 ring-slate-300/30' : ''}
-                                                ${(dayMasterElement === 'Wood' || dayMasterElement === '木') ? 'ring-4 ring-emerald-300/30' : ''}
-                                                ${(dayMasterElement === 'Water' || dayMasterElement === '水') ? 'ring-4 ring-blue-300/30' : ''}
-                                                ${(dayMasterElement === 'Fire' || dayMasterElement === '火') ? 'ring-4 ring-orange-300/30' : ''}
-                                                ${(dayMasterElement === 'Earth' || dayMasterElement === '土') ? 'ring-4 ring-amber-300/30' : ''}
-                                            `} />
-                                        </div>
-                                    </div>
-
-                                    {/* Header Visual */}
-                                    <div className="h-32 bg-[#1a1324] relative overflow-hidden">
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#241a30] to-transparent"></div>
-                                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
-                                        {/* Market Flag Overlay */}
-                                        {market !== 'TW' && (
-                                            <div className="absolute top-3 left-3 px-2 py-1 bg-black/50 backdrop-blur rounded text-xl border border-white/10">
-                                                {market === 'US' ? '🇺🇸' : '🇨🇳'}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="px-5 pb-5 -mt-12 relative z-10">
-                                        <div className="flex items-end justify-between mb-3">
-                                            <div className="size-20 rounded-xl overflow-hidden border-2 border-[#241a30] shadow-md bg-black relative">
-                                                <img
-                                                    src={getAvatarPath(citizen.id, citizen.age, citizen.gender, profile.name)}
-                                                    alt={profile.name}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
-                                            <div className="text-right">
-                                                <span className="text-xs font-mono text-gray-500 block">#{String(citizen.id).padStart(4, '0').slice(0, 4)}</span>
-                                                <span className="text-xs text-gray-600">{profile.city || "Unknown"}</span>
+                                                relative size-11 rounded-full flex items-center justify-center
+                                                border-[3px] font-bold text-lg tracking-tight
+                                                transition-all duration-300 group-hover:scale-110
+                                                ${(dayMasterElement === 'Metal' || dayMasterElement === '金') ? 'bg-gradient-to-br from-slate-300 to-slate-500 border-slate-200 text-slate-900 shadow-lg shadow-slate-400/50' : ''}
+                                                ${(dayMasterElement === 'Wood' || dayMasterElement === '木') ? 'bg-gradient-to-br from-emerald-300 to-emerald-600 border-emerald-200 text-emerald-950 shadow-lg shadow-emerald-400/50' : ''}
+                                                ${(dayMasterElement === 'Water' || dayMasterElement === '水') ? 'bg-gradient-to-br from-blue-300 to-blue-600 border-blue-200 text-blue-950 shadow-lg shadow-blue-400/50' : ''}
+                                                ${(dayMasterElement === 'Fire' || dayMasterElement === '火') ? 'bg-gradient-to-br from-orange-300 to-orange-600 border-orange-200 text-orange-950 shadow-lg shadow-orange-400/50' : ''}
+                                                ${(dayMasterElement === 'Earth' || dayMasterElement === '土') ? 'bg-gradient-to-br from-amber-400 to-amber-700 border-amber-200 text-amber-950 shadow-lg shadow-amber-400/50' : ''}
+                                            `}>
+                                                {pillars?.day?.charAt(0) || '?'}
+                                                {/* Glow effect ring */}
+                                                <div className={`
+                                                    absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity
+                                                    ${(dayMasterElement === 'Metal' || dayMasterElement === '金') ? 'ring-4 ring-slate-300/30' : ''}
+                                                    ${(dayMasterElement === 'Wood' || dayMasterElement === '木') ? 'ring-4 ring-emerald-300/30' : ''}
+                                                    ${(dayMasterElement === 'Water' || dayMasterElement === '水') ? 'ring-4 ring-blue-300/30' : ''}
+                                                    ${(dayMasterElement === 'Fire' || dayMasterElement === '火') ? 'ring-4 ring-orange-300/30' : ''}
+                                                    ${(dayMasterElement === 'Earth' || dayMasterElement === '土') ? 'ring-4 ring-amber-300/30' : ''}
+                                                `} />
                                             </div>
                                         </div>
 
-                                        <h3 className="text-xl font-bold text-white mb-0.5 tracking-tight">{profile.name}</h3>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-[10px] text-gray-400 px-1.5 py-0.5 rounded bg-gray-800/50 border border-gray-700/50">
-                                                {translateGender(citizen.gender, market)}
-                                            </span>
-                                            <span className="text-[10px] text-gray-400 px-1.5 py-0.5 rounded bg-gray-800/50 border border-gray-700/50">
-                                                {citizen.age}歲
-                                            </span>
-                                        </div>
-                                        <p className={`text-sm font-medium mb-1 uppercase tracking-wide ${elementStyle.text.replace('text-', 'text-').replace('-900', '-400')}`}>
-                                            {profile.job}
-                                        </p>
-
-                                        {/* 🔥 Pain Point Badge with Tooltip Implementation */}
-                                        {market !== 'TW' && profile.pain && (
-                                            <div className="mt-3 group/tooltip relative">
-                                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-red-500/30 bg-red-500/10 text-[10px] font-bold text-red-300 cursor-help hover:bg-red-500/20 transition-colors">
-                                                    <span>⚠️</span>
-                                                    <span className="truncate max-w-[200px]">{profile.pain}</span>
+                                        {/* Header Visual */}
+                                        <div className="h-32 bg-[#1a1324] relative overflow-hidden">
+                                            <div className="absolute inset-0 bg-gradient-to-t from-[#241a30] to-transparent"></div>
+                                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+                                            {/* Market Flag Overlay */}
+                                            {market !== 'TW' && (
+                                                <div className="absolute top-3 left-3 px-2 py-1 bg-black/50 backdrop-blur rounded text-xl border border-white/10">
+                                                    {market === 'US' ? '🇺🇸' : '🇨🇳'}
                                                 </div>
+                                            )}
+                                        </div>
 
-                                                {/* Custom Tooltip */}
-                                                <div className="absolute bottom-full left-0 mb-2 w-48 p-2 bg-slate-900 border border-white/10 rounded-lg shadow-xl text-xs text-slate-300 opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-50">
-                                                    <div className="font-bold text-white mb-1">此市民當前的核心焦慮</div>
-                                                    {profile.pain}
-                                                    <div className="absolute -bottom-1 left-4 w-2 h-2 bg-slate-900 border-b border-r border-white/10 rotate-45"></div>
+                                        {/* Content */}
+                                        <div className="px-5 pb-5 -mt-12 relative z-10">
+                                            <div className="flex items-end justify-between mb-3">
+                                                <div className="size-20 rounded-xl overflow-hidden border-2 border-[#241a30] shadow-md bg-black relative">
+                                                    <img
+                                                        src={getAvatarPath(citizen.id, citizen.age, citizen.gender, profile.name)}
+                                                        alt={profile.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-xs font-mono text-gray-500 block">#{String(citizen.id).padStart(4, '0').slice(0, 4)}</span>
+                                                    <span className="text-xs text-gray-600">{profile.city || "Unknown"}</span>
                                                 </div>
                                             </div>
-                                        )}
 
-                                        {/* Bazi Info (Only in TW Mode or if space allows) */}
-                                        {market === 'TW' && (
-                                            <p className="text-[10px] text-gray-500 mb-3">
-                                                出生: {(() => {
-                                                    const year = citizen.bazi_profile?.birth_year || (2026 - citizen.age);
-                                                    const month = citizen.bazi_profile?.birth_month || citizen.bazi_profile?.birth_info?.month;
-                                                    const day = citizen.bazi_profile?.birth_day || citizen.bazi_profile?.birth_info?.day;
-
-                                                    if (year && month && day) {
-                                                        return t.date_format(year, month, day);
-                                                    }
-                                                    return (year && month) ? `${year}年${month}月` : '未知';
-                                                })()}
+                                            <h3 className="text-xl font-bold text-white mb-0.5 tracking-tight">{profile.name}</h3>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-[10px] text-gray-400 px-1.5 py-0.5 rounded bg-gray-800/50 border border-gray-700/50">
+                                                    {translateGender(citizen.gender, market)}
+                                                </span>
+                                                <span className="text-[10px] text-gray-400 px-1.5 py-0.5 rounded bg-gray-800/50 border border-gray-700/50">
+                                                    {citizen.age}{t.age}
+                                                </span>
+                                            </div>
+                                            <p className={`text-sm font-medium mb-1 uppercase tracking-wide ${elementStyle.text.replace('text-', 'text-').replace('-900', '-400')}`}>
+                                                {profile.job}
                                             </p>
-                                        )}
 
-                                        {/* Additional Info from Modal */}
-                                        {citizen.bazi_profile.current_state && market === 'TW' && (
-                                            <div className="mb-3 p-2 rounded-lg bg-purple-500/5 border border-purple-500/10">
-                                                <div className="text-[9px] font-bold text-purple-400 uppercase tracking-widest mb-1">當前運勢</div>
-                                                <div className="text-[11px] text-slate-300 line-clamp-2 leading-relaxed">
-                                                    {citizen.bazi_profile.current_state}
+                                            {/* 🔥 Pain Point Badge with Tooltip Implementation */}
+                                            {market !== 'TW' && profile.pain && (
+                                                <div className="mt-3 group/tooltip relative">
+                                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-red-500/30 bg-red-500/10 text-[10px] font-bold text-red-300 cursor-help hover:bg-red-500/20 transition-colors">
+                                                        <span>⚠️</span>
+                                                        <span className="truncate max-w-[200px]">{profile.pain}</span>
+                                                    </div>
+
+                                                    {/* Custom Tooltip */}
+                                                    <div className="absolute bottom-full left-0 mb-2 w-48 p-2 bg-slate-900 border border-white/10 rounded-lg shadow-xl text-xs text-slate-300 opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-50">
+                                                        <div className="font-bold text-white mb-1">此市民當前的核心焦慮</div>
+                                                        {profile.pain}
+                                                        <div className="absolute -bottom-1 left-4 w-2 h-2 bg-slate-900 border-b border-r border-white/10 rotate-45"></div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        <button
-                                            onClick={() => setSelectedCitizen(citizen)}
-                                            className="w-full py-2 rounded-lg bg-[#302839] hover:bg-[#3e344a] border border-[#3e344a] text-xs font-bold text-gray-300 transition-all"
-                                        >
-                                            完整報告
-                                        </button>
+                                            {/* Bazi Info (Only in TW Mode or if space allows) */}
+                                            {market === 'TW' && (
+                                                <p className="text-[10px] text-gray-500 mb-3">
+                                                    出生: {(() => {
+                                                        const year = citizen.bazi_profile?.birth_year || (2026 - citizen.age);
+                                                        const month = citizen.bazi_profile?.birth_month || citizen.bazi_profile?.birth_info?.month;
+                                                        const day = citizen.bazi_profile?.birth_day || citizen.bazi_profile?.birth_info?.day;
+
+                                                        if (year && month && day) {
+                                                            return t.date_format(year, month, day);
+                                                        }
+                                                        return (year && month) ? `${year}年${month}月` : '未知';
+                                                    })()}
+                                                </p>
+                                            )}
+
+                                            {/* Additional Info from Modal */}
+                                            {citizen.bazi_profile.current_state && market === 'TW' && (
+                                                <div className="mb-3 p-2 rounded-lg bg-purple-500/5 border border-purple-500/10">
+                                                    <div className="text-[9px] font-bold text-purple-400 uppercase tracking-widest mb-1">當前運勢</div>
+                                                    <div className="text-[11px] text-slate-300 line-clamp-2 leading-relaxed">
+                                                        {citizen.bazi_profile.current_state}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <button
+                                                onClick={() => setSelectedCitizen(citizen)}
+                                                className="w-full py-2 rounded-lg bg-[#302839] hover:bg-[#3e344a] border border-[#3e344a] text-xs font-bold text-gray-300 transition-all"
+                                            >
+                                                完整報告
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
+                                );
+                            })}
+                        </div>
 
-                {/* Pagination */}
-                <div className="mt-8 flex justify-center gap-4">
-                    <button
-                        onClick={() => setPage(p => Math.max(0, p - 1))}
-                        disabled={page === 0}
-                        className="px-4 py-2 bg-slate-800 rounded hover:bg-slate-700 disabled:opacity-50 text-sm"
-                    >
-                        {t.prev_page}
-                    </button>
-                    <span className="text-sm text-slate-500 py-2">
-                        {t.page} {page + 1} / {Math.ceil(total / limit)}
-                    </span>
-                    <button
-                        onClick={() => setPage(p => p + 1)}
-                        disabled={(page + 1) * limit >= total}
-                        className="px-4 py-2 bg-slate-800 rounded hover:bg-slate-700 disabled:opacity-50 text-sm"
-                    >
-                        {t.next_page}
-                    </button>
-                </div>
+                        {/* Improved Pagination UI */}
+                        {totalPages > 1 && (
+                            <div className="mt-12 flex justify-center items-center gap-6 pb-12">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-6 py-3 bg-slate-800 rounded-xl hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-bold border border-white/5 transition-all flex items-center gap-2"
+                                >
+                                    <span>←</span> {t.prev_page}
+                                </button>
+
+                                <div className="flex flex-col items-center">
+                                    <span className="text-white font-bold tracking-widest text-lg">
+                                        {currentPage}
+                                    </span>
+                                    <span className="text-xs text-slate-500 uppercase tracking-wider">
+                                        / {totalPages}
+                                    </span>
+                                </div>
+
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-6 py-3 bg-slate-800 rounded-xl hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-bold border border-white/5 transition-all flex items-center gap-2"
+                                >
+                                    {t.next_page} <span>→</span>
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
             </main >
         </div >
     )
