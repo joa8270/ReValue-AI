@@ -11,14 +11,14 @@ sys.path.append(BASE_DIR)
 
 from app.core.database import SessionLocal, Citizen, insert_citizens_batch, get_citizens_count
 
-DATA_FILE = os.path.join(BASE_DIR, 'data', 'citizens_v6.json') # UPDATED for V6
+DATA_FILE = os.path.join(BASE_DIR, 'data', 'citizens.json') # UPDATED for V6
 
 def seed_db():
-    print("🌱 Starting Database Seed Process (V6 Genesis)...")
+    print(">> Starting Database Seed Process (V6 Genesis)...")
     
     # 1. Always Clear for V6 Genesis
     from app.core.database import clear_citizens
-    print("🧹 Clearing existing citizens...")
+    print(">> Clearing existing citizens...")
     clear_citizens()
     
     # 2. Load JSON
@@ -26,16 +26,21 @@ def seed_db():
         # Fallback to original if V6 not found
         OLD_FILE = os.path.join(BASE_DIR, 'data', 'citizens.json')
         if os.path.exists(OLD_FILE):
-             print(f"⚠️ {DATA_FILE} not found. Falling back to citizens.json")
+             print(f">> {DATA_FILE} not found. Falling back to citizens.json")
              with open(OLD_FILE, 'r', encoding='utf-8') as f: data = json.load(f)
         else:
-             print(f"❌ No citizen data found.")
+             print(f">> No citizen data found.")
              return
     else:
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+            data_raw = json.load(f)
+            
+        if isinstance(data_raw, dict) and "citizens" in data_raw:
+            data = data_raw["citizens"]
+        else:
+            data = data_raw
     
-    print(f"📖 Loaded {len(data)} citizens from JSON.")
+    print(f">> Loaded {len(data)} citizens from JSON.")
     
     # 3. Transform Data to DB Schema
     db_records = []
@@ -46,6 +51,9 @@ def seed_db():
         # Handle Bazi Profile: Use existing V6 dict or construct legacy
         if isinstance(item.get("bazi_profile"), dict):
             final_bazi = item.get("bazi_profile")
+            # [Fix] Field Mismatch: luck_pillars -> luck_timeline
+            if "luck_pillars" in final_bazi:
+                final_bazi["luck_timeline"] = final_bazi.pop("luck_pillars")
         else:
             final_bazi = {
                 "structure": item.get("bazi"), 
@@ -53,7 +61,24 @@ def seed_db():
                 "trait": item.get("bazi")
             }
 
+        # Force inject luck data into the Bazi structure
+        if "current_luck" in item:
+            final_bazi["current_luck"] = item["current_luck"]
+        if "luck_pillars" in item:
+            final_bazi["luck_timeline"] = item["luck_pillars"]
+
+        # Debug output for the first citizen
+        if len(db_records) == 0:
+            print(f"[DEBUG] First Citizen Final Bazi Keys: {list(final_bazi.keys())}")
+            # Safe print
+            try:
+                if "current_luck" in final_bazi:
+                    print(f"[DEBUG] current_luck: {str(final_bazi['current_luck'])[:50]}...")
+            except:
+                pass
+
         record = {
+            "id": int(item.get("id")),
             "name": item.get("name"), 
             "gender": item.get("gender"),
             "age": item.get("age"),
@@ -70,9 +95,9 @@ def seed_db():
     success = insert_citizens_batch(db_records)
     
     if success:
-        print(f"✅ Successfully seeded {len(db_records)} citizens into the database.")
+        print(f">> Successfully seeded {len(db_records)} citizens into the database.")
     else:
-        print("❌ Seeding failed.")
+        print(">> Seeding failed.")
 
 if __name__ == "__main__":
     seed_db()

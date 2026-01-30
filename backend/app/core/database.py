@@ -91,6 +91,7 @@ def insert_citizens_batch(citizens: list[dict]) -> bool:
         db = SessionLocal()
         for c in citizens:
             citizen = Citizen(
+                id=c.get("id"),
                 name=c["name"], # Now an object
                 gender=c["gender"],
                 age=c["age"],
