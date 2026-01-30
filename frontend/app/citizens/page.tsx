@@ -578,20 +578,32 @@ function CitizenModal({ citizen, market, onClose }: { citizen: Citizen; market: 
                     </button>
                 </div>
 
+
+
                 <div className="overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                    <section>
-                        <div className="flex items-center gap-2 mb-3">
-                            <span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]"></span>
-                            <h3 className="text-sm font-bold text-purple-400 uppercase tracking-widest">{t.current_state}</h3>
+                    {/* Real Bazi Section */}
+                    <section className="bg-slate-800/50 rounded-xl p-4 border border-white/5">
+                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">八字命盤 (Four Pillars)</h3>
+                        <div className="grid grid-cols-4 gap-2 text-center">
+                            <div className="p-2 bg-slate-900 rounded border border-white/10">
+                                <div className="text-[10px] text-slate-500">Year</div>
+                                <div className="text-lg font-bold text-white">{citizen.bazi_profile.four_pillars?.year}</div>
+                            </div>
+                            <div className="p-2 bg-slate-900 rounded border border-white/10">
+                                <div className="text-[10px] text-slate-500">Month</div>
+                                <div className="text-lg font-bold text-white">{citizen.bazi_profile.four_pillars?.month}</div>
+                            </div>
+                            <div className="p-2 bg-slate-900 rounded border border-white/10">
+                                <div className="text-[10px] text-slate-500">Day</div>
+                                <div className="text-lg font-bold text-purple-400">{citizen.bazi_profile.four_pillars?.day}</div>
+                            </div>
+                            <div className="p-2 bg-slate-900 rounded border border-white/10">
+                                <div className="text-[10px] text-slate-500">Hour</div>
+                                <div className="text-lg font-bold text-white">{citizen.bazi_profile.four_pillars?.hour}</div>
+                            </div>
                         </div>
-                        <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-900/20 to-slate-900 border border-purple-500/30 text-slate-200 leading-relaxed text-lg shadow-inner">
-                            {market === 'US' ? (
-                                <span className="text-slate-300">
-                                    {CURRENT_STATE_EN[citizen.bazi_profile.structure || ""] || "The analysis reflects a period of unique energy flow."}
-                                </span>
-                            ) : (
-                                citizen.bazi_profile.localized_state?.[market] || citizen.bazi_profile.current_state
-                            )}
+                        <div className="text-[10px] text-slate-500 mt-2 text-center font-mono">
+                            Born: {citizen.bazi_profile.birth_year}-{String(citizen.bazi_profile.birth_month).padStart(2, '0')}-{String(citizen.bazi_profile.birth_day).padStart(2, '0')} {String(citizen.bazi_profile.birth_hour).padStart(2, '0')}:00
                         </div>
                     </section>
 
@@ -740,8 +752,8 @@ function CitizenModal({ citizen, market, onClose }: { citizen: Citizen; market: 
                     </button>
 
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
 
@@ -1016,21 +1028,24 @@ function CitizensContent() {
                                                 </div>
                                             )}
 
-                                            {/* Bazi Info (Only in TW Mode or if space allows) */}
-                                            {market === 'TW' && (
-                                                <p className="text-[10px] text-gray-500 mb-3">
-                                                    出生: {(() => {
-                                                        const year = citizen.bazi_profile?.birth_year || (2026 - citizen.age);
-                                                        const month = citizen.bazi_profile?.birth_month || citizen.bazi_profile?.birth_info?.month;
-                                                        const day = citizen.bazi_profile?.birth_day || citizen.bazi_profile?.birth_info?.day;
-
-                                                        if (year && month && day) {
-                                                            return t.date_format(year, month, day);
+                                            {/* Bazi Info (Always Show for Authenticity) */}
+                                            <div className="text-[10px] text-gray-500 mb-3 font-mono">
+                                                <div>
+                                                    {(() => {
+                                                        const { birth_year, birth_month, birth_day, birth_hour } = citizen.bazi_profile || {};
+                                                        if (birth_year && birth_month && birth_day) {
+                                                            return `${birth_year}-${String(birth_month).padStart(2, '0')}-${String(birth_day).padStart(2, '0')} ${String(birth_hour).padStart(2, '0')}:00`;
                                                         }
-                                                        return (year && month) ? `${year}年${month}月` : '未知';
+                                                        return 'Unknown Date';
                                                     })()}
-                                                </p>
-                                            )}
+                                                </div>
+                                                <div className="flex gap-2 mt-1 text-purple-300">
+                                                    <span>{citizen.bazi_profile.four_pillars?.year || '??'}</span>
+                                                    <span>{citizen.bazi_profile.four_pillars?.month || '??'}</span>
+                                                    <span>{citizen.bazi_profile.four_pillars?.day || '??'}</span>
+                                                    <span>{citizen.bazi_profile.four_pillars?.hour || '??'}</span>
+                                                </div>
+                                            </div>
 
                                             {/* Additional Info from Modal */}
                                             {citizen.bazi_profile.current_state && market === 'TW' && (
