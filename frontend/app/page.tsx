@@ -7,14 +7,15 @@ import { useLanguage } from './context/LanguageContext';
 
 export default function Home() {
     const { t, language } = useLanguage();
-    const [healthStatus, setHealthStatus] = useState<{status: string, version: string} | null>(null);
+    const [healthStatus, setHealthStatus] = useState<{ status: string, version: string } | null>(null);
     const [isOffline, setIsOffline] = useState(true); // Default to offline until proven otherwise
 
     useEffect(() => {
         // Check backend health
         const checkHealth = async () => {
             try {
-                const res = await fetch('http://localhost:8000/api/health');
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+                const res = await fetch(`${API_URL}/api/health`);
                 if (res.ok) {
                     const data = await res.json();
                     setHealthStatus(data);
@@ -27,7 +28,7 @@ export default function Home() {
                 setIsOffline(true);
             }
         };
-        
+
         checkHealth();
     }, []);
 
@@ -50,22 +51,18 @@ export default function Home() {
 
                         <div className="flex flex-col gap-4 text-left max-w-[900px] z-10">
                             {/* Status Badge */}
-                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border mb-2 w-fit ${
-                                isOffline 
-                                ? "border-red-500/30 bg-red-500/10" 
-                                : "border-emerald-500/30 bg-emerald-500/10"
-                            }`}>
-                                <span className="relative flex h-2 w-2">
-                                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                                        isOffline ? "bg-red-500" : "bg-emerald-500"
-                                    }`}></span>
-                                    <span className={`relative inline-flex rounded-full h-2 w-2 ${
-                                        isOffline ? "bg-red-500" : "bg-emerald-500"
-                                    }`}></span>
-                                </span>
-                                <span className={`text-xs font-medium uppercase tracking-widest ${
-                                    isOffline ? "text-red-400" : "text-emerald-400"
+                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border mb-2 w-fit ${isOffline
+                                    ? "border-red-500/30 bg-red-500/10"
+                                    : "border-emerald-500/30 bg-emerald-500/10"
                                 }`}>
+                                <span className="relative flex h-2 w-2">
+                                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isOffline ? "bg-red-500" : "bg-emerald-500"
+                                        }`}></span>
+                                    <span className={`relative inline-flex rounded-full h-2 w-2 ${isOffline ? "bg-red-500" : "bg-emerald-500"
+                                        }`}></span>
+                                </span>
+                                <span className={`text-xs font-medium uppercase tracking-widest ${isOffline ? "text-red-400" : "text-emerald-400"
+                                    }`}>
                                     {isOffline ? "🔴 系統離線" : `🟢 系統運作中 (v${healthStatus?.version || '...'})`}
                                 </span>
                             </div>
