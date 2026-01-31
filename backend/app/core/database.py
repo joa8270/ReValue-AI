@@ -79,8 +79,15 @@ class Simulation(Base):
     data = Column(JSON)
 
 
-# 啟動時建立資料表 (如果不存在)
-Base.metadata.create_all(bind=engine)
+
+def init_db():
+    """初始化資料庫表格 (由 main.py 啟動時呼叫)"""
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("✅ [DB] Database tables created successfully.")
+    except Exception as e:
+        print(f"❌ [DB] Error creating tables: {e}")
+
 
 
 # ===== 資料庫操作函數 =====

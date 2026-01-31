@@ -1,0 +1,64 @@
+
+> mirra-frontend@0.1.0 dev
+> next dev -p 4000
+
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Joa\\Downloads\\MirRa']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [52092] using StatReload
+  ▲ Next.js 14.2.0
+  - Local:        http://localhost:4000
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+C:\Users\Joa\AppData\Local\Programs\Python\Python314\Lib\site-packages\linebot\v3\webhooks\api\dummy.py:18: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1 import validate_arguments, ValidationError
+ ✓ Ready in 2.2s
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+>> [WEB] Module web.py loaded!
+INFO:     Started server process [43560]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+>> [System] Starting up... Scanning for Skills...
+[SkillRegistry] Scanning for skills in C:\Users\Joa\Downloads\MirRa\backend\app\skills...
+[SkillRegistry] Registered skill: BaZi Calculator (bazi-calc)
+[SkillRegistry] Registered skill: Demo Skill (demo-skill)
+[SkillRegistry] Discovered 2 skills.
+INFO:     127.0.0.1:10665 - "HEAD /citizens/genesis HTTP/1.1" 404 Not Found
+WARNING:  StatReload detected changes in 'backend\app\main.py'. Reloading...
+  ○ Compiling / ...
+ ✓ Compiled / in 2.6s (1268 modules)
+ GET / 200 in 3037ms
+ ✓ Compiled in 370ms (639 modules)
+ GET / 200 in 71ms
+INFO:     127.0.0.1:1988 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6347 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1988 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6347 - "GET / HTTP/1.1" 200 OK
+ ○ Compiling /citizens ...
+ ✓ Compiled /citizens in 524ms (1260 modules)
+INFO:     127.0.0.1:11603 - "GET /citizens/genesis HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:9045 - "GET /citizens/genesis HTTP/1.1" 404 Not Found
+ GET /citizens 200 in 91ms
+INFO:     127.0.0.1:8047 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:2123 - "GET /citizens/genesis HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:8047 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:2123 - "GET /citizens/genesis HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:10542 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6288 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:11659 - "GET /citizens/genesis HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:11659 - "GET /citizens/genesis HTTP/1.1" 404 Not Found
+ GET /citizens 200 in 33ms
+INFO:     127.0.0.1:6905 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6905 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6905 - "GET /citizens/genesis HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:6905 - "GET /citizens/genesis HTTP/1.1" 404 Not Found
+ GET /citizens 200 in 59ms
+INFO:     127.0.0.1:6905 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:7150 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:7150 - "GET /citizens/genesis HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:6905 - "GET /citizens/genesis HTTP/1.1" 404 Not Found
+ GET /citizens 200 in 45ms
+INFO:     127.0.0.1:6905 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:7150 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:7150 - "GET /citizens/genesis HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:6905 - "GET /citizens/genesis HTTP/1.1" 404 Not Found

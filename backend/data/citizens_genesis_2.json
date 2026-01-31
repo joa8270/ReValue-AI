@@ -1,0 +1,1462 @@
+[
+  {
+    "name": {
+      "TW": "楊建宏",
+      "US": "William Williams",
+      "CN": "刘家豪"
+    },
+    "gender": "Male",
+    "age": 31,
+    "location": "Taipei",
+    "occupation": {
+      "TW": "行政助理",
+      "US": "Admin Assistant",
+      "CN": "行政助理"
+    },
+    "bazi_profile": {
+      "birth_year": 1995,
+      "birth_month": 1,
+      "birth_day": 16,
+      "four_pillars": {
+        "year": "yi-hai",
+        "month": "wu-si",
+        "day": "xin-shen",
+        "hour": "ji-hai"
+      },
+      "day_master": "xin",
+      "element": "Metal",
+      "structure": "建祿格",
+      "strength": "中和",
+      "luck_timeline": [
+        {
+          "pillar": "ding-chen",
+          "age_start": 10,
+          "age_end": 19,
+          "description": "Luck Cycle 1",
+          "localized_description": {
+            "TW": "第1步大運",
+            "CN": "第1步大运",
+            "US": "Luck Cycle 1"
+          }
+        },
+        {
+          "pillar": "bing-mao",
+          "age_start": 20,
+          "age_end": 29,
+          "description": "Luck Cycle 2",
+          "localized_description": {
+            "TW": "第2步大運",
+            "CN": "第2步大运",
+            "US": "Luck Cycle 2"
+          }
+        },
+        {
+          "pillar": "yi-yin",
+          "age_start": 30,
+          "age_end": 39,
+          "description": "Luck Cycle 3",
+          "localized_description": {
+            "TW": "第3步大運",
+            "CN": "第3步大运",
+            "US": "Luck Cycle 3"
+          }
+        },
+        {
+          "pillar": "jia-chou",
+          "age_start": 40,
+          "age_end": 49,
+          "description": "Luck Cycle 4",
+          "localized_description": {
+            "TW": "第4步大運",
+            "CN": "第4步大运",
+            "US": "Luck Cycle 4"
+          }
+        },
+        {
+          "pillar": "gui-zi",
+          "age_start": 50,
+          "age_end": 59,
+          "description": "Luck Cycle 5",
+          "localized_description": {
+            "TW": "第5步大運",
+            "CN": "第5步大运",
+            "US": "Luck Cycle 5"
+          }
+        },
+        {
+          "pillar": "ren-hai",
+          "age_start": 60,
+          "age_end": 69,
+          "description": "Luck Cycle 6",
+          "localized_description": {
+            "TW": "第6步大運",
+            "CN": "第6步大运",
+            "US": "Luck Cycle 6"
+          }
+        },
+        {
+          "pillar": "xin-xu",
+          "age_start": 70,
+          "age_end": 79,
+          "description": "Luck Cycle 7",
+          "localized_description": {
+            "TW": "第7步大運",
+            "CN": "第7步大运",
+            "US": "Luck Cycle 7"
+          }
+        },
+        {
+          "pillar": "geng-you",
+          "age_start": 80,
+          "age_end": 89,
+          "description": "Luck Cycle 8",
+          "localized_description": {
+            "TW": "第8步大運",
+            "CN": "第8步大运",
+            "US": "Luck Cycle 8"
+          }
+        }
+      ],
+      "current_luck": "yi-yin"
+    },
+    "traits": [
+      "建祿格",
+      "Metal",
+      "Low-Mid"
+    ],
+    "profiles": {
+      "TW": {
+        "name": "楊建宏",
+        "city": "Taipei",
+        "job": "行政助理",
+        "pain": "家庭成員健康擔憂"
+      },
+      "US": {
+        "name": "William Williams",
+        "city": "New York",
+        "job": "Admin Assistant",
+        "pain": "Family Health Concerns"
+      },
+      "CN": {
+        "name": "刘家豪",
+        "city": "Shanghai",
+        "job": "行政助理",
+        "pain": "家庭成员健康担忧"
+      }
+    }
+  },
+  {
+    "name": {
+      "TW": "李冠宇",
+      "US": "William Jones",
+      "CN": "杨俊杰"
+    },
+    "gender": "Male",
+    "age": 37,
+    "location": "Taipei",
+    "occupation": {
+      "TW": "資深工程師",
+      "US": "Senior Engineer",
+      "CN": "资深工程师"
+    },
+    "bazi_profile": {
+      "birth_year": 1989,
+      "birth_month": 2,
+      "birth_day": 25,
+      "four_pillars": {
+        "year": "ji-si",
+        "month": "ji-zi",
+        "day": "ding-chen",
+        "hour": "wu-si"
+      },
+      "day_master": "ding",
+      "element": "Fire",
+      "structure": "偏財格",
+      "strength": "中和",
+      "luck_timeline": [
+        {
+          "pillar": "wu-hai",
+          "age_start": 10,
+          "age_end": 19,
+          "description": "Luck Cycle 1",
+          "localized_description": {
+            "TW": "第1步大運",
+            "CN": "第1步大运",
+            "US": "Luck Cycle 1"
+          }
+        },
+        {
+          "pillar": "ding-xu",
+          "age_start": 20,
+          "age_end": 29,
+          "description": "Luck Cycle 2",
+          "localized_description": {
+            "TW": "第2步大運",
+            "CN": "第2步大运",
+            "US": "Luck Cycle 2"
+          }
+        },
+        {
+          "pillar": "bing-you",
+          "age_start": 30,
+          "age_end": 39,
+          "description": "Luck Cycle 3",
+          "localized_description": {
+            "TW": "第3步大運",
+            "CN": "第3步大运",
+            "US": "Luck Cycle 3"
+          }
+        },
+        {
+          "pillar": "yi-shen",
+          "age_start": 40,
+          "age_end": 49,
+          "description": "Luck Cycle 4",
+          "localized_description": {
+            "TW": "第4步大運",
+            "CN": "第4步大运",
+            "US": "Luck Cycle 4"
+          }
+        },
+        {
+          "pillar": "jia-wei",
+          "age_start": 50,
+          "age_end": 59,
+          "description": "Luck Cycle 5",
+          "localized_description": {
+            "TW": "第5步大運",
+            "CN": "第5步大运",
+            "US": "Luck Cycle 5"
+          }
+        },
+        {
+          "pillar": "gui-wu",
+          "age_start": 60,
+          "age_end": 69,
+          "description": "Luck Cycle 6",
+          "localized_description": {
+            "TW": "第6步大運",
+            "CN": "第6步大运",
+            "US": "Luck Cycle 6"
+          }
+        },
+        {
+          "pillar": "ren-si",
+          "age_start": 70,
+          "age_end": 79,
+          "description": "Luck Cycle 7",
+          "localized_description": {
+            "TW": "第7步大運",
+            "CN": "第7步大运",
+            "US": "Luck Cycle 7"
+          }
+        },
+        {
+          "pillar": "xin-chen",
+          "age_start": 80,
+          "age_end": 89,
+          "description": "Luck Cycle 8",
+          "localized_description": {
+            "TW": "第8步大運",
+            "CN": "第8步大运",
+            "US": "Luck Cycle 8"
+          }
+        }
+      ],
+      "current_luck": "bing-you"
+    },
+    "traits": [
+      "偏財格",
+      "Fire",
+      "Mid"
+    ],
+    "profiles": {
+      "TW": {
+        "name": "李冠宇",
+        "city": "Taipei",
+        "job": "資深工程師",
+        "pain": "感情空窗，渴望伴侶"
+      },
+      "US": {
+        "name": "William Jones",
+        "city": "New York",
+        "job": "Senior Engineer",
+        "pain": "Loneliness, Seeking Partner"
+      },
+      "CN": {
+        "name": "杨俊杰",
+        "city": "Shanghai",
+        "job": "资深工程师",
+        "pain": "感情空窗，渴望伴侣"
+      }
+    }
+  },
+  {
+    "name": {
+      "TW": "陳雅婷",
+      "US": "Linda Jones",
+      "CN": "杨心怡"
+    },
+    "gender": "Female",
+    "age": 46,
+    "location": "Taipei",
+    "occupation": {
+      "TW": "行銷總監",
+      "US": "Marketing Director",
+      "CN": "营销总监"
+    },
+    "bazi_profile": {
+      "birth_year": 1980,
+      "birth_month": 8,
+      "birth_day": 25,
+      "four_pillars": {
+        "year": "geng-shen",
+        "month": "yi-xu",
+        "day": "ren-xu",
+        "hour": "ji-wu"
+      },
+      "day_master": "ren",
+      "element": "Water",
+      "structure": "正印格",
+      "strength": "中和",
+      "luck_timeline": [
+        {
+          "pillar": "jia-you",
+          "age_start": 10,
+          "age_end": 19,
+          "description": "Luck Cycle 1",
+          "localized_description": {
+            "TW": "第1步大運",
+            "CN": "第1步大运",
+            "US": "Luck Cycle 1"
+          }
+        },
+        {
+          "pillar": "gui-shen",
+          "age_start": 20,
+          "age_end": 29,
+          "description": "Luck Cycle 2",
+          "localized_description": {
+            "TW": "第2步大運",
+            "CN": "第2步大运",
+            "US": "Luck Cycle 2"
+          }
+        },
+        {
+          "pillar": "ren-wei",
+          "age_start": 30,
+          "age_end": 39,
+          "description": "Luck Cycle 3",
+          "localized_description": {
+            "TW": "第3步大運",
+            "CN": "第3步大运",
+            "US": "Luck Cycle 3"
+          }
+        },
+        {
+          "pillar": "xin-wu",
+          "age_start": 40,
+          "age_end": 49,
+          "description": "Luck Cycle 4",
+          "localized_description": {
+            "TW": "第4步大運",
+            "CN": "第4步大运",
+            "US": "Luck Cycle 4"
+          }
+        },
+        {
+          "pillar": "geng-si",
+          "age_start": 50,
+          "age_end": 59,
+          "description": "Luck Cycle 5",
+          "localized_description": {
+            "TW": "第5步大運",
+            "CN": "第5步大运",
+            "US": "Luck Cycle 5"
+          }
+        },
+        {
+          "pillar": "ji-chen",
+          "age_start": 60,
+          "age_end": 69,
+          "description": "Luck Cycle 6",
+          "localized_description": {
+            "TW": "第6步大運",
+            "CN": "第6步大运",
+            "US": "Luck Cycle 6"
+          }
+        },
+        {
+          "pillar": "wu-mao",
+          "age_start": 70,
+          "age_end": 79,
+          "description": "Luck Cycle 7",
+          "localized_description": {
+            "TW": "第7步大運",
+            "CN": "第7步大运",
+            "US": "Luck Cycle 7"
+          }
+        },
+        {
+          "pillar": "ding-yin",
+          "age_start": 80,
+          "age_end": 89,
+          "description": "Luck Cycle 8",
+          "localized_description": {
+            "TW": "第8步大運",
+            "CN": "第8步大运",
+            "US": "Luck Cycle 8"
+          }
+        }
+      ],
+      "current_luck": "xin-wu"
+    },
+    "traits": [
+      "正印格",
+      "Water",
+      "Mid-High"
+    ],
+    "profiles": {
+      "TW": {
+        "name": "陳雅婷",
+        "city": "Taipei",
+        "job": "行銷總監",
+        "pain": "感情空窗，渴望伴侶"
+      },
+      "US": {
+        "name": "Linda Jones",
+        "city": "New York",
+        "job": "Marketing Director",
+        "pain": "Loneliness, Seeking Partner"
+      },
+      "CN": {
+        "name": "杨心怡",
+        "city": "Shanghai",
+        "job": "营销总监",
+        "pain": "感情空窗，渴望伴侣"
+      }
+    }
+  },
+  {
+    "name": {
+      "TW": "黃雅雯",
+      "US": "Linda Smith",
+      "CN": "黄怡君"
+    },
+    "gender": "Female",
+    "age": 39,
+    "location": "Taipei",
+    "occupation": {
+      "TW": "行銷總監",
+      "US": "Marketing Director",
+      "CN": "营销总监"
+    },
+    "bazi_profile": {
+      "birth_year": 1987,
+      "birth_month": 1,
+      "birth_day": 4,
+      "four_pillars": {
+        "year": "ding-mao",
+        "month": "wu-xu",
+        "day": "gui-mao",
+        "hour": "xin-si"
+      },
+      "day_master": "gui",
+      "element": "Water",
+      "structure": "七殺格",
+      "strength": "身弱",
+      "luck_timeline": [
+        {
+          "pillar": "ji-hai",
+          "age_start": 10,
+          "age_end": 19,
+          "description": "Luck Cycle 1",
+          "localized_description": {
+            "TW": "第1步大運",
+            "CN": "第1步大运",
+            "US": "Luck Cycle 1"
+          }
+        },
+        {
+          "pillar": "geng-zi",
+          "age_start": 20,
+          "age_end": 29,
+          "description": "Luck Cycle 2",
+          "localized_description": {
+            "TW": "第2步大運",
+            "CN": "第2步大运",
+            "US": "Luck Cycle 2"
+          }
+        },
+        {
+          "pillar": "xin-chou",
+          "age_start": 30,
+          "age_end": 39,
+          "description": "Luck Cycle 3",
+          "localized_description": {
+            "TW": "第3步大運",
+            "CN": "第3步大运",
+            "US": "Luck Cycle 3"
+          }
+        },
+        {
+          "pillar": "ren-yin",
+          "age_start": 40,
+          "age_end": 49,
+          "description": "Luck Cycle 4",
+          "localized_description": {
+            "TW": "第4步大運",
+            "CN": "第4步大运",
+            "US": "Luck Cycle 4"
+          }
+        },
+        {
+          "pillar": "gui-mao",
+          "age_start": 50,
+          "age_end": 59,
+          "description": "Luck Cycle 5",
+          "localized_description": {
+            "TW": "第5步大運",
+            "CN": "第5步大运",
+            "US": "Luck Cycle 5"
+          }
+        },
+        {
+          "pillar": "jia-chen",
+          "age_start": 60,
+          "age_end": 69,
+          "description": "Luck Cycle 6",
+          "localized_description": {
+            "TW": "第6步大運",
+            "CN": "第6步大运",
+            "US": "Luck Cycle 6"
+          }
+        },
+        {
+          "pillar": "yi-si",
+          "age_start": 70,
+          "age_end": 79,
+          "description": "Luck Cycle 7",
+          "localized_description": {
+            "TW": "第7步大運",
+            "CN": "第7步大运",
+            "US": "Luck Cycle 7"
+          }
+        },
+        {
+          "pillar": "bing-wu",
+          "age_start": 80,
+          "age_end": 89,
+          "description": "Luck Cycle 8",
+          "localized_description": {
+            "TW": "第8步大運",
+            "CN": "第8步大运",
+            "US": "Luck Cycle 8"
+          }
+        }
+      ],
+      "current_luck": "xin-chou"
+    },
+    "traits": [
+      "七殺格",
+      "Water",
+      "Mid-High"
+    ],
+    "profiles": {
+      "TW": {
+        "name": "黃雅雯",
+        "city": "Taipei",
+        "job": "行銷總監",
+        "pain": "長期失眠與焦慮"
+      },
+      "US": {
+        "name": "Linda Smith",
+        "city": "New York",
+        "job": "Marketing Director",
+        "pain": "Chronic Insomnia & Anxiety"
+      },
+      "CN": {
+        "name": "黄怡君",
+        "city": "Shanghai",
+        "job": "营销总监",
+        "pain": "长期失眠与焦虑"
+      }
+    }
+  },
+  {
+    "name": {
+      "TW": "楊雅雯",
+      "US": "Linda Williams",
+      "CN": "蔡诗涵"
+    },
+    "gender": "Female",
+    "age": 59,
+    "location": "Taipei",
+    "occupation": {
+      "TW": "資深工程師",
+      "US": "Senior Engineer",
+      "CN": "资深工程师"
+    },
+    "bazi_profile": {
+      "birth_year": 1967,
+      "birth_month": 8,
+      "birth_day": 21,
+      "four_pillars": {
+        "year": "ding-wei",
+        "month": "ji-si",
+        "day": "bing-zi",
+        "hour": "wu-zi"
+      },
+      "day_master": "bing",
+      "element": "Fire",
+      "structure": "七殺格",
+      "strength": "身弱",
+      "luck_timeline": [
+        {
+          "pillar": "geng-wu",
+          "age_start": 10,
+          "age_end": 19,
+          "description": "Luck Cycle 1",
+          "localized_description": {
+            "TW": "第1步大運",
+            "CN": "第1步大运",
+            "US": "Luck Cycle 1"
+          }
+        },
+        {
+          "pillar": "xin-wei",
+          "age_start": 20,
+          "age_end": 29,
+          "description": "Luck Cycle 2",
+          "localized_description": {
+            "TW": "第2步大運",
+            "CN": "第2步大运",
+            "US": "Luck Cycle 2"
+          }
+        },
+        {
+          "pillar": "ren-shen",
+          "age_start": 30,
+          "age_end": 39,
+          "description": "Luck Cycle 3",
+          "localized_description": {
+            "TW": "第3步大運",
+            "CN": "第3步大运",
+            "US": "Luck Cycle 3"
+          }
+        },
+        {
+          "pillar": "gui-you",
+          "age_start": 40,
+          "age_end": 49,
+          "description": "Luck Cycle 4",
+          "localized_description": {
+            "TW": "第4步大運",
+            "CN": "第4步大运",
+            "US": "Luck Cycle 4"
+          }
+        },
+        {
+          "pillar": "jia-xu",
+          "age_start": 50,
+          "age_end": 59,
+          "description": "Luck Cycle 5",
+          "localized_description": {
+            "TW": "第5步大運",
+            "CN": "第5步大运",
+            "US": "Luck Cycle 5"
+          }
+        },
+        {
+          "pillar": "yi-hai",
+          "age_start": 60,
+          "age_end": 69,
+          "description": "Luck Cycle 6",
+          "localized_description": {
+            "TW": "第6步大運",
+            "CN": "第6步大运",
+            "US": "Luck Cycle 6"
+          }
+        },
+        {
+          "pillar": "bing-zi",
+          "age_start": 70,
+          "age_end": 79,
+          "description": "Luck Cycle 7",
+          "localized_description": {
+            "TW": "第7步大運",
+            "CN": "第7步大运",
+            "US": "Luck Cycle 7"
+          }
+        },
+        {
+          "pillar": "ding-chou",
+          "age_start": 80,
+          "age_end": 89,
+          "description": "Luck Cycle 8",
+          "localized_description": {
+            "TW": "第8步大運",
+            "CN": "第8步大运",
+            "US": "Luck Cycle 8"
+          }
+        }
+      ],
+      "current_luck": "jia-xu"
+    },
+    "traits": [
+      "七殺格",
+      "Fire",
+      "Mid"
+    ],
+    "profiles": {
+      "TW": {
+        "name": "楊雅雯",
+        "city": "Taipei",
+        "job": "資深工程師",
+        "pain": "投資失利資金卡住"
+      },
+      "US": {
+        "name": "Linda Williams",
+        "city": "New York",
+        "job": "Senior Engineer",
+        "pain": "Investment Stuck"
+      },
+      "CN": {
+        "name": "蔡诗涵",
+        "city": "Shanghai",
+        "job": "资深工程师",
+        "pain": "投资失利资金套牢"
+      }
+    }
+  },
+  {
+    "name": {
+      "TW": "楊詩涵",
+      "US": "Patricia Johnson",
+      "CN": "林心怡"
+    },
+    "gender": "Female",
+    "age": 44,
+    "location": "Taipei",
+    "occupation": {
+      "TW": "資深工程師",
+      "US": "Senior Engineer",
+      "CN": "资深工程师"
+    },
+    "bazi_profile": {
+      "birth_year": 1982,
+      "birth_month": 6,
+      "birth_day": 19,
+      "four_pillars": {
+        "year": "ren-xu",
+        "month": "ji-you",
+        "day": "ding-xu",
+        "hour": "yi-hai"
+      },
+      "day_master": "ding",
+      "element": "Fire",
+      "structure": "正財格",
+      "strength": "中和",
+      "luck_timeline": [
+        {
+          "pillar": "wu-shen",
+          "age_start": 10,
+          "age_end": 19,
+          "description": "Luck Cycle 1",
+          "localized_description": {
+            "TW": "第1步大運",
+            "CN": "第1步大运",
+            "US": "Luck Cycle 1"
+          }
+        },
+        {
+          "pillar": "ding-wei",
+          "age_start": 20,
+          "age_end": 29,
+          "description": "Luck Cycle 2",
+          "localized_description": {
+            "TW": "第2步大運",
+            "CN": "第2步大运",
+            "US": "Luck Cycle 2"
+          }
+        },
+        {
+          "pillar": "bing-wu",
+          "age_start": 30,
+          "age_end": 39,
+          "description": "Luck Cycle 3",
+          "localized_description": {
+            "TW": "第3步大運",
+            "CN": "第3步大运",
+            "US": "Luck Cycle 3"
+          }
+        },
+        {
+          "pillar": "yi-si",
+          "age_start": 40,
+          "age_end": 49,
+          "description": "Luck Cycle 4",
+          "localized_description": {
+            "TW": "第4步大運",
+            "CN": "第4步大运",
+            "US": "Luck Cycle 4"
+          }
+        },
+        {
+          "pillar": "jia-chen",
+          "age_start": 50,
+          "age_end": 59,
+          "description": "Luck Cycle 5",
+          "localized_description": {
+            "TW": "第5步大運",
+            "CN": "第5步大运",
+            "US": "Luck Cycle 5"
+          }
+        },
+        {
+          "pillar": "gui-mao",
+          "age_start": 60,
+          "age_end": 69,
+          "description": "Luck Cycle 6",
+          "localized_description": {
+            "TW": "第6步大運",
+            "CN": "第6步大运",
+            "US": "Luck Cycle 6"
+          }
+        },
+        {
+          "pillar": "ren-yin",
+          "age_start": 70,
+          "age_end": 79,
+          "description": "Luck Cycle 7",
+          "localized_description": {
+            "TW": "第7步大運",
+            "CN": "第7步大运",
+            "US": "Luck Cycle 7"
+          }
+        },
+        {
+          "pillar": "xin-chou",
+          "age_start": 80,
+          "age_end": 89,
+          "description": "Luck Cycle 8",
+          "localized_description": {
+            "TW": "第8步大運",
+            "CN": "第8步大运",
+            "US": "Luck Cycle 8"
+          }
+        }
+      ],
+      "current_luck": "yi-si"
+    },
+    "traits": [
+      "正財格",
+      "Fire",
+      "Mid"
+    ],
+    "profiles": {
+      "TW": {
+        "name": "楊詩涵",
+        "city": "Taipei",
+        "job": "資深工程師",
+        "pain": "長期失眠與焦慮"
+      },
+      "US": {
+        "name": "Patricia Johnson",
+        "city": "New York",
+        "job": "Senior Engineer",
+        "pain": "Chronic Insomnia & Anxiety"
+      },
+      "CN": {
+        "name": "林心怡",
+        "city": "Shanghai",
+        "job": "资深工程师",
+        "pain": "长期失眠与焦虑"
+      }
+    }
+  },
+  {
+    "name": {
+      "TW": "李志豪",
+      "US": "William Williams",
+      "CN": "黄志豪"
+    },
+    "gender": "Male",
+    "age": 42,
+    "location": "Taipei",
+    "occupation": {
+      "TW": "行政助理",
+      "US": "Admin Assistant",
+      "CN": "行政助理"
+    },
+    "bazi_profile": {
+      "birth_year": 1984,
+      "birth_month": 8,
+      "birth_day": 7,
+      "four_pillars": {
+        "year": "jia-zi",
+        "month": "wu-wei",
+        "day": "ding-you",
+        "hour": "jia-mao"
+      },
+      "day_master": "ding",
+      "element": "Fire",
+      "structure": "偏印格",
+      "strength": "身強",
+      "luck_timeline": [
+        {
+          "pillar": "ji-shen",
+          "age_start": 10,
+          "age_end": 19,
+          "description": "Luck Cycle 1",
+          "localized_description": {
+            "TW": "第1步大運",
+            "CN": "第1步大运",
+            "US": "Luck Cycle 1"
+          }
+        },
+        {
+          "pillar": "geng-you",
+          "age_start": 20,
+          "age_end": 29,
+          "description": "Luck Cycle 2",
+          "localized_description": {
+            "TW": "第2步大運",
+            "CN": "第2步大运",
+            "US": "Luck Cycle 2"
+          }
+        },
+        {
+          "pillar": "xin-xu",
+          "age_start": 30,
+          "age_end": 39,
+          "description": "Luck Cycle 3",
+          "localized_description": {
+            "TW": "第3步大運",
+            "CN": "第3步大运",
+            "US": "Luck Cycle 3"
+          }
+        },
+        {
+          "pillar": "ren-hai",
+          "age_start": 40,
+          "age_end": 49,
+          "description": "Luck Cycle 4",
+          "localized_description": {
+            "TW": "第4步大運",
+            "CN": "第4步大运",
+            "US": "Luck Cycle 4"
+          }
+        },
+        {
+          "pillar": "gui-zi",
+          "age_start": 50,
+          "age_end": 59,
+          "description": "Luck Cycle 5",
+          "localized_description": {
+            "TW": "第5步大運",
+            "CN": "第5步大运",
+            "US": "Luck Cycle 5"
+          }
+        },
+        {
+          "pillar": "jia-chou",
+          "age_start": 60,
+          "age_end": 69,
+          "description": "Luck Cycle 6",
+          "localized_description": {
+            "TW": "第6步大運",
+            "CN": "第6步大运",
+            "US": "Luck Cycle 6"
+          }
+        },
+        {
+          "pillar": "yi-yin",
+          "age_start": 70,
+          "age_end": 79,
+          "description": "Luck Cycle 7",
+          "localized_description": {
+            "TW": "第7步大運",
+            "CN": "第7步大运",
+            "US": "Luck Cycle 7"
+          }
+        },
+        {
+          "pillar": "bing-mao",
+          "age_start": 80,
+          "age_end": 89,
+          "description": "Luck Cycle 8",
+          "localized_description": {
+            "TW": "第8步大運",
+            "CN": "第8步大运",
+            "US": "Luck Cycle 8"
+          }
+        }
+      ],
+      "current_luck": "ren-hai"
+    },
+    "traits": [
+      "偏印格",
+      "Fire",
+      "Low-Mid"
+    ],
+    "profiles": {
+      "TW": {
+        "name": "李志豪",
+        "city": "Taipei",
+        "job": "行政助理",
+        "pain": "投資失利資金卡住"
+      },
+      "US": {
+        "name": "William Williams",
+        "city": "New York",
+        "job": "Admin Assistant",
+        "pain": "Investment Stuck"
+      },
+      "CN": {
+        "name": "黄志豪",
+        "city": "Shanghai",
+        "job": "行政助理",
+        "pain": "投资失利资金套牢"
+      }
+    }
+  },
+  {
+    "name": {
+      "TW": "楊志豪",
+      "US": "William Brown",
+      "CN": "王志豪"
+    },
+    "gender": "Male",
+    "age": 60,
+    "location": "Taipei",
+    "occupation": {
+      "TW": "行銷總監",
+      "US": "Marketing Director",
+      "CN": "营销总监"
+    },
+    "bazi_profile": {
+      "birth_year": 1966,
+      "birth_month": 1,
+      "birth_day": 27,
+      "four_pillars": {
+        "year": "bing-wu",
+        "month": "ji-hai",
+        "day": "yi-yin",
+        "hour": "gui-zi"
+      },
+      "day_master": "yi",
+      "element": "Wood",
+      "structure": "食神格",
+      "strength": "身強",
+      "luck_timeline": [
+        {
+          "pillar": "geng-zi",
+          "age_start": 10,
+          "age_end": 19,
+          "description": "Luck Cycle 1",
+          "localized_description": {
+            "TW": "第1步大運",
+            "CN": "第1步大运",
+            "US": "Luck Cycle 1"
+          }
+        },
+        {
+          "pillar": "xin-chou",
+          "age_start": 20,
+          "age_end": 29,
+          "description": "Luck Cycle 2",
+          "localized_description": {
+            "TW": "第2步大運",
+            "CN": "第2步大运",
+            "US": "Luck Cycle 2"
+          }
+        },
+        {
+          "pillar": "ren-yin",
+          "age_start": 30,
+          "age_end": 39,
+          "description": "Luck Cycle 3",
+          "localized_description": {
+            "TW": "第3步大運",
+            "CN": "第3步大运",
+            "US": "Luck Cycle 3"
+          }
+        },
+        {
+          "pillar": "gui-mao",
+          "age_start": 40,
+          "age_end": 49,
+          "description": "Luck Cycle 4",
+          "localized_description": {
+            "TW": "第4步大運",
+            "CN": "第4步大运",
+            "US": "Luck Cycle 4"
+          }
+        },
+        {
+          "pillar": "jia-chen",
+          "age_start": 50,
+          "age_end": 59,
+          "description": "Luck Cycle 5",
+          "localized_description": {
+            "TW": "第5步大運",
+            "CN": "第5步大运",
+            "US": "Luck Cycle 5"
+          }
+        },
+        {
+          "pillar": "yi-si",
+          "age_start": 60,
+          "age_end": 69,
+          "description": "Luck Cycle 6",
+          "localized_description": {
+            "TW": "第6步大運",
+            "CN": "第6步大运",
+            "US": "Luck Cycle 6"
+          }
+        },
+        {
+          "pillar": "bing-wu",
+          "age_start": 70,
+          "age_end": 79,
+          "description": "Luck Cycle 7",
+          "localized_description": {
+            "TW": "第7步大運",
+            "CN": "第7步大运",
+            "US": "Luck Cycle 7"
+          }
+        },
+        {
+          "pillar": "ding-wei",
+          "age_start": 80,
+          "age_end": 89,
+          "description": "Luck Cycle 8",
+          "localized_description": {
+            "TW": "第8步大運",
+            "CN": "第8步大运",
+            "US": "Luck Cycle 8"
+          }
+        }
+      ],
+      "current_luck": "yi-si"
+    },
+    "traits": [
+      "食神格",
+      "Wood",
+      "Mid-High"
+    ],
+    "profiles": {
+      "TW": {
+        "name": "楊志豪",
+        "city": "Taipei",
+        "job": "行銷總監",
+        "pain": "感情空窗，渴望伴侶"
+      },
+      "US": {
+        "name": "William Brown",
+        "city": "New York",
+        "job": "Marketing Director",
+        "pain": "Loneliness, Seeking Partner"
+      },
+      "CN": {
+        "name": "王志豪",
+        "city": "Shanghai",
+        "job": "营销总监",
+        "pain": "感情空窗，渴望伴侣"
+      }
+    }
+  },
+  {
+    "name": {
+      "TW": "蔡詩涵",
+      "US": "Mary Jones",
+      "CN": "林雅婷"
+    },
+    "gender": "Female",
+    "age": 59,
+    "location": "Taipei",
+    "occupation": {
+      "TW": "執行長",
+      "US": "CEO",
+      "CN": "首席执行官"
+    },
+    "bazi_profile": {
+      "birth_year": 1967,
+      "birth_month": 8,
+      "birth_day": 19,
+      "four_pillars": {
+        "year": "ding-wei",
+        "month": "yi-shen",
+        "day": "geng-wei",
+        "hour": "ding-yin"
+      },
+      "day_master": "geng",
+      "element": "Metal",
+      "structure": "正官格",
+      "strength": "中和",
+      "luck_timeline": [
+        {
+          "pillar": "bing-you",
+          "age_start": 10,
+          "age_end": 19,
+          "description": "Luck Cycle 1",
+          "localized_description": {
+            "TW": "第1步大運",
+            "CN": "第1步大运",
+            "US": "Luck Cycle 1"
+          }
+        },
+        {
+          "pillar": "ding-xu",
+          "age_start": 20,
+          "age_end": 29,
+          "description": "Luck Cycle 2",
+          "localized_description": {
+            "TW": "第2步大運",
+            "CN": "第2步大运",
+            "US": "Luck Cycle 2"
+          }
+        },
+        {
+          "pillar": "wu-hai",
+          "age_start": 30,
+          "age_end": 39,
+          "description": "Luck Cycle 3",
+          "localized_description": {
+            "TW": "第3步大運",
+            "CN": "第3步大运",
+            "US": "Luck Cycle 3"
+          }
+        },
+        {
+          "pillar": "ji-zi",
+          "age_start": 40,
+          "age_end": 49,
+          "description": "Luck Cycle 4",
+          "localized_description": {
+            "TW": "第4步大運",
+            "CN": "第4步大运",
+            "US": "Luck Cycle 4"
+          }
+        },
+        {
+          "pillar": "geng-chou",
+          "age_start": 50,
+          "age_end": 59,
+          "description": "Luck Cycle 5",
+          "localized_description": {
+            "TW": "第5步大運",
+            "CN": "第5步大运",
+            "US": "Luck Cycle 5"
+          }
+        },
+        {
+          "pillar": "xin-yin",
+          "age_start": 60,
+          "age_end": 69,
+          "description": "Luck Cycle 6",
+          "localized_description": {
+            "TW": "第6步大運",
+            "CN": "第6步大运",
+            "US": "Luck Cycle 6"
+          }
+        },
+        {
+          "pillar": "ren-mao",
+          "age_start": 70,
+          "age_end": 79,
+          "description": "Luck Cycle 7",
+          "localized_description": {
+            "TW": "第7步大運",
+            "CN": "第7步大运",
+            "US": "Luck Cycle 7"
+          }
+        },
+        {
+          "pillar": "gui-chen",
+          "age_start": 80,
+          "age_end": 89,
+          "description": "Luck Cycle 8",
+          "localized_description": {
+            "TW": "第8步大運",
+            "CN": "第8步大运",
+            "US": "Luck Cycle 8"
+          }
+        }
+      ],
+      "current_luck": "geng-chou"
+    },
+    "traits": [
+      "正官格",
+      "Metal",
+      "High"
+    ],
+    "profiles": {
+      "TW": {
+        "name": "蔡詩涵",
+        "city": "Taipei",
+        "job": "執行長",
+        "pain": "投資失利資金卡住"
+      },
+      "US": {
+        "name": "Mary Jones",
+        "city": "New York",
+        "job": "CEO",
+        "pain": "Investment Stuck"
+      },
+      "CN": {
+        "name": "林雅婷",
+        "city": "Shanghai",
+        "job": "首席执行官",
+        "pain": "投资失利资金套牢"
+      }
+    }
+  },
+  {
+    "name": {
+      "TW": "陳建宏",
+      "US": "John Jones",
+      "CN": "刘俊杰"
+    },
+    "gender": "Male",
+    "age": 29,
+    "location": "Taipei",
+    "occupation": {
+      "TW": "外送員",
+      "US": "Delivery Driver",
+      "CN": "外卖员"
+    },
+    "bazi_profile": {
+      "birth_year": 1997,
+      "birth_month": 10,
+      "birth_day": 28,
+      "four_pillars": {
+        "year": "ding-chou",
+        "month": "bing-chen",
+        "day": "ji-zi",
+        "hour": "bing-yin"
+      },
+      "day_master": "ji",
+      "element": "Earth",
+      "structure": "偏印格",
+      "strength": "身強",
+      "luck_timeline": [
+        {
+          "pillar": "yi-mao",
+          "age_start": 10,
+          "age_end": 19,
+          "description": "Luck Cycle 1",
+          "localized_description": {
+            "TW": "第1步大運",
+            "CN": "第1步大运",
+            "US": "Luck Cycle 1"
+          }
+        },
+        {
+          "pillar": "jia-yin",
+          "age_start": 20,
+          "age_end": 29,
+          "description": "Luck Cycle 2",
+          "localized_description": {
+            "TW": "第2步大運",
+            "CN": "第2步大运",
+            "US": "Luck Cycle 2"
+          }
+        },
+        {
+          "pillar": "gui-chou",
+          "age_start": 30,
+          "age_end": 39,
+          "description": "Luck Cycle 3",
+          "localized_description": {
+            "TW": "第3步大運",
+            "CN": "第3步大运",
+            "US": "Luck Cycle 3"
+          }
+        },
+        {
+          "pillar": "ren-zi",
+          "age_start": 40,
+          "age_end": 49,
+          "description": "Luck Cycle 4",
+          "localized_description": {
+            "TW": "第4步大運",
+            "CN": "第4步大运",
+            "US": "Luck Cycle 4"
+          }
+        },
+        {
+          "pillar": "xin-hai",
+          "age_start": 50,
+          "age_end": 59,
+          "description": "Luck Cycle 5",
+          "localized_description": {
+            "TW": "第5步大運",
+            "CN": "第5步大运",
+            "US": "Luck Cycle 5"
+          }
+        },
+        {
+          "pillar": "geng-xu",
+          "age_start": 60,
+          "age_end": 69,
+          "description": "Luck Cycle 6",
+          "localized_description": {
+            "TW": "第6步大運",
+            "CN": "第6步大运",
+            "US": "Luck Cycle 6"
+          }
+        },
+        {
+          "pillar": "ji-you",
+          "age_start": 70,
+          "age_end": 79,
+          "description": "Luck Cycle 7",
+          "localized_description": {
+            "TW": "第7步大運",
+            "CN": "第7步大运",
+            "US": "Luck Cycle 7"
+          }
+        },
+        {
+          "pillar": "wu-shen",
+          "age_start": 80,
+          "age_end": 89,
+          "description": "Luck Cycle 8",
+          "localized_description": {
+            "TW": "第8步大運",
+            "CN": "第8步大运",
+            "US": "Luck Cycle 8"
+          }
+        }
+      ],
+      "current_luck": "jia-yin"
+    },
+    "traits": [
+      "偏印格",
+      "Earth",
+      "Low"
+    ],
+    "profiles": {
+      "TW": {
+        "name": "陳建宏",
+        "city": "Taipei",
+        "job": "外送員",
+        "pain": "家庭成員健康擔憂"
+      },
+      "US": {
+        "name": "John Jones",
+        "city": "New York",
+        "job": "Delivery Driver",
+        "pain": "Family Health Concerns"
+      },
+      "CN": {
+        "name": "刘俊杰",
+        "city": "Shanghai",
+        "job": "外卖员",
+        "pain": "家庭成员健康担忧"
+      }
+    }
+  }
+]

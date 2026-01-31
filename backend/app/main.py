@@ -14,7 +14,7 @@ from linebot.v3.exceptions import InvalidSignatureError
 
 from app.services.line_bot_service import LineBotService, get_simulation_data
 from app.core.config import settings
-from app.core.database import get_all_citizens, get_citizens_count
+from app.core.database import get_all_citizens, get_citizens_count, init_db
 from app.api.web import router as web_router
 from app.services.skill_registry import skill_registry # Import Skill Registry
 
@@ -25,6 +25,9 @@ app = FastAPI()
 async def startup_event():
     print(">> [System] Starting up... Scanning for Skills...")
     skill_registry.discover_skills()
+    
+    print(">> [System] Initializing Database...")
+    init_db()
 
 # 🔄 Force Update: 2026-01-14 01:15
 
