@@ -458,6 +458,8 @@ const ELEMENT_MAP_FALLBACK: Record<string, Record<string, string>> = {
 };
 
 export default function CitizenModal({ citizen, market, onClose }: { citizen: Citizen; market: 'TW' | 'US' | 'CN'; onClose: () => void }) {
+    const [showDetails, setShowDetails] = useState(false);
+
     if (!citizen) return null;
 
     const activeProfile = citizen.profiles?.[market] || citizen.profiles?.['TW'];
@@ -472,8 +474,6 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
         city: activeProfile?.city || citizen.location
     };
     const t = I18N[market] || I18N['TW'];
-
-    const [showDetails, setShowDetails] = useState(false);
     const decisionModel = getDecisionModel(citizen.bazi_profile?.structure, market);
     const bazi = (citizen.bazi_profile || {}) as any;
     const luckPillars = bazi.luck_timeline || bazi.luck_pillars || [];

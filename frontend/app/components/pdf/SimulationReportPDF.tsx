@@ -428,7 +428,7 @@ const SimulationReportPDF: React.FC<SimulationReportPDFProps> = ({ data, languag
                                     {comment.persona?.age}歲 | {localizedJob || '市民'} | {comment.persona?.pattern || '格局未知'}
                                 </Text>
                                 <Text style={styles.personaText}>
-                                    "{(comment.text || '').slice(0, 120)}{(comment.text || '').length > 120 ? '...' : ''}"
+                                    &quot;{(comment.text || '').slice(0, 120)}{(comment.text || '').length > 120 ? '...' : ''}&quot;
                                 </Text>
                             </View>
                         );
@@ -473,7 +473,7 @@ const SimulationReportPDF: React.FC<SimulationReportPDFProps> = ({ data, languag
                                         {comment.persona?.age}歲 | {localizedJob || '市民'}
                                     </Text>
                                     <Text style={styles.personaText}>
-                                        "{(comment.text || '').slice(0, 120)}{(comment.text || '').length > 120 ? '...' : ''}"
+                                        &quot;{(comment.text || '').slice(0, 120)}{(comment.text || '').length > 120 ? '...' : ''}&quot;
                                     </Text>
                                 </View>
                             );
