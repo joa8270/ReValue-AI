@@ -668,10 +668,10 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
     const decisionModel = getDecisionModel(citizen.bazi_profile?.structure, market);
     const bazi = (citizen.bazi_profile || {}) as any;
     // [V7 Update] Parse Four Pillars (Support localized string or object)
-    const pillars = market === 'US' && citizen.bazi_profile.four_pillars_en 
-        ? parseFourPillars(citizen.bazi_profile.four_pillars_en) 
+    const pillars = market === 'US' && citizen.bazi_profile.four_pillars_en
+        ? parseFourPillars(citizen.bazi_profile.four_pillars_en)
         : parseFourPillars(citizen.bazi_profile.four_pillars);
-    
+
     // Generate Luck Timeline if missing
     const getYearStem = (p: any) => {
         if (!p?.year) return "甲";
@@ -679,8 +679,8 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
         // Or rely on backend generated luck timeline. 
         // For now, fallback to original CN pillars for calculation if EN is active.
         if (market === 'US') {
-             const originPillars = parseFourPillars(citizen.bazi_profile.four_pillars);
-             return originPillars?.year?.charAt(0) || "甲";
+            const originPillars = parseFourPillars(citizen.bazi_profile.four_pillars);
+            return originPillars?.year?.charAt(0) || "甲";
         }
 
         if (p.year.includes('-')) {
@@ -694,8 +694,8 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
         return p.year.charAt(0);
     };
 
-    const luckPillars = bazi.luck_timeline || bazi.luck_pillars || 
-                        (pillars?.month ? generateLuckTimeline(pillars.month, citizen.gender, getYearStem(pillars)) : []);
+    const luckPillars = bazi.luck_timeline || bazi.luck_pillars ||
+        (pillars?.month ? generateLuckTimeline(pillars.month, citizen.gender, getYearStem(pillars)) : []);
 
     let currentLuck = null;
     if (bazi.current_luck && typeof bazi.current_luck === 'string') {
@@ -795,18 +795,17 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
                         <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
                             <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t.structure}</div>
                             <div className="text-xl font-black text-white">
-                                {market === 'US' && citizen.bazi_profile.structure_en 
-                                    ? citizen.bazi_profile.structure_en 
+                                {market === 'US' && citizen.bazi_profile.structure_en
+                                    ? citizen.bazi_profile.structure_en
                                     : (translateBazi(citizen.bazi_profile.structure, market) || t.unknown)}
                             </div>
                         </div>
                         <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
                             <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t.strength}</div>
                             <div className="text-xl font-black text-white">
-                                {market === 'US' && (citizen.bazi_profile as any).strength_en
-                                    ? (citizen.bazi_profile as any).strength_en
-                                    : (citizen.bazi_profile.localized_strength?.[market] ||
-                                        STRENGTH_MAP_FALLBACK[citizen.bazi_profile.strength || ""]?.[market] ||
+                                {market === 'US' && citizen.bazi_profile.strength_en
+                                    ? citizen.bazi_profile.strength_en
+                                    : (STRENGTH_MAP_FALLBACK[citizen.bazi_profile.strength || ""]?.[market] ||
                                         translateBazi(citizen.bazi_profile.strength, market) ||
                                         t.unknown)}
                             </div>
@@ -816,11 +815,11 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
                             <div className="flex gap-1.5 flex-wrap">
                                 {(() => {
                                     // [Fix] Defensive logic to find favorable elements from various possible fields
-                                    const favs = (citizen.bazi_profile.localized_favorable_elements?.[market] || 
-                                                 citizen.bazi_profile.favorable_elements || 
-                                                 (citizen.bazi_profile as any).favorable || 
-                                                 []);
-                                                 
+                                    const favs = (citizen.bazi_profile.localized_favorable_elements?.[market] ||
+                                        citizen.bazi_profile.favorable_elements ||
+                                        (citizen.bazi_profile as any).favorable ||
+                                        []);
+
                                     if (!favs || favs.length === 0) return <span className="text-slate-500">{t.none}</span>;
 
                                     return favs.map((e: string) => {
@@ -834,7 +833,7 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
                         <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
                             <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t.traits}</div>
                             <div className="text-xl font-black text-amber-400 truncate">
-                                {market === 'US' 
+                                {market === 'US'
                                     ? ((citizen.bazi_profile as any).trait_en || (citizen.bazi_profile as any).structure_en || "Archetype")
                                     : translateMBTI(
                                         citizen.profiles?.[market]?.traits?.[0] ||
@@ -900,7 +899,7 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
                                                 const vern = getVernacularLuck(dm, stem, market);
 
                                                 const title = vern ? vern.title : translatePillar(currentLuck.pillar, market);
-                                                const suffix = (market === 'US' && !vern) ? ' Cycle' : (market !== 'US' && !vern ? '運' : ''); 
+                                                const suffix = (market === 'US' && !vern) ? ' Cycle' : (market !== 'US' && !vern ? '運' : '');
 
                                                 return `${title}${suffix} (${currentLuck.age_start}-${currentLuck.age_end}${t.age})`;
                                             })()}
