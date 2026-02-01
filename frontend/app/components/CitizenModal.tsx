@@ -107,6 +107,62 @@ const DECISION_MODELS_CN: Record<string, { title: string; desc: string }> = {
 const HEAVENLY_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
 const EARTHLY_BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
 
+const JIAZI_60 = [
+    "甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉",
+    "甲戌", "乙亥", "丙子", "丁丑", "戊寅", "己卯", "庚辰", "辛巳", "壬午", "癸未",
+    "甲申", "乙酉", "丙戌", "丁亥", "戊子", "己丑", "庚寅", "辛卯", "壬辰", "癸巳",
+    "甲午", "乙未", "丙申", "丁酉", "戊戌", "己亥", "庚子", "辛丑", "壬寅", "癸卯",
+    "甲辰", "乙巳", "丙午", "丁未", "戊申", "己酉", "庚戌", "辛亥", "壬子", "癸丑",
+    "甲寅", "乙卯", "丙辰", "丁巳", "戊午", "己未", "庚申", "辛酉", "壬戌", "癸亥"
+];
+
+function generateLuckTimeline(monthPillar: string, gender: string, yearStem: string) {
+    if (!monthPillar) return [];
+
+    // Normalize monthPillar (e.g. "yi-hai" -> "乙亥" or "乙亥" -> "乙亥")
+    let normalizedMonth = monthPillar;
+    if (monthPillar.includes('-')) {
+        const [s, b] = monthPillar.toLowerCase().split('-');
+        const PINYIN_STEMS: Record<string, string> = {
+            "jia": "甲", "yi": "乙", "bing": "丙", "ding": "丁", "wu": "戊",
+            "ji": "己", "geng": "庚", "xin": "辛", "ren": "壬", "gui": "癸"
+        };
+        const PINYIN_BRANCHES: Record<string, string> = {
+            "zi": "子", "chou": "丑", "yin": "寅", "mao": "卯", "chen": "辰", "si": "巳",
+            "wu": "午", "wei": "未", "shen": "申", "you": "酉", "xu": "戌", "hai": "亥"
+        };
+        normalizedMonth = (PINYIN_STEMS[s] || "") + (PINYIN_BRANCHES[b] || "");
+    }
+
+    const monthIdx = JIAZI_60.indexOf(normalizedMonth);
+    if (monthIdx === -1) return [];
+
+    // Determine direction: 
+    // Male + Yang Year or Female + Yin Year -> Forward
+    // Male + Yin Year or Female + Yang Year -> Backward
+    const isYangYear = ["甲", "丙", "戊", "庚", "壬"].includes(yearStem);
+    const isMale = gender === "Male" || gender === "男";
+    const forward = (isMale && isYangYear) || (!isMale && !isYangYear);
+
+    const timeline = [];
+    // Start age: Roughly 1-9. Let's pick 5 as a middle ground for simplified version.
+    const startAge = 5;
+
+    for (let i = 0; i < 8; i++) {
+        const idx = forward
+            ? (monthIdx + 1 + i) % 60
+            : (monthIdx - 1 - i + 60) % 60;
+
+        timeline.push({
+            pillar: JIAZI_60[idx],
+            age_start: startAge + (i * 10),
+            age_end: startAge + (i * 10) + 9,
+            description: ""
+        });
+    }
+    return timeline;
+}
+
 export function generateMockPillars() {
     const getPair = () => HEAVENLY_STEMS[Math.floor(Math.random() * 10)] + EARTHLY_BRANCHES[Math.floor(Math.random() * 12)];
     return `${getPair()}  ${getPair()}  ${getPair()}  ${getPair()}`;
@@ -288,8 +344,12 @@ export const I18N = {
         gender: "性別",
         age: "歲",
         birth: "出生",
-        date_format: (y: any, m: any, d: any, h: any = null) => `${y}年${m}月${d}日`,
+        date_format: (y: any, m: any, d: any, h: any = null) => {
+            const dateStr = `${y}年${m}月${d}日`;
+            return h ? `${dateStr} ${h}` : dateStr;
+        },
         current_state: "當前狀態解讀",
+
         structure: "命理格局",
         strength: "能量強弱",
         favorable: "喜用五行",
@@ -322,8 +382,10 @@ export const I18N = {
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             const mStr = m ? monthNames[parseInt(m) - 1] : "";
             const dStr = d ? d + ", " : "";
-            return mStr ? `${mStr} ${dStr}${y}` : `${y}`;
+            const datePart = mStr ? `${mStr} ${dStr}${y}` : `${y}`;
+            return h ? `${datePart} ${h}` : datePart;
         },
+
         current_state: "Current State Analysis",
         structure: "Structure",
         strength: "Energy",
@@ -352,8 +414,12 @@ export const I18N = {
         gender: "性别",
         age: "岁",
         birth: "出生",
-        date_format: (y: any, m: any, d: any, h: any = null) => `${y}年${m}月${d}日`,
+        date_format: (y: any, m: any, d: any, h: any = null) => {
+            const dateStr = `${y}年${m}月${d}日`;
+            return h ? `${dateStr} ${h}` : dateStr;
+        },
         current_state: "当前状态解读",
+
         structure: "命理格局",
         strength: "能量强弱",
         favorable: "喜用五行",
@@ -457,26 +523,179 @@ const ELEMENT_MAP_FALLBACK: Record<string, Record<string, string>> = {
     "Water": { "TW": "水", "CN": "水", "US": "Water" }
 };
 
+// ===== TEN GODS ENGINE (Vernacular Logic) =====
+
+const STEM_DATA: Record<string, { element: string; polarity: string }> = {
+    "甲": { element: "Wood", polarity: "+" }, "乙": { element: "Wood", polarity: "-" },
+    "丙": { element: "Fire", polarity: "+" }, "丁": { element: "Fire", polarity: "-" },
+    "戊": { element: "Earth", polarity: "+" }, "己": { element: "Earth", polarity: "-" },
+    "庚": { element: "Metal", polarity: "+" }, "辛": { element: "Metal", polarity: "-" },
+    "壬": { element: "Water", polarity: "+" }, "癸": { element: "Water", polarity: "-" }
+};
+
+const ELEMENT_RELATIONS: Record<string, Record<string, string>> = {
+    "Wood": { "Wood": "Same", "Fire": "Produces", "Earth": "Controls", "Metal": "ControlledBy", "Water": "ProducedBy" },
+    "Fire": { "Wood": "ProducedBy", "Fire": "Same", "Earth": "Produces", "Metal": "Controls", "Water": "ControlledBy" },
+    "Earth": { "Wood": "ControlledBy", "Fire": "ProducedBy", "Earth": "Same", "Metal": "Produces", "Water": "Controls" },
+    "Metal": { "Wood": "Controls", "Fire": "ControlledBy", "Earth": "ProducedBy", "Metal": "Same", "Water": "Produces" },
+    "Water": { "Wood": "Produces", "Fire": "Controls", "Earth": "ControlledBy", "Metal": "ProducedBy", "Water": "Same" }
+};
+
+const TEN_GOD_KEYS: Record<string, Record<string, string>> = {
+    "Same": { "Same": "比肩", "Diff": "劫財" },
+    "Produces": { "Same": "食神", "Diff": "傷官" },
+    "Controls": { "Same": "偏財", "Diff": "正財" },
+    "ControlledBy": { "Same": "七殺", "Diff": "正官" },
+    "ProducedBy": { "Same": "偏印", "Diff": "正印" }
+};
+
+const VERNACULAR_LUCK: Record<string, { title: Record<string, string>; desc: Record<string, string> }> = {
+    "比肩": {
+        title: { TW: "夥伴期 (合作)", CN: "伙伴期 (合作)", US: "Partnership (Cooperation)" },
+        desc: { TW: "志同道合，協力前行。這十年適合尋求合作夥伴，鞏固自我實力，但需注意資源分配。", CN: "志同道合，协力前行。这十年适合寻求合作伙伴，巩固自我实力，但需注意资源分配。", US: "A time for partnership and consolidating strength. Ideal for teamwork and building solid foundations." }
+    },
+    "劫財": {
+        title: { TW: "競爭期 (人脈)", CN: "竞争期 (人脉)", US: "Networking (Competition)" },
+        desc: { TW: "熱絡社交，拓展人脈。社交活動頻繁，機會與競爭並存，適合建立連結但需謹慎理財。", CN: "热络社交，拓展人脉。社交活动频繁，机会与竞争并存，适合建立链接但需谨慎理财。", US: "High social activity. Opportunities mixed with competition. Great for networking but requires financial caution." }
+    },
+    "食神": {
+        title: { TW: "才華期 (發揮)", CN: "才华期 (发挥)", US: "Creativity (Expression)" },
+        desc: { TW: "發揮創意，享受生活。才華洋溢的時期，適合投入創作、研發或學習新技能，心情較為放鬆。", CN: "发挥创意，享受生活。才华洋溢的时期，适合投入创作、研发或学习新技能，心情较为放松。", US: "A time of creativity and enjoyment. Ideal for innovation, skill-learning, and maintaining a balanced mindset." }
+    },
+    "傷官": {
+        title: { TW: "突破期 (變革)", CN: "突破期 (变革)", US: "Breakthrough (Innovation)" },
+        desc: { TW: "打破現狀，展現自我。思維活躍，不安於現狀，是轉型、創業或挑戰權威的好時機。", CN: "打破现状，展现自我。思维活跃，不安于现状，是转型、创业 or 挑战权威的好时机。", US: "Challenge the status quo. Active mind, suitable for personal transformation, entrepreneurship, or pivoting." }
+    },
+    "偏財": {
+        title: { TW: "機遇期 (靈活)", CN: "机遇期 (灵活)", US: "Opportunity (Flexibility)" },
+        desc: { TW: "意外收穫，靈活投資。商業嗅覺敏銳，常有額外收入或副業機會，適合操作高回報項目。", CN: "意外收获，灵活投资。商业嗅觉敏锐，常有额外收入或副业机会，适合操作高回报项目。", US: "Unexpected gains and flexible investments. Sharp business sense, good for side hustles or dynamic projects." }
+    },
+    "正財": {
+        title: { TW: "積累期 (穩健)", CN: "积累期 (稳健)", US: "Accumulation (Stability)" },
+        desc: { TW: "穩健耕耘，收穫成果。工作與收入穩定，一步一腳印，適合長期規劃與資產配置。", CN: "稳健耕耘，收获成果。工作与收入稳定，一步一脚印，适合长期规划与资产配置。", US: "Steady progress and harvest. Stable income, ideal for long-term planning and systematic growth." }
+    },
+    "七殺": {
+        title: { TW: "磨練期 (挑戰)", CN: "磨练期 (挑战)", US: "Challenge (Hardship)" },
+        desc: { TW: "面對挑戰，脫胎換骨。壓力與責任較大，但也是權力與地位快速提升的關鍵時刻。", CN: "面对挑战，脱胎换骨。压力与责任较大，但也是权力与地位快速提升的关键时刻。", US: "Growth through pressure and challenges. A crucial time for gaining power and status through resilience." }
+    },
+    "正官": {
+        title: { TW: "晉升期 (責任)", CN: "晋升期 (责任)", US: "Promotion (Authority)" },
+        desc: { TW: "獲得認可，承擔責任。事業運途平順，容易獲得上司賞識或社會地位，適合考公職或升遷。", CN: "获得认可，承担责任。事业运途平顺，容易获得上司赏识或社会地位，适合考公职或升迁。", US: "Gaining recognition and taking responsibility. Smooth career path, ideal for promotions and authority." }
+    },
+    "偏印": {
+        title: { TW: "洞察期 (思考)", CN: "洞察期 (思考)", US: "Insight (Reflection)" },
+        desc: { TW: "深入思考，獨特見解。直覺敏銳，對冷門或專業領域感興趣，適合研究、分析與心靈探索。", CN: "深入思考，独特见解。直觉敏锐，对冷门或专业领域感兴趣，适合研究、分析与心灵探索。", US: "Deep thinking and unique insights. Strong intuition, good for research, analysis, and deep reflection." }
+    },
+    "正印": {
+        title: { TW: "貴人期 (助力)", CN: "貴人期 (助力)", US: "Support (Mentorship)" },
+        desc: { TW: "獲得支持，包括長輩或體制的助力。利於學習進修，心態安穩，是休養生息與充電的好時機。", CN: "获得支持，包括长辈或体制的助力。利于学习进修，心态安稳，是休养生息与充电的好时机。", US: "Gaining support from mentors or systems. Ideal for education, recharging, and mental stability." }
+    }
+};
+
+function getVernacularLuck(dayMasterChar: string, luckStemChar: string, market: string) {
+    if (!dayMasterChar || !luckStemChar) return null;
+
+    // Normalize chars: Only take the FIRST character (e.g., "戊土" -> "戊")
+    const dm = dayMasterChar.trim().charAt(0);
+    const ls = luckStemChar.trim().charAt(0);
+
+    const dmData = STEM_DATA[dm];
+    const lsData = STEM_DATA[ls];
+
+
+    if (!dmData || !lsData) return null;
+
+    const relation = ELEMENT_RELATIONS[dmData.element]?.[lsData.element];
+    const polarityRel = (dmData.polarity === lsData.polarity) ? "Same" : "Diff";
+
+    if (!relation) return null;
+
+    const tenGod = TEN_GOD_KEYS[relation]?.[polarityRel];
+    if (!tenGod) return null;
+
+    const content = VERNACULAR_LUCK[tenGod];
+    if (!content) return null;
+
+    return {
+        title: content.title[market] || content.title['TW'],
+        desc: content.desc[market] || content.desc['TW'],
+        tenGod: tenGod
+    };
+}
+
+
 export default function CitizenModal({ citizen, market, onClose }: { citizen: Citizen; market: 'TW' | 'US' | 'CN'; onClose: () => void }) {
     const [showDetails, setShowDetails] = useState(false);
 
     if (!citizen) return null;
 
+    const getProfile = (c: Citizen) => {
+        const pTW = c.profiles?.TW;
+        const pM = c.profiles?.[market];
+        const hasContent = (val: string | undefined) => val && val !== "None" && val !== "none" && val !== "未知" && val !== "Unknown";
+
+        const name = hasContent(pM?.name) ? pM!.name : (hasContent(pTW?.name) ? pTW!.name : (c.name || "Unknown"));
+        const city = hasContent(pM?.city) ? pM!.city : (hasContent(pTW?.city) ? pTW!.city : (c.location || "Unknown"));
+        const job = hasContent(pM?.job) ? pM!.job : (hasContent(pTW?.job) ? pTW!.job : (typeof c.occupation === 'string' ? c.occupation : c.occupation?.['TW'] || "Unknown"));
+        const pain = hasContent(pM?.pain) ? pM!.pain : (hasContent(pTW?.pain) ? pTW!.pain : null);
+
+        return { name, city, job, pain };
+    }
+
+    const profile = getProfile(citizen);
     const activeProfile = citizen.profiles?.[market] || citizen.profiles?.['TW'];
-    const rawJob = activeProfile?.job || citizen.occupation;
-    const resolvedJob = (typeof rawJob === 'object' && rawJob !== null)
-        ? (rawJob[market] || rawJob['TW'] || rawJob['US'] || "Unknown")
-        : String(rawJob);
+    const rawJob = profile.job;
+
+    // Helper to resolve localized job
+    const resolveJob = (job: any, m: string): string => {
+        if (!job) return "Unknown";
+        if (typeof job === 'object') {
+            return job[m] || job['TW'] || job['US'] || "Unknown";
+        }
+        return String(job);
+    };
+
+    const resolvedJob = resolveJob(rawJob, market);
 
     const display = {
-        name: activeProfile?.name || citizen.name,
+        name: profile.name,
         job: resolvedJob,
-        city: activeProfile?.city || citizen.location
+        city: profile.city
     };
+
+
     const t = I18N[market] || I18N['TW'];
     const decisionModel = getDecisionModel(citizen.bazi_profile?.structure, market);
     const bazi = (citizen.bazi_profile || {}) as any;
-    const luckPillars = bazi.luck_timeline || bazi.luck_pillars || [];
+    // [V7 Update] Parse Four Pillars (Support localized string or object)
+    const pillars = market === 'US' && citizen.bazi_profile.four_pillars_en 
+        ? parseFourPillars(citizen.bazi_profile.four_pillars_en) 
+        : parseFourPillars(citizen.bazi_profile.four_pillars);
+    
+    // Generate Luck Timeline if missing
+    const getYearStem = (p: any) => {
+        if (!p?.year) return "甲";
+        // If English pillar (e.g. "Yang Wood"), map back to stem for luck calculation?
+        // Or rely on backend generated luck timeline. 
+        // For now, fallback to original CN pillars for calculation if EN is active.
+        if (market === 'US') {
+             const originPillars = parseFourPillars(citizen.bazi_profile.four_pillars);
+             return originPillars?.year?.charAt(0) || "甲";
+        }
+
+        if (p.year.includes('-')) {
+            const s = p.year.toLowerCase().split('-')[0];
+            const PINYIN_STEMS: Record<string, string> = {
+                "jia": "甲", "yi": "乙", "bing": "丙", "ding": "丁", "wu": "戊",
+                "ji": "己", "geng": "庚", "xin": "辛", "ren": "壬", "gui": "癸"
+            };
+            return PINYIN_STEMS[s] || "甲";
+        }
+        return p.year.charAt(0);
+    };
+
+    const luckPillars = bazi.luck_timeline || bazi.luck_pillars || 
+                        (pillars?.month ? generateLuckTimeline(pillars.month, citizen.gender, getYearStem(pillars)) : []);
 
     let currentLuck = null;
     if (bazi.current_luck && typeof bazi.current_luck === 'string') {
@@ -494,8 +713,10 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
         currentLuck = luckPillars.find((l: any) => citizen.age >= l.age_start && citizen.age <= l.age_end) || luckPillars[0];
     }
 
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>
+
             <div className="relative bg-slate-900 border border-purple-500/30 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl shadow-purple-900/50" onClick={(e) => e.stopPropagation()}>
 
                 <div className="p-6 border-b border-white/10 bg-slate-900/95 sticky top-0 z-10 flex justify-between items-start">
@@ -526,9 +747,10 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
                                         const y = citizen.bazi_profile?.birth_year || (2026 - citizen.age);
                                         const m = citizen.bazi_profile?.birth_month || citizen.bazi_profile?.birth_info?.month;
                                         const d = citizen.bazi_profile?.birth_day || citizen.bazi_profile?.birth_info?.day;
-                                        const h = citizen.bazi_profile?.birth_info?.hour;
+                                        const h = citizen.bazi_profile?.birth_shichen || (citizen.bazi_profile?.birth_hour !== undefined ? `${String(citizen.bazi_profile.birth_hour).padStart(2, '0')}:00` : null);
                                         if (y && m) return t.date_format(y, m, d, h);
                                         return t.unknown;
+
                                     })()}
                                 </span>
                             </div>
@@ -548,64 +770,106 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
                         <div className="grid grid-cols-4 gap-2 text-center">
                             <div className="p-2 bg-slate-900 rounded border border-white/10">
                                 <div className="text-[10px] text-slate-500">Year</div>
-                                <div className="text-lg font-bold text-white">{citizen.bazi_profile.four_pillars?.year}</div>
+                                <div className="text-lg font-bold text-white">{pillars?.year || '??'}</div>
                             </div>
                             <div className="p-2 bg-slate-900 rounded border border-white/10">
                                 <div className="text-[10px] text-slate-500">Month</div>
-                                <div className="text-lg font-bold text-white">{citizen.bazi_profile.four_pillars?.month}</div>
+                                <div className="text-lg font-bold text-white">{pillars?.month || '??'}</div>
                             </div>
                             <div className="p-2 bg-slate-900 rounded border border-white/10">
                                 <div className="text-[10px] text-slate-500">Day</div>
-                                <div className="text-lg font-bold text-purple-400">{citizen.bazi_profile.four_pillars?.day}</div>
+                                <div className="text-lg font-bold text-purple-400">{pillars?.day || '??'}</div>
                             </div>
                             <div className="p-2 bg-slate-900 rounded border border-white/10">
                                 <div className="text-[10px] text-slate-500">Hour</div>
-                                <div className="text-lg font-bold text-white">{citizen.bazi_profile.four_pillars?.hour}</div>
+                                <div className="text-lg font-bold text-white">{pillars?.hour || '??'}</div>
                             </div>
                         </div>
                         <div className="text-[10px] text-slate-500 mt-2 text-center font-mono">
-                            Born: {citizen.bazi_profile.birth_year}-{String(citizen.bazi_profile.birth_month).padStart(2, '0')}-{String(citizen.bazi_profile.birth_day).padStart(2, '0')} {String(citizen.bazi_profile.birth_hour).padStart(2, '0')}:00
+                            Born: {citizen.bazi_profile.birth_year}-{String(citizen.bazi_profile.birth_month).padStart(2, '0')}-{String(citizen.bazi_profile.birth_day).padStart(2, '0')} {citizen.bazi_profile.birth_shichen || (citizen.bazi_profile.birth_hour !== undefined ? `${String(citizen.bazi_profile.birth_hour).padStart(2, '0')}:00` : '??:00')}
                         </div>
+
                     </section>
 
                     <section className="grid grid-cols-2 gap-4">
                         <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
                             <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t.structure}</div>
-                            <div className="text-xl font-black text-white">{translateBazi(citizen.bazi_profile.structure, market) || t.unknown}</div>
+                            <div className="text-xl font-black text-white">
+                                {market === 'US' && citizen.bazi_profile.structure_en 
+                                    ? citizen.bazi_profile.structure_en 
+                                    : (translateBazi(citizen.bazi_profile.structure, market) || t.unknown)}
+                            </div>
                         </div>
                         <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
                             <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t.strength}</div>
                             <div className="text-xl font-black text-white">
-                                {citizen.bazi_profile.localized_strength?.[market] ||
-                                    STRENGTH_MAP_FALLBACK[citizen.bazi_profile.strength || ""]?.[market] ||
-                                    translateBazi(citizen.bazi_profile.strength, market) ||
-                                    t.unknown}
+                                {market === 'US' && (citizen.bazi_profile as any).strength_en
+                                    ? (citizen.bazi_profile as any).strength_en
+                                    : (citizen.bazi_profile.localized_strength?.[market] ||
+                                        STRENGTH_MAP_FALLBACK[citizen.bazi_profile.strength || ""]?.[market] ||
+                                        translateBazi(citizen.bazi_profile.strength, market) ||
+                                        t.unknown)}
                             </div>
                         </div>
                         <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
                             <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t.favorable}</div>
                             <div className="flex gap-1.5 flex-wrap">
-                                {(citizen.bazi_profile.localized_favorable_elements?.[market] || citizen.bazi_profile.favorable_elements)?.map((e: string) => {
-                                    const displayText = ELEMENT_MAP_FALLBACK[e]?.[market] || translateBazi(e, market);
-                                    return <span key={e} className="text-sm font-bold text-emerald-400">{displayText}</span>
-                                }) || <span className="text-slate-500">{t.none}</span>}
+                                {(() => {
+                                    // [Fix] Defensive logic to find favorable elements from various possible fields
+                                    const favs = (citizen.bazi_profile.localized_favorable_elements?.[market] || 
+                                                 citizen.bazi_profile.favorable_elements || 
+                                                 (citizen.bazi_profile as any).favorable || 
+                                                 []);
+                                                 
+                                    if (!favs || favs.length === 0) return <span className="text-slate-500">{t.none}</span>;
+
+                                    return favs.map((e: string) => {
+                                        // Try fallback map first, then translation, then raw value
+                                        const displayText = ELEMENT_MAP_FALLBACK[e]?.[market] || translateBazi(e, market) || e;
+                                        return <span key={e} className="text-sm font-bold text-emerald-400">{displayText}</span>
+                                    });
+                                })()}
                             </div>
                         </div>
                         <div className="p-4 rounded-xl bg-slate-800/40 border border-white/5">
                             <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">{t.traits}</div>
                             <div className="text-xl font-black text-amber-400 truncate">
-                                {translateMBTI(
-                                    citizen.profiles?.[market]?.traits?.[0] ||
-                                    activeProfile?.traits?.[0] ||
-                                    citizen.traits?.[0] ||
-                                    "MBTI",
-                                    market
-                                )}
+                                {market === 'US' 
+                                    ? ((citizen.bazi_profile as any).trait_en || (citizen.bazi_profile as any).structure_en || "Archetype")
+                                    : translateMBTI(
+                                        citizen.profiles?.[market]?.traits?.[0] ||
+                                        activeProfile?.traits?.[0] ||
+                                        citizen.traits?.[0] ||
+                                        "MBTI",
+                                        market
+                                    )}
                             </div>
                         </div>
                     </section>
 
+                    {/* Multiverse State Box */}
+                    {(() => {
+                        const state = (citizen.bazi_profile as any).localized_state?.[market] ||
+                            (citizen.bazi_profile as any).localized_state?.['TW'] ||
+                            citizen.bazi_profile.current_state;
+
+                        if (!state || state === "None" || state === "Unknown") return null;
+
+                        return (
+                            <section>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                    <h3 className="text-sm font-bold text-purple-400 uppercase tracking-widest">{t.current_state}</h3>
+                                </div>
+                                <div className="p-5 rounded-2xl bg-purple-500/5 border border-purple-500/20 leading-relaxed text-sm text-slate-300">
+                                    {state}
+                                </div>
+                            </section>
+                        );
+                    })()}
+
                     {showDetails && (
+
                         <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
                             <section>
                                 <div className="flex items-center gap-2 mb-3">
@@ -628,19 +892,40 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
                                     </div>
                                     <div className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20">
                                         <div className="text-xl font-bold text-amber-200 mb-2">
-                                            {currentLuck ? `${translatePillar(currentLuck.pillar, market)} ${market === 'US' ? 'Cycle' : '運'} (${currentLuck.age_start}-${currentLuck.age_end}${t.age})` : t.unknown}
+                                            {(() => {
+                                                if (!currentLuck) return t.unknown;
+                                                // Vernacular Logic Try
+                                                const dm = citizen.bazi_profile.day_master || "";
+                                                const stem = currentLuck.pillar ? currentLuck.pillar.trim().charAt(0) : "";
+                                                const vern = getVernacularLuck(dm, stem, market);
+
+                                                const title = vern ? vern.title : translatePillar(currentLuck.pillar, market);
+                                                const suffix = (market === 'US' && !vern) ? ' Cycle' : (market !== 'US' && !vern ? '運' : ''); 
+
+                                                return `${title}${suffix} (${currentLuck.age_start}-${currentLuck.age_end}${t.age})`;
+                                            })()}
                                         </div>
                                         <div className="text-amber-100/80 leading-relaxed">
-                                            {market === 'US' ? (
-                                                <span className="text-slate-400 italic font-medium">
-                                                    {currentLuck?.localized_description?.['US'] ||
-                                                        (currentLuck?.ten_god ? `Luck Cycle: ${currentLuck.ten_god}` : "Analysis available in report.")}
-                                                </span>
-                                            ) : (
-                                                currentLuck?.localized_description?.[market] ||
-                                                currentLuck?.description ||
-                                                (currentLuck?.pillar ? `${translatePillar(currentLuck.pillar, market)}運` : t.unknown)
-                                            )}
+                                            {(() => {
+                                                if (!currentLuck) return "";
+
+                                                // 1. Try DB Localized Description (if valid/long enough to be a description)
+                                                // The DB currently has "戊戌大運" which is short. We want distinct descriptions.
+                                                const dbDesc = currentLuck?.localized_description?.[market] || currentLuck.description;
+
+                                                // 2. Try Vernacular Engine
+                                                const dm = citizen.bazi_profile.day_master || "";
+                                                const stem = currentLuck.pillar ? currentLuck.pillar.trim().charAt(0) : "";
+                                                const vern = getVernacularLuck(dm, stem, market);
+
+                                                if (vern) return vern.desc; // Priority Use Vernacular
+
+                                                // 3. Fallback
+                                                if (market === 'US') {
+                                                    return <span className="text-slate-400 italic font-medium">{dbDesc || "Analysis available in report."}</span>;
+                                                }
+                                                return dbDesc || (currentLuck.pillar ? `${translatePillar(currentLuck.pillar, market)}運` : t.unknown);
+                                            })()}
                                         </div>
                                     </div>
                                 </section>
@@ -682,24 +967,34 @@ export default function CitizenModal({ citizen, market, onClose }: { citizen: Ci
 
                                         const isCurrent = citizen.age >= pObj.age_start && citizen.age <= pObj.age_end;
 
-                                        // Use rich description for current luck from the top-level bazi profile if available
-                                        // This ensures the timeline description matches the detailed "Current Luck" section
+                                        // --- RICH DESCRIPTION LOGIC ---
+                                        let displayName = translatePillar(pObj.pillar, market);
                                         let description = pObj.localized_description?.[market] || pObj.description;
-                                        if (isCurrent && bazi.current_luck && typeof bazi.current_luck === 'object') {
-                                            const rich = bazi.current_luck.localized_description?.[market] || bazi.current_luck.description;
-                                            if (rich) description = rich;
+
+                                        // Vernacular Calc
+                                        const dm = citizen.bazi_profile.day_master || "";
+                                        const stem = pObj.pillar ? pObj.pillar.trim().charAt(0) : "";
+                                        const vern = getVernacularLuck(dm, stem, market);
+
+                                        if (vern) {
+                                            displayName = vern.title;
+                                            description = vern.desc;
+                                        } else {
+                                            // Fallback format
+                                            if (market !== 'US' && !displayName.includes("運")) displayName += "運";
                                         }
+                                        // ------------------------------
 
                                         return (
                                             <div key={idx} className={`p-4 rounded-xl border transition-all ${isCurrent ? 'bg-purple-900/30 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.1)]' : 'bg-slate-800/30 border-white/5 opacity-70 hover:opacity-100'}`}>
                                                 <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
                                                     <div className="flex items-center gap-3 min-w-[120px]">
                                                         <span className={`text-xs font-bold ${isCurrent ? 'text-purple-300' : 'text-slate-500'}`}>{pObj.age_start}-{pObj.age_end}{t.age}</span>
-                                                        <span className={`text-lg font-bold ${isCurrent ? 'text-white' : 'text-slate-300'}`}>{translatePillar(pObj.pillar, market)}</span>
+                                                        <span className={`text-lg font-bold ${isCurrent ? 'text-white' : 'text-slate-300'}`}>{displayName}</span>
                                                     </div>
                                                     {isCurrent && <span className="text-[10px] bg-purple-500 text-white px-2 py-0.5 rounded-full font-bold tracking-wider">{t.current_tag}</span>}
                                                 </div>
-                                                {market !== 'US' && description && (
+                                                {description && (
                                                     <div className={`text-sm leading-relaxed ${isCurrent ? 'text-purple-100' : 'text-slate-400'}`}>
                                                         {description}
                                                     </div>
