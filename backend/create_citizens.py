@@ -147,6 +147,36 @@ LIFE_PHASE_NOW = {
     "PiAn Yin": ("偏印運（沉澱期）", "思考模式在轉變，適合沉澱自己、規劃下一步")
 }
 
+PERSONALITY_CORE_EN = {
+    "正官格": ("The Diplomat", "Organized, reliable, and values rules."),
+    "七殺格": ("The Challenger", "Decisive, bold, and thrives on challenges."),
+    "正財格": ("The Pragmatist", "Practical, steady, and values financial stability."),
+    "偏財格": ("The Opportunist", "Generous, social, and has an eye for investment."),
+    "正印格": ("The Learner", "Gentle, wise, and values spiritual growth."),
+    "偏印格": ("The Innovator", "Unique thinker, unconventional, and insightful."),
+    "食神格": ("The Hedonist", "Optimistic, easy-going, and appreciates art/life."),
+    "傷官格": ("The Maverick", "Talented, rebellious, and speaks their mind."),
+    "建祿格": ("The Self-Made", "Independent, resilient, and self-reliant."),
+    "羊刃格": ("The Warrior", "Intense, impulsive, and action-oriented."),
+    "從財格": ("The Adapter", "Flexible, adaptable, and focused on opportunities."),
+    "從殺格": ("The Ambitionist", "Ambitious, power-oriented, and driven."),
+    "從兒格": ("The Creator", "Intellectually brilliant and values freedom."),
+    "專旺格": ("The Specialist", "Strong-willed and persistent in their field.")
+}
+
+LIFE_PHASE_NOW_EN = {
+    "Bi Jian": ("Connection Phase", "Building network and team collaboration."),
+    "Jie Cai": ("Competition Phase", "High ambition but intense competition."),
+    "Shi Shen": ("Enjoyment Phase", "Relaxed state, focusing on quality of life."),
+    "Shang Guan": ("Breakthrough Phase", "Seeking change and making bold decisions."),
+    "Zheng Cai": ("Harvest Phase", "Steady income and stability."),
+    "PiAn Cai": ("Opportunity Phase", "Financial opportunities and business instincts."),
+    "Zheng Guan": ("Promotion Phase", "Rising career and increased responsibility."),
+    "Qi Sha": ("Challenge Phase", "Facing pressure but potential for major growth."),
+    "Zheng Yin": ("Learning Phase", "Gaining mentorship and knowledge."),
+    "PiAn Yin": ("Reflection Phase", "Deep thinking and planning for the future.")
+}
+
 # ===== 繁簡映射庫 (手動映射核心術語) =====
 CN_MAPPING = {
     "正官格": "正官格", "七殺格": "七杀格", "正財格": "正财格", "偏財格": "偏财格",
@@ -218,10 +248,16 @@ def generate_colloquial_state(citizen: dict) -> dict:
     pronoun = "她" if gender == "女" else "他"
     tw_state = f"{pattern_term}：{pattern_desc}。{pronoun}目前行{luck_term}，{luck_desc}。"
     
+    # [Fix] P1 Identity Alignment: Dynamic US English Description
+    pattern_en, desc_en = PERSONALITY_CORE_EN.get(p["structure"], ("Diverse Type", "Unique personality."))
+    luck_en, luck_desc_en = LIFE_PHASE_NOW_EN.get(ten_god, ("Stable Phase", "Steady progress."))
+    pronoun_en = "She" if gender == "女" else "He"
+    us_state = f"{pattern_en}: {desc_en} {pronoun_en} is currently in {luck_en}, {luck_desc_en.lower()}"
+
     return {
         "TW": tw_state,
         "CN": t_cn(tw_state),
-        "US": "Strategic decision making based on Bazi structure."
+        "US": us_state
     }
 
 
@@ -449,6 +485,13 @@ LIFE_PHASE_VARIATIONS = {
     ]
 }
 
+# [P2 Constraint] Localized Pain Points
+PAIN_POINTS_DB = {
+    "TW": ["房貸壓力大", "低薪過勞", "物價上漲吃不消", "擔心裁員", "通勤時間過長", "租屋品質差", "存不到錢"],
+    "CN": ["內卷嚴重", "擔心失業", "還有三十年房貸", "只想躺平", "職場PUA", "看不到晉升希望", "年齡焦慮"],
+    "US": ["Crippling Student Loans", "Medical Debt accumulation", "Rent is too high", "Inflation is killing me", "Living paycheck to paycheck", "Fear of layoff", "No health insurance"]
+}
+
 # 保留舊映射以防 KeyError，但主要使用 VARIATIONS
 LIFE_PHASE_NOW = {k: v[0] for k, v in LIFE_PHASE_VARIATIONS.items()}
 
@@ -459,25 +502,30 @@ def get_occupation_category(age):
     """
     valid_pools = []
     
+    valid_pools = []
+    
+    # [P2 Constraint] Anti-Survivor Bias Enforced (60% Grassroots Target)
+    # Grassroots: student, blue_collar, service, unemployed
+    
     if 18 <= age <= 24:
-        # 年輕人：主要是學生、打工族、初階、待業
-        valid_pools = ["student"] * 4 + ["service"] * 3 + ["blue_collar"] * 2 + ["unemployed"] * 1 + ["entry"] * 2
+        # Heavily weighted to Student/Service (Grassroots)
+        valid_pools = ["student"] * 5 + ["service"] * 4 + ["blue_collar"] * 3 + ["unemployed"] * 2 + ["entry"] * 2
             
     elif 25 <= age <= 35:
-        # 青年轉型期：分佈最廣
-        valid_pools = ["entry"] * 4 + ["mid"] * 2 + ["service"] * 3 + ["blue_collar"] * 3 + ["unemployed"] * 1
+        # Struggling Young Adults (High Grassroots)
+        valid_pools = ["entry"] * 3 + ["mid"] * 1 + ["service"] * 5 + ["blue_collar"] * 4 + ["unemployed"] * 2
         
     elif 36 <= age <= 50:
-        # 中壯年：M型化開始，中階為主，但也有藍領與失業危機
-        valid_pools = ["mid"] * 5 + ["senior"] * 1 + ["blue_collar"] * 3 + ["service"] * 2 + ["unemployed"] * 1
+        # Mid-Life Crisis (Still heavy on labor)
+        valid_pools = ["mid"] * 3 + ["senior"] * 1 + ["blue_collar"] * 6 + ["service"] * 3 + ["unemployed"] * 2
         
     elif 51 <= age <= 65:
-        # 壯年後期
-        valid_pools = ["mid"] * 3 + ["senior"] * 2 + ["blue_collar"] * 3 + ["retiree"] * 1
+        # Senior Workers
+        valid_pools = ["mid"] * 2 + ["senior"] * 1 + ["blue_collar"] * 5 + ["service"] * 2 + ["retiree"] * 2
         
     else:
-        # 老年
-        valid_pools = ["retiree"] * 8 + ["senior"] * 1 + ["blue_collar"] * 1
+        # Elderly poor vs rich
+        valid_pools = ["retiree"] * 6 + ["blue_collar"] * 3 + ["senior"] * 1
         
     return random.choice(valid_pools)
 
@@ -635,13 +683,38 @@ def generate_citizen(idx):
         curr_state_text = curr_desc_full
         curr_term_text = current_luck_obj["name"]
         
-    tw_state = f"{pattern_term}：{pattern_desc}。{pronoun}目前行{curr_term_text}，{curr_state_text}。" # Fix grammar
+    tw_state = f"{pattern_term}：{pattern_desc}。{pronoun}目前行{curr_term_text}，{curr_state_text}。" 
+
+    # [Fix] P1 Identity Alignment: Dynamic US English Description
+    pattern_en, desc_en = PERSONALITY_CORE_EN.get(struct["name"], ("Diverse Type", "Unique personality."))
+    curr_ten_god = current_luck_obj.get("ten_god", "Bi Jian")
+    luck_en, luck_desc_en = LIFE_PHASE_NOW_EN.get(curr_ten_god, ("Stable Phase", "Steady progress."))
+    pronoun_en = "She" if g=="female" else "He"
+    us_state_dynamic = f"{pattern_en}: {desc_en} {pronoun_en} is currently in {luck_en}, {luck_desc_en.lower()}"
 
     current_state_dict = {
         "TW": tw_state,
         "CN": t_cn(tw_state),
-        "US": "Strategic decision making based on Bazi structure."
+        "US": us_state_dynamic
     }
+    
+    # [P2 Constraint] Inject Localized Pain Points for Struggling Class (60%)
+    is_grassroots = job_cat in ["student", "blue_collar", "service", "unemployed"]
+    is_struggling = is_grassroots or (strength == "身弱" and random.random() < 0.3)
+    
+    pain_map = {"TW": "", "CN": "", "US": ""}
+    
+    if is_struggling:
+        # Select specific pain for each region
+        pain_tw = random.choice(PAIN_POINTS_DB["TW"])
+        pain_cn = random.choice(PAIN_POINTS_DB["CN"])
+        pain_us = random.choice(PAIN_POINTS_DB["US"])
+        
+        pain_map["TW"] = f" ({pain_tw})"
+        pain_map["CN"] = f" ({pain_cn})"
+        pain_map["US"] = f" ({pain_us})"
+
+    current_state_dict["US"] = us_state_dynamic
     
     # Translate Bazi for US
     structure_en = TEN_GODS_EN.get(struct["name"], struct["name"])
@@ -653,12 +726,12 @@ def generate_citizen(idx):
         "name": tw_name,
         "gender": "男" if g=="male" else "女",
         "age": age,
-        "location": tw_city,
+        "location": {"TW": tw_city, "CN": cn_city, "US": us_city}, # [Fix] P2 Diversity: Full dict
         "occupation": {"TW": tw_occupation, "CN": cn_occupation, "US": us_occupation}, # Legacy support + new fields
         "profiles": {
-            "TW": {"name": tw_name, "city": tw_city, "job": tw_occupation, "pain": curr_state_text},
-            "CN": {"name": cn_name, "city": cn_city, "job": cn_occupation, "pain": t_cn(curr_state_text)},
-            "US": {"name": us_name, "city": us_city, "job": us_occupation, "pain": "Strategic decision making based on Bazi structure."}
+            "TW": {"name": tw_name, "city": tw_city, "job": tw_occupation, "pain": curr_state_text + pain_map["TW"]},
+            "CN": {"name": cn_name, "city": cn_city, "job": cn_occupation, "pain": t_cn(curr_state_text) + pain_map["CN"]},
+            "US": {"name": us_name, "city": us_city, "job": us_occupation, "pain": us_state_dynamic + pain_map["US"]}
         },
  # Ensure JSON Object format
         "bazi_profile": {
@@ -681,7 +754,8 @@ def generate_citizen(idx):
             "current_state": current_state_dict["TW"],
             "localized_state": current_state_dict
         },
-        "traits": [struct["trait"].split("，")[0]] + random.sample(["理性", "感性", "科技迷", "環保者", "務實"], 2)
+        "traits": [struct["trait"].split("，")[0]] + random.sample(["理性", "感性", "科技迷", "環保者", "務實"], 2),
+        "persona_categories": [job_cat] # [Fix] P2 Diversity Audit: Explicitly save category
     }
 
 def main():

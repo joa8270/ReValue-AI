@@ -1022,42 +1022,7 @@ class LineBotService:
             return {"success": False, "error": str(e), "refined_copy": original_copy}
             self._push_text(user_id, "❌ AI 生成失敗，請直接輸入「**1**」自行輸入描述")
 
-    def _clean_and_parse_json(self, ai_text):
-        """Helper to clean and parse JSON with robust error handling (From GitHub Original)"""
-        if not ai_text or not isinstance(ai_text, str):
-            return {}
 
-        clean_text = ai_text
-        match = re.search(r"```(?:json)?\s*(.*?)\s*```", ai_text, re.DOTALL)
-        if match:
-            clean_text = match.group(1)
-        
-        try:
-            data = json.loads(clean_text)
-            if isinstance(data, dict):
-                return data
-            return {}
-        except json.JSONDecodeError:
-            # Simple fix attempt for truncated JSON
-            fixed_text = clean_text.strip()
-            # Try to close open braces/brackets
-            open_braces = fixed_text.count('{') - fixed_text.count('}')
-            if open_braces > 0: fixed_text += '}' * open_braces
-            
-            open_brackets = fixed_text.count('[') - fixed_text.count(']')
-            if open_brackets > 0: fixed_text += ']' * open_brackets
-            
-            # Remove trailing commas before closing braces (common issue)
-            fixed_text = re.sub(r',\s*([}\]])', r'\1', fixed_text)
-
-            try:
-                data = json.loads(fixed_text)
-                if isinstance(data, dict):
-                    return data
-                return {}
-            except:
-                print(f"⚠️ Failed to parse AI JSON after cleaning: {clean_text[:50]}...")
-                return {}
 
     async def generate_marketing_copy(self, image_data_input, product_name: str, price: str, style: str = "professional", language: str = "zh-TW"):
         """
@@ -1441,12 +1406,13 @@ Reply directly in JSON format:
             pdf_bytes = self.line_bot_blob.get_message_content(message_id)
             print(f"✅ [PDF] PDF 下載完成: {len(pdf_bytes)} bytes")
             
-            await self.run_simulation_with_pdf_data(pdf_bytes, sim_id, file_name)
+            await self.run_simulation_with_pdf_data(sim_id, pdf_bytes, file_name)
         except Exception as e:
             print(f"❌ [PDF] 下載或處理失敗: {e}")
             self.reply_text(reply_token, "❌ PDF 下載或處理失敗，請重新上傳")
 
     async def process_image_with_ai(self, message_id, sim_id, text_context=None):
+
         """
         [Legacy Wrapper] 
         保留此方法以兼容舊代碼，但內部改為下載後調用 run_simulation_with_image_data
@@ -1476,9 +1442,10 @@ Reply directly in JSON format:
             pdf_bytes = self.line_bot_blob.get_message_content(message_id)
             print(f"✅ [LineBot PDF] PDF 下載完成: {len(pdf_bytes)} bytes")
             
-            await self.run_simulation_with_pdf_data(pdf_bytes, sim_id, file_name)
+            await self.run_simulation_with_pdf_data(sim_id, pdf_bytes, file_name)
         except Exception as e:
             print(f"❌ [LineBot PDF] 下載或處理失敗: {e}")
+
 
     async def _run_abm_simulation(self, sampled_citizens, text_context=None, language="zh-TW", targeting=None, expert_mode=False):
         """
@@ -1679,8 +1646,22 @@ Reply directly in JSON format:
                 print(f"🎲 [Consistency] Force Random active. Seed: None")
 
             # Pass hash as seed
-            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=img_hash, filters=sim_filters)
-            print(f"正在從 1000 位真實市民中抽選評論者... (Sampled: {len(sampled_citizens)})")
+            # [Fix P0] Fetch LARGE pool then strictly select
+            # sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=img_hash, filters=sim_filters)
+            
+            # 1. Fetch Candidates (Large Pool)
+            candidates = await run_in_threadpool(get_random_citizens, sample_size=2000, seed=img_hash, filters=sim_filters)
+            
+            # 2. Determine Mode
+            # Determine if Expert Mode is requested (implicitly via targeting or scenario)
+            is_expert = analysis_scenario == 'b2b' or (targeting_data and targeting_data.get("persona") == "Expert")
+            mode = "Expert" if is_expert else "Normal"
+            
+            # 3. Select Reviewers (Deterministic)
+            from app.services.reviewer_selector import select_reviewers
+            sampled_citizens = select_reviewers(candidates, sim_id, mode=mode, target_count=10)
+
+            print(f"正在從 {len(candidates)} 位候選人中決定性抽選評論者... (Selected: {len(sampled_citizens)})")
             
             if sampled_citizens:
                 first_c = sampled_citizens[0]
@@ -2430,8 +2411,9 @@ __CITIZENS_JSON__
                 })
 
             # Process Comments (Map to Citizens)
-            gemini_comments = data.get("comments", [])
+            gemini_comments = data.get("arena_comments") or data.get("comments", [])
             arena_comments = []
+
 
             # ------------------------------------
 
@@ -2540,8 +2522,14 @@ __CITIZENS_JSON__
                     }
                 }
                 print(f"✅ [ABM] Analytics數據已添加到methodology_data")
-            
             result_data["methodology_data"] = methodology_sidecar
+            # [Fix] Root for UI
+            if abm_evolution_data: result_data["abm_evolution"] = abm_evolution_data
+            if abm_analytics: result_data["abm_analytics"] = methodology_sidecar.get("abm_analytics")
+            # [Fix] Root for UI
+            if abm_evolution_data: result_data["abm_evolution"] = abm_evolution_data
+            if abm_analytics: result_data["abm_analytics"] = methodology_sidecar.get("abm_analytics")
+
             
             with open("debug_image.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Final Result Data written. Keys: {list(result_data.keys())}\n")
             
@@ -2586,21 +2574,22 @@ __CITIZENS_JSON__
             return [self._ensure_serializable(x) for x in obj]
         return obj
 
-    async def run_simulation_with_pdf_data(self, pdf_bytes, sim_id, file_name, language="zh-TW", force_random=False):
-        """核心 PDF 分析邏輯 (Decoupled)"""
-        with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] PDF Flow Start (Lang: {language})\n")
+    async def run_simulation_with_pdf_data(self, sim_id, pdf_bytes, file_name, product_name="Unknown", price="Unknown", description="", market_prices=None, style=None, language="zh-TW", targeting=None, expert_mode=False, force_random=False, analysis_scenario="b2c", seed_salt=0):
+        """核心 PDF 分析邏輯 - accepts bytes directly from web.py"""
+        # NOTE: pdf_bytes is already read in web.py endpoint, not UploadFile
+        with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] PDF Flow Start (Lang: {language}, File: {file_name})\n")
         try:
             # Convert PDF to base64
             pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] PDF Base64 done\n")
             
-            # 🌍 Fetch Target Market (Globalization)
-            from app.core.database import get_simulation
+            # 🌍 Fetch Target Market (Globalization) - using global import
             sim_data = get_simulation(sim_id)
             targeting_data = sim_data.get("simulation_metadata", {}).get("targeting", {}) if sim_data else {}
             target_market = targeting_data.get("target_market", "TW") if targeting_data else "TW"
             market_config = MARKET_CULTURE_CONFIG.get(target_market, MARKET_CULTURE_CONFIG["TW"])
             market_context_override = market_config.get("context_override", "")
+
 
 
 
@@ -2655,21 +2644,35 @@ __CITIZENS_JSON__
             if not force_random:
                 pdf_hash_hex = hashlib.sha256(combined_content).hexdigest()
                 pdf_hash = int(pdf_hash_hex, 16) % (2**32)
-                print(f"🎲 [Consistency] PDF Flow Seed: {pdf_hash}")
+                # print(f"🎲 [Consistency] PDF Flow Seed: {pdf_hash}")
+                print(f"[Consistency] PDF Flow Seed: {pdf_hash}")
             else:
                 pdf_hash = None
-                print(f"🎲 [Consistency] Force Random active. Seed: None")
+                # print(f"🎲 [Consistency] Force Random active. Seed: None")
+                print(f"[Consistency] Force Random active. Seed: None")
 
             # Pass the hash as seed for consistent sampling
-            sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=pdf_hash, filters=sim_filters)
-            print(f"正在從 1000 位真實市民中抽選評論者... (Sampled: {len(sampled_citizens)})")
+            # [Fix P0] Fetch LARGE pool for PDF flow too
+            # sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=pdf_hash, filters=sim_filters)
+            
+            # 1. Fetch Candidates
+            candidates = await run_in_threadpool(get_random_citizens, sample_size=2000, seed=pdf_hash, filters=sim_filters)
+            
+            # 2. Determine Mode
+            mode = "Expert" if expert_mode else "Normal"
+            
+            # 3. Select Reviewers
+            from app.services.reviewer_selector import select_reviewers
+            sampled_citizens = select_reviewers(candidates, sim_id, mode=mode, target_count=10)
+            
+            print(f"Sampling citizens (PDF)... (Pool: {len(candidates)} -> Selected: {len(sampled_citizens)})")
 
             # [Debug] Check element distribution before Prompt
             elem_counts = {}
             for c in sampled_citizens:
                 e = c.get("element", "None")
                 elem_counts[e] = elem_counts.get(e, 0) + 1
-            print(f"📊 [PRE-PDF] Sampled Elements: {elem_counts}")
+            print(f"[PRE-PDF] Sampled Elements: {elem_counts}")
             
             try:
                 with open("debug_trace.log", "a", encoding="utf-8") as f:
@@ -2968,7 +2971,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             
             try:
                 # PDF 分析通常需要更多上下文
-                abm_res = await self._run_abm_simulation(sampled_citizens, text_context or "PDF Business Plan", language)
+                abm_res = await self._run_abm_simulation(sampled_citizens, f"PDF: {file_name}", language)
                 abm_evolution_data = abm_res["evolution_data"]
                 abm_analytics = abm_res["analytics_data"]
                 abm_comments_data = abm_res["comments_data"]
@@ -3021,9 +3024,24 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             if abm_analytics:
                 data["abm_analytics"] = abm_analytics
             if abm_comments_data:
-                # 合併 Gemini 評論與 ABM 評論 (Gemini 優先)
-                existing_comments = data.get("arena_comments", [])
-                data["arena_comments"] = existing_comments + abm_comments_data
+                # [Fix] Smart Merge: Prioritize Gemini comments, fill with ABM if needed, capped at 10
+                gemini_comments = data.get("arena_comments", [])
+                
+                # Deduplicate based on persona name to avoid same person commenting twice
+                existing_names = {c.get("persona", {}).get("name") for c in gemini_comments if c.get("persona")}
+                
+                unique_abm_comments = []
+                for c in abm_comments_data:
+                    p_name = c.get("persona", {}).get("name")
+                    if p_name not in existing_names:
+                        unique_abm_comments.append(c)
+                        existing_names.add(p_name)
+                
+                # Combine: Gemini first, then unique ABM
+                combined = gemini_comments + unique_abm_comments
+                
+                # Strict cap at 10
+                data["arena_comments"] = combined[:10]
             
             # 6. Build Result Data
             sim_metadata = data.get("simulation_metadata", {})
@@ -3045,7 +3063,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                         "element": bazi.get("element", "未知"),
                         "day_master": bazi.get("day_master", "未知"),
                         "pattern": bazi.get("structure", "未知"),
-                        "trait": c.get("traits")[0] if c.get("traits") else "積極",
+                        "trait": c.get("traits", ["積極"])[0] if c.get("traits") else "積極",
                         "decision_logic": "理性分析商業模式可行性"
                     })
 
@@ -3058,14 +3076,35 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             
             # 🛡️ GHOST CITIZEN PROTECTION: 建立真實市民查找表
             valid_citizen_map = {c["name"]: c for c in sampled_citizens}
+            valid_citizen_id_map = {str(c["id"]): c for c in sampled_citizens}
             used_real_citizens = set()
             
             # 先收集已使用的真實市民
             for c in raw_arena_comments:
                 if not isinstance(c, dict): continue
-                p_name = c.get("persona", {}).get("name")
-                if p_name in valid_citizen_map:
-                    used_real_citizens.add(p_name)
+                persona_data = c.get("persona", {})
+                p_name = persona_data.get("name")
+                p_id = str(persona_data.get("id", ""))
+                
+                # 🔧 [Fix] Strip extra quotes from name (Enhanced for fullwidth)
+                if p_name:
+                    p_name = p_name.strip().strip('"').strip("'").strip("“").strip("”").strip("‘").strip("’")
+                    persona_data["name"] = p_name # Update back to object
+
+                # Match by ID first, then Name
+                matched_citizen = None
+                if p_id in valid_citizen_id_map:
+                    matched_citizen = valid_citizen_id_map[p_id]
+                elif p_name in valid_citizen_map:
+                    matched_citizen = valid_citizen_map[p_name]
+                
+                if matched_citizen:
+                    used_real_citizens.add(matched_citizen["name"])
+                    # Backfill correct ID/Name if missing/wrong to ensure consistency
+                    if not p_id or p_id != str(matched_citizen["id"]):
+                        persona_data["id"] = str(matched_citizen["id"])
+                    if p_name != matched_citizen["name"]:
+                        persona_data["name"] = matched_citizen["name"]
             
             # 準備未使用的真實市民列表 (作為替補)
             unused_citizens = [c for c in sampled_citizens if c["name"] not in used_real_citizens]
@@ -3074,7 +3113,7 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             forbidden_phrases = [
                 "符合我的", "看起來不錯", "值得購買", "值得买", "看起来不错",
                 "符合我的需求", "非常喜歡", "非常喜欢", "好產品", "好产品",
-                "推薦購買", "推荐购买", "挺好的", "蠻好的", "還不錯", "还不错",
+                "推薦購買", "推荐购买", "挺好的", "蠻好的", "還不錯", "还不錯",
                 "looks good", "worth buying", "meets my needs", "highly recommend"
             ]
             for c in raw_arena_comments:
@@ -3086,8 +3125,21 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
                 # 🛡️ GHOST CHECK
                 persona = c.get("persona", {})
                 p_name = persona.get("name")
+                p_id = str(persona.get("id", ""))
                 
-                if p_name not in valid_citizen_map:
+                # 🔧 [Fix] Strip extra quotes (Enhanced for fullwidth)
+                if p_name:
+                    p_name = p_name.strip().strip('"').strip("'").strip("“").strip("”").strip("‘").strip("’")
+                    persona["name"] = p_name
+
+                # Match Logic
+                is_ghost = True
+                if p_id in valid_citizen_id_map:
+                    is_ghost = False
+                elif p_name in valid_citizen_map:
+                    is_ghost = False
+
+                if is_ghost:
                     # GHOST DETECTED! REPLACE IDENTITY
                     if replacement_ptr < len(unused_citizens):
                         real_c = unused_citizens[replacement_ptr]
@@ -3307,14 +3359,14 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
             clean_result = self._ensure_serializable(result_data)
             
             await run_in_threadpool(update_simulation, sim_id, "ready", clean_result)
-            print(f"✅ [Core PDF] 商業計劃書分析已寫入 PostgreSQL: {sim_id}")
+            print(f"[Core PDF] Analysis saved to PostgreSQL: {sim_id}")
 
         except Exception as e:
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] ERROR: {str(e)}\n")
             print(f"[Core PDF] Analysis Failed: {e}")
             self._handle_error_db(sim_id, str(e))
 
-    async def run_simulation_with_text_data(self, text_content: str, sim_id: str, source_type: str = "txt", language: str = "zh-TW"):
+    async def run_simulation_with_text_data(self, text_content: str, sim_id: str, source_type: str = "txt", language: str = "zh-TW", force_random=False):
         """處理純文字內容的商業計劃書分析 (Word/PPT/TXT) - 與 PDF 流程對齊"""
         try:
             from fastapi.concurrency import run_in_threadpool
@@ -3377,14 +3429,14 @@ You are the Core AI Strategic Advisor of the MIRRA system. You are reviewing a B
 
             # [Fix] 抽樣 30 位市民 with filters
             sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=txt_hash, filters=sim_filters)
-            print(f"正在從 1000 位真實市民中抽選評論者... (Sampled: {len(sampled_citizens)})")
+            print(f"Sampling citizens... (Sampled: {len(sampled_citizens)})")
             
             # [Debug] Check element distribution before Prompt
             elem_counts = {}
             for c in sampled_citizens:
                 e = c.get("element", "None")
                 elem_counts[e] = elem_counts.get(e, 0) + 1
-            print(f"📊 [PRE-TEXT] Sampled Elements: {elem_counts}")
+            print(f"[PRE-TEXT] Sampled Elements: {elem_counts}")
             
             try:
                 with open("debug_trace.log", "a", encoding="utf-8") as f:
@@ -3797,7 +3849,14 @@ Please let the following 10 representative AI virtual citizens, selected from a 
             # 先收集已使用的真實市民
             for c in raw_arena_comments:
                 if not isinstance(c, dict): continue
-                p_name = c.get("persona", {}).get("name")
+                persona_data = c.get("persona", {})
+                p_name = persona_data.get("name")
+                
+                # 🔧 [Fix] Strip extra quotes from name
+                if p_name:
+                    p_name = p_name.strip().strip('"').strip("'")
+                    persona_data["name"] = p_name
+                
                 if p_name in valid_citizen_map:
                     used_real_citizens.add(p_name)
             
@@ -3820,6 +3879,11 @@ Please let the following 10 representative AI virtual citizens, selected from a 
                 # 🛡️ GHOST CHECK
                 persona = c.get("persona", {})
                 p_name = persona.get("name")
+                
+                # 🔧 [Fix] Strip extra quotes
+                if p_name:
+                    p_name = p_name.strip().strip('"').strip("'")
+                    persona["name"] = p_name
                 
                 if p_name not in valid_citizen_map:
                     # GHOST DETECTED! REPLACE IDENTITY
@@ -3887,7 +3951,7 @@ Please let the following 10 representative AI virtual citizens, selected from a 
             personas = genesis_data.get("personas", [])
             
             # 7. 補充 arena_comments 中每個 persona 的完整八字資料 (與 PDF 流程完全一致)
-            arena_comments = data.get("arena_comments", [])
+            # arena_comments = data.get("arena_comments", []) # [Fix] Do NOT overwrite filtered comments!
             citizen_name_map = {c["name"]: c for c in sampled_citizens}
             
             def build_luck_data(bazi, age):
@@ -4928,17 +4992,18 @@ Output the transcribed text directly, without any additional explanation."""
                 last_error = msg
                 break
                 
+            current_request_timeout = timeout # Initialize here to ensure it's bound
             try:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
                 
                 # Determine timeout for THIS request
-                current_request_timeout = timeout
                 if "pro" in model:
                     current_request_timeout = max(timeout, 600) # Pro needs more time
                 if pdf_b64:
                     current_request_timeout = max(current_request_timeout, 120)
 
                 full_timeout_config = (30, current_request_timeout)
+
                 
                 print(f"🚀 [DEBUG] Trying {model} (Timeout: {current_request_timeout}s)...")
                 

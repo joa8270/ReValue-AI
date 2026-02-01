@@ -54,19 +54,28 @@ from sqlalchemy import Column, Integer, String, JSON, Text
 from sqlalchemy.sql import func
 
 class Citizen(Base):
-    """AI 虛擬市民"""
+    """AI 虛擬市民 (Genesis 2.0 Schema)"""
     __tablename__ = "citizens"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(JSON, nullable=False) # Localized Object { "TW": "...", "US": "...", "CN": "..." }
+    
+    # [V7 Change] Name & Location are now JSON for localized profiles
+    name = Column(JSON, nullable=False) # { "TW": "...", "CN": "...", "US": "..." }
     gender = Column(String(20))
     age = Column(Integer)
-    location = Column(String(100))  # 城市, 國家
-    occupation = Column(JSON)      # Localized Object { "TW": "...", "US": "...", "CN": "..." }
-    bazi_profile = Column(JSON)  # JSONB in PostgreSQL
+    
+    location = Column(JSON)  # { "TW": "...", "CN": "...", "US": "..." }
+    occupation = Column(JSON) # { "TW": "...", "CN": "...", "US": "..." }
+    
+    # [V7 New Fields]
+    social_tier = Column(Integer) # 1-5 (Elite to Precariat)
+    career_tags = Column(JSON)    # ["Tech", "Executive", "Tier_1"]
+    current_persona_desc = Column(Text) # "經歷過..." (B方案性格)
+    
+    bazi_profile = Column(JSON)  
     traits = Column(JSON)
-    profiles = Column(JSON)      # Global Identity Profiles (US/CN/TW)
-    persona_categories = Column(JSON) # [New] Standardized Tags (e.g. ['student', 'executive'])
+    profiles = Column(JSON)      
+    persona_categories = Column(JSON)
 
 
 class Simulation(Base):
@@ -97,16 +106,32 @@ def insert_citizens_batch(citizens: list[dict]) -> bool:
     try:
         db = SessionLocal()
         for c in citizens:
+            # [V7] Handle JSON Name/Location
+            name_val = c["name"] # Should be dict now
+            loc_val = c.get("profiles", {}).get("TW", {}).get("city", "Unknown") # Fallback to TW city if simple string
+            
+            # If input is V7 format, use it directly
+            if isinstance(c.get("location"), dict):
+                loc_val = c["location"]
+            elif isinstance(c.get("location"), str):
+                 # Convert legacy string to dict
+                 loc_val = {"TW": c["location"], "CN": c["location"], "US": "Unknown"}
+
             citizen = Citizen(
                 id=c.get("id"),
-                name=c["name"], # Now an object
+                name=name_val,
                 gender=c["gender"],
                 age=c["age"],
-                location=c["location"],
-                occupation=c.get("occupation", {}), # Now an object
+                location=loc_val,
+                occupation=c.get("occupation", {}),
                 bazi_profile=c["bazi_profile"],
                 traits=c["traits"],
-                profiles=c.get("profiles", {})
+                profiles=c.get("profiles", {}),
+                # [V7 New Fields]
+                social_tier=c.get("social_tier", 3),
+                career_tags=c.get("career_tags", []),
+                current_persona_desc=c.get("current_persona_desc", ""),
+                persona_categories=c.get("persona_categories", []) # [Fix] P2 Diversity Audit
             )
             db.add(citizen)
         db.commit()
@@ -127,11 +152,13 @@ def get_citizens_count(search: str = None) -> int:
         if search:
             from sqlalchemy import or_, cast, Text
             pattern = f"%{search}%"
+            # [V7 Fix] Cast JSON to Text for searching
             query = query.filter(
                 or_(
                     cast(Citizen.name, Text).ilike(pattern),
-                    Citizen.location.ilike(pattern),
-                    cast(Citizen.occupation, Text).ilike(pattern)
+                    cast(Citizen.location, Text).ilike(pattern),
+                    cast(Citizen.occupation, Text).ilike(pattern),
+                    cast(Citizen.career_tags, Text).ilike(pattern)
                 )
             )
             
@@ -155,7 +182,7 @@ def get_all_citizens(limit: int = 1000, offset: int = 0, search: str = None) -> 
             query = query.filter(
                 or_(
                     cast(Citizen.name, Text).ilike(pattern),
-                    Citizen.location.ilike(pattern),
+                    cast(Citizen.location, Text).ilike(pattern),
                     cast(Citizen.occupation, Text).ilike(pattern)
                 )
             )
@@ -165,16 +192,34 @@ def get_all_citizens(limit: int = 1000, offset: int = 0, search: str = None) -> 
         
         result = []
         for c in citizens:
+            # [V7 Compatibility] Return TW name as default string for legacy frontend
+            name_display = c.name.get("TW", "Unknown") if isinstance(c.name, dict) else str(c.name)
+            loc_display = c.location.get("TW", "Unknown") if isinstance(c.location, dict) else str(c.location)
+            
+            # Occupation handling
+            occ_val = c.occupation
+            occ_display = "Unknown"
+            if isinstance(occ_val, dict):
+                occ_display = occ_val.get("TW", "Unknown")
+            else:
+                occ_display = str(occ_val) if occ_val else "Unknown"
+
             result.append({
                 "id": c.id,
-                "name": c.name,
+                "name": name_display, # Legacy string
+                "name_full": c.name,  # V7 Full Object
                 "gender": c.gender,
                 "age": c.age,
-                "location": c.location,
-                "occupation": c.occupation,
+                "location": loc_display, # Legacy string
+                "location_full": c.location, # V7 Full Object
+                "occupation": occ_display, # Legacy string
+                "occupation_full": c.occupation, # V7 Full Object
                 "bazi_profile": c.bazi_profile,
                 "traits": c.traits,
-                "profiles": c.profiles if c.profiles else {} 
+                "profiles": c.profiles if c.profiles else {},
+                "social_tier": c.social_tier,
+                "career_tags": c.career_tags,
+                "current_persona_desc": c.current_persona_desc
             })
         return result
     except Exception as e:
@@ -208,18 +253,21 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: in
         target_age_min = int(filters.get("age_min") or 0)
         target_age_max = int(filters.get("age_max") or 100)
         
-        print(f"🎲 [DB] 原始篩選條件: {filters} (Range: {target_age_min}-{target_age_max})")
+        print(f"[DB] Original filters: {filters} (Range: {target_age_min}-{target_age_max})")
+
 
         # Scene B: 嬰幼兒產品 (Baby Formula/Diapers) -> Parents (25-45)
         if target_age_max < 12:
-            print(f"👶 [DB] 觸發「嬰幼兒代理人」模式 (Target: 0-{target_age_max}y -> Proxy: 25-45y Parents)")
+            print(f"[DB] Triggered Baby Proxy mode (Target: 0-{target_age_max}y -> Proxy: 25-45y Parents)")
+
             filters["age_min"] = 25
             filters["age_max"] = 45
             proxy_role = "parent" # 標記身份
             
         # Scene C: 高齡照護 (Elderly Care) -> Mixed (50% Real Elderly + 50% Children)
         elif target_age_min > 75:
-            print(f"👵 [DB] 觸發「高齡照護混合」模式 (Target: {target_age_min}y+ -> Mixed)")
+            print(f"[DB] Triggered Elderly Care Mixed mode (Target: {target_age_min}y+ -> Mixed)")
+
             
             # Recursive Call for Mixed Sampling
             half_size = sample_size // 2
@@ -281,7 +329,21 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: in
         db.close()
         
         if not all_citizens:
-            print(f"❌ 資料庫中沒有符合條件的市民 (Filters: {filters})")
+            print(f"[DB] No citizens matching filters found (Filters: {filters}). Triggering Fallback...")
+            
+            # Fallback 1: Remove Occupation Filter, keep Age
+            if "occupation" in filters:
+                print(f"[DB] Fallback 1: Removing occupation filter...")
+                fallback_filters = filters.copy()
+                del fallback_filters["occupation"]
+                # Recursively call without occupation
+                return get_random_citizens(sample_size, stratified, seed, fallback_filters)
+                
+            # Fallback 2: Remove Age Filter (Full Random)
+            if "age_min" in filters or "age_max" in filters:
+                print(f"[DB] Fallback 2: Removing age filter (Full Random)...")
+                return get_random_citizens(sample_size, stratified, seed, None)
+
             return []
         
         # 轉換為字典格式 (Fix: Allow passing corrected element)
@@ -296,13 +358,28 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: in
             if override_element:
                 bazi["element"] = override_element
 
+            # [V7 Compatibility] Name/Location/Occupation Handling
+            # If fields are JSON (dict), pick TW for legacy string field to prevent frontend crash
+            name_str = c.name.get("TW", "Unknown") if isinstance(c.name, dict) else str(c.name)
+            loc_str = c.location.get("TW", "Unknown") if isinstance(c.location, dict) else str(c.location)
+            
+            occ_val = c.occupation or "未知"
+            occ_str = "未知"
+            if isinstance(occ_val, dict):
+                occ_str = occ_val.get("TW", "Unknown")
+            else:
+                occ_str = str(occ_val)
+
             c_dict = {
                 "id": str(c.id),
-                "name": c.name,
+                "name": name_str, # Legacy string
+                "name_full": c.name if isinstance(c.name, dict) else {}, # V7 Full Object
                 "gender": c.gender,
                 "age": c.age,
-                "location": c.location,
-                "occupation": c.occupation or "未知",
+                "location": loc_str, # Legacy string
+                "location_full": c.location if isinstance(c.location, dict) else {}, # V7 Full Object
+                "occupation": occ_str, # Legacy string (Fix for frontend list crash)
+                "occupation_full": c.occupation if isinstance(c.occupation, dict) else {}, # V7 Full Object
                 "bazi_profile": bazi,
                 "traits": traits,
                 "element": final_element, # Ensure top-level key is correct
@@ -313,7 +390,12 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: in
                 "luck_timeline": bazi.get("luck_timeline", []),
                 "profiles": c.profiles or {},
                 "persona_categories": c.persona_categories or [],
-                "proxy_role": proxy_role  # [New] Inject Proxy Role
+                "proxy_role": proxy_role,  # [New] Inject Proxy Role
+                
+                # [V7 New Fields]
+                "social_tier": c.social_tier,
+                "career_tags": c.career_tags,
+                "current_persona_desc": c.current_persona_desc
             }
             
             # 🛡️ [New] P0 Career Logic Patch
@@ -395,7 +477,8 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: in
                     element_groups[elem].append(c)
             
             if missing_count > 0:
-                print(f"⚠️ [DB] Warning: {missing_count} citizens missing element data (Assigned deterministically by ID)")
+                print(f"[DB] Warning: {missing_count} citizens missing element data (Assigned deterministically by ID)")
+
             
             # 從每組隨機抽取
             result = []
@@ -411,7 +494,8 @@ def get_random_citizens(sample_size: int = 30, stratified: bool = True, seed: in
                     # 傳入正確的 element
                     result.extend([citizen_to_dict(c, override_element=element) for c in sampled])
             
-            print(f"📊 [分層抽樣] 總計 {len(result)} 位市民")
+            print(f"[Sampling] Total {len(result)} citizens")
+
             # [Consistency] 打亂最終結果，避免永遠按五行排序
             rng.shuffle(result)
             return result
@@ -457,7 +541,8 @@ def create_simulation(sim_id: str, initial_data: dict) -> bool:
         db.add(simulation)
         db.commit()
         db.close()
-        print(f"📝 [SQL] Simulation {sim_id} 已建立")
+        print(f"[SQL] Simulation {sim_id} created")
+
         try:
             with open("db_debug.log", "a", encoding="utf-8") as f:
                 f.write(f"[CREATE] {sim_id} Success\n")
@@ -483,7 +568,8 @@ def update_simulation(sim_id: str, status: str, data: dict) -> bool:
             simulation.status = status
             simulation.data = data
             db.commit()
-            print(f"✅ [SQL] Simulation {sim_id} 已更新為 {status}")
+            print(f"[SQL] Simulation {sim_id} updated to {status}")
+
             try:
                 with open("db_debug.log", "a", encoding="utf-8") as f:
                     f.write(f"[UPDATE] {sim_id} Updated to {status}\n")
@@ -497,7 +583,8 @@ def update_simulation(sim_id: str, status: str, data: dict) -> bool:
             )
             db.add(new_simulation)
             db.commit()
-            print(f"📝 [SQL] Simulation {sim_id} 不存在，已建立新記錄 (status: {status})")
+            print(f"[SQL] Simulation {sim_id} not found, created new record (status: {status})")
+
             try:
                 with open("db_debug.log", "a", encoding="utf-8") as f:
                     f.write(f"[UPDATE] {sim_id} Created New (status: {status})\n")
@@ -569,7 +656,7 @@ def get_citizen_by_id(citizen_id: str) -> dict | None:
             traits = citizen.traits if isinstance(citizen.traits, list) else []
             result_dict = {
                 "id": str(citizen.id),
-                "name": citizen.name,
+                "name": citizen.name.strip('"').strip("'") if citizen.name else citizen.name,
                 "gender": citizen.gender,
                 "age": citizen.age,
                 "location": citizen.location,
