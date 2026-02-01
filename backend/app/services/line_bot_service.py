@@ -1340,7 +1340,7 @@ Reply directly in JSON format:
                 f.write(f"[{sim_id}] Image Bytes len: {len(image_bytes) if image_bytes else 'None'}\n")
             
             print(f"🚀 [SESSION] Calling run_simulation_with_image_data for {sim_id}")
-            await self.run_simulation_with_image_data(image_bytes, sim_id, text_context)
+            await self.run_simulation_with_image_data(image_bytes, sim_id, text_context, user_id=user_id)
             
             with open("debug_start.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] Call returned (Success)\n")
         except Exception as e:
@@ -1406,12 +1406,12 @@ Reply directly in JSON format:
             pdf_bytes = self.line_bot_blob.get_message_content(message_id)
             print(f"✅ [PDF] PDF 下載完成: {len(pdf_bytes)} bytes")
             
-            await self.run_simulation_with_pdf_data(sim_id, pdf_bytes, file_name)
+            await self.run_simulation_with_pdf_data(sim_id, pdf_bytes, file_name, user_id=user_id)
         except Exception as e:
             print(f"❌ [PDF] 下載或處理失敗: {e}")
             self.reply_text(reply_token, "❌ PDF 下載或處理失敗，請重新上傳")
 
-    async def process_image_with_ai(self, message_id, sim_id, text_context=None):
+    async def process_image_with_ai(self, message_id, sim_id, text_context=None, user_id=None):
 
         """
         [Legacy Wrapper] 
@@ -1423,7 +1423,7 @@ Reply directly in JSON format:
             image_bytes = self.line_bot_blob.get_message_content(message_id)
             print(f"✅ [LineBot] 圖片下載完成: {len(image_bytes)} bytes")
             
-            await self.run_simulation_with_image_data(image_bytes, sim_id, text_context)
+            await self.run_simulation_with_image_data(image_bytes, sim_id, text_context, user_id=user_id)
         except Exception as e:
             print(f"❌ [LineBot] 圖片下載或處理失敗: {e}")
             # Error updating happens inside run_simulation_with_image_data for analysis errors
@@ -1551,11 +1551,12 @@ Reply directly in JSON format:
             "comments_data": comments_data
         }
 
-    async def run_simulation_with_image_data(self, image_data_input, sim_id, text_context=None, language="zh-TW", force_random=False):
+    async def run_simulation_with_image_data(self, image_data_input, sim_id, text_context=None, language="zh-TW", force_random=False, user_id=None):
         """核心圖文分析邏輯 (Decoupled & Synced with PDF Flow) - Supports Single or Multiple Images"""
         import traceback
+        import time # Added import for time.time()
         try:
-            with open("debug_image.log", "w", encoding="utf-8") as f: f.write(f"[{sim_id}] STARTING run_simulation_with_image_data (Lang: {language})\n")
+            with open("debug_image.log", "w", encoding="utf-8") as f: f.write(f"[{sim_id}] STARTING run_simulation_with_image_data (Lang: {language}, User: {user_id})\n")
             
             # Fetch Scenario
             from app.core.database import get_simulation
@@ -1626,7 +1627,7 @@ Reply directly in JSON format:
             # [Consistency] Calculate seed from Image content + Text + Filters
             import hashlib
             
-            # Combine all inputs for rigorous determinism
+            # Combine all inputs for rigorous determinism (Legacy Hash for DB fetching)
             # 1. Images Content
             combined_content = b"".join(image_bytes_list)
             # 2. Add Text Context
@@ -1636,13 +1637,14 @@ Reply directly in JSON format:
             filter_str = json.dumps(sim_filters, sort_keys=True)
             combined_content += filter_str.encode('utf-8')
             
-            # Generate Seed
+            # Generate Seed for DB Sampling (Keep broad match consistent)
             if not force_random:
                 img_hash_hex = hashlib.sha256(combined_content).hexdigest()
                 img_hash = int(img_hash_hex, 16) % (2**32) # Convert to 32-bit int
                 print(f"🎲 [Consistency] Generated Seed from Content+Filters: {img_hash}")
             else:
                 img_hash = None
+                img_hash_hex = str(time.time())
                 print(f"🎲 [Consistency] Force Random active. Seed: None")
 
             # Pass hash as seed
@@ -1650,6 +1652,7 @@ Reply directly in JSON format:
             # sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30, seed=img_hash, filters=sim_filters)
             
             # 1. Fetch Candidates (Large Pool)
+            # Use strict content hash for pool sampling to ensure same candidates are available
             candidates = await run_in_threadpool(get_random_citizens, sample_size=2000, seed=img_hash, filters=sim_filters)
             
             # 2. Determine Mode
@@ -1657,9 +1660,16 @@ Reply directly in JSON format:
             is_expert = analysis_scenario == 'b2b' or (targeting_data and targeting_data.get("persona") == "Expert")
             mode = "Expert" if is_expert else "Normal"
             
-            # 3. Select Reviewers (Deterministic)
+            # 3. Select Reviewers (Deterministic with Anchor Rule)
             from app.services.reviewer_selector import select_reviewers
-            sampled_citizens = select_reviewers(candidates, sim_id, mode=mode, target_count=10)
+            
+            # [Logic Fix] Iteration Continuity:
+            # Seed = UserID + Anchor (ImageContent). Exclude Description/Filters from Reviewer Selection Seed.
+            # This ensures if user updates description, reviewers stay same.
+            anchor_content = hashlib.md5(b"".join(image_bytes_list)).hexdigest() # Pure Image Hash
+            stable_seed_str = f"{user_id}_{anchor_content}" if user_id else img_hash_hex
+            
+            sampled_citizens = select_reviewers(candidates, stable_seed_str, mode=mode, target_count=10)
 
             print(f"正在從 {len(candidates)} 位候選人中決定性抽選評論者... (Selected: {len(sampled_citizens)})")
             
@@ -2574,10 +2584,10 @@ __CITIZENS_JSON__
             return [self._ensure_serializable(x) for x in obj]
         return obj
 
-    async def run_simulation_with_pdf_data(self, sim_id, pdf_bytes, file_name, product_name="Unknown", price="Unknown", description="", market_prices=None, style=None, language="zh-TW", targeting=None, expert_mode=False, force_random=False, analysis_scenario="b2c", seed_salt=0):
+    async def run_simulation_with_pdf_data(self, sim_id, pdf_bytes, file_name, product_name="Unknown", price="Unknown", description="", market_prices=None, style=None, language="zh-TW", targeting=None, expert_mode=False, force_random=False, analysis_scenario="b2c", seed_salt=0, user_id=None):
         """核心 PDF 分析邏輯 - accepts bytes directly from web.py"""
         # NOTE: pdf_bytes is already read in web.py endpoint, not UploadFile
-        with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] PDF Flow Start (Lang: {language}, File: {file_name})\n")
+        with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] PDF Flow Start (Lang: {language}, Make: {file_name}, User: {user_id})\n")
         try:
             # Convert PDF to base64
             pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
@@ -2600,6 +2610,7 @@ __CITIZENS_JSON__
             
             # [Consistency] Calculate seed from PDF content
             import hashlib
+            import time
             # Consistency logic: use hash if not force_random
             pdf_hash = int(hashlib.md5(pdf_bytes).hexdigest(), 16) if not force_random else None
             
@@ -2632,7 +2643,6 @@ __CITIZENS_JSON__
             # [Fix] 使用 run_in_threadpool 抽樣 30 位市民，從中精選 10 位生成評論
             
             # [Consistency] Calculate seed from PDF content + Filters
-            import hashlib
             
             # Combine all inputs for rigorous determinism
             combined_content = pdf_bytes
@@ -2648,6 +2658,7 @@ __CITIZENS_JSON__
                 print(f"[Consistency] PDF Flow Seed: {pdf_hash}")
             else:
                 pdf_hash = None
+                pdf_hash_hex = str(time.time())
                 # print(f"🎲 [Consistency] Force Random active. Seed: None")
                 print(f"[Consistency] Force Random active. Seed: None")
 
@@ -2663,7 +2674,13 @@ __CITIZENS_JSON__
             
             # 3. Select Reviewers
             from app.services.reviewer_selector import select_reviewers
-            sampled_citizens = select_reviewers(candidates, sim_id, mode=mode, target_count=10)
+            
+            # [Logic Fix] Iteration Continuity (PDF):
+            # Seed = UserID + Anchor (FileName). Exclude Description/Filters from Reviewer Selection Seed.
+            anchor_content = str(file_name)
+            stable_seed_str = f"{user_id}_{anchor_content}" if user_id else pdf_hash_hex
+            
+            sampled_citizens = select_reviewers(candidates, stable_seed_str, mode=mode, target_count=10)
             
             print(f"Sampling citizens (PDF)... (Pool: {len(candidates)} -> Selected: {len(sampled_citizens)})")
 

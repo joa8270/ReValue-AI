@@ -1,14 +1,16 @@
 
+import hashlib
 import random
 import time
 
-def select_reviewers(candidates: list[dict], plan_id: str, mode: str = "Normal", refresh_flag: bool = False, target_count: int = 10) -> list[dict]:
+
+def select_reviewers(candidates: list[dict], plan_content: str, mode: str = "Normal", refresh_flag: bool = False, target_count: int = 10) -> list[dict]:
     """
-    從候選人名單中，根據 Plan ID 與模式，決定性地 (Deterministic) 選出評論者。
+    從候選人名單中，根據 Plan Content (Hash) 與模式，決定性地 (Deterministic) 選出評論者。
     
     Args:
         candidates: 候選人列表 (dicts)
-        plan_id: 商業計劃 ID (sim_id)
+        plan_content: 用於生成 hash 的內容字串 (e.g. image hash hex, pdf hash hex, or plain text)
         mode: "Expert" 或 "Normal"
         refresh_flag: 是否強制刷新 (True = 換一批)
         target_count: 目標選取人數 (Default 10)
@@ -63,19 +65,22 @@ def select_reviewers(candidates: list[dict], plan_id: str, mode: str = "Normal",
     else:
         filtered_candidates = list(candidates) # Copy
 
-    # 步驟 2: 穩定排序 (CRITICAL FIX for Consistency)
+    # 步驟 2: 穩定排序 (Stable Sort) - 絕對不能拿掉！
     # 這是解決 "4個人跑票" 的關鍵：在抽籤前，先把名單按 ID 排序，確保每次順序一樣
-    # Ensure ID is string for sorting
     filtered_candidates.sort(key=lambda x: str(x['id']))
 
-    # 步驟 3: 設定種子 (Seeding)
+    # 步驟 3: 種子生成階段 (The Hash Lock) - 關鍵修改！
     if refresh_flag:
-        seed_value = str(time.time()) # 換一批
+        # 如果用戶按了「換一批」，則引入隨機因子
+        seed_source = str(plan_content) + str(time.time())
     else:
-        seed_value = str(plan_id) + str(mode) # 鎖定結果
+        # 默認模式：使用「文件內容」的 MD5 Hash 作為種子
+        # 這樣只要內容只有一個字沒變，算出來的 Hash 永遠一樣
+        # Note: plan_content is expected to be a string (or hash hex string)
+        seed_source = hashlib.md5(str(plan_content).encode('utf-8')).hexdigest()
 
     # 步驟 4: 決定性抽選
-    rnd = random.Random(seed_value)
+    rnd = random.Random(seed_source)
     
     # 安全檢查：候選人夠不夠抽？
     k = min(len(filtered_candidates), target_count)
