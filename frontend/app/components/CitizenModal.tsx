@@ -11,7 +11,9 @@ export interface BaziProfile {
     birth_hour?: number
     birth_shichen?: string
     four_pillars?: any // Can be string or object {year, month, day, hour}
+    four_pillars_en?: string[] // [New]
     strength?: string
+    strength_en?: string // [New]
     structure?: string
     structure_en?: string // Added for strict US localization support
     favorable_elements?: string[]
