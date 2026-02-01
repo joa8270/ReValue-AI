@@ -371,7 +371,13 @@ export const I18N = {
         pillar_hour: "時",
         prev_page: "上一頁",
         next_page: "下一頁",
-        page: "頁"
+        page: "頁",
+        title: "MIRRA AI 虛擬市民資料庫",
+        subtitle: "實時人口資料庫 • 顯示:",
+        total: "總數:",
+        search_placeholder: "搜尋姓名、格局、個性描述...",
+        analysis_report: "完整報告",
+        loading: "正在同步人口數據..."
     },
     US: {
         id: "ID",
@@ -408,7 +414,13 @@ export const I18N = {
         pillar_hour: "Hour",
         prev_page: "Previous",
         next_page: "Next",
-        page: "Page"
+        page: "Page",
+        title: "MIRRA AI Virtual Citizen Database",
+        subtitle: "Real-time Population • Showing:",
+        total: "Total:",
+        search_placeholder: "Search name, archetype, personality...",
+        analysis_report: "Full Report",
+        loading: "Syncing Population Data..."
     },
     CN: {
         id: "ID",
@@ -441,7 +453,13 @@ export const I18N = {
         pillar_hour: "时",
         prev_page: "上一页",
         next_page: "下一页",
-        page: "页"
+        page: "页",
+        title: "MIRRA AI 虚拟市民数据库",
+        subtitle: "实时人口数据库 • 显示:",
+        total: "总数:",
+        search_placeholder: "搜索姓名、格局、个性描述...",
+        analysis_report: "完整报告",
+        loading: "正在同步人口数据..."
     }
 };
 

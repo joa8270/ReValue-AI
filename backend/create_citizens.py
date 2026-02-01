@@ -340,9 +340,35 @@ CN_SURNAMES = ["王", "李", "张", "刘", "陈", "杨", "黄", "赵", "吴", "�
 CN_NAMES_M = ["刚", "强", "伟", "杰", "磊", "军", "勇", "涛", "平", "辉"] # 偏好單字或雙字
 CN_NAMES_F = ["芳", "娜", "敏", "静", "秀", "丽", "娟", "艳", "兰", "萍"]
 
-# ===== 多國地理位置 =====
-LOCATIONS_US = ["New York, NY", "Los Angeles, CA", "Chicago, IL", "Houston, TX", "Phoenix, AZ", "Philadelphia, PA", "San Antonio, TX", "San Diego, CA"]
-LOCATIONS_CN = ["上海", "北京", "深圳", "广州", "成均", "杭州", "武汉", "重庆", "西安", "苏州"]
+# ===== 多國地理位置 (Expanded to 30+ per locale) =====
+LOCATIONS_US = [
+    "New York, NY", "Los Angeles, CA", "Chicago, IL", "Houston, TX", "Phoenix, AZ", 
+    "Philadelphia, PA", "San Antonio, TX", "San Diego, CA", "Dallas, TX", "San Jose, CA",
+    "Austin, TX", "Jacksonville, FL", "Fort Worth, TX", "Columbus, OH", "Charlotte, NC",
+    "San Francisco, CA", "Indianapolis, IN", "Seattle, WA", "Denver, CO", "Washington, DC",
+    "Boston, MA", "El Paso, TX", "Nashville, TN", "Detroit, MI", "Oklahoma City, OK",
+    "Portland, OR", "Las Vegas, NV", "Memphis, TN", "Louisville, KY", "Baltimore, MD",
+    "Milwaukee, WI", "Albuquerque, NM", "Tucson, AZ", "Fresno, CA", "Sacramento, CA",
+    "Kansas City, MO", "Mesa, AZ", "Atlanta, GA", "Omaha, NE", "Colorado Springs, CO",
+    "Miami, FL", "Raleigh, NC", "Long Beach, CA", "Virginia Beach, VA", "Oakland, CA"
+]
+
+LOCATIONS_CN = [
+    "上海", "北京", "深圳", "广州", "成均", "杭州", "武汉", "重庆", "西安", "苏州",
+    "天津", "南京", "长沙", "郑州", "东莞", "青岛", "沈阳", "宁波", "昆明", "厦门",
+    "合肥", "佛山", "无锡", "大连", "哈尔滨", "济南", "福州", "南宁", "长春", "乌鲁木齐",
+    "石家庄", "太原", "呼和浩特", "兰州", "银川", "西宁", "贵阳", "海口", "拉萨", "南昌"
+]
+
+LOCATIONS_TW = [
+    "台北, 台灣", "新北, 台灣", "台中, 台灣", "高雄, 台灣", "台南, 台灣", 
+    "桃園, 台灣", "新竹, 台灣", "基隆, 台灣", "嘉義, 台灣", "彰化, 台灣",
+    "屏東, 台灣", "宜蘭, 台灣", "花蓮, 台灣", "台東, 台灣", "南投, 台灣",
+    "雲林, 台灣", "苗栗, 台灣", "澎湖, 台灣", "金門, 台灣", "馬祖, 台灣",
+    "板橋, 台灣", "中壢, 台灣", "豐原, 台灣", "鳳山, 台灣", "淡水, 台灣",
+    "竹北, 台灣", "員林, 台灣", "斗六, 台灣", "羅東, 台灣", "埔里, 台灣",
+    "恆春, 台灣", "鹿港, 台灣", "三峽, 台灣", "汐止, 台灣", "林口, 台灣"
+]
 
 # ===== 職業列表 (多國映射) =====
 # 職業資料庫 (真實世界分佈)
@@ -503,10 +529,14 @@ def generate_citizen(idx):
     age = random_age_from_range()
     
     # TW Identity (Anchor)
+    # TW Identity (Anchor)
     surname = random.choice(SURNAMES)
     given = (random.choice(MALE_NAMES if g=="male" else FEMALE_NAMES) + random.choice(MALE_NAMES if g=="male" else FEMALE_NAMES)) if random.random()<0.95 else random.choice(MALE_NAMES if g=="male" else FEMALE_NAMES)
     tw_name = surname + given
-    tw_city = weighted_random_choice({"台北, 台灣":20, "新北, 台灣":15, "台中, 台灣":12, "高雄, 台灣":10, "台南, 台灣":8})
+    
+    # [FIX] Use expanded LOCATIONS_TW instead of inline weighted choice
+    # Use random.choice for flatter distribution as requested (diversity)
+    tw_city = random.choice(LOCATIONS_TW)
     
     # 職業類別 (Anchor Category)
     job_cat = get_occupation_category(age)

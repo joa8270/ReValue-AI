@@ -158,7 +158,7 @@ function CitizensContent() {
         return { name, city, job, pain };
     }
 
-    const t = I18N[market] || I18N['TW'];
+    const t: any = I18N[market] || I18N['TW'];
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200 font-sans pt-[100px]">
@@ -226,13 +226,17 @@ function CitizensContent() {
                 {loading ? (
                     <div className="flex flex-col justify-center items-center py-40 gap-4">
                         <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
-                        <div className="text-slate-500 font-mono text-sm">正在同步人口數據...</div>
+                        <div className="text-slate-500 font-mono text-sm">{t.loading}</div>
                     </div>
                 ) : (
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {paginatedCitizens.map((citizen) => {
-                                const pillars = parseFourPillars(citizen.bazi_profile.four_pillars || generateMockPillars());
+                                const pillars = parseFourPillars(
+                                    (market === 'US' && citizen.bazi_profile.four_pillars_en)
+                                        ? citizen.bazi_profile.four_pillars_en
+                                        : (citizen.bazi_profile.four_pillars || generateMockPillars())
+                                );
                                 const dayMasterElement = citizen.bazi_profile.element || "土";
                                 const elementStyle = getElementColor(dayMasterElement);
 
@@ -244,7 +248,7 @@ function CitizensContent() {
 
                                         {/* Day Master Badge */}
                                         <div className="absolute top-3 right-3 z-20 flex flex-col items-end gap-1">
-                                            <span className="text-[9px] text-gray-400 font-mono tracking-wider">日主</span>
+                                            <span className="text-[9px] text-gray-400 font-mono tracking-wider">{market === 'US' ? 'DM' : '日主'}</span>
                                             <div className={`
                                                 relative size-11 rounded-full flex items-center justify-center
                                                 border-[3px] font-bold text-lg tracking-tight
@@ -374,7 +378,7 @@ function CitizensContent() {
                                                 onClick={() => setSelectedCitizen(citizen)}
                                                 className="w-full py-2 rounded-lg bg-[#302839] hover:bg-[#3e344a] border border-[#3e344a] text-xs font-bold text-gray-300 transition-all"
                                             >
-                                                完整報告
+                                                {t.analysis_report}
                                             </button>
                                         </div>
                                     </div>
