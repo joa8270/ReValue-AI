@@ -51,31 +51,52 @@ function CitizensContent() {
     const fetchCitizens = async () => {
         setLoading(true)
         try {
-            // First try local static file (Most robust for Vercel)
+            // [V7 Update] Priority: API -> Static File (Fallback)
+            // We want real-time DB data, not stale static JSON.
+            const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+            const url = `${API_BASE_URL}/citizens/genesis`
+
             try {
-                const res = await fetch('/citizens.json')
+                const res = await fetch(url)
                 if (res.ok) {
                     const data = await res.json()
-                    setCitizens(data.citizens || [])
-                    setTotal(data.total || 0)
+
+                    // [Fix] Handle both Legacy (List) and New (Object) API responses
+                    // Because server hot-reload might fail or be delayed
+                    let list: Citizen[] = [];
+                    let totalCount = 0;
+
+                    if (Array.isArray(data)) {
+                        list = data;
+                        totalCount = data.length;
+                    } else {
+                        list = data.citizens || [];
+                        totalCount = data.total || 0;
+                    }
+
+                    setCitizens(list)
+                    setTotal(totalCount)
                     setLoading(false)
                     return
                 }
-            } catch (e) {
-                console.warn("Local fetch failed, trying API...", e)
+            } catch (e: any) {
+                console.warn("API fetch failed, trying static file...", e)
             }
 
-            // Fallback to API if local fails (e.g. dev mode without file copy)
-            const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-            const res = await fetch(`${API_BASE_URL}/citizens/genesis`)
-            const data = await res.json()
-            setCitizens(data.citizens || [])
-            setTotal(data.total || 0)
-        } catch (e) {
+            // Fallback to local static file
+            const res = await fetch('/citizens.json')
+            if (res.ok) {
+                const data = await res.json()
+                setCitizens(data.citizens || [])
+                setTotal(data.total || 0)
+            }
+        } catch (e: any) {
             console.error("Failed to fetch citizens:", e)
         }
         setLoading(false)
     }
+
+
 
     // STRICT FILTERING LOGIC
 
@@ -122,15 +143,19 @@ function CitizensContent() {
         setCurrentPage(1);
     }, [market]);
 
-    // Helper to get active profile data (Multiverse Switch)
     const getProfile = (c: Citizen) => {
-        const p = c.profiles[market] || c.profiles['TW'];
-        return {
-            name: p.name,
-            city: p.city,
-            job: p.job,
-            pain: p.pain
-        }
+        // Find profile with actual content, prioritizing current market, then TW
+        const pTW = c.profiles?.TW;
+        const pM = c.profiles?.[market];
+
+        const hasContent = (val: string | undefined) => val && val !== "None" && val !== "none" && val !== "未知" && val !== "Unknown";
+
+        const name = hasContent(pM?.name) ? pM!.name : (hasContent(pTW?.name) ? pTW!.name : (c.name || "Unknown"));
+        const city = hasContent(pM?.city) ? pM!.city : (hasContent(pTW?.city) ? pTW!.city : (c.location || "Unknown"));
+        const job = hasContent(pM?.job) ? pM!.job : (hasContent(pTW?.job) ? pTW!.job : (typeof c.occupation === 'string' ? c.occupation : c.occupation?.['TW'] || "Unknown"));
+        const pain = hasContent(pM?.pain) ? pM!.pain : (hasContent(pTW?.pain) ? pTW!.pain : null);
+
+        return { name, city, job, pain };
     }
 
     const t = I18N[market] || I18N['TW'];
@@ -285,7 +310,7 @@ function CitizensContent() {
                                             </p>
 
                                             {/* 🔥 Pain Point Badge with Tooltip Implementation */}
-                                            {market !== 'TW' && profile.pain && (
+                                            {profile.pain && (
                                                 <div className="mt-3 group/tooltip relative">
                                                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-red-500/30 bg-red-500/10 text-[10px] font-bold text-red-300 cursor-help hover:bg-red-500/20 transition-colors">
                                                         <span>⚠️</span>
@@ -294,43 +319,58 @@ function CitizensContent() {
 
                                                     {/* Custom Tooltip */}
                                                     <div className="absolute bottom-full left-0 mb-2 w-48 p-2 bg-slate-900 border border-white/10 rounded-lg shadow-xl text-xs text-slate-300 opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-50">
-                                                        <div className="font-bold text-white mb-1">此市民當前的核心焦慮</div>
+                                                        <div className="font-bold text-white mb-1">
+                                                            {market === 'US' ? 'Core Anxiety' : '當前核心焦慮'}
+                                                        </div>
                                                         {profile.pain}
                                                         <div className="absolute -bottom-1 left-4 w-2 h-2 bg-slate-900 border-b border-r border-white/10 rotate-45"></div>
                                                     </div>
                                                 </div>
                                             )}
 
+
+                                            {/* Current Luck / State Box */}
+                                            {(() => {
+                                                const state = (citizen.bazi_profile as any).localized_state?.[market] ||
+                                                    (citizen.bazi_profile as any).localized_state?.['TW'] ||
+                                                    citizen.bazi_profile.current_state;
+
+                                                if (!state || state === "None" || state === "Unknown") return null;
+
+                                                return (
+                                                    <div className="mb-3 p-2 rounded-lg bg-purple-500/5 border border-purple-500/10">
+                                                        <div className="text-[9px] font-bold text-purple-400 uppercase tracking-widest mb-1">{t.current_state}</div>
+                                                        <div className="text-[11px] text-slate-300 line-clamp-2 leading-relaxed">
+                                                            {state}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+
+
                                             {/* Bazi Info (Always Show for Authenticity) */}
                                             <div className="text-[10px] text-gray-500 mb-3 font-mono">
                                                 <div>
                                                     {(() => {
-                                                        const { birth_year, birth_month, birth_day, birth_hour } = citizen.bazi_profile || {};
+                                                        const { birth_year, birth_month, birth_day, birth_hour, birth_shichen } = citizen.bazi_profile || {};
                                                         if (birth_year && birth_month && birth_day) {
-                                                            return `${birth_year}-${String(birth_month).padStart(2, '0')}-${String(birth_day).padStart(2, '0')} ${String(birth_hour).padStart(2, '0')}:00`;
+                                                            const datePart = `${birth_year}-${String(birth_month).padStart(2, '0')}-${String(birth_day).padStart(2, '0')}`;
+                                                            const timePart = birth_shichen ? ` ${birth_shichen}` : (birth_hour !== undefined && birth_hour !== null ? ` ${String(birth_hour).padStart(2, '0')}:00` : '');
+                                                            return datePart + timePart;
                                                         }
                                                         return 'Unknown Date';
                                                     })()}
                                                 </div>
                                                 <div className="flex gap-2 mt-1 text-purple-300">
-                                                    <span>{citizen.bazi_profile.four_pillars?.year || '??'}</span>
-                                                    <span>{citizen.bazi_profile.four_pillars?.month || '??'}</span>
-                                                    <span>{citizen.bazi_profile.four_pillars?.day || '??'}</span>
-                                                    <span>{citizen.bazi_profile.four_pillars?.hour || '??'}</span>
+                                                    <span>{pillars?.year || '??'}</span>
+                                                    <span>{pillars?.month || '??'}</span>
+                                                    <span>{pillars?.day || '??'}</span>
+                                                    <span>{pillars?.hour || '??'}</span>
                                                 </div>
                                             </div>
 
-                                            {/* Additional Info from Modal */}
-                                            {citizen.bazi_profile.current_state && market === 'TW' && (
-                                                <div className="mb-3 p-2 rounded-lg bg-purple-500/5 border border-purple-500/10">
-                                                    <div className="text-[9px] font-bold text-purple-400 uppercase tracking-widest mb-1">當前運勢</div>
-                                                    <div className="text-[11px] text-slate-300 line-clamp-2 leading-relaxed">
-                                                        {citizen.bazi_profile.current_state}
-                                                    </div>
-                                                </div>
-                                            )}
-
                                             <button
+
                                                 onClick={() => setSelectedCitizen(citizen)}
                                                 className="w-full py-2 rounded-lg bg-[#302839] hover:bg-[#3e344a] border border-[#3e344a] text-xs font-bold text-gray-300 transition-all"
                                             >

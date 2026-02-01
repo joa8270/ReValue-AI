@@ -330,115 +330,307 @@ def get_dayun_sequence(gender, year_gan, m_gan_idx, m_zhi_idx, day_master):
     return pillars
 
 # ===== 職業列表 =====
-# ===== 職業資料庫 (分層級) =====
+# ===== 職業資料庫 (真實世界分佈 - 拒絕倖存者偏差) =====
+# ===== 多國姓名庫 (Localized Names) =====
+US_SURNAMES = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"]
+US_NAMES_M = ["James", "Robert", "John", "Michael", "David", "William", "Richard", "Joseph", "Thomas", "Charles"]
+US_NAMES_F = ["Mary", "Patricia", "Jennifer", "Linda", "Elizabeth", "Barbara", "Susan", "Jessica", "Sarah", "Karen"]
+
+CN_SURNAMES = ["王", "李", "张", "刘", "陈", "杨", "黄", "赵", "吴", "周"]
+CN_NAMES_M = ["刚", "强", "伟", "杰", "磊", "军", "勇", "涛", "平", "辉"] # 偏好單字或雙字
+CN_NAMES_F = ["芳", "娜", "敏", "静", "秀", "丽", "娟", "艳", "兰", "萍"]
+
+# ===== 多國地理位置 =====
+LOCATIONS_US = ["New York, NY", "Los Angeles, CA", "Chicago, IL", "Houston, TX", "Phoenix, AZ", "Philadelphia, PA", "San Antonio, TX", "San Diego, CA"]
+LOCATIONS_CN = ["上海", "北京", "深圳", "广州", "成均", "杭州", "武汉", "重庆", "西安", "苏州"]
+
+# ===== 職業列表 (多國映射) =====
+# 職業資料庫 (真實世界分佈)
 OCCUPATIONS_DB = {
-    "student": ["學生", "大學生", "研究所學生", "實習生"],
-    "entry": ["行政助理", "初階工程師", "行銷專員", "銀行行員", "社群小編", "總機人員", "服務生", "咖啡師", "外送員", "保全人員"],
-    "mid": ["資深工程師", "產品經理 (PM)", "UI/UX 設計師", "專案經理", "理財專員", "護理師", "健身教練", "室內設計師", "公務員", "警察", "廚師", "YouTuber", "Podcaster", "網紅/KOL", "自由業者"],
-    "senior": ["技術主管 (Tech Lead)", "財務經理", "行銷總監", "大學教授", "主治醫師", "創業家", "資深顧問", "中小企業主", "部門主管"],
-    "retiree": ["退休人員", "資深志工", "退休公務員"]
+    "student": ["學生", "研究生", "夜校生", "半工半讀學生", "博士生(延畢中)"],
+    "unemployed": ["待業中", "求職中", "家管", "自由業 (接案不穩)", "無業", "啃老族", "準備國考中"],
+    "blue_collar": ["工廠作業員", "建築工人", "貨車司機", "水電師傅", "清潔工", "大樓保全", "廚房助手", "搬運工", "農夫", "漁民", "外送員"],
+    "service": ["超商店員", "餐廳服務生", "美髮助理", "客服人員", "收銀員", "房仲業務", "保險業務(業績平平)", "百貨櫃姐", "按摩師", "計程車司機"],
+    "entry": ["行政助理", "初階工程師", "行銷專員", "銀行行員", "社群小編", "總機人員", "公務員(基層)", "學校職員", "採購專員"],
+    "mid": ["資深工程師", "產品經理 (PM)", "專案經理", "護理師", "健身教練", "室內設計師", "警員", "主廚", "中小企業主(小吃店)", "會計師", "資深業務"],
+    "senior": ["高階主管", "行銷總監", "大學教授", "主治醫師", "創業家(成功)", "資深顧問", "律師", "建築師", "上市公司經理"],
+    "retiree": ["退休人員", "獨居長者", "退休公務員", "含飴弄孫長者"]
 }
 
-def get_valid_occupation(age):
+OCCUPATIONS_DB_US = {
+    "student": ["Student", "Grad Student", "Part-time Student", "PhD Candidate"],
+    "unemployed": ["Unemployed", "Job Seeker", "Homemaker", "Freelancer (Struggling)", "NEET"],
+    "blue_collar": ["Factory Worker", "Construction Worker", "Truck Driver", "Plumber", "Janitor", "Security Guard", "Kitchen Porter", "Mover", "Farmer", "Delivery Driver"],
+    "service": ["Barista", "Waiter/Waitress", "Hairdresser Assistant", "Customer Support", "Cashier", "Real Estate Agent", "Insurance Sales", "Retail Associate", "Uber Driver"],
+    "entry": ["Admin Assistant", "Junior Engineer", "Marketing Associate", "Bank Teller", "Social Media Coordinator", "Receptionist", "Civil Servant (Entry)", "School Staff"],
+    "mid": ["Senior Software Engineer", "Product Manager", "Project Manager", "Registered Nurse", "Personal Trainer", "Interior Designer", "Police Officer", "Head Chef", "Small Business Owner", "Accountant"],
+    "senior": ["VP of Marketing", "Director", "Professor", "Attending Physician", "Entrepreneur", "Senior Consultant", "Lawyer", "Architect", "Executive"],
+    "retiree": ["Retiree", "Pensioner", "Retired Civil Servant", "Grandparent"]
+}
+
+OCCUPATIONS_DB_CN = {
+    "student": ["学生", "研究生", "夜校生", "半工半读", "博士生"],
+    "unemployed": ["待业", "求职中", "全职太太", "灵活就业", "家里蹲", "考公党"],
+    "blue_collar": ["厂弟/厂妹", "建筑工人", "卡车司机", "水电工", "保洁员", "保安", "后厨帮工", "搬运工", "农民", "快递员"],
+    "service": ["便利店员", "服务员", "理发学徒", "客服", "收银员", "房产中介", "保险销售", "柜姐", "网约车司机"],
+    "entry": ["行政专员", "初级工程师", "营销专员", "银行柜员", "新媒体运营", "前台", "基层公务员", "校务员"],
+    "mid": ["高级工程师", "产品经理 (PM)", "项目经理", "护士", "健身教练", "室内设计师", "民警", "厨师长", "个体户", "会计", "资深销售"],
+    "senior": ["高管", "营销总监", "大学教授", "主治医师", "创业者", "资深顾问", "律师", "建筑师", "国企领导"],
+    "retiree": ["退休人员", "空巢老人", "退休干部", "带孙老人"]
+}
+
+# ===== 真實人生大運庫 (含順境與逆境) =====
+LIFE_PHASE_VARIATIONS = {
+    "Bi Jian": [
+        ("比肩運（人脈期）", "近期身邊朋友給力，團隊合作順利，是積累人脈的好時機"), 
+        ("比肩運（競爭期）", "同儕競爭激烈，覺得身邊小人多，錢財難留，感到孤立無援")
+    ],
+    "Jie Cai": [
+        ("劫財運（野心期）", "企圖心強，行動力爆棚，適合開拓新市場，有大賺機會"), 
+        ("劫財運（破財期）", "容易衝動消費或被借錢不還，財務壓力大，投資失利")
+    ],
+    "Shi Shen": [
+        ("食神運（享受期）", "目前狀態輕鬆愉快，重視生活品質，才華容易被看見"), 
+        ("食神運（怠惰期）", "只想躺平，缺乏動力，對於工作感到倦怠，小心身材走樣")
+    ],
+    "Shang Guan": [
+        ("傷官運（突破期）", "正處於想要突破和改變的階段，才華洋溢，可能會做出大膽決定"), 
+        ("傷官運（動盪期）", "情緒起伏大，容易與主管或長輩起衝突，職場人際關係緊張")
+    ],
+    "Zheng Cai": [
+        ("正財運（收穫期）", "努力開始有回報了，工作穩定，薪水按時入帳，生活安穩"), 
+        ("正財運（保守期）", "雖然收入穩定但覺得死薪水不夠用，不敢冒險，生活稍顯沉悶")
+    ],
+    "PiAn Cai": [
+        ("偏財運（機會期）", "最近財運旺，商業嗅覺敏銳，容易遇到賺錢機會或意外之財"), 
+        ("偏財運（起伏期）", "金錢大進大出，賺得多花得更多，或是投資風險過高導致焦慮")
+    ],
+    "Zheng Guan": [
+        ("正官運（升遷期）", "事業正在上升期，受到重用和認可，責任也變重了，名聲變好"), 
+        ("正官運（壓力期）", "被規矩和責任壓得喘不過氣，覺得這份工作限制了自己的發展")
+    ],
+    "Qi Sha": [
+        ("七殺運（掌權期）", "展現出強大的魄力，能夠解決複雜難題，在混亂中建立秩序"), 
+        ("七殺運（考驗期）", "面臨巨大的生存壓力或健康問題，感到四面楚歌，需要咬牙苦撐")
+    ],
+    "Zheng Yin": [
+        ("正印運（貴人期）", "有長輩或貴人提攜，適合學習進修，內心感到平靜踏實"), 
+        ("正印運（依賴期）", "過於安逸缺乏進取心，或者過度依賴他人，錯失發展良機")
+    ],
+    "PiAn Yin": [
+        ("偏印運（靈感期）", "思考獨特，對宗教、哲學或冷門知識感興趣，靈感源源不絕"), 
+        ("偏印運（孤獨期）", "覺得沒人了解自己，鑽牛角尖，與人群疏離，想法過於悲觀")
+    ]
+}
+
+# 保留舊映射以防 KeyError，但主要使用 VARIATIONS
+LIFE_PHASE_NOW = {k: v[0] for k, v in LIFE_PHASE_VARIATIONS.items()}
+
+def get_occupation_category(age):
     """
-    Age-Occupation Matrix (年齡-職業矩陣)
-    確保職業與年齡的合理性關係
+    Age-Occupation Matrix (真實世界機率分佈)
+    Returns CATEGORY key, not the job string.
     """
     valid_pools = []
     
-    # 1. 學生/社會新鮮人 (18-24)
     if 18 <= age <= 24:
-        valid_pools.extend(OCCUPATIONS_DB["student"])
-        # 20歲以上可以開始做初階工作
-        if age >= 20:
-            valid_pools.extend(OCCUPATIONS_DB["entry"])
+        # 年輕人：主要是學生、打工族、初階、待業
+        valid_pools = ["student"] * 4 + ["service"] * 3 + ["blue_collar"] * 2 + ["unemployed"] * 1 + ["entry"] * 2
             
-    # 2. 職場成長期 (23-30)
-    elif 25 <= age <= 30:
-        valid_pools.extend(OCCUPATIONS_DB["entry"])
-        valid_pools.extend(OCCUPATIONS_DB["mid"])
+    elif 25 <= age <= 35:
+        # 青年轉型期：分佈最廣
+        valid_pools = ["entry"] * 4 + ["mid"] * 2 + ["service"] * 3 + ["blue_collar"] * 3 + ["unemployed"] * 1
         
-    # 3. 職場成熟期 (31-45)
-    elif 31 <= age <= 45:
-        valid_pools.extend(OCCUPATIONS_DB["mid"])
-        # 35歲以上有機率進入高階
-        if age >= 35:
-            valid_pools.extend(OCCUPATIONS_DB["senior"])
-            
-    # 4. 職場資深期 (46-60)
-    elif 46 <= age <= 60:
-        valid_pools.extend(OCCUPATIONS_DB["mid"]) # 仍有不少人維持中階專業職
-        valid_pools.extend(OCCUPATIONS_DB["senior"])
+    elif 36 <= age <= 50:
+        # 中壯年：M型化開始，中階為主，但也有藍領與失業危機
+        valid_pools = ["mid"] * 5 + ["senior"] * 1 + ["blue_collar"] * 3 + ["service"] * 2 + ["unemployed"] * 1
         
-    # 5. 退休/高齡期 (61+)
+    elif 51 <= age <= 65:
+        # 壯年後期
+        valid_pools = ["mid"] * 3 + ["senior"] * 2 + ["blue_collar"] * 3 + ["retiree"] * 1
+        
     else:
-        valid_pools.extend(OCCUPATIONS_DB["senior"]) # 資深專業人士可能延後退休
-        valid_pools.extend(OCCUPATIONS_DB["retiree"])
-        
-    # 防呆：如果範圍外 (極少見)，給予 generic
-    if not valid_pools:
-        valid_pools = ["自由業者"]
+        # 老年
+        valid_pools = ["retiree"] * 8 + ["senior"] * 1 + ["blue_collar"] * 1
         
     return random.choice(valid_pools)
+
+def get_job_from_category(category, idx=0, market="TW"):
+    """
+    根據類別、索引和市場返回具體職稱
+    Ensure consistent mapping across markets by using the same index (modulo length)
+    """
+    if market == "US":
+        db = OCCUPATIONS_DB_US
+    elif market == "CN":
+        db = OCCUPATIONS_DB_CN
+    else:
+        db = OCCUPATIONS_DB
+    
+    jobs = db.get(category, db["unemployed"])
+    return jobs[idx % len(jobs)]
+
+# ===== Bazi Localization (US Market) =====
+TEN_GODS_EN = {
+    "比肩格": "The Connector", "劫財格": "The Pioneer", 
+    "食神格": "The Creator", "傷官格": "The Maverick",
+    "正財格": "The Builder", "偏財格": "The Strategist",
+    "正官格": "The Regulator", "七殺格": "The Commander",
+    "正印格": "The Sage", "偏印格": "The Thinker",
+    "建祿格": "The Self-Made", "羊刃格": "The Warrior",
+    "從財格": "The Opportunist", "從殺格": "The Authority",
+    "從兒格": "The Visionary", "專旺格": "The Specialist"
+}
+
+STRENGTH_EN = {
+    "身強": "High Energy",
+    "身弱": "Sensitive",
+    "中和": "Balanced",
+    "極強": "Dominant",
+    "極弱": "Receptive"
+}
+
+STEMS_EN = {"甲": "Wood", "乙": "Wood", "丙": "Fire", "丁": "Fire", "戊": "Earth", "己": "Earth", "庚": "Metal", "辛": "Metal", "壬": "Water", "癸": "Water"}
+BRANCHES_EN = {"子": "Rat", "丑": "Ox", "寅": "Tiger", "卯": "Rabbit", "辰": "Dragon", "巳": "Snake", "午": "Horse", "未": "Goat", "申": "Monkey", "酉": "Rooster", "戌": "Dog", "亥": "Pig"}
+
+def translate_pillar(pillar_str):
+    if len(pillar_str) != 2: return pillar_str
+    stem, branch = pillar_str[0], pillar_str[1]
+    return f"{STEMS_EN.get(stem, stem)} {BRANCHES_EN.get(branch, branch)}"
 
 def generate_citizen(idx):
     g = random.choice(["male", "female"])
     age = random_age_from_range()
+    
+    # TW Identity (Anchor)
     surname = random.choice(SURNAMES)
     given = (random.choice(MALE_NAMES if g=="male" else FEMALE_NAMES) + random.choice(MALE_NAMES if g=="male" else FEMALE_NAMES)) if random.random()<0.95 else random.choice(MALE_NAMES if g=="male" else FEMALE_NAMES)
+    tw_name = surname + given
+    tw_city = weighted_random_choice({"台北, 台灣":20, "新北, 台灣":15, "台中, 台灣":12, "高雄, 台灣":10, "台南, 台灣":8})
+    
+    # 職業類別 (Anchor Category)
+    job_cat = get_occupation_category(age)
+    
+    # 確保 TW 職業選取範圍正確，同時作為 Index 基準
+    tw_jobs = OCCUPATIONS_DB.get(job_cat, OCCUPATIONS_DB["unemployed"])
+    job_idx = random.randrange(len(tw_jobs))
+    
+    tw_occupation = get_job_from_category(job_cat, job_idx, "TW")
+    cn_occupation = get_job_from_category(job_cat, job_idx, "CN")
+    us_occupation = get_job_from_category(job_cat, job_idx, "US")
+
+    # CN Identity
+    # 簡化映射：姓氏轉簡體，名字重取（偏好單字或雙字）
+    cn_surname = CN_MAPPING.get(surname, surname) # 簡單映射，若不在表內則保留
+    if surname in ["王", "李", "張", "劉", "陳", "楊", "黃", "趙", "吳", "周"]:
+        cn_surname = CN_SURNAMES[["王", "李", "張", "劉", "陳", "楊", "黃", "趙", "吳", "周"].index(surname)] # 精確映射
+
+    cn_given = random.choice(CN_NAMES_M if g=="male" else CN_NAMES_F)
+    if random.random() < 0.3: # 30% 機會雙字名
+        cn_given += random.choice(CN_NAMES_M if g=="male" else CN_NAMES_F)
+    cn_name = cn_surname + cn_given
+    cn_city = random.choice(LOCATIONS_CN)
+
+    # US Identity
+    us_given = random.choice(US_NAMES_M if g=="male" else US_NAMES_F)
+    us_surname = random.choice(US_SURNAMES)
+    us_name = f"{us_given} {us_surname}"
+    us_city = random.choice(LOCATIONS_US)
+
+
     bd = generate_birthdate(age); bz = calculate_bazi_pillars(bd)
     struct = random.choice(STRUCTURES)
     strength = random.choice(["身強", "身弱", "中和"]) if struct["type"]=="Normal" else ("極強" if struct["type"]=="Dominant" else "極弱")
     luck = get_dayun_sequence(g, bz["year_gan"], bz["month_gan_idx"], bz["month_zhi_idx"], bz["day_master"][0])
     
-    # 構造 Luck Timeline (符合前端需求: name, description, age_start, age_end)
+    # [New] Randomly select Good vs Bad Luck trajectory for this citizen
+    # 60% chance of standard/good luck, 40% chance of struggle/negative interpretation
+    is_lucky = random.random() > 0.4 
+    
     luck_timeline = []
     current_luck_obj = {}
     
     for l in luck:
         name = l['pillar'] + "運"
-        localized_desc = l.get('localized_description', {
-            "TW": l['description'],
-            "CN": t_cn(l['description']),
-            "US": l.get('ten_god', 'Unknown')
-        })
+        
+        # Determine variant
+        ten_god = l.get('ten_god', 'Unknown')
+        variations = LIFE_PHASE_VARIATIONS.get(ten_god, [l['description'], l['description']])
+        
+        # If 'is_lucky' is True, mostly pick index 0. If False, mostly pick index 1.
+        # But add per-pillar randomness too
+        pillar_luck = is_lucky if random.random() > 0.2 else not is_lucky
+        selected_desc_tuple = variations[0] if pillar_luck else variations[1]
+        
+        if len(selected_desc_tuple) == 2:
+           term, desc = selected_desc_tuple
+           full_desc = f"{term}：{desc}"
+        else:
+           # Fallback for unexpected structure
+           full_desc = str(selected_desc_tuple)
+
+        localized_desc = {
+            "TW": full_desc,
+            "CN": t_cn(full_desc),
+            "US": f"{TEN_GODS_EN.get(ten_god+'格', ten_god).replace('The ', '')} Phase" # Quick adaptation, map 'Zi Jian' -> 'Zi Jian' if not found
+        }
         
         lt_item = {
             "age_start": l['age_start'],
             "age_end": l['age_end'],
             "name": name,
             "pillar": l['pillar'],
-            "description": l['description'],
+            "description": full_desc,
             "localized_description": localized_desc
         }
         luck_timeline.append(lt_item)
         
-        # 找出當前大運
         if l['age_start'] <= age <= l['age_end']:
             current_luck_obj = lt_item
             
-    # 如果沒找到當前大運（極少情況），用第一個
     if not current_luck_obj and luck_timeline:
         current_luck_obj = luck_timeline[0]
 
-    # 構造初步資料以便 generate_colloquial_state 讀取
-    citizen_partial = {
-        "age": age,
-        "gender": "女" if g=="female" else "男",
-        "bazi_profile": {
-            "day_master": bz["day_master"],
-            "structure": struct["name"],
-            "luck_pillars": luck
-        }
-    }
-    current_state_dict = generate_colloquial_state(citizen_partial)
+    # Re-generate Coloquial State based on the selected Luck Description
+    pattern_term, pattern_desc = PERSONALITY_CORE.get(struct["name"], ("多元格局", "個性多元，很有自己的想法"))
+    pronoun = "她" if g=="female" else "他"
     
+    # Use the description from current_luck_obj
+    curr_desc_full = current_luck_obj["description"] # e.g. "比肩運（競爭期）：同儕競爭激烈..."
+    # Extract the part after colon
+    if "：" in curr_desc_full:
+        curr_state_text = curr_desc_full.split("：")[1] # "同儕競爭激烈..."
+        curr_term_text = curr_desc_full.split("：")[0] # "比肩運（競爭期）"
+    else:
+        curr_state_text = curr_desc_full
+        curr_term_text = current_luck_obj["name"]
+        
+    tw_state = f"{pattern_term}：{pattern_desc}。{pronoun}目前行{curr_term_text}，{curr_state_text}。" # Fix grammar
+
+    current_state_dict = {
+        "TW": tw_state,
+        "CN": t_cn(tw_state),
+        "US": "Strategic decision making based on Bazi structure."
+    }
+    
+    # Translate Bazi for US
+    structure_en = TEN_GODS_EN.get(struct["name"], struct["name"])
+    strength_en = STRENGTH_EN.get(strength, strength)
+    four_pillars_list = [bz['year_pillar'], bz['month_pillar'], bz['day_pillar'], bz['hour_pillar']]
+    four_pillars_en = [translate_pillar(p) for p in four_pillars_list]
+
     return {
-        "name": surname + given,
+        "name": tw_name,
         "gender": "男" if g=="male" else "女",
         "age": age,
-        "location": weighted_random_choice({"台北, 台灣":20, "新北, 台灣":15, "台中, 台灣":12, "高雄, 台灣":10, "台南, 台灣":8}),
-        "occupation": {"TW": get_valid_occupation(age)}, # Ensure JSON Object format
+        "location": tw_city,
+        "occupation": {"TW": tw_occupation, "CN": cn_occupation, "US": us_occupation}, # Legacy support + new fields
+        "profiles": {
+            "TW": {"name": tw_name, "city": tw_city, "job": tw_occupation, "pain": curr_state_text},
+            "CN": {"name": cn_name, "city": cn_city, "job": cn_occupation, "pain": t_cn(curr_state_text)},
+            "US": {"name": us_name, "city": us_city, "job": us_occupation, "pain": "Strategic decision making based on Bazi structure."}
+        },
+ # Ensure JSON Object format
         "bazi_profile": {
             **bz, 
             "birth_year": bd["year"],
@@ -446,9 +638,11 @@ def generate_citizen(idx):
             "birth_day": bd["day"],
             "birth_shichen": bd["shichen"],
             "four_pillars": f"{bz['year_pillar']} {bz['month_pillar']} {bz['day_pillar']} {bz['hour_pillar']}",
+            "four_pillars_en": four_pillars_en, # [New]
             "structure": struct["name"], 
-            "structure_en": struct["name"], 
+            "structure_en": structure_en, # [New]
             "strength": strength,
+            "strength_en": strength_en, # [New]
             "favorable": get_favorable_elements(struct, strength, bz["element"])["favorable"], # 前端用 favorable
             "unfavorable_elements": get_favorable_elements(struct, strength, bz["element"])["unfavorable"],
             "luck_pillars": luck, # 保留舊格式備用
