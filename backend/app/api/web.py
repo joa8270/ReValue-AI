@@ -1,18 +1,216 @@
 from fastapi import APIRouter, File, UploadFile, Form, BackgroundTasks
 from typing import List
-from app.core.database import create_simulation, insert_citizens_batch, get_citizens_count, clear_citizens, get_citizen_by_id
+from app.core.database import create_simulation, insert_citizens_batch, get_citizens_count, clear_citizens, get_citizen_by_id, update_simulation
 import uuid
+from app.services.video_analysis_service import video_analysis_service
+
 import sys
 import os
 import json
 
-print(">> [WEB] Module web.py loaded!", flush=True)
+print("[WEB] Module web.py loaded!", flush=True)
 
 # 確保可以導入 create_citizens
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from create_citizens import generate_citizen
 
 router = APIRouter()
+
+# 🔧 Debug wrapper to catch background task exceptions
+async def safe_run_pdf_task(line_service, *args, **kwargs):
+    """Wrapper to catch and log any exceptions from PDF background task"""
+    try:
+        with open("debug_trace.log", "a", encoding="utf-8") as f:
+            f.write(f"[WRAPPER] Starting PDF task with {len(args)} args, {len(kwargs)} kwargs\n")
+        await line_service.run_simulation_with_pdf_data(*args, **kwargs)
+    except Exception as e:
+        import traceback
+        error_msg = f"[WRAPPER] PDF Task Failed: {e}\n{traceback.format_exc()}"
+        print(error_msg, flush=True)
+        with open("debug_trace.log", "a", encoding="utf-8") as f:
+            f.write(error_msg + "\n")
+        with open("last_error.txt", "w", encoding="utf-8") as f:
+            f.write(error_msg)
+        
+        # 🛡️ Update DB to error state so frontend knows it failed
+        try:
+            # Assuming sim_id is the first argument in args
+            if args:
+                sim_id = args[0]
+                update_simulation(sim_id, "error", {
+                    "status": "error",
+                    "summary": f"系統錯誤: {str(e)}",
+                    "score": 0,
+                    "intent": "Error",
+                    "genesis": {"total_population": 0, "sample_size": 0, "personas": []},
+                    "comments": []
+                })
+        except:
+            pass
+
+async def run_video_audit_task(
+    sim_id: str, 
+    video_url: str, 
+    product_name: str = None, 
+    price: str = None,
+    description: str = None,
+    style: str = "專業穩重",
+    language: str = "zh-TW",
+    targeting_data: dict = None,
+    is_expert_mode: bool = False,
+    is_force_random: bool = False,
+    analysis_scenario: str = "b2c",
+    seed_salt: int = 0
+):
+    """Background task for video analysis and simulation with full params"""
+    try:
+        print(f">> [Task] Starting video audit for {video_url} (ID: {sim_id})")
+        
+        # ⏬ 階段 1：開始下載視頻
+        update_simulation(sim_id, "processing", {
+            "status": "processing",
+            "summary": "📥 正在下載視頻（限制前60秒）...",
+            "score": 0,
+            "intent": "Processing..."
+        })
+        
+        # 1. AI 視覺審片
+        report_data = video_analysis_service.analyze_video_content(video_url)
+        
+        # [CRITICAL FIX] 完整錯誤攔截（包含 None 和 error 字段）
+        # 避免使用錯誤的 citizen_briefing 進行市民模擬
+        if not report_data or report_data.get("error"):
+            error_type = report_data.get("error", "UNKNOWN_ERROR") if report_data else "NO_RESPONSE"
+            error_msg = report_data.get("message", "AI 審片失敗") if report_data else "無回應"
+            
+            # 根據錯誤類型提供針對性建議
+            suggestion_map = {
+                "VIDEO_DOWNLOAD_FAILED": "影片下載失敗。請確認：1.連結是否有效 2.是否有防盜鏈限制 3.嘗試上傳本地 MP4 檔案",
+                "VIDEO_UNREADABLE": "AI 無法識別影片內容。可能是下載了非影片文件（如 HTML 錯誤頁面）。請更換連結。",
+                "UPLOAD_FAILED": "影片上傳至 AI 服務失敗。請稍後重試。",
+                "PROCESSING_FAILED": "AI 處理影片時發生錯誤。請嘗試較短或較小的影片。",
+            }
+            suggestion = suggestion_map.get(error_type, "請嘗試：1.更換有效的影片連結 2.確保連結可直接下載 3.上傳本地 MP4 檔案")
+            
+            update_simulation(sim_id, "error", {
+                "status": "error",
+                "summary": f"[{error_type}] {error_msg}",
+                "score": 0,
+                "intent": "Error",
+                "genesis": {"total_population": 0, "sample_size": 0, "personas": []},
+                "comments": [],
+                "error_details": {
+                    "type": error_type,
+                    "message": error_msg,
+                    "suggestion": suggestion
+                }
+            })
+            print(f">> [Task] Video audit BLOCKED due to error: {error_type} - {error_msg}")
+            return
+        
+        # ⏬ 階段 2：AI 分析完成，開始市民模擬
+        update_simulation(sim_id, "processing", {
+            "status": "processing",
+            "summary": "🤖 AI 視覺分析完成，正在召喚 1,000 位市民進行評估...",
+            "score": 0,
+            "intent": "Processing..."
+        })
+             
+        # 2. 市民市場模擬 (傳入完整產品資訊與目標市場參數)
+        sim_result = video_analysis_service.run_market_simulation(
+            report_data, 
+            video_url, 
+            product_name=product_name, 
+            price=price,
+            description=description,
+            style=style,
+            language=language,
+            targeting_data=targeting_data,
+            is_expert_mode=is_expert_mode,
+            is_force_random=is_force_random,
+            analysis_scenario=analysis_scenario,
+            seed_salt=seed_salt
+        )
+        
+        # 3. 組合最終結果
+        final_data = {
+            "status": "completed",
+            "report": report_data,
+            "simulation": sim_result,
+            "simulation_logs": sim_result.get("simulation_logs", []),
+            # 前端相容性轉換
+            "score": sim_result["score"],
+            "summary": report_data.get("citizen_briefing", ""),
+            "intent": sim_result["decision"],
+            "comments": sim_result["top_reviews"],
+            "genesis": {
+                "total_population": 1000,
+                "sample_size": len(sim_result["top_reviews"]),
+                "personas": sim_result["top_reviews"]
+            }
+        }
+        update_simulation(sim_id, "completed", final_data)
+        print(f">> [Task] Video audit completed for {sim_id}")
+    except Exception as e:
+        import traceback
+        print(f"!! [Task] Video audit failed: {e}\n{traceback.format_exc()}")
+        update_simulation(sim_id, "error", {
+            "status": "error", 
+            "summary": f"處理失敗: {str(e)}"
+        })
+
+@router.post("/video-audit")
+async def video_audit_endpoint(
+    background_tasks: BackgroundTasks,
+    url: str = Form(...),
+    product_name: str = Form(None),
+    price: str = Form(None)
+):
+    """[New] Video Audit API Endpoint"""
+    sim_id = f"video_{str(uuid.uuid4())}"
+    
+    initial_data = {
+        "status": "processing",
+        "summary": "正在下載並解析影片內容...",
+        "report": {},
+        "simulation": {},
+        "intent": "Processing...",
+        "score": 0,
+        "video_url": url # Store URL for history
+    }
+    create_simulation(sim_id, initial_data)
+    
+    background_tasks.add_task(run_video_audit_task, sim_id, url, product_name, price)
+    
+    return {"status": "ok", "sim_id": sim_id}
+
+@router.get("/video-audits/recent")
+async def list_recent_video_audits():
+    """Fetch recent video audit simulations from DB"""
+    from app.core.database import SessionLocal, Simulation
+    db = SessionLocal()
+    try:
+        # Filter by ID prefix "video_"
+        audits = db.query(Simulation).filter(Simulation.sim_id.like("video_%")).order_by(Simulation.created_at.desc()).limit(10).all()
+        result = []
+        for a in audits:
+            data = a.data or {}
+            result.append({
+                "sim_id": a.sim_id,
+                "status": a.status,
+                "created_at": a.created_at.isoformat() if a.created_at else None,
+                "score": data.get("score", 0),
+                "intent": data.get("intent", "Unknown"),
+                "video_url": data.get("video_url", "Unknown")
+            })
+        return {"audits": result}
+    except Exception as e:
+        print(f"!! Error fetching recent audits: {e}")
+        return {"audits": [], "error": str(e)}
+    finally:
+        db.close()
+
+
 
 
 @router.get("/citizen/{citizen_id}")
@@ -26,6 +224,38 @@ async def get_citizen_data(citizen_id: str):
         return citizen
     else:
         return {"error": "Citizen not found", "id": citizen_id}
+
+@router.get("/citizens/genesis")
+async def get_all_citizens_endpoint(limit: int = 1000, offset: int = 0):
+    """
+    [Frontend] 取得所有市民資料 (用於瀏覽頁面)
+    """
+    try:
+        from app.core.database import get_all_citizens, SessionLocal, Citizen
+        
+        # 🔍 Debug: Check DB Connection directly in the API process
+        db = SessionLocal()
+        raw_count = db.query(Citizen).count()
+        db_url = str(db.get_bind().url)
+        # Mask password for security
+        safe_db_url = db_url.split("@")[-1] if "@" in db_url else "Unknown"
+        db.close()
+
+        citizens = get_all_citizens(limit=limit, offset=offset)
+        
+        return {
+            "citizens": citizens, 
+            "total": len(citizens),
+            "debug_info": {
+                "raw_db_count": raw_count,
+                "db_host": safe_db_url,
+                "limit_param": limit,
+                "fetched_count": len(citizens)
+            }
+        }
+    except Exception as e:
+        print(f"❌ Get all citizens failed: {e}")
+        return {"citizens": [], "error": str(e)}
 
 @router.get("/admin/reset-citizens")
 async def reset_citizens_endpoint(count: int = 1000):
@@ -55,8 +285,9 @@ async def reset_citizens_endpoint(count: int = 1000):
 @router.post("/trigger")
 async def trigger_simulation(
     background_tasks: BackgroundTasks,
-    files: List[UploadFile] = File(...),
+    files: List[UploadFile] = File(None),
     product_name: str = Form(None),
+
     price: str = Form(None),
     description: str = Form(None),
     market_prices: str = Form(None),  # JSON 字串格式的市場比價資料
@@ -65,12 +296,15 @@ async def trigger_simulation(
     targeting: str = Form(None), # JSON string of targeting options
     expert_mode: str = Form("false"), # "true"/"false" string
     force_random: str = Form("false"), # "true"/"false" string
-    analysis_scenario: str = Form("b2c") # "b2c" / "b2b"
+    seed_salt: int = Form(0), # [New] Batch Control Salt
+    analysis_scenario: str = Form("b2c"), # "b2c" / "b2b"
+    video_url: str = Form(None) # [New] Video URL for integration
 ):
-    print(f"👉 [WEB] trigger_simulation called! force_random={force_random}", flush=True)  
+    print(f"[WEB] trigger_simulation called! salt={seed_salt}, video={video_url}", flush=True)  
+
     try:
         with open("debug_trace.log", "a", encoding="utf-8") as f:
-            f.write(f"👉 [WEB] trigger_simulation called with force_random={force_random}, expert_mode={expert_mode}\n")
+            f.write(f"👉 [WEB] trigger_simulation called with salt={seed_salt}, expert_mode={expert_mode}\n")
     except Exception as e:
         print(f"Failed to write log: {e}")
 
@@ -79,10 +313,35 @@ async def trigger_simulation(
 
     sim_id = str(uuid.uuid4())
     
+    # 🔍 [Ghost Buster] Debug DB Source & Sampling
+    try:
+        from app.core.database import engine, get_random_citizens
+        db_url = str(engine.url)
+        print(f"[Ghost] Runtime DB: {db_url}")
+        
+        # Test Sample
+        sample = get_random_citizens(sample_size=5)
+        sample_names = [c["name"] for c in sample]
+        
+        with open("debug_ghost.log", "a", encoding="utf-8") as f:
+            f.write(f"\n[{sim_id}] TRIGGERED\n")
+            f.write(f"[{sim_id}] DB URL: {db_url}\n")
+            f.write(f"[{sim_id}] Sample Check (5): {sample_names}\n")
+            if "彭冠宇" in sample_names:
+                f.write(f"[{sim_id}] ⚠️ GHOST DETECTED IN SAMPLE!\n")
+            else:
+                f.write(f"[{sim_id}] ✅ Sample Clean.\n")
+                
+    except Exception as e:
+        print(f"[Ghost] Check Failed: {e}")
+
+
+    
     # 預先定義 ext，避免 initial_data 引用錯誤
     ext = ""
-    if files and files[0].filename:
+    if files and len(files) > 0 and files[0].filename:
         ext = files[0].filename.split(".")[-1].lower() if "." in files[0].filename else ""
+
     
     # 解析市場比價資料
     market_prices_data = None
@@ -117,7 +376,10 @@ async def trigger_simulation(
         "product_name": product_name, # 保存用戶輸入
         "price": price,              # 保存用戶輸入
         "description": description,  # 保存用戶輸入
+        "video_url": video_url,      # [New] Save video URL
         "market_prices": market_prices_data,
+
+
         "simulation_metadata": {
             "style": style,
             "language": language, # 儲存語言設定
@@ -135,10 +397,13 @@ async def trigger_simulation(
     # 讀取檔案
     file_bytes_list = []
     filenames = []
-    for file in files:
-        content = await file.read()
-        file_bytes_list.append(content)
-        filenames.append(file.filename.lower() if file.filename else "")
+    
+    # <--- 關鍵：只有當 files 不為 None 時才執行讀取
+    if files:
+        for file in files:
+            content = await file.read()
+            file_bytes_list.append(content)
+            filenames.append(file.filename.lower() if file.filename else "")
     
     # 主要檔案 (用於判斷類型)
     main_filename = filenames[0] if filenames else ""
@@ -159,17 +424,52 @@ async def trigger_simulation(
     document_extensions = ["docx", "pptx", "txt"]
     audio_extensions = ["webm", "mp3", "wav", "m4a", "ogg"]
     
-    if ext == "pdf":
-        # PDF 處理 (現有流程，暫時只取第一個)
-        with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"👉 [WEB] Dispatching PDF task\n")
+    # [MODE SWITCH] 根據輸入類型選擇處理流程
+    
+    # ⭐ 純視頻模式：沒有上傳文件，只有 video_url
+    if video_url and not file_bytes_list:
+        print(f"[WEB] 🎬 Pure Video Mode detected! URL: {video_url}", flush=True)
+        
+        # 不要同步探測（會超時），直接啟動後台任務
         background_tasks.add_task(
-            line_service.run_simulation_with_pdf_data, 
-            main_file_bytes, 
-            sim_id, 
-            main_filename, 
-            language,
-            is_force_random # Pass force_random flag
+            run_video_audit_task,
+            sim_id,
+            video_url,
+            product_name,
+            price,
+            description=description,
+            style=style,
+            language=language,
+            targeting_data=targeting_data,
+            is_expert_mode=is_expert_mode,
+            is_force_random=is_force_random,
+            analysis_scenario=analysis_scenario,
+            seed_salt=seed_salt
         )
+    
+    elif ext == "pdf":
+        # PDF Processing - use wrapper to catch exceptions
+        background_tasks.add_task(
+            safe_run_pdf_task, 
+            line_service,  # Pass service instance to wrapper
+            sim_id, 
+            main_file_bytes,
+            main_filename,
+            product_name or "Unknown Product", 
+            price or "Unknown Price",
+            description or "",
+            market_prices_data,
+            style,
+            language,
+            targeting_data,
+            is_expert_mode,
+            is_force_random,
+            analysis_scenario,
+            seed_salt,
+            video_url=video_url # [Fix] Use keyword for safety
+        )
+
+
     elif ext in document_extensions:
         # Word/PPT/TXT: 解析文字後傳給文字分析流程
         parsed_text = parse_document(main_file_bytes, main_filename)
@@ -187,19 +487,25 @@ async def trigger_simulation(
         # 音訊檔: 傳給語音轉文字處理
         background_tasks.add_task(line_service.run_simulation_with_audio_data, main_file_bytes, sim_id, ext, language)
     else:
-        # 預設為圖片處理 (支援多圖)
-        # 傳遞 file_bytes_list 給 run_simulation_with_image_data
-        with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"👉 [WEB] Dispatching Image task. File count: {len(file_bytes_list)}\n")
+        # Image Processing (default)
+        # NOTE: file_bytes_list is already populated at line 167-172, no need to read again
+        # UploadFile can only be read once!
+            
         background_tasks.add_task(
             line_service.run_simulation_with_image_data, 
             file_bytes_list, 
             sim_id, 
-            text_context, 
-            language,
-            is_force_random # Pass force_random flag
+            text_context=text_context, 
+            language=language,
+            force_random=is_force_random,
+            seed_salt=seed_salt,
+            video_url=video_url
         )
+
+
         
     return {"status": "ok", "sim_id": sim_id}
+
 
 @router.post("/generate-description")
 async def generate_description(
@@ -378,36 +684,37 @@ Only return JSON, no other text."""
         last_error = ""
         clean_text = "" 
 
+        raw_text = ""
         for model in models:
             try:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-                print(f"📸 [Identify] Trying model: {model}...")
+                print(f"[Identify] Trying model: {model}...", flush=True)
                 start_time = time.time()
                 response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=90)
                 duration = time.time() - start_time
-                print(f"📸 [Identify] Model {model} responded in {duration:.2f}s with status {response.status_code}")
+                print(f"[Identify] Model {model} responded in {duration:.2f}s with status {response.status_code}", flush=True)
                 
                 if response.status_code == 200:
                     result = response.json()
                     raw_text = result['candidates'][0]['content']['parts'][0]['text'].strip()
-                    print(f"📸 [Identify] Raw AI output: {raw_text[:200]}...")
+                    print(f"[Identify] Raw AI output: {raw_text[:200]}...", flush=True)
                     # 清理可能的 markdown 標記
                     clean_text = raw_text.replace('```json', '').replace('```', '').strip()
                     break
                 else:
                     last_error = f"{model}: {response.status_code} {response.text[:100]}"
-                    print(f"📸 [Identify] Model {model} error: {last_error}")
+                    print(f"[Identify] Model {model} error: {last_error}", flush=True)
             except Exception as e:
                 last_error = str(e)
-                print(f"📸 [Identify] Model {model} exception: {last_error}")
+                print(f"[Identify] Model {model} exception: {last_error}", flush=True)
 
-        if response and response.status_code == 200 and clean_text:
-            print(f"📸 [Identify] Attempting to parse JSON: {clean_text[:100]}...")
+        if response is not None and getattr(response, "status_code", 0) == 200 and clean_text:
+            print(f"[Identify] Attempting to parse JSON: {clean_text[:100]}...", flush=True)
             # 嘗試直接解析
             try:
                 data = json.loads(clean_text)
             except json.JSONDecodeError:
-                print("📸 [Identify] Direct JSON parse failed, trying regex...")
+                print("[Identify] Direct JSON parse failed, trying regex...", flush=True)
                 # 如果直接解析失敗，嘗試用正則表達式提取 JSON
                 json_match = re.search(r'\{.*"product_name".*\}', clean_text, re.DOTALL)
                 if json_match:
@@ -420,15 +727,15 @@ Only return JSON, no other text."""
             
             if data.get("product_name"):
                 product_name = str(data.get("product_name", "")).strip('"').strip("'").strip()
-                estimated_price = data.get("estimated_price", 0)
-                print(f"📸 [Identify] Product Identified: {product_name}, Est Price: {estimated_price}")
+                estimated_price = data.get("estimated_price", 0) or 0  # Ensure not None
+                print(f"[Identify] Product Identified: {product_name}, Est Price: {estimated_price}", flush=True)
                 
                 # 🔍 新增：搜尋市場真實價格
                 from app.services.price_search import search_market_prices_sync
-                print(f"🔍 [MarketSearch] Starting search for: {product_name}...")
+                print(f"[MarketSearch] Starting search for: {product_name}...", flush=True)
                 search_start = time.time()
                 market_prices = search_market_prices_sync(product_name, estimated_price)
-                print(f"🔍 [MarketSearch] Completed in {time.time() - search_start:.2f}s. Results: {len(market_prices.get('prices', []))} items found.")
+                print(f"[MarketSearch] Completed in {time.time() - search_start:.2f}s. Results: {len(market_prices.get('prices', []))} items found.", flush=True)
                 
                 # 🛡️ 模型校準：如果搜尋到的平均價格存在且有效，優先採用真實市場數據
                 final_estimated_price = estimated_price
@@ -438,15 +745,16 @@ Only return JSON, no other text."""
                 if market_prices.get("avg_price") and market_prices["avg_price"] > 0:
                     # 如果搜尋到的平均預算與 AI 估算差異超過 20%，則進行調整
                     avg_p = market_prices["avg_price"]
-                    diff_pct = abs(avg_p - estimated_price) / (estimated_price or 1)
-                    print(f"🛡️ [Calibration] Market Avg: {avg_p}, Diff: {diff_pct:.2%}")
+                    # Ensure estimated_price is not 0 to avoid division issues
+                    diff_pct = abs(avg_p - estimated_price) / max(estimated_price, 1)
+                    print(f"[Calibration] Market Avg: {avg_p}, Diff: {diff_pct:.2%}", flush=True)
                     if diff_pct > 0.2:
-                        print(f"🛡️ [Calibration] Overriding AI estimate with market average.")
+                        print(f"[Calibration] Overriding AI estimate with market average.", flush=True)
                         final_estimated_price = avg_p
                         final_price_range = f"{market_prices['min_price']}-{market_prices['max_price']}"
                         final_price_source = lc['market_calibration'].replace('{count}', str(len(market_prices.get('prices', []))))
 
-                print(f"📸 [Identify] Returning: {product_name}, Price: {final_estimated_price}")
+                print(f"[Identify] Returning: {product_name}, Price: {final_estimated_price}", flush=True)
                 return {
                     "product_name": product_name,
                     "estimated_price": final_estimated_price,
@@ -455,15 +763,17 @@ Only return JSON, no other text."""
                     "market_prices": market_prices
                 }
             else:
-                print(f"📸 [Identify] FAILED: Could not identify product name in data: {data}")
+                print(f"[Identify] FAILED: Could not identify product name in data: {data}", flush=True)
                 # 最後嘗試：取第一行作為產品名稱
                 first_line = clean_text.split('\n')[0].strip()
-                return {"error": "AI could not identify the product", "raw_text": raw_text if 'raw_text' in locals() else "", "product_name": first_line[:30] if first_line else "未知產品"}
+                return {"error": "AI could not identify the product", "raw_text": raw_text, "product_name": first_line[:30] if first_line else "未知產品"}
         else:
-            return {"error": f"API Error: {response.status_code}"}
+            status_code = getattr(response, "status_code", "Unknown")
+            return {"error": f"API Error: {status_code}"}
+
             
     except Exception as e:
-        print(f"❌ Product identification failed: {e}")
+        print(f"[ERROR] Product identification failed: {e}", flush=True)
         return {"error": str(e)}
 
 # Model specifically for this endpoint

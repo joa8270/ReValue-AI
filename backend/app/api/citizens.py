@@ -32,13 +32,19 @@ async def citizens_count():
 
 @router.get("/genesis")
 async def get_genesis_citizens():
-    """Retrieve genesis prototype citizens from JSON"""
+    """Retrieve citizens from DB (Fallback to JSON if DB fails)"""
+    try:
+        # Try DB first (Real source of truth)
+        citizens = get_all_citizens(limit=1000, offset=0)
+        if citizens and len(citizens) > 0:
+            return {"citizens": citizens, "total": len(citizens), "source": "db"}
+    except Exception as e:
+        print(f"[API] DB fetch failed: {e}")
+
     import json
     import os
     
-    # Path to backend/app/data/citizens.json
-    # current file is backend/app/api/citizens.py
-    # we need to go up to backend/app/data
+    # Fallback to backend/app/data/citizens.json
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     file_path = os.path.join(base_dir, "app", "data", "citizens.json")
     
@@ -48,4 +54,5 @@ async def get_genesis_citizens():
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
         
+    data["source"] = "json"
     return data

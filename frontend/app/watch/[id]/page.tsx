@@ -388,8 +388,10 @@ export default function WatchPage() {
   const [minimumLoadingComplete, setMinimumLoadingComplete] = useState(false)
   const [countdown, setCountdown] = useState(120) // 新增倒數計時狀態 (改為 120s)
   const [visibleLogLines, setVisibleLogLines] = useState(0) // 控制可見的日誌行數
+  const [downloadProgress, setDownloadProgress] = useState(0) // 視頻下載進度 (0-100)
 
   const TOTAL_POPULATION = 1000
+  const ESTIMATED_DOWNLOAD_TIME = 60 // 預估下載時間（秒）
 
   // 設定最短加載時間（3秒）
   useEffect(() => {
@@ -408,6 +410,27 @@ export default function WatchPage() {
       return () => clearInterval(timer)
     }
   }, [minimumLoadingComplete, data?.status])
+
+  // 視頻下載進度動畫（基於時間估計）
+  useEffect(() => {
+    if (data?.status === "processing") {
+      // 正在處理時，啟動進度動畫
+      const interval = setInterval(() => {
+        setDownloadProgress(prev => {
+          if (prev >= 98) return 98 // 最多到 98%，完成時才跳到 100%
+
+          // 根據不同階段有不同的增長速度
+          let increment = 100 / ESTIMATED_DOWNLOAD_TIME
+          if (prev > 80) increment = 0.5 // 接近完成時減速
+
+          return prev + increment
+        })
+      }, 1000)
+      return () => clearInterval(interval)
+    } else if (data?.status === "completed") {
+      setDownloadProgress(100)
+    }
+  }, [data?.status])
 
   // 系統日誌逐行動畫
   useEffect(() => {
@@ -632,8 +655,27 @@ export default function WatchPage() {
 
                   <div className="text-[#e9d5ff] text-sm font-mono flex items-center justify-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-                    <span className="animate-[typing_3s_steps(20)_infinite] overflow-hidden whitespace-nowrap border-r-2 border-purple-400 pr-1">正在連線所有 AI 市民節點...</span>
+                    <span className="animate-[typing_3s_steps(20)_infinite] overflow-hidden whitespace-nowrap border-r-2 border-purple-400 pr-1">
+                      {data?.summary || t('report.ui.connecting_nodes') || '正在連線所有 AI 市民節點...'}
+                    </span>
                   </div>
+
+                  {/* 視頻下載進度條 (只要是處理中就顯示，提供更好的反饋) */}
+                  {data?.status === "processing" && (
+                    <div className="w-full max-w-md mx-auto mt-6 space-y-2">
+                      <div className="flex justify-between text-xs text-[#d8b4fe]/70 font-mono">
+                        <span>📥 視頻下載進度</span>
+                        <span>{Math.round(downloadProgress)}%</span>
+                      </div>
+                      <div className="h-3 bg-[#283639] rounded-full overflow-hidden border border-[#d8b4fe]/20">
+                        <div
+                          className="h-full bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 rounded-full transition-all duration-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]"
+                          style={{ width: `${downloadProgress}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-[#d8b4fe]/50 text-center">限制下載前 60 秒視頻內容</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -711,12 +753,17 @@ export default function WatchPage() {
               <span className="material-symbols-outlined text-[16px]">hourglass_empty</span>
               <span className="text-xs font-medium">{t('report.ui.deep_thinking') || "Deep Thinking Mode Active"}</span>
             </div>
-            {/* Progress Bar Mini */}
+            {/* Progress Bar Mini - 與實際進度同步 */}
             <div className="hidden md:flex items-center gap-3 w-64">
               <div className="flex-1 h-1.5 bg-[#283639] rounded-full overflow-hidden">
-                <div className="h-full bg-[#25d1f4] w-[85%] shadow-[0_0_10px_#25d1f4]"></div>
+                <div
+                  className="h-full bg-[#25d1f4] shadow-[0_0_10px_#25d1f4] transition-all duration-500"
+                  style={{ width: `${downloadProgress > 0 ? downloadProgress : 85}%` }}
+                ></div>
               </div>
-              <span className="text-xs text-[#25d1f4] font-mono">85%</span>
+              <span className="text-xs text-[#25d1f4] font-mono">
+                {Math.round(downloadProgress > 0 ? downloadProgress : 85)}%
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-4 text-xs text-[#536b70] font-mono">

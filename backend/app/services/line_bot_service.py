@@ -1447,7 +1447,7 @@ Reply directly in JSON format:
             print(f"❌ [LineBot PDF] 下載或處理失敗: {e}")
 
 
-    async def _run_abm_simulation(self, sampled_citizens, text_context=None, language="zh-TW", targeting=None, expert_mode=False):
+    async def _run_abm_simulation(self, sampled_citizens, text_context=None, language="zh-TW", targeting=None, expert_mode=False, is_pure_content=False):
         """
         執行 ABM (Agent-Based Modeling) 模擬
         
@@ -1489,7 +1489,8 @@ Reply directly in JSON format:
             citizens=sampled_citizens,
             product_info=product_info,
             targeting=targeting,
-            expert_mode=expert_mode
+            expert_mode=expert_mode,
+            is_pure_content=is_pure_content
         )
         
         # 構建社交網絡（基於五行相性）
@@ -1551,14 +1552,55 @@ Reply directly in JSON format:
             "comments_data": comments_data
         }
 
-    async def run_simulation_with_image_data(self, image_data_input, sim_id, text_context=None, language="zh-TW", force_random=False, user_id=None):
+    async def run_simulation_with_image_data(self, image_data_input, sim_id, text_context=None, language="zh-TW", force_random=False, user_id=None, seed_salt=0, video_url=None):
         """核心圖文分析邏輯 (Decoupled & Synced with PDF Flow) - Supports Single or Multiple Images"""
         import traceback
         import time # Added import for time.time()
         try:
-            with open("debug_image.log", "w", encoding="utf-8") as f: f.write(f"[{sim_id}] STARTING run_simulation_with_image_data (Lang: {language}, User: {user_id})\n")
+            # [Mode Switching] 判斷是否為「純內容分析模式」
+            # 如果有 video_url 且 text_context 缺失或極短（未包含產品名與價格），則進入純內容模式
+            is_pure_content = False
+            if video_url:
+                # 檢查原始輸入是否包含產品關鍵資訊
+                # 注意：此判斷必須在影片分析補充資訊被加入前執行
+                has_product_info = False
+                if text_context:
+                    if "產品名稱" in text_context or "建議售價" in text_context or "Product Name" in text_context:
+                        has_product_info = True
+                
+                if not has_product_info:
+                    is_pure_content = True
+                    print(f"[VideoEngine] Integration Mode: PURE_CONTENT_MODE detected for {sim_id}")
+
+            with open("debug_image.log", "w", encoding="utf-8") as f: f.write(f"[{sim_id}] STARTING run_simulation_with_image_data (Lang: {language}, User: {user_id}, PureContent: {is_pure_content})\n")
             
+            # [New] Video Integration: Augment text_context with Video Analysis
+            if video_url:
+                try:
+                    from app.services.video_analysis_service import video_analysis_service
+                    print(f"[VIDEO] [Integration] Analyzing video URL: {video_url}")
+                    video_report = video_analysis_service.analyze_video_content(video_url)
+                    if video_report:
+                        # Convert JSON report to descriptive text
+                        visual = video_report.get("visual_summary", {})
+                        narrative = video_report.get("narrative_analysis", {})
+                        briefing = video_report.get("citizen_briefing", "")
+                        
+                        video_desc = f"\n\n[AI 視頻分析補充]:\n"
+                        video_desc += f"- 視覺風格：{', '.join(visual.get('style_tags', []))} (美感評分: {visual.get('aesthetics_score')}/10)\n"
+                        video_desc += f"- 敘事節奏：{narrative.get('pacing')} (情緒感染力: {narrative.get('emotional_impact')}/10)\n"
+                        video_desc += f"- 劇情大綱：{briefing}"
+                        
+                        if not text_context:
+                            text_context = video_desc
+                        else:
+                            text_context += video_desc
+                        print(f"✅ [Integration] Video context appended to simulation.")
+                except Exception as ve:
+                    print(f"⚠️ [Integration] Video analysis failed, skipping: {ve}")
+
             # Fetch Scenario
+
             from app.core.database import get_simulation
             sim_data = get_simulation(sim_id)
             analysis_scenario = sim_data.get("simulation_metadata", {}).get("analysis_scenario", "b2c") if sim_data else "b2c"
@@ -1714,7 +1756,7 @@ Reply directly in JSON format:
             abm_comments_data = []
             
             try:
-                abm_res = await self._run_abm_simulation(sampled_citizens, text_context, language)
+                abm_res = await self._run_abm_simulation(sampled_citizens, text_context, language, is_pure_content=is_pure_content)
                 abm_evolution_data = abm_res["evolution_data"]
                 abm_analytics = abm_res["analytics_data"]
                 abm_comments_data = abm_res["comments_data"]
@@ -1760,6 +1802,51 @@ Reply directly in JSON format:
 - 代理人子女關注：照護便利性、安全性、是否能減輕負擔。
 - 真實長者關注：尊嚴、易用性、是否被尊重。
 - 請在分析中區分這兩類人的不同觀點。"""
+
+                # [Protocol] 根據模式建立約束指令
+                protocol_instruction = {
+                    "zh-TW": "", "zh-CN": "", "en": ""
+                }
+
+                if is_pure_content:
+                    protocol_instruction["zh-TW"] = """
+### [CRITICAL] 純影片內容分析模式 (PURE CONTENT MODE)
+- **嚴格禁令**：禁止討論價格、售價、成本、"150元"、或任何「是否值得購買」的議題。
+- **分析重點**：請將重心完全放在影片的「內容品質」、「敘事美學」、「視覺感染力」以及「情感共鳴」上。
+- **目標**：分析這段影片本身作為一個內容，其呈現的效果如何，而非作為一個銷售工具。
+- **分數定義**：Score 指的是影片對受眾的「吸引力/存留率/分享意願」，而非購買意願。
+"""
+                    protocol_instruction["zh-CN"] = """
+### [CRITICAL] 纯视频内容分析模式 (PURE CONTENT MODE)
+- **严格禁令**：禁止讨论价格、售价、成本、"150元"、或任何“是否值得购买”的议题。
+- **分析重点**：请将重心完全放在视频的“内容质量”、“叙事美学”、“视觉感染力”以及“情感共鸣”上。
+- **目标**：分析这段视频本身作为一个内容，其呈现的效果如何，而非作为一个销售工具。
+- **分数定义**：Score 指的是视频对受众的“吸引力/存留率/分享意愿”，而非购买意愿。
+"""
+                    protocol_instruction["en"] = """
+### [CRITICAL] PURE VIDEO CONTENT ANALYSIS MODE
+- **STRICT CONSTRAINT**: You are STRICTLY FORBIDDEN from discussing price, cost, "150元", value-for-money, or purchasing intent.
+- **FOCUS**: Focus ONLY on the video content's "quality," "narrative aesthetics," "visual impact," and "emotional resonance."
+- **GOAL**: Analyze the video as a piece of content itself, not as a sales or marketing tool.
+- **SCORE DEFINITION**: The Score represents the "Engagement/Retention/Shareability" of the video, not the intent to buy.
+"""
+                else:
+                    protocol_instruction["zh-TW"] = """
+### 產品審核模式 (PRODUCT AUDIT MODE)
+- **市場真實性校準**：運用知識庫判斷真實市場行情。如果使用者價格偏離市價（如 7-11 賣 130 元，使用者賣 150 元），市民反應必須反映這種不合理性。
+- **評論要求**：嚴禁出現違背常理的「雖貴但買」評論。
+"""
+                    protocol_instruction["zh-CN"] = """
+### 产品审核模式 (PRODUCT AUDIT MODE)
+- **市场真实性校准**：运用知识库判断真实市场行情。如果使用者价格偏离市价，市民反应必须反映这种不合理性。
+- **评论要求**：严禁出现违背常理的“虽贵但买”评论。
+"""
+                    protocol_instruction["en"] = """
+### PRODUCT AUDIT MODE
+- **MARKET REALITY CHECK**: Use your knowledge to judge market price. If the user price is significantly higher than market, citizen reactions MUST be negative regarding price.
+- **CONSTRAINT**: Avoid "Expensive but I'll buy" comments for standard products.
+"""
+
                 
             # 構建產品補充資訊
                 product_context = ""
@@ -1776,14 +1863,10 @@ Reply directly in JSON format:
 (__PROXY_INSTRUCTION__)
 📋 以下是真實市民資料（八字格局已預先計算）：
 
+__PROTOCOL_INSTRUCTION__
+
 __CITIZENS_JSON__
 
-⚠️ **重要指示：市場真實性校準 (Market Reality Check)**
-- 作為 AI 顧問，你必須先運用你的知識庫判斷該產品的**真實市場行情** (Standard Retail Price)。
-- **如果使用者設定的價格顯著高於市價**（例如：7-11 賣 130 元的菸，使用者賣 150 元）：
-  - **市民反應必須負面**：市民應感覺被「當盤子」或「不合理」，購買意圖(Score) 應大幅降低。
-  - **嚴禁**出現「雖然貴但我願意買」這類違背常理的評論，除非產品有極特殊的附加價值（但通常標準品沒有）。
-  - 請在 Summary 中點出「價格缺乏競爭力」的問題。
 
 ⚠️ **重要指示：維度隔離手術 (Dimensional Isolation Protocol)**
 作為頂級 AI 策略顧問，你必須嚴格遵守以下維度邊界，禁止建議內容在不同指標間重複或模糊跨越：
@@ -1872,19 +1955,10 @@ __CITIZENS_JSON__
 __PRODUCT_CONTEXT__
 📋 以下是真实市民资料（八字格局已预先计算）：
 
+__PROTOCOL_INSTRUCTION__
+
 __CITIZENS_JSON__
 
-⚠️ **重要指示：市场真实性校准 (Market Reality Check)**
-- 作为 AI 顾问，你必须先运用你的知识库判断该产品的**真实市场行情** (Standard Retail Price)。
-- **如果使用者设定的价格显著高于市价**：
-  - **市民反应必须负面**：市民应感觉被「当盘子」或「不合理」，购买意图(Score) 应大幅降低。
-  - **严禁**出现「虽然贵但我愿意买」这类违背常理的评论，除非产品有极特殊的附加价值。
-  - 请在 Summary 中点出「价格缺乏竞争力」的问题。
-
-⚠️ **重要指示：策略建议必须非常具体且可执行** (请使用简体中文)
-- 不要给出「进行 A/B 测试」这种人人都知道的泛泛建议
-- 必须根据**这个特定产品**的特点，给出**独特、有洞察力**的行销策略
-- 执行步骤要具体到「第一周做什么、第一个月达成什么、如何衡量成效」
 
 🎯 请务必回传一个**纯 JSON 字串 (不要 Markdown)**，结构如下：
 {
@@ -1950,14 +2024,10 @@ You are the Core AI Strategic Advisor of the MIRRA system. Based on a preliminar
 __PRODUCT_CONTEXT__
 📋 Virtual Citizen Profiles (Bazi structures pre-calculated):
 
+__PROTOCOL_INSTRUCTION__
+
 __CITIZENS_JSON__
 
-⚠️ **Important Instruction: Market Reality Check**
-- As an AI advisor, you must first use your knowledge base to judge the **standard retail price** of the product.
-- **If the user-set price is significantly higher than the market price** (e.g., standard price is $5, user sets $15):
-  - **Citizen reactions MUST be negative**: They should feel "ripped off" or "unreasonable".
-  - **STRICTLY FORBID** comments like "It's expensive but I'd buy it".
-  - Please highlight the "lack of price competitiveness" in the Summary.
 
 ⚠️ **Important Instruction: Strategy Advice Must Be Specific and Actionable** (Answer in English)
 - Do not give generic advice like "do A/B testing".
@@ -2036,6 +2106,9 @@ __CITIZENS_JSON__
 
 __PRODUCT_CONTEXT__
 📋 以下是評測委員資料（雖然顯示為市民，請將其性格映射為商業角色）：
+
+__PROTOCOL_INSTRUCTION__
+
 - **正財格** 👉 **CFO (財務長)**：嚴查利潤空間、成本結構。
 - **七殺格** 👉 **VC (創投)**：看重顛覆性、高回報機會。
 - **傷官格** 👉 **CTO (技術長)**：質疑技術可行性、專利壁壘。
@@ -2111,6 +2184,9 @@ __CITIZENS_JSON__
 
 __PRODUCT_CONTEXT__
 📋 以下是评测委员资料（请映射为商业角色）：
+
+__PROTOCOL_INSTRUCTION__
+
 - **正财格** 👉 **CFO**：严查利润空间。
 - **七杀格** 👉 **VC**：看重颠覆性。
 - **伤官格** 👉 **CTO**：质疑技术。
@@ -2149,6 +2225,9 @@ Focus on: ROI, Moat, Scalability, Supply Chain.
 
 __PRODUCT_CONTEXT__
 📋 Committee Profile (Map Bazi to Business Roles):
+
+__PROTOCOL_INSTRUCTION__
+
 - **Direct Wealth** 👉 **CFO**: Profit margin focus.
 - **Seven Killings** 👉 **VC**: High risk/reward.
 - **Hurting Officer** 👉 **CTO**: Tech feasibility.
@@ -2181,7 +2260,8 @@ __CITIZENS_JSON__
                     }
 
                 prompt_template = prompt_templates.get(language, prompt_templates["zh-TW"])
-                prompt_text = prompt_template.replace("__PRODUCT_CONTEXT__", product_context).replace("__CITIZENS_JSON__", citizens_json).replace("__PROXY_INSTRUCTION__", proxy_instruction)
+                protocol_text = protocol_instruction.get(language, protocol_instruction["zh-TW"])
+                prompt_text = prompt_template.replace("__PRODUCT_CONTEXT__", product_context).replace("__CITIZENS_JSON__", citizens_json).replace("__PROXY_INSTRUCTION__", proxy_instruction).replace("__PROTOCOL_INSTRUCTION__", protocol_text)
                 
                 # 🌍 注入市場文化覆蓋到 Prompt 開頭 (Chameleon Architecture)
                 if market_context_override:
@@ -2584,12 +2664,34 @@ __CITIZENS_JSON__
             return [self._ensure_serializable(x) for x in obj]
         return obj
 
-    async def run_simulation_with_pdf_data(self, sim_id, pdf_bytes, file_name, product_name="Unknown", price="Unknown", description="", market_prices=None, style=None, language="zh-TW", targeting=None, expert_mode=False, force_random=False, analysis_scenario="b2c", seed_salt=0, user_id=None):
+    async def run_simulation_with_pdf_data(self, sim_id, pdf_bytes, file_name, product_name="Unknown", price="Unknown", description="", market_prices=None, style=None, language="zh-TW", targeting=None, expert_mode=False, force_random=False, analysis_scenario="b2c", seed_salt=0, user_id=None, video_url=None):
         """核心 PDF 分析邏輯 - accepts bytes directly from web.py"""
         # NOTE: pdf_bytes is already read in web.py endpoint, not UploadFile
         with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] PDF Flow Start (Lang: {language}, Make: {file_name}, User: {user_id})\n")
         try:
+            # [New] Video Integration: Augment description with Video Analysis
+            if video_url:
+                try:
+                    from app.services.video_analysis_service import video_analysis_service
+                    print(f"🎬 [Integration-PDF] Analyzing video URL: {video_url}")
+                    video_report = video_analysis_service.analyze_video_content(video_url)
+                    if video_report:
+                        visual = video_report.get("visual_summary", {})
+                        narrative = video_report.get("narrative_analysis", {})
+                        briefing = video_report.get("citizen_briefing", "")
+                        
+                        video_desc = f"\n\n[AI 視頻分析補充]:\n"
+                        video_desc += f"- 視覺風格：{', '.join(visual.get('style_tags', []))} (美感評分: {visual.get('aesthetics_score')}/10)\n"
+                        video_desc += f"- 敘事節奏：{narrative.get('pacing')} (情緒感染力: {narrative.get('emotional_impact')}/10)\n"
+                        video_desc += f"- 劇情大綱：{briefing}"
+                        
+                        description += video_desc
+                        print(f"✅ [Integration-PDF] Video context appended to simulation.")
+                except Exception as ve:
+                    print(f"⚠️ [Integration-PDF] Video analysis failed: {ve}")
+
             # Convert PDF to base64
+
             pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
             with open("debug_trace.log", "a", encoding="utf-8") as f: f.write(f"[{sim_id}] PDF Base64 done\n")
             

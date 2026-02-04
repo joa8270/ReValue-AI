@@ -7,11 +7,102 @@ from datetime import datetime
 from typing import Dict, List, Any
 
 # ==========================================
-# CONSTANTS & LOOKUP TABLES
+# MIRRA GENESIS 2.0 (V7) - REALISM EDITION
 # ==========================================
+# Core Philosophy: One Soul, Three Masks (TW/CN/US)
+# Demographics: De-elitized (Pyramid Structure)
 
+# 1. 職業矩陣 (直接內嵌以確保執行)
+TIER_DISTRIBUTION = {
+    1: 0.02, # 2% Elites
+    2: 0.18, # 18% Upper Middle
+    3: 0.40, # 40% Lower Middle
+    4: 0.30, # 30% Working Class
+    5: 0.10  # 10% Precariat
+}
+
+JOB_MATRIX = {
+    1: [
+        {"role": "Executive_Tech", "TW": "科技公司執行長 (CEO)", "CN": "科技公司总裁 (CEO)", "US": "Tech Company CEO"},
+        {"role": "Executive_Finance", "TW": "金控副總經理", "CN": "投资银行副总裁", "US": "VP of Investment Banking"},
+        {"role": "Investor", "TW": "天使投資人", "CN": "风险投资合伙人", "US": "Venture Capital Partner"},
+        {"role": "Owner_Factory", "TW": "傳產集團董事長", "CN": "大型制造集团董事长", "US": "Manufacturing Owner"},
+        {"role": "Specialist_Top_Lawyer", "TW": "合夥律師", "CN": "高级合伙人律师", "US": "Senior Law Partner"}
+    ],
+    2: [
+        {"role": "Tech_Senior_Dev", "TW": "資深工程師", "CN": "高级开发工程师", "US": "Senior Developer"},
+        {"role": "Tech_Data", "TW": "資料科學家", "CN": "大数据专家", "US": "Data Scientist"},
+        {"role": "Manager_Marketing", "TW": "行銷總監", "CN": "营销总监", "US": "Marketing Director"},
+        {"role": "Doctor", "TW": "主治醫師", "CN": "主治医师", "US": "Physician"},
+        {"role": "Professor", "TW": "大學教授", "CN": "大学教授", "US": "Professor"},
+        {"role": "Manager_Product", "TW": "資深產品經理", "CN": "高级产品经理", "US": "Senior Product Manager"},
+        {"role": "Engineer_Semi", "TW": "半導體工程師", "CN": "芯片工程师", "US": "Semiconductor Engineer"},
+        {"role": "Gov_Official", "TW": "高階公務員", "CN": "处级干部", "US": "Senior Civil Servant"}
+    ],
+    3: [
+        {"role": "Office_Admin", "TW": "行政專員", "CN": "行政专员", "US": "Admin Assistant"},
+        {"role": "Sales_Rep", "TW": "業務代表", "CN": "销售代表", "US": "Sales Representative"},
+        {"role": "Teacher", "TW": "國中小教師", "CN": "中小学教师", "US": "School Teacher"},
+        {"role": "Store_Manager", "TW": "店長", "CN": "店长", "US": "Store Manager"},
+        {"role": "Nurse", "TW": "護理師", "CN": "护士", "US": "Registered Nurse"},
+        {"role": "Designer", "TW": "設計師", "CN": "设计师", "US": "Graphic Designer"},
+        {"role": "Accountant", "TW": "會計", "CN": "会计", "US": "Accountant"},
+        {"role": "IT_Support", "TW": "IT 支援", "CN": "IT 运维", "US": "IT Support"},
+        {"role": "Small_Biz", "TW": "小吃店老闆", "CN": "个体户店主", "US": "Small Business Owner"}
+    ],
+    4: [
+        {"role": "Service_Food", "TW": "餐廳服務生", "CN": "餐厅服务员", "US": "Food Server"},
+        {"role": "Delivery", "TW": "外送員", "CN": "外卖骑手", "US": "Delivery Driver"},
+        {"role": "Clerk", "TW": "超商店員", "CN": "便利店员", "US": "Retail Clerk"},
+        {"role": "Factory", "TW": "作業員", "CN": "普工", "US": "Factory Worker"},
+        {"role": "Construction", "TW": "建築工人", "CN": "建筑工", "US": "Construction Worker"},
+        {"role": "Driver", "TW": "司機", "CN": "网约车司机", "US": "Driver"},
+        {"role": "Security", "TW": "保全", "CN": "保安", "US": "Security Guard"},
+        {"role": "Cleaner", "TW": "清潔工", "CN": "保洁", "US": "Cleaner"},
+        {"role": "Mechanic", "TW": "黑手技師", "CN": "汽修工", "US": "Mechanic"}
+    ],
+    5: [
+        {"role": "Unemployed", "TW": "待業中", "CN": "待业", "US": "Unemployed"},
+        {"role": "Gig_Worker", "TW": "臨時工", "CN": "日结工", "US": "Day Laborer"},
+        {"role": "Student_Poor", "TW": "半工半讀學生", "CN": "贫困学生", "US": "Working Student"},
+        {"role": "Retired_Poor", "TW": "退休人士", "CN": "退休老人", "US": "Retired"}
+    ]
+}
+
+# 2. 姓名庫 (文化轉譯)
+SURNAMES = {
+    "TW": ["陳", "林", "黃", "張", "李", "王", "吳", "劉", "蔡", "楊"],
+    "CN": ["陈", "林", "黄", "张", "李", "王", "吴", "刘", "蔡", "杨"],
+    "US": ["Chen", "Lin", "Huang", "Chang", "Lee", "Wang", "Wu", "Liu", "Tsai", "Yang"]
+}
+
+NAMES_TW_M = ["志豪", "俊傑", "建宏", "冠宇", "承恩", "柏翰", "家偉", "志明", "文雄", "建志"]
+NAMES_TW_F = ["怡君", "雅婷", "雅雯", "心怡", "詩涵", "美玲", "惠君", "郁婷", "佳穎", "淑芬"]
+
+NAMES_CN_M = ["军", "伟", "强", "勇", "杰", "磊", "洋", "建华", "志强", "国强"] # 兩字名為主
+NAMES_CN_F = ["敏", "静", "丽", "艳", "芳", "娜", "秀英", "小丽", "丹", "萍"]
+
+NAMES_US_M = ["Michael", "David", "James", "Kevin", "Jason", "Eric", "Brian", "Ryan", "John", "Robert"]
+NAMES_US_F = ["Jennifer", "Jessica", "Emily", "Sarah", "Michelle", "Amy", "Lisa", "Ashley", "Mary", "Linda"]
+
+
+# 3. 八字與常量 (Bazi & Constants)
 HEAVENLY_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
 EARTHLY_BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
+
+# [V7 Update] Translation Maps for Western Understanding
+STEM_TRANSLATION = {
+    "甲": "Yang Wood", "乙": "Yin Wood", "丙": "Yang Fire", "丁": "Yin Fire",
+    "戊": "Yang Earth", "己": "Yin Earth", "庚": "Yang Metal", "辛": "Yin Metal",
+    "壬": "Yang Water", "癸": "Yin Water"
+}
+
+BRANCH_TRANSLATION = {
+    "子": "Rat (Water)", "丑": "Ox (Earth)", "寅": "Tiger (Wood)", "卯": "Rabbit (Wood)",
+    "辰": "Dragon (Earth)", "巳": "Snake (Fire)", "午": "Horse (Fire)", "未": "Goat (Earth)",
+    "申": "Monkey (Metal)", "酉": "Rooster (Metal)", "戌": "Dog (Earth)", "亥": "Pig (Water)"
+}
+
 FIVE_ELEMENTS_MAP = {
     "甲": "Wood", "乙": "Wood", "丙": "Fire", "丁": "Fire", "戊": "Earth",
     "己": "Earth", "庚": "Metal", "辛": "Metal", "壬": "Water", "癸": "Water",
@@ -19,195 +110,194 @@ FIVE_ELEMENTS_MAP = {
     "午": "Fire", "未": "Earth", "申": "Metal", "酉": "Metal", "戌": "Earth", "亥": "Water"
 }
 
-ELEMENT_CN_MAP = {
-    "Wood": "木", "Fire": "火", "Earth": "土", "Metal": "金", "Water": "水"
+# [V7 Update] Bazi Structure -> Western Archetype Mapping
+BAZI_STRUCTURE_MAP = {
+    "正官格": {"en": "The Director", "desc": "Disciplined, Responsible, Law-abiding"},
+    "七殺格": {"en": "The Warrior", "desc": "Bold, Decisive, Risk-taking"},
+    "正財格": {"en": "The Steward", "desc": "Pragmatic, Diligent, Resourceful"},
+    "偏財格": {"en": "The Hunter", "desc": "Opportunity-seeking, Generous, Dynamic"},
+    "正印格": {"en": "The Sage", "desc": "Wise, Caring, Knowledge-seeking"},
+    "偏印格": {"en": "The Mystic", "desc": "Intuitive, Unconventional, Strategic"},
+    "食神格": {"en": "The Creator", "desc": "Artistic, Expressive, Enjoying Life"},
+    "傷官格": {"en": "The Maverick", "desc": "Rebellious, Innovative, Critical"},
+    "建祿格": {"en": "The Builder", "desc": "Self-reliant, Steady, Hardworking"},
+    "羊刃格": {"en": "The Commander", "desc": "Intense, Competitive, Unyielding"}
 }
 
-# 職涯邏輯表 (Age-Career Dependency)
-# Value mapping: (TW, US, CN)
-CAREER_POOLS = {
-    "Student": [
-        ("大學生", "University Student", "大学生"),
-        ("碩士生", "Master's Student", "硕士生"),
-        ("實習生", "Intern", "实习生"),
-        ("研究助理", "Research Assistant", "研究助理"),
-        ("外送兼職", "Gig Worker / Delivery", "外卖兼职"),
-        ("天才創業家 (Genius)", "Genius Entrepreneur", "天才创业家")
-    ],
-    "Junior": [
-        ("行銷專員", "Marketing Specialist", "营销专员"),
-        ("軟體工程師", "Software Engineer", "软件工程师"),
-        ("設計助理", "Design Assistant", "设计助理"),
-        ("會計專員", "Accountant", "会计专员"),
-        ("行政助理", "Administrative Assistant", "行政助理"),
-        ("初級業務", "Junior Sales", "初级业务"),
-        ("社群小編", "Social Media Manager", "社群运营"),
-        ("基層公務員", "Junior Civil Servant", "基层公务员")
-    ],
-    "Mid": [
-        ("專案經理", "Project Manager", "项目经理"),
-        ("資深工程師", "Senior Engineer", "资深工程师"),
-        ("行銷組長", "Marketing Lead", "营销主管"),
-        ("財務主管", "Finance Manager", "财务主管"),
-        ("連鎖店長", "Store Manager", "连锁店长"),
-        ("產品經理", "Product Manager", "产品经理"),
-        ("資深業務員", "Senior Sales Executive", "资深销售"),
-        ("中階公務員", "Mid-level Civil Servant", "中阶公务员")
-    ],
-    "Senior": [
-        ("行銷總監", "Marketing Director", "营销总监"),
-        ("技術長 (CTO)", "CTO", "技术总监"),
-        ("執行長 (CEO)", "CEO", "首席执行官"),
-        ("分公司總經理", "General Manager", "分公司总经理"),
-        ("資深顧問", "Senior Consultant", "资深顾问"),
-        ("部門主管", "Department Head", "部门主管"),
-        ("連續創業家", "Serial Entrepreneur", "连续创业家"),
-        ("資深公務體系主管", "Senior Government Official", "资深公务员")
-    ],
-    "Retired": [
-        ("退休教師", "Retired Teacher", "退休教师"),
-        ("榮譽顧問", "Honorary Advisor", "荣誉顾问"),
-        ("社區志工", "Community Volunteer", "社区志愿者"),
-        ("包租公/婆", "Property Investor / Landlord", "房东"),
-        ("私人投資人", "Private Investor", "个人投资者"),
-        ("慈善基金會經理", "Foundation Manager", "慈善基金经理"),
-        ("資深創業導師", "Senior Startup Mentor", "资深创业导师")
-    ]
-}
+BAZI_STRUCTURES = list(BAZI_STRUCTURE_MAP.keys())
 
-# 性格格局
-BAZI_STRUCTURES = [
-    "正官格", "七殺格", "正財格", "偏財格", "正印格", "偏印格", "食神格", "傷官格", "建祿格", "羊刃格"
-]
-
-# 姓名庫 (Localized Names)
-NAMES_TW = {
-    "surnames": ["陳", "林", "黃", "張", "李", "王", "吳", "劉", "蔡", "楊", "許", "鄭", "謝", "郭", "洪", "曾", "邱", "廖", "賴", "周"],
-    "given_m": ["志豪", "俊傑", "建宏", "家豪", "冠宇", "承恩", "柏翰", "彥廷", "家偉", "宗翰", "信宏", "文雄", "志明", "建志", "俊宏"],
-    "given_f": ["怡君", "雅婷", "雅雯", "心怡", "詩涵", "美玲", "惠君", "宜蓁", "郁婷", "家妤", "佳穎", "筱涵", "佩珊", "欣怡"]
-}
-
-NAMES_US = {
-    "Male": [
-        "James Chen", "Robert Lin", "John Huang", "Michael Chang", "William Lee", 
-        "David Wang", "Richard Wu", "Joseph Liu", "Thomas Tsai", "Christopher Yang",
-        "Daniel Hsu", "Matthew Cheng", "Anthony Hsieh", "Mark Kuo", "Donald Hong",
-        "Kevin Tseng", "Jason Chiu", "Jeff Liao", "Ryan Lai", "Brian Zhou"
-    ],
-    "Female": [
-        "Mary Chen", "Patricia Lin", "Jennifer Huang", "Linda Chang", "Elizabeth Lee",
-        "Barbara Wang", "Susan Wu", "Jessica Liu", "Sarah Tsai", "Karen Yang",
-        "Nancy Hsu", "Lisa Cheng", "Betty Hsieh", "Margaret Kuo", "Sandra Hong",
-        "Ashley Tseng", "Kimberly Chiu", "Emily Liao", "Donna Lai", "Michelle Zhou"
-    ]
-}
-
-NAMES_CN = {
-    "surnames": ["陈", "林", "黄", "张", "李", "王", "吴", "刘", "蔡", "杨", "许", "郑", "谢", "郭", "洪", "曾", "邱", "廖", "赖", "周"],
-    "given_m": ["志豪", "俊杰", "建宏", "家豪", "冠宇", "承恩", "柏翰", "彦廷", "家伟", "宗翰", "信宏", "文雄", "志明", "建志", "俊宏"],
-    "given_f": ["怡君", "雅婷", "雅雯", "心怡", "诗涵", "美玲", "惠君", "宜蓁", "郁婷", "家妤", "佳颖", "筱涵", "佩珊", "欣怡"]
-}
-
-# ==========================================
-# CORE LOGIC MANAGERS
-# ==========================================
-
-class QuotaSystem:
+class GenesisEngineV7:
     def __init__(self, total=1000):
-        self.target = total // 5
-        self.counts = {"Wood": 0, "Fire": 0, "Earth": 0, "Metal": 0, "Water": 0}
-        self.elements = ["Wood", "Fire", "Earth", "Metal", "Water"]
+        self.total = total
+        self.counts = {i: 0 for i in range(1, 6)} # Tier counts
+        # Calculate target counts
+        self.targets = {k: int(total * v) for k, v in TIER_DISTRIBUTION.items()}
+        
+    def _get_tier(self) -> int:
+        # Weighted random selection based on remaining slots
+        available_tiers = [t for t in self.targets if self.counts[t] < self.targets[t]]
+        if not available_tiers:
+            return 3 # Fallback
+        
+        # Simple weighted choice from available (approximate)
+        return random.choice(available_tiers)
 
-    def get_element(self) -> str:
-        available = [e for e in self.elements if self.counts[e] < self.target]
-        if not available:
-            return random.choice(self.elements)
-        choice = random.choice(available)
-        self.counts[choice] += 1
-        return choice
+    def _get_age_by_tier(self, tier: int) -> int:
+        # Tier 5 (Precariat) tends to be very young or very old
+        if tier == 5:
+            return random.choice([random.randint(18, 25), random.randint(60, 75)])
+        # Tier 1 (Elite) needs time to accumulate
+        if tier == 1:
+            return random.randint(40, 65)
+        # General Population
+        return random.randint(22, 60)
 
-class LogicEngine:
-    @staticmethod
-    def get_job_tuple_by_age(age: int) -> tuple:
-        if age <= 22:
-            return random.choice(CAREER_POOLS["Student"])
-        elif 23 <= age <= 30:
-            return random.choice(CAREER_POOLS["Junior"])
-        elif 31 <= age <= 45:
-            return random.choice(CAREER_POOLS["Mid"])
-        elif 46 <= age <= 60:
-            return random.choice(CAREER_POOLS["Senior"])
-        else:
-            return random.choice(CAREER_POOLS["Retired"])
+    def _get_luck_cycle(self, bazi_structure, age):
+        # 簡易大運邏輯
+        cycles = [
+            {"name": "少年運", "desc": "初入社會，學習與摸索期"},
+            {"name": "青年運", "desc": "事業衝刺，壓力與機會並存"},
+            {"name": "壯年運", "desc": "格局定型，收穫與承擔責任"},
+            {"name": "晚年運", "desc": "回歸平穩，重視傳承與健康"}
+        ]
+        if age < 25: return cycles[0]
+        elif age < 40: return cycles[1]
+        elif age < 55: return cycles[2]
+        else: return cycles[3]
 
-    @staticmethod
-    def get_mbti_by_bazi(element: str, structure: str) -> str:
-        probs = {"E": 0.5, "N": 0.5, "T": 0.5, "P": 0.5}
-        if structure == "七殺格": probs["P"] = 0.8
-        elif structure == "正印格": probs["P"] = 0.2
-        if element == "Wood": probs["N"] = 0.7
-        if element == "Fire": probs["E"] = 0.8
-        if element == "Metal": probs["T"] = 0.7
-        if element == "Water": probs["N"] = 0.6
-        if element == "Earth": probs["S"] = 0.7
-        res = ""
-        res += "E" if random.random() < probs.get("E", 0.5) else "I"
-        res += "N" if random.random() < probs.get("N", 0.5) else "S"
-        res += "T" if random.random() < probs.get("T", 0.5) else "F"
-        res += "P" if random.random() < probs.get("P", 0.5) else "J"
-        return res
-
-# ==========================================
-# MAIN GENERATOR
-# ==========================================
-
-class GenesisEngineV6:
-    def __init__(self, total=1000):
-        self.quota = QuotaSystem(total)
-        self.logic = LogicEngine()
+    def _generate_persona_desc(self, tier, age, structure, strength):
+        # B方案：預計算性格描述 (Rule-based Persona Injection)
+        desc = f"你是一位 {age} 歲的市民，八字格局為{structure}{strength}。"
+        
+        if tier == 1:
+            desc += "身為社會頂層菁英，你擁有極高的視野與資源，思考問題往往從戰略與資本回報切入，對細節不拘小節。"
+        elif tier == 2:
+            desc += "作為專業中產階級，你重視邏輯與效率，生活富足但仍有向上流動的焦慮，對品質要求高。"
+        elif tier == 3:
+            desc += "你是社會的中堅力量，生活平穩，追求CP值與實用性，對太過冒險的變革持保留態度。"
+        elif tier == 4:
+            desc += "身為基層勞動者，你每天為生活奔波，對價格極度敏感，看重產品是否耐用、便宜，討厭華而不實的話術。"
+        elif tier == 5:
+            desc += "你處於社會邊緣，生活充滿不確定性。你對未來感到迷茫或憤世嫉俗，對商業承諾抱持高度懷疑。"
+            
+        if "七殺" in structure or "傷官" in structure:
+            desc += "你的性格中帶有批判性與叛逆因子，說話直接，不喜歡拐彎抹角。"
+        elif "正印" in structure or "食神" in structure:
+            desc += "你的性格溫和且富有同理心，喜歡和諧的氛圍，說話比較委婉。"
+            
+        return desc
 
     def generate(self, index: int) -> Dict[str, Any]:
         cid = f"{index:04d}"
         seed = int(hashlib.md5(cid.encode()).hexdigest(), 16)
         random.seed(seed)
         
-        element = self.quota.get_element()
-        element_cn = ELEMENT_CN_MAP[element]
-        possible_stems = [s for s, e in FIVE_ELEMENTS_MAP.items() if e == element and s in HEAVENLY_STEMS]
-        day_master = random.choice(possible_stems)
-        
-        age = random.randint(18, 75)
-        job_tuple = self.logic.get_job_tuple_by_age(age) # (TW, US, CN)
-        
-        structure = random.choice(BAZI_STRUCTURES)
-        strength = random.choice(["身強", "身弱", "中和"])
-        mbti = self.logic.get_mbti_by_bazi(element, structure)
+        # 1. Immutable Soul DNA
+        tier = self._get_tier()
+        self.counts[tier] += 1
         
         gender = random.choice(["Male", "Female"])
+        age = self._get_age_by_tier(tier)
         
-        # TW Name
-        surname_tw = random.choice(NAMES_TW["surnames"])
-        given_tw = random.choice(NAMES_TW["given_m"] if gender == "Male" else NAMES_TW["given_f"])
-        name_tw = f"{surname_tw}{given_tw}"
+        element_key = random.choice(list(FIVE_ELEMENTS_MAP.keys())) # Stem/Branch
+        element = FIVE_ELEMENTS_MAP[element_key]
+        day_master = random.choice(HEAVENLY_STEMS)
+        structure = random.choice(BAZI_STRUCTURES)
+        strength = random.choice(["身強", "身弱", "中和"])
         
-        # US Name (Full name directly)
-        name_us = random.choice(NAMES_US[gender])
+        # 2. Occupation Logic (One Job, Three Masks)
+        job_pool = JOB_MATRIX[tier]
+        job_data = random.choice(job_pool)
         
-        # CN Name (Simplified)
-        surname_cn = random.choice(NAMES_CN["surnames"])
-        given_cn = random.choice(NAMES_CN["given_m"] if gender == "Male" else NAMES_CN["given_f"])
-        name_cn = f"{surname_cn}{given_cn}"
+        # 3. Name Logic (Cultural Transcreation)
+        surname_idx = random.randint(0, 9)
+        sn_tw = SURNAMES["TW"][surname_idx]
+        sn_cn = SURNAMES["CN"][surname_idx]
+        sn_us = SURNAMES["US"][surname_idx]
         
-        element_desc = {
-            "Wood": "木主仁，具備成長性與生命力。你的性格中帶有向上與拓展的特質。",
-            "Fire": "火主禮，象徵熱情與社交。你具備極強的感染力與行動力。",
-            "Earth": "土主信，象徵穩定與誠信。你是團隊中的壓艙石，沉穩且可靠。",
-            "Metal": "金主義，象徵果斷與正義。你處事俐落，重視邏輯與秩序。",
-            "Water": "水主智，象徵智慧與流動。你思維敏捷，擅長處理複雜的變化。"
-        }.get(element)
+        if gender == "Male":
+            gn_tw = random.choice(NAMES_TW_M)
+            gn_cn = random.choice(NAMES_CN_M) # Localized
+            gn_us = random.choice(NAMES_US_M) # Localized
+        else:
+            gn_tw = random.choice(NAMES_TW_F)
+            gn_cn = random.choice(NAMES_CN_F)
+            gn_us = random.choice(NAMES_US_F)
+            
+        name_tw = f"{sn_tw}{gn_tw}"
+        name_cn = f"{sn_cn}{gn_cn}"
+        name_us = f"{gn_us} {sn_us}"
         
+        # 4. Construct Bazi Profile (Localized)
+        luck = self._get_luck_cycle(structure, age)
+        element_cn_val = {"Wood": "木", "Fire": "火", "Earth": "土", "Metal": "金", "Water": "水"}[element]
+        
+        # Get Western mappings
+        structure_en = BAZI_STRUCTURE_MAP[structure]["en"]
+        structure_desc_en = BAZI_STRUCTURE_MAP[structure]["desc"]
+        
+        # Generate Favorable Elements (Simplified Logic)
+        # Strong -> Needs Output/Wealth/Power (Weaken)
+        # Weak -> Needs Resource/Peer (Strengthen)
+        # Map: Element -> [Resource, Output, Wealth, Power, Peer]
+        # Wood: Water, Fire, Earth, Metal, Wood
+        # Fire: Wood, Earth, Metal, Water, Fire
+        # Earth: Fire, Metal, Water, Wood, Earth
+        # Metal: Earth, Water, Wood, Fire, Metal
+        # Water: Metal, Wood, Fire, Earth, Water
+        
+        elements_cycle = ["Wood", "Fire", "Earth", "Metal", "Water"]
+        idx = elements_cycle.index(element)
+        resource = elements_cycle[(idx - 1 + 5) % 5]
+        peer = element
+        output = elements_cycle[(idx + 1) % 5]
+        wealth = elements_cycle[(idx + 2) % 5]
+        power = elements_cycle[(idx + 3) % 5]
+        
+        favorable = []
+        if strength == "身強":
+            favorable = [output, wealth, power]
+        else: # 身弱 or 中和 (Default to strengthen)
+            favorable = [resource, peer]
+            
+        # Select 2 random favorable elements
+        selected_favorable = random.sample(favorable, min(2, len(favorable)))
+
+        # Generate random Pillars for display (simulated)
+        y_stem = random.choice(HEAVENLY_STEMS)
+        y_branch = random.choice(EARTHLY_BRANCHES)
+        m_stem = random.choice(HEAVENLY_STEMS)
+        m_branch = random.choice(EARTHLY_BRANCHES)
+        d_stem = day_master
+        d_branch = random.choice(EARTHLY_BRANCHES)
+        h_stem = random.choice(HEAVENLY_STEMS)
+        h_branch = random.choice(EARTHLY_BRANCHES)
+        
+        pillars_cn = f"{y_stem}{y_branch} {m_stem}{m_branch} {d_stem}{d_branch} {h_stem}{h_branch}"
+        pillars_en = f"{STEM_TRANSLATION[y_stem]} {BRANCH_TRANSLATION[y_branch]} | {STEM_TRANSLATION[m_stem]} {BRANCH_TRANSLATION[m_branch]} | {STEM_TRANSLATION[d_stem]} {BRANCH_TRANSLATION[d_branch]} | {STEM_TRANSLATION[h_stem]} {BRANCH_TRANSLATION[h_branch]}"
+
+        bazi_profile = {
+            "day_master": day_master,
+            "element": element,
+            "element_cn": element_cn_val,
+            "structure": structure,
+            "structure_en": structure_en, 
+            "strength": strength,
+            "strength_en": "Dominant" if strength == "身強" else "Adaptive" if strength == "身弱" else "Balanced",
+            "favorable_elements": selected_favorable, # [New]
+            "trait": f"{structure}{strength}，{element_cn_val}行特質明顯",
+            "trait_en": structure_en, # [New] Simplified to just the archetype name
+            "current_luck": {"name": luck["name"], "description": luck["desc"]},
+            "four_pillars": pillars_cn,
+            "four_pillars_en": pillars_en, 
+            "luck_timeline": [] 
+        }
+        
+        # 5. Final Assembly
         citizen = {
             "id": cid,
+            "social_tier": tier, 
+            "career_tags": [job_data["role"], f"Tier_{tier}"], 
             "name": {
                 "TW": name_tw,
                 "US": name_us,
@@ -215,56 +305,46 @@ class GenesisEngineV6:
             },
             "gender": gender,
             "age": age,
-            "mbti": mbti,
             "occupation": {
-                "TW": job_tuple[0],
-                "US": job_tuple[1],
-                "CN": job_tuple[2]
+                "TW": job_data["TW"],
+                "US": job_data["US"],
+                "CN": job_data["CN"]
             },
-            "bazi_profile": {
-                "day_master": day_master,
-                "element": element,
-                "element_cn": element_cn,
-                "element_desc": element_desc,
-                "structure": structure,
-                "strength": strength,
-                "four_pillars": f"甲子 乙丑 {day_master}寅 丙辰",
-                "trait": f"{structure}{strength}，{element_cn}行特質明顯",
-                "current_luck": {"age_start": age//10*10, "description": "目前處於大運平穩期"},
-                "luck_timeline": []
+            "location": {
+                "TW": random.choice(["台北", "台中", "高雄", "新竹"]),
+                "US": random.choice(["New York", "San Francisco", "Austin", "Seattle"]),
+                "CN": random.choice(["上海", "北京", "深圳", "杭州"])
             },
-            "traits": [mbti, f"五行:{element_cn}", structure],
+            "bazi_profile": bazi_profile,
+            # Mix both Chinese and English traits for searchability/display
+            "traits": [structure, structure_en, f"Tier {tier}"],
+            "current_persona_desc": self._generate_persona_desc(tier, age, structure, strength),
             "profiles": {
-                "TW": {
-                    "name": name_tw,
-                    "city": random.choice(["台北", "台中", "高雄", "新竹"]),
-                    "job": job_tuple[0],
-                    "cultural_settings": ["重視傳統與家庭"]
-                },
-                "US": {
-                    "name": name_us,
-                    "city": random.choice(["New York", "San Francisco", "Austin", "Seattle"]),
-                    "job": job_tuple[1],
-                    "cultural_settings": ["Value individual freedom and career growth"]
-                },
-                "CN": {
-                    "name": name_cn,
-                    "city": random.choice(["上海", "北京", "深圳", "杭州"]),
-                    "job": job_tuple[2],
-                    "cultural_settings": ["重视效率与集体协作"]
-                }
+                "TW": {"name": name_tw, "city": "Taipei", "job": job_data["TW"]},
+                "US": {"name": name_us, "city": "New York", "job": job_data["US"]},
+                "CN": {"name": name_cn, "city": "Shanghai", "job": job_data["CN"]}
             }
         }
         return citizen
 
 if __name__ == "__main__":
-    print("🚀 Operation Rebirth: Genesis V6 (Localized) Started...")
-    engine = GenesisEngineV6(1000)
+    print(">> Genesis V7 (Realism) Initializing...")
+    engine = GenesisEngineV7(1000)
     citizens = []
     for i in range(1, 1001):
         citizens.append(engine.generate(i))
-    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "citizens_v6.json")
+        
+    # Analyze Distribution
+    tiers = {1:0, 2:0, 3:0, 4:0, 5:0}
+    for c in citizens:
+        tiers[c["social_tier"]] += 1
+        
+    print(">> Final Distribution:")
+    for t, count in tiers.items():
+        print(f"  Tier {t}: {count} ({count/10}%)")
+        
+    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "citizens.json")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(citizens, f, ensure_ascii=False, indent=2)
-    print(f"✅ Generated 1000 localized souls at {output_path}")
+    print(f">> Generated 1000 souls at {output_path}")

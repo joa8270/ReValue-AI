@@ -1,0 +1,363 @@
+C:\Users\Joa\Downloads\MIRRA3_V\video_audit_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+ * Serving Flask app 'mirra_server'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5001
+Press CTRL+C to quit
+ * Restarting with stat
+C:\Users\Joa\Downloads\MIRRA3_V\video_audit_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+ * Debugger is active!
+ * Debugger PIN: 133-463-579
+127.0.0.1 - - [02/Feb/2026 18:14:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [02/Feb/2026 18:14:10] "GET /favicon.ico HTTP/1.1" 404 -
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+[Web] 開始分析視頻: https://www.w3schools.com/html/mov_bbb.mp4
+--- [MIRRA-V] 啟動 AI 審片程序 ---
+>> 檢測到輸入為網址 (URL mode)
+>> 正在解析並抓取視頻流: https://www.w3schools.com/html/mov_bbb.mp4 ...
+>> 視頻流已暫存至: C:\Users\Joa\AppData\Local\Temp\tmpys9tju_h.mp4
+>> 正在將數據傳輸至 Gemini 視覺中樞...
+.127.0.0.1 - - [02/Feb/2026 18:16:14] "POST /analyze HTTP/1.1" 200 -
+ * Detected change in 'C:\\Users\\Joa\\Downloads\\MIRRA3_V\\video_audit_service.py', reloading
+
+>> 視頻就緒，開始生成市民閱讀報告...
+>> 模型原始回應內容已取得。
+>> 報告生成完畢。
+>> 臨時緩存已清除。
+--- [MIRRA-V] 啟動數位市民市場模擬 (Market Simulation) ---
+>> 內容錨點鎖定 (Seed: 3360782568)
+>> 正在召喚 1000 位數位市民進入平行時空...
+[Sampling] Total 30 citizens
+[ABM] Initialized 30 Agents (Expert: False, Target: None, Seed: 3360782568)
+[ABM] Social network built, avg degree: 5.10
+[ABM] 迭代 1: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 2: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 3: 平均意見 65.9 (活躍人數: 0)
+
+--- [MIRRA-V 模擬報告] ---
+平均觀影意願: 65.90 / 100
+爆款指數 (Tier 3 滲透率): 100.0%
+採購決策建議: Modify (建議修改後購入)
+ * Restarting with stat
+C:\Users\Joa\Downloads\MIRRA3_V\video_audit_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+ * Debugger is active!
+ * Debugger PIN: 133-463-579
+127.0.0.1 - - [02/Feb/2026 18:27:47] "GET / HTTP/1.1" 200 -
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+[Web] 開始分析視頻: https://www.w3schools.com/html/mov_bbb.mp4
+--- [MIRRA-V] 啟動 AI 審片程序 ---
+>> 檢測到輸入為網址 (URL mode)
+>> 正在解析並抓取視頻流: https://www.w3schools.com/html/mov_bbb.mp4 ...
+>> 視頻流已暫存至: C:\Users\Joa\AppData\Local\Temp\tmp1n0098qo.mp4
+>> 正在將數據傳輸至 Gemini 視覺中樞...
+[Web] 開始分析視頻: https://www.w3schools.com/html/mov_bbb.mp4
+--- [MIRRA-V] 啟動 AI 審片程序 ---
+>> 檢測到輸入為網址 (URL mode)
+>> 正在解析並抓取視頻流: https://www.w3schools.com/html/mov_bbb.mp4 ...
+.>> 視頻流已暫存至: C:\Users\Joa\AppData\Local\Temp\tmp6g65vgbm.mp4
+>> 正在將數據傳輸至 Gemini 視覺中樞...
+[Web] 開始分析視頻: https://www.w3schools.com/html/mov_bbb.mp4
+--- [MIRRA-V] 啟動 AI 審片程序 ---
+>> 檢測到輸入為網址 (URL mode)
+>> 正在解析並抓取視頻流: https://www.w3schools.com/html/mov_bbb.mp4 ...
+>> 視頻流已暫存至: C:\Users\Joa\AppData\Local\Temp\tmpust9toh7.mp4
+>> 正在將數據傳輸至 Gemini 視覺中樞...
+
+>> 視頻就緒，開始生成市民閱讀報告...
+.[Web] 開始分析視頻: https://www.w3schools.com/html/mov_bbb.mp4
+--- [MIRRA-V] 啟動 AI 審片程序 ---
+>> 檢測到輸入為網址 (URL mode)
+>> 正在解析並抓取視頻流: https://www.w3schools.com/html/mov_bbb.mp4 ...
+>> 視頻流已暫存至: C:\Users\Joa\AppData\Local\Temp\tmpie4u4a86.mp4
+>> 正在將數據傳輸至 Gemini 視覺中樞...
+[Web] 開始分析視頻: https://www.w3schools.com/html/mov_bbb.mp4
+--- [MIRRA-V] 啟動 AI 審片程序 ---
+>> 檢測到輸入為網址 (URL mode)
+>> 正在解析並抓取視頻流: https://www.w3schools.com/html/mov_bbb.mp4 ...
+.>> 視頻流已暫存至: C:\Users\Joa\AppData\Local\Temp\tmpdclf7i43.mp4
+>> 正在將數據傳輸至 Gemini 視覺中樞...
+
+>> 視頻就緒，開始生成市民閱讀報告...
+..>> 模型原始回應內容已取得。
+>> 報告生成完畢。
+>> 臨時緩存已清除。
+--- [MIRRA-V] 啟動數位市民市場模擬 (Market Simulation) ---
+>> 內容錨點鎖定 (Seed: 3360782568)
+>> 正在召喚 1000 位數位市民進入平行時空...
+[Web] 開始分析視頻: https://www.w3schools.com/html/mov_bbb.mp4
+--- [MIRRA-V] 啟動 AI 審片程序 ---
+>> 檢測到輸入為網址 (URL mode)
+>> 正在解析並抓取視頻流: https://www.w3schools.com/html/mov_bbb.mp4 ...
+.127.0.0.1 - - [02/Feb/2026 18:28:30] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [02/Feb/2026 18:28:31] "POST /analyze HTTP/1.1" 200 -
+>> 視頻流已暫存至: C:\Users\Joa\AppData\Local\Temp\tmp9hze5f40.mp4
+>> 正在將數據傳輸至 Gemini 視覺中樞...
+
+>> 視頻就緒，開始生成市民閱讀報告...
+
+>> 視頻就緒，開始生成市民閱讀報告...
+[Sampling] Total 30 citizens
+[ABM] Initialized 30 Agents (Expert: False, Target: None, Seed: 3360782568)
+[ABM] Social network built, avg degree: 5.10
+[ABM] 迭代 1: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 2: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 3: 平均意見 65.9 (活躍人數: 0)
+
+--- [MIRRA-V 模擬報告] ---
+平均觀影意願: 65.90 / 100
+採購決策建議: Modify (建議修改後購入)
+[Web] 開始分析視頻: https://www.w3schools.com/html/mov_bbb.mp4
+--- [MIRRA-V] 啟動 AI 審片程序 ---
+>> 檢測到輸入為網址 (URL mode)
+>> 正在解析並抓取視頻流: https://www.w3schools.com/html/mov_bbb.mp4 ...
+>> 模型原始回應內容已取得。
+>> 報告生成完畢。
+>> 臨時緩存已清除。
+--- [MIRRA-V] 啟動數位市民市場模擬 (Market Simulation) ---
+>> 內容錨點鎖定 (Seed: 3360782568)
+>> 正在召喚 1000 位數位市民進入平行時空...
+
+>> 視頻就緒，開始生成市民閱讀報告...
+>> 視頻流已暫存至: C:\Users\Joa\AppData\Local\Temp\tmpdf7exwjo.mp4
+>> 正在將數據傳輸至 Gemini 視覺中樞...
+[Sampling] Total 30 citizens
+[ABM] Initialized 30 Agents (Expert: False, Target: None, Seed: 3360782568)
+[ABM] Social network built, avg degree: 5.10
+[ABM] 迭代 1: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 2: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 3: 平均意見 65.9 (活躍人數: 0)
+
+--- [MIRRA-V 模擬報告] ---
+平均觀影意願: 65.90 / 100
+採購決策建議: Modify (建議修改後購入)
+.
+>> 視頻就緒，開始生成市民閱讀報告...
+.127.0.0.1 - - [02/Feb/2026 18:28:35] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [02/Feb/2026 18:28:36] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [02/Feb/2026 18:28:36] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [02/Feb/2026 18:28:40] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [02/Feb/2026 18:28:42] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [02/Feb/2026 18:29:04] "GET / HTTP/1.1" 200 -
+ * Detected change in 'C:\\Users\\Joa\\Downloads\\MIRRA3_V\\backend\\app\\services\\video_analysis_service.py', reloading
+>> 模型原始回應內容已取得。
+>> 報告生成完畢。
+>> 臨時緩存已清除。
+--- [MIRRA-V] 啟動數位市民市場模擬 (Market Simulation) ---
+>> 內容錨點鎖定 (Seed: 3360782568)
+>> 正在召喚 1000 位數位市民進入平行時空...
+>> 模型原始回應內容已取得。
+>> 報告生成完畢。
+>> 臨時緩存已清除。
+--- [MIRRA-V] 啟動數位市民市場模擬 (Market Simulation) ---
+>> 內容錨點鎖定 (Seed: 3360782568)
+>> 正在召喚 1000 位數位市民進入平行時空...
+[Sampling] Total 30 citizens
+[ABM] Initialized 30 Agents (Expert: False, Target: None, Seed: 3360782568)
+[ABM] Social network built, avg degree: 5.10
+[ABM] 迭代 1: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 2: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 3: 平均意見 65.9 (活躍人數: 0)
+
+--- [MIRRA-V 模擬報告] ---
+平均觀影意願: 65.90 / 100
+採購決策建議: Modify (建議修改後購入)
+>> 模型原始回應內容已取得。
+>> 報告生成完畢。
+>> 臨時緩存已清除。
+--- [MIRRA-V] 啟動數位市民市場模擬 (Market Simulation) ---
+>> 內容錨點鎖定 (Seed: 3360782568)
+>> 正在召喚 1000 位數位市民進入平行時空...
+
+>> 視頻就緒，開始生成市民閱讀報告...
+[Sampling] Total 30 citizens
+[ABM] Initialized 30 Agents (Expert: False, Target: None, Seed: 3360782568)
+[ABM] Social network built, avg degree: 5.10
+[ABM] 迭代 1: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 2: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 3: 平均意見 65.9 (活躍人數: 0)
+
+--- [MIRRA-V 模擬報告] ---
+平均觀影意願: 65.90 / 100
+採購決策建議: Modify (建議修改後購入)
+[Sampling] Total 30 citizens
+[ABM] Initialized 30 Agents (Expert: False, Target: None, Seed: 3360782568)
+[ABM] Social network built, avg degree: 5.10
+[ABM] 迭代 1: 平均意見 59.9 (活躍人數: 0)
+[ABM] 迭代 2: 平均意見 59.9 (活躍人數: 0)
+[ABM] 迭代 3: 平均意見 59.9 (活躍人數: 0)
+
+--- [MIRRA-V 模擬報告] ---
+平均觀影意願: 59.90 / 100
+採購決策建議: Pass (放棄)
+>> 模型原始回應內容已取得。
+>> 報告生成完畢。
+>> 臨時緩存已清除。
+--- [MIRRA-V] 啟動數位市民市場模擬 (Market Simulation) ---
+>> 內容錨點鎖定 (Seed: 3360782568)
+>> 正在召喚 1000 位數位市民進入平行時空...
+[Sampling] Total 30 citizens
+[ABM] Initialized 30 Agents (Expert: False, Target: None, Seed: 3360782568)
+[ABM] Social network built, avg degree: 5.10
+[ABM] 迭代 1: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 2: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 3: 平均意見 65.9 (活躍人數: 0)
+
+--- [MIRRA-V 模擬報告] ---
+平均觀影意願: 65.90 / 100
+採購決策建議: Modify (建議修改後購入)
+>> 模型原始回應內容已取得。
+>> 報告生成完畢。
+>> 臨時緩存已清除。
+--- [MIRRA-V] 啟動數位市民市場模擬 (Market Simulation) ---
+>> 內容錨點鎖定 (Seed: 3360782568)
+>> 正在召喚 1000 位數位市民進入平行時空...
+[Sampling] Total 30 citizens
+[ABM] Initialized 30 Agents (Expert: False, Target: None, Seed: 3360782568)
+[ABM] Social network built, avg degree: 5.10
+[ABM] 迭代 1: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 2: 平均意見 65.9 (活躍人數: 0)
+[ABM] 迭代 3: 平均意見 65.9 (活躍人數: 0)
+
+--- [MIRRA-V 模擬報告] ---
+平均觀影意願: 65.90 / 100
+採購決策建議: Modify (建議修改後購入)
+ * Restarting with stat
+C:\Users\Joa\Downloads\MIRRA3_V\video_audit_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+ * Debugger is active!
+ * Debugger PIN: 133-463-579
+ * Detected change in 'C:\\Users\\Joa\\Downloads\\MIRRA3_V\\backend\\app\\api\\web.py', reloading
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+ * Restarting with stat
+C:\Users\Joa\Downloads\MIRRA3_V\video_audit_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+ * Debugger is active!
+ * Debugger PIN: 133-463-579
+ * Detected change in 'C:\\Users\\Joa\\Downloads\\MIRRA3_V\\backend\\app\\api\\web.py', reloading
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+ * Restarting with stat
+C:\Users\Joa\Downloads\MIRRA3_V\video_audit_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+ * Debugger is active!
+ * Debugger PIN: 133-463-579
+ * Detected change in 'C:\\Users\\Joa\\Downloads\\MIRRA3_V\\backend\\app\\api\\web.py', reloading
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+ * Restarting with stat
+C:\Users\Joa\Downloads\MIRRA3_V\video_audit_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+ * Debugger is active!
+ * Debugger PIN: 133-463-579
+ * Detected change in 'C:\\Users\\Joa\\Downloads\\MIRRA3_V\\backend\\app\\api\\web.py', reloading
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+ * Restarting with stat
+C:\Users\Joa\Downloads\MIRRA3_V\video_audit_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+ * Debugger is active!
+ * Debugger PIN: 133-463-579
+ * Detected change in 'C:\\Users\\Joa\\Downloads\\MIRRA3_V\\backend\\app\\api\\web.py', reloading
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+ * Restarting with stat
+C:\Users\Joa\Downloads\MIRRA3_V\video_audit_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+ * Debugger is active!
+ * Debugger PIN: 133-463-579
+ * Detected change in 'C:\\Users\\Joa\\Downloads\\MIRRA3_V\\backend\\app\\api\\web.py', reloading
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+ * Restarting with stat
+C:\Users\Joa\Downloads\MIRRA3_V\video_audit_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+ * Debugger is active!
+ * Debugger PIN: 133-463-579
+ * Detected change in 'C:\\Users\\Joa\\Downloads\\MIRRA3_V\\backend\\app\\main.py', reloading
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+ * Restarting with stat
+C:\Users\Joa\Downloads\MIRRA3_V\video_audit_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+ * Debugger is active!
+ * Debugger PIN: 133-463-579
+127.0.0.1 - - [02/Feb/2026 19:23:31] "GET / HTTP/1.1" 200 -
+ * Detected change in 'C:\\Users\\Joa\\Downloads\\MIRRA3_V\\backend\\app\\core\\database.py', reloading
+[DB] Connecting to PostgreSQL: postgresql://neondb_owner:npg_Rh9KvaFtJ7Xe@ep-fall...
+ * Restarting with stat
+C:\Users\Joa\AppData\Local\Programs\Python\Python314\python.exe: can't open file 'C:\\Users\\Joa\\Downloads\\MIRRA3_V\\mirra_server.py': [Errno 2] No such file or directory

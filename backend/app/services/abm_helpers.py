@@ -53,10 +53,10 @@ async def infer_product_element_with_ai(line_bot_service, image_parts, text_cont
         if ai_text:
             data = line_bot_service._clean_and_parse_json(ai_text)
             element = data.get("element", "Fire")
-            print(f"🧬 [ABM] AI判斷產品五行: {element} - {data.get('reasoning', '')}")
+            print(f"[ABM] AI判斷產品五行: {element} - {data.get('reasoning', '')}")
             return element
     except Exception as e:
-        print(f"❌ [ABM] 五行判斷失敗: {e}")
+        print(f"[ABM] 五行判斷失敗: {e}")
     
     # 預設回傳火（電子產品最常見）
     return "Fire"
@@ -98,7 +98,7 @@ def extract_price_from_context(text_context):
     # 市場均價預估為售價的90%（簡化邏輯，實際應該查詢API）
     market_price = price * 0.9
     
-    print(f"💰 [ABM] 提取價格: 售價={price}, 市價={market_price}")
+    print(f"[ABM] 提取價格: 售價={price}, 市價={market_price}")
     
     return {"price": price, "market_price": market_price}
 

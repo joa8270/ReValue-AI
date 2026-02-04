@@ -79,6 +79,7 @@ export default function Home() {
                             </h2>
 
                             {/* Trust Anchor */}
+
                             <a
                                 href="https://en.wikipedia.org/wiki/Agent-based_model"
                                 target="_blank"
@@ -100,11 +101,8 @@ export default function Home() {
                                 <span className="mr-2">👥</span>
                                 {t('hero.cta_secondary')}
                             </Link>
-                            {/* <Link href="/dashboard" className="flex min-w-[140px] cursor-pointer items-center justify-center rounded-lg h-12 px-6 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 backdrop-blur-sm transition-all text-purple-300 text-base font-bold hover:shadow-[0_0_15px_rgba(168,85,247,0.4)]">
-                                <span className="mr-2">⚡</span>
-                                Dashboard
-                            </Link> */}
                         </div>
+
 
                     </div>
                 </div>

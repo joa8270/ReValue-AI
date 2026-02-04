@@ -1,1 +1,6 @@
-name 'logger' is not defined
+[WRAPPER] PDF Task Failed: LineBotService.run_simulation_with_pdf_data() takes from 4 to 6 positional arguments but 15 were given
+Traceback (most recent call last):
+  File "C:\Users\Joa\Downloads\MIRRA\backend\app\api\web.py", line 23, in safe_run_pdf_task
+    await line_service.run_simulation_with_pdf_data(*args, **kwargs)
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+TypeError: LineBotService.run_simulation_with_pdf_data() takes from 4 to 6 positional arguments but 15 were given

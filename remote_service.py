@@ -909,7 +909,6 @@ class LineBotService:
                 bazi = citizen["bazi_profile"]
                 
                 # Auto-fill missing birthday data
-                import random
                 if not bazi.get("birth_year"):
                     try:
                         age = int(citizen.get("age", 30))
@@ -1063,7 +1062,6 @@ class LineBotService:
             "朋友推薦過類似的產品，這個看起來也值得一試，考慮中。"
         ]
         
-        import random as rand_module
         while len(arena_comments) < 8 and sampled_citizens:
             # 找一個還沒評論過的市民
             commented_names = {c["persona"]["name"] for c in arena_comments}
@@ -1094,14 +1092,13 @@ class LineBotService:
                 templates = default_templates
             
             # 隨機選擇一條評論，避免重複
-            text = rand_module.choice(templates)
+            text = random.choice(templates)
             
             # 混合分配情感
             sentiments = ["positive", "positive", "neutral", "neutral", "negative"]
             sentiment = sentiments[len(arena_comments) % len(sentiments)]
             
             # Ensure birthday data exists
-            import random
             birth_year = bazi.get("birth_year")
             if not birth_year:
                 try:

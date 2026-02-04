@@ -1,11 +1,12 @@
 import os
 import sys
 
-# 🔧 修正 Python Path (讓 Render 環境能找到 app 模組)
-# Render Root Directory = backend, 所以需要將 backend 加入 sys.path
+# Fix Python Path
+# Render Root Directory = backend, so add backend to sys.path
 current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
+
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,13 +24,15 @@ app = FastAPI()
 # Initialize Skill Registry
 @app.on_event("startup")
 async def startup_event():
-    print(">> [System] Starting up... Scanning for Skills...")
+    print("[System] Starting up... Scanning for Skills...")
     skill_registry.discover_skills()
     
-    print(">> [System] Initializing Database...")
+    print("[System] Initializing Database...")
     init_db()
 
-# 🔄 Force Update: 2026-01-14 01:15
+
+# Force Update: 2026-01-14 01:15
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -97,7 +100,8 @@ async def get_genesis_citizens():
     return data
 
 @app.get("/citizens")
-async def list_citizens(limit: int = 100, offset: int = 0, search: str = None):
+async def list_citizens(limit: int = 100, offset: int = 0, search: str | None = None):
+
     """獲取市民庫資料"""
     citizens = get_all_citizens(limit=limit, offset=offset, search=search)
     total = get_citizens_count(search=search)

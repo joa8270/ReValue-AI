@@ -2,7 +2,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# 1. 讀取環境變數 (Force Load Root .env)
+# 1. Load Env
 from dotenv import load_dotenv
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # backend/
 PROJECT_ROOT = os.path.dirname(BASE_DIR) # MIRRA/
@@ -10,18 +10,18 @@ load_dotenv(os.path.join(PROJECT_ROOT, '.env'))
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# 2. 修正 Render/Neon 的網址格式 (SQLAlchemy 需要 postgresql:// 開頭)
+# 2. Fix Render/Neon URL format
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# 3. 建立連線引擎
+# 3. Create engine
 import json
 
 def json_serializer(obj):
     return json.dumps(obj, ensure_ascii=False)
 
 if not DATABASE_URL:
-    # 本地開發防呆：如果沒設環境變數，就用一個暫時的 SQLite
+    # Fallback to local SQLite
     current_file_dir = os.path.dirname(os.path.abspath(__file__))
     backend_dir = os.path.dirname(os.path.dirname(current_file_dir))
     db_path = os.path.join(backend_dir, "test.db")
@@ -31,9 +31,10 @@ else:
     print(f"[DB] Connecting to PostgreSQL: {DATABASE_URL[:50]}...")
     engine = create_engine(DATABASE_URL, json_serializer=json_serializer)
 
-# 🔄 Force Update: 2026-01-14 01:15
+# Force Update: 2026-01-14 01:15
 
-# 4. 建立 Session 工廠
+# 4. Create Session factory
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # 5. 定義 Base 模型
@@ -93,9 +94,10 @@ def init_db():
     """初始化資料庫表格 (由 main.py 啟動時呼叫)"""
     try:
         Base.metadata.create_all(bind=engine)
-        print("✅ [DB] Database tables created successfully.")
+        print("[DB] Database tables created successfully.")
     except Exception as e:
-        print(f"❌ [DB] Error creating tables: {e}")
+        print(f"[DB] Error creating tables: {e}")
+
 
 
 

@@ -42,7 +42,7 @@ async def verify_lang(lang):
          patch.object(LineBotService, '_call_gemini_rest', return_value=(None, "Mock Timeout")), \
          patch.object(LineBotService, '_run_abm_simulation', return_value={"evolution_data": {}, "analytics_data": {}, "comments_data": []}):
         
-        await service.run_simulation_with_pdf_data(pdf_bytes, sim_id, "test.pdf", language=lang)
+        await service.run_simulation_with_pdf_data(sim_id, pdf_bytes, "test.pdf", language=lang)
         
         args, kwargs = mock_update.call_args
         data = args[2]

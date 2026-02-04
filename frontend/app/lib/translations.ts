@@ -7,8 +7,10 @@ export const translations = {
             algorithm: '預演架構',
             pricing: '方案定價',
             citizens: '瀏覽市民',
+            video_audit: '視頻審計',
             start: '立即預演',
         },
+
         hero: {
             status: '系統上線',
             title_prefix: ' ',
@@ -18,7 +20,12 @@ export const translations = {
             trust_anchor: '核心技術：基於 Agent-Based Modeling (ABM) 社會科學模擬方法論',
             cta_primary: '預演未來',
             cta_secondary: '瀏覽市民',
+            entry_business_title: '商業模擬',
+            entry_business_desc: '上傳產品圖片或企劃書，預演市場反響',
+            entry_video_title: '視頻審計',
+            entry_video_desc: 'AI 視覺審片 + 千人評審團，評估影片價值',
         },
+
         cta_primary: '預演未來',
         cta_secondary: '瀏覽市民',
 
@@ -141,6 +148,8 @@ export const translations = {
             title_iteration: '延續預演迭代',
             tab_image: '產品圖片',
             tab_pdf: '商業計劃 / 想法',
+            tab_video: '影音內容 (Video)',
+
             upload_placeholder_image: '點擊上傳 產品圖片',
             upload_placeholder_pdf: '點擊上傳 商業計劃文件',
             upload_support_image: '支援 JPG, PNG, WEBP',
@@ -165,7 +174,10 @@ export const translations = {
             btn_ai_writing: 'AI 構思中...',
             placeholder_desc: '輸入產品特色，讓 AI 更精準分析...',
             placeholder_desc_loading: 'AI 正在觀察您的圖片並撰寫文案...',
+            label_video_url: '🎥 視頻網址 (選填)',
+            placeholder_video_url: '貼上 MP4 連結 (AI 將自動分析並納入模擬參數)...',
             submit_btn: '啟動 MIRRA 預演',
+
             submit_btn_loading: '正在開啟鏡像世界...',
             footer_note: '系統將自動召喚 1,000+ 位虛擬市民進行即時推演',
             admin_init: '初始化資料庫 (Admin)',
@@ -184,10 +196,18 @@ export const translations = {
             // Expert Mode
             expert_mode_title: '專家模式 (Expert Mode)',
             expert_mode_desc: '開啟嚴格批判視角，模擬真實市場殘酷面',
+            video_info_toggle_show: '🔼 收合產品資訊 (選填)',
+            video_info_toggle_hide: '🔽 連結產品資訊 (選填)',
+            optional_suffix: ' (選填)',
             expert_mode_detail: '🔥 市民初始意圖 -15 分、說服門檻提高 +20%、意見演化速度減半。模擬「最壞情況」，適合高單價或爭議性產品。',
 
             force_random_title: "換一批市民",
             force_random_desc: "開啟後，強制換一批市民做評論 (因為若上傳同一個商品 ，會是同一批市民作評論，才能正確取樣 )",
+
+            btn_change_batch_title: "市民抽樣定錨 (Sampling Anchor)",
+            btn_change_batch_desc: "預設鎖定同一群市民以確保對話連續性。點擊右側按鈕可「換一批」新市民。",
+            btn_change_batch_active: "目前批次: #{salt} (已定錨)",
+            btn_change_batch: "換一批",
 
             expert_mode_btn_label: '啟動專家級預演',
             step2_title: '受眾定錨設定',
@@ -301,6 +321,8 @@ export const translations = {
                 preparing: '準備中...',
                 system_deduction: '系統深度推演中',
                 connecting_agents: '正在連線所有 AI 市民節點...',
+                ready: '準備就緒',
+                deep_thinking: '深度思考模式已啟動',
                 system_log: 'SYSTEM LOG',
                 current_status: '當前狀態解讀',
                 bazi_structure: '命理格局',
@@ -344,6 +366,15 @@ export const translations = {
                 generating_pdf: '報告生成中...',
                 download_pdf: '立即下載 PDF',
                 pdf_failed: '生成失敗',
+
+                logs: {
+                    connected: '已連線至 MIRRA-NODE-01',
+                    loading_citizens: '正在載入 1,000 位 AI 市民數據',
+                    analyzing: '正在解析產品 DNA 與市場趨勢',
+                    generating: '正在生成群體意見分佈',
+                    predicting: '正在預演市場演化路徑',
+                    finishing: '正在彙整最終預演報告'
+                },
 
                 bazi_deduction: '八字邏輯推演',
                 bazi_deduction_desc: '依據五行生剋與十神格局，篩選最具因果關聯之代表',
@@ -522,8 +553,12 @@ export const translations = {
             algorithm: '预演架构',
             pricing: '方案定价',
             citizens: '浏览市民',
+            video_audit: '视频审计',
             start: '立即预演',
+            ready: '准备就绪',
+            deep_thinking: '深度思考模式已启动'
         },
+
         hero: {
             status: '系统上线',
             title_prefix: ' ',
@@ -533,7 +568,12 @@ export const translations = {
             trust_anchor: '核心技术：基于 Agent-Based Modeling (ABM) 社会科学模拟方法论',
             cta_primary: '预演未来',
             cta_secondary: '浏览市民',
+            entry_business_title: '商业模拟',
+            entry_business_desc: '上传产品图片或企划书，预演市场反响',
+            entry_video_title: '视频审计',
+            entry_video_desc: 'AI 视觉审片 + 千人评审团，评估影片价值',
         },
+
 
         bazi: {
             stems: {
@@ -652,6 +692,8 @@ export const translations = {
             title_iteration: '延续预演迭代',
             tab_image: '产品图片',
             tab_pdf: '商业计划 / 想法',
+            tab_video: '影音内容 (Video)',
+
             upload_placeholder_image: '点击上传 产品图片',
             upload_placeholder_pdf: '点击上传 商业计划文件',
             upload_support_image: '支援 JPG, PNG, WEBP',
@@ -676,7 +718,10 @@ export const translations = {
             btn_ai_writing: 'AI 构思中...',
             placeholder_desc: '输入产品特色，让 AI 更精准分析...',
             placeholder_desc_loading: 'AI 正在观察您的图片并撰写文案...',
+            label_video_url: '🎥 视频网址 (选填)',
+            placeholder_video_url: '贴上 MP4 链接 (AI 将自动分析并纳入模拟参数)...',
             submit_btn: '启动 MIRRA 预演',
+
             submit_btn_loading: '正在开启镜像世界...',
             footer_note: '系统将自动召唤 1,000+ 位虚拟市民进行即时推演',
             admin_init: '初始化数据库 (Admin)',
@@ -695,10 +740,18 @@ export const translations = {
             // Expert Mode
             expert_mode_title: '专家模式 (Expert Mode)',
             expert_mode_desc: '开启严格批判视角，模拟真实市场残酷面',
-            expert_mode_detail: '🔥 市民初始意图 -15 分、说服门槛提高 +20%、意见演化速度减半。模拟「最坏情况」，适合高单价或争议性产品。',
+            expert_mode_detail: '🔥 市民初始意圖 -15 分、說服門檻提高 +20%、意見演化速度減半。模擬「最壞情況」，適合高單價或爭議性產品。',
+            video_info_toggle_show: '🔼 收起产品信息 (选填)',
+            video_info_toggle_hide: '🔽 链接产品信息 (选填)',
+            optional_suffix: ' (选填)',
 
-            force_random_title: '随机重抽 (True Randomness)',
-            force_random_desc: '开启后将忽略档案快取，强制重新随机抽取每一位市民。',
+            force_random_title: "换一批市民",
+            force_random_desc: "开启后，强制换一批市民做评论 (因为若上传同一个商品 ，会是同一批市民做评论，才能正确取样 )",
+
+            btn_change_batch_title: "市民抽样定锚 (Sampling Anchor)",
+            btn_change_batch_desc: "默认锁定同一群市民以确保对话连续性。点击右侧按钮可「换一批」新市民。",
+            btn_change_batch_active: "目前批次: #{salt} (已定锚)",
+            btn_change_batch: "换一批",
 
             expert_mode_btn_label: '启动专家级预演',
             step2_title: '受众定锚设定',
@@ -812,6 +865,8 @@ export const translations = {
                 preparing: '准备中...',
                 system_deduction: '系统深度推演中',
                 connecting_agents: '正在连线所有 AI 市民节点...',
+                ready: '准备就绪',
+                deep_thinking: '深度思考模式已启动',
                 system_log: 'SYSTEM LOG',
                 current_status: '当前状态解读',
                 bazi_structure: '命理格局',
@@ -855,6 +910,15 @@ export const translations = {
                 generating_pdf: '报告生成中...',
                 download_pdf: '立即下载 PDF',
                 pdf_failed: '生成失败',
+
+                logs: {
+                    connected: '已连线至 MIRRA-NODE-01',
+                    loading_citizens: '正在载入 1,000 位 AI 市民数据',
+                    analyzing: '正在解析产品 DNA 与市场趋势',
+                    generating: '正在生成群体意见分布',
+                    predicting: '正在预演市场演化路径',
+                    finishing: '正在汇总最终预演报告'
+                },
 
                 bazi_deduction: '八字逻辑推演',
                 bazi_deduction_desc: '依据五行生克与十神格局，筛选最具因果关联之代表',
@@ -1033,8 +1097,10 @@ export const translations = {
             algorithm: 'Simulation Framework',
             pricing: 'Pricing',
             citizens: 'Citizens',
+            video_audit: 'Video Audit',
             start: 'Simulate Now',
         },
+
         hero: {
             status: 'System Online',
             title_prefix: ' ',
@@ -1044,7 +1110,12 @@ export const translations = {
             trust_anchor: 'Core Tech: Based on Agent-Based Modeling (ABM) Methodology',
             cta_primary: 'Rehearse Future',
             cta_secondary: 'View Citizens',
+            entry_business_title: 'Business Sim',
+            entry_business_desc: 'Upload product images or plans to simulate market reaction',
+            entry_video_title: 'Video Audit',
+            entry_video_desc: 'AI Vision + 1000 Jury to evaluate video content value',
         },
+
 
         bazi: {
             stems: {
@@ -1163,6 +1234,8 @@ export const translations = {
             title_iteration: 'Continue Iteration',
             tab_image: 'Product Image',
             tab_pdf: 'Business Plan / Idea',
+            tab_video: 'Video Content',
+
             upload_placeholder_image: 'Click to Upload Product Image',
             upload_placeholder_pdf: 'Click to Upload Business Plan',
             upload_support_image: 'Supports JPG, PNG, WEBP',
@@ -1187,7 +1260,10 @@ export const translations = {
             btn_ai_writing: 'AI Writing...',
             placeholder_desc: 'Enter product features for AI analysis...',
             placeholder_desc_loading: 'AI is observing your images and writing copy...',
+            label_video_url: '🎥 Video URL (Optional)',
+            placeholder_video_url: 'Paste MP4 link (AI will analyze and include in simulation)...',
             submit_btn: 'Launch MIRRA Simulation',
+
             submit_btn_loading: 'Opening Mirror World...',
             footer_note: 'Summoning 1,000+ Virtual Citizens for Real-time Deduction',
             admin_init: 'Init Database (Admin)',
@@ -1207,9 +1283,17 @@ export const translations = {
             expert_mode_title: 'Expert Mode',
             expert_mode_desc: 'Enable harsh critique, simulating real market brutality',
             expert_mode_detail: '🔥 Citizen initial intent -15 pts, persuasion threshold +20%, opinion evolution speed halved. Simulates "worst case", ideal for high-ticket or controversial products.',
+            video_info_toggle_show: '🔼 Hide Product Info (Optional)',
+            video_info_toggle_hide: '🔽 Link Product Info (Optional)',
+            optional_suffix: ' (Optional)',
 
-            force_random_title: "Force Random (True Randomness)",
-            force_random_desc: "Force a fresh random sample of citizens, ignoring any cached results.",
+            force_random_title: "Change Citizen Batch",
+            force_random_desc: "When enabled, forces a new random batch of citizens (Default: Same citizens for same product).",
+
+            btn_change_batch_title: "Sampling Anchor",
+            btn_change_batch_desc: "Default: Locked to the same group for consistency. Click 'Batch' to rotate citizens.",
+            btn_change_batch_active: "Current Batch: #{salt} (Anchored)",
+            btn_change_batch: "Batch",
 
             expert_mode_btn_label: 'Launch Expert-Level Simulation',
             step2_title: 'Audience Targeting',
@@ -1324,6 +1408,8 @@ export const translations = {
                 preparing: 'Preparing...',
                 system_deduction: 'System Deep Deduction...',
                 connecting_agents: 'Connecting to all AI citizen nodes...',
+                ready: 'Ready',
+                deep_thinking: 'Deep Thinking Mode Active',
                 system_log: 'SYSTEM LOG',
                 current_status: 'Analysis',
                 bazi_structure: 'Bazi Structure',
@@ -1369,6 +1455,15 @@ export const translations = {
                 generating_pdf: 'Generating...',
                 download_pdf: 'Download PDF',
                 pdf_failed: 'Failed',
+
+                logs: {
+                    connected: 'Connected to MIRRA-NODE-01',
+                    loading_citizens: 'Loading 1,000 AI citizen data',
+                    analyzing: 'Analyzing product DNA & trends',
+                    generating: 'Generating opinion distribution',
+                    predicting: 'Predicting evolution path',
+                    finishing: 'Assembling final report'
+                },
 
                 bazi_deduction: 'Bazi Logic Deduction',
                 bazi_deduction_desc: 'Selecting representative agents based on Five Elements interaction applied to social behavior.',

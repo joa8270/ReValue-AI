@@ -32,7 +32,7 @@ async def run_simulation_with_image_data_abm(self, image_data_input, sim_id, tex
             img_b64 = base64.b64encode(img_bytes).decode('utf-8')
             image_parts.append({"inline_data": {"mime_type": mime_type, "data": img_b64}})
         
-        print(f"🧬 [ABM] Processed {len(image_parts)} images")
+        print(f"[ABM] Processed {len(image_parts)} images")
         
         # 2. 從資料庫隨機抽取市民
         from fastapi.concurrency import run_in_threadpool
@@ -41,10 +41,10 @@ async def run_simulation_with_image_data_abm(self, image_data_input, sim_id, tex
         sampled_citizens = await run_in_threadpool(get_random_citizens, sample_size=30)
         
         if not sampled_citizens:
-            print("❌ [ABM] No citizens sampled from DB!")
+            print("[ABM] No citizens sampled from DB!")
             raise Exception("No citizens available")
         
-        print(f"🧬 [ABM] Sampled {len(sampled_citizens)} citizens")
+        print(f"[ABM] Sampled {len(sampled_citizens)} citizens")
         
         # 3. 【NEW】執行ABM模擬（如果啟用）
         abm_data = None
@@ -70,7 +70,7 @@ async def run_simulation_with_image_data_abm(self, image_data_input, sim_id, tex
                     "market_price": price_info.get("market_price", 100)
                 }
                 
-                print(f"🧬 [ABM] Product Info: {product_info}")
+                print(f"[ABM] Product Info: {product_info}")
                 
                 # 3.3 執行ABM模擬
                 abm_sim = ABMSimulation(sampled_citizens, product_info)
@@ -83,7 +83,7 @@ async def run_simulation_with_image_data_abm(self, image_data_input, sim_id, tex
                 emergence_data = abm_sim.analyze_emergence()
                 abm_comments_raw = abm_sim.get_final_comments(num_comments=10)
                 
-                print(f"🧬 [ABM] Simulation completed. Avg opinion: {emergence_data['average_opinion']:.1f}")
+                print(f"[ABM] Simulation completed. Avg opinion: {emergence_data['average_opinion']:.1f}")
                 
                 # 將ABM結果儲存供AI使用
                 abm_data = {
@@ -92,7 +92,7 @@ async def run_simulation_with_image_data_abm(self, image_data_input, sim_id, tex
                 }
                 
             except Exception as e:
-                print(f"❌ [ABM] ABM simulation failed: {e}")
+                print(f"[ABM] ABM simulation failed: {e}")
                 traceback.print_exc()
                 use_abm = False  # 降級為舊方法
         
@@ -208,7 +208,7 @@ async def run_simulation_with_image_data_abm(self, image_data_input, sim_id, tex
         ai_text, last_error = await self._call_gemini_rest(api_key, prompt, image_parts=image_parts)
         
         if ai_text is None:
-            print(f"❌ [ABM] Gemini failed: {last_error}")
+            print(f"[ABM] Gemini failed: {last_error}")
             ai_text = "{}"
         
         # 6. 解析AI回應
@@ -313,10 +313,10 @@ async def run_simulation_with_image_data_abm(self, image_data_input, sim_id, tex
         }
         
         update_simulation(sim_id, "completed", final_result)
-        print(f"✅ [ABM] Simulation completed (ABM={use_abm})")
+        print(f"[ABM] Simulation completed (ABM={use_abm})")
         
     except Exception as e:
-        print(f"❌ [ABM] Fatal error: {e}")
+        print(f"[ABM] Fatal error: {e}")
         traceback.print_exc()
         from app.core.database import update_simulation
         update_simulation(sim_id, "error", {"error": str(e)})

@@ -13,13 +13,14 @@ MIRRA ABM Engine V1.0 - 東西方混合方法論模擬引擎
 
 import random
 import numpy as np
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Any
 from datetime import datetime
 from dataclasses import dataclass, field
 
 
 # ===== 五行互動矩陣 =====
 ELEMENT_INTERACTION_MATRIX = {
+
     # 五行相生相剋關係 → 轉換為社交影響力係數
     # influence_weight: 當兩個市民互動時，五行關係影響意見傳播強度
     ("Wood", "Wood"):  {"affinity": 0.6, "influence_weight": 1.0},   # 同類相吸
@@ -206,6 +207,7 @@ class CitizenAgent:
     # 狀態標記
     is_opinion_leader: bool = False
     activation_threshold: float = 0.5  # 意見改變的啟動閾值
+    rng: Any = field(default=None) # 用於一致性隨機數
     
     def __post_init__(self):
         """初始化決策特質（基於八字格局）"""
@@ -213,7 +215,8 @@ class CitizenAgent:
             self.structure, 
             STRUCTURE_DECISION_PROFILE["正官格"]  # 預設
         )
-        self.activation_threshold = random.uniform(0.3, 0.7)
+        local_rng = self.rng or random
+        self.activation_threshold = local_rng.uniform(0.3, 0.7)
     
     def calculate_initial_opinion(self, product_element: str, product_price: float, market_price: float, targeting_bonus: float = 0.0) -> float:
         """
@@ -248,9 +251,11 @@ class CitizenAgent:
         innovation_score = self.decision_profile["innovation_adoption"] * 20
         
         # 4. 隨機擾動 (10% weight)
-        random_factor = random.uniform(-5, 5)
+        local_rng = self.rng or random
+        random_factor = local_rng.uniform(-5, 5)
         
         base_score = element_score + price_score + innovation_score + random_factor + targeting_bonus
+
         
         # 大運調整（正處於好運期的人更樂觀）
         luck_bonus = self._get_current_luck_modifier()
@@ -353,14 +358,17 @@ class ABMSimulation:
         4. 突現分析：統計群體行為模式
     """
     
-    def __init__(self, citizens: List[Dict], product_info: Dict, targeting: Dict = None, expert_mode: bool = False):
+    def __init__(self, citizens: List[Dict], product_info: Dict, targeting: Dict = None, expert_mode: bool = False, seed: int = None, is_pure_content: bool = False):
         """
         Args:
             citizens: 市民資料列表（來自資料庫）
             product_info: 產品資訊 {"element": "Fire", "price": 500, "market_price": 450}
             targeting: 受眾定錨設定 {"age_range": [20, 60], "gender": "male", ...}
             expert_mode: 是否開啟專家模式 (高難度/嚴格)
+            seed: 隨機數種子
+            is_pure_content: 是否為純內容模式（不討論價格/購買）
         """
+        self.is_pure_content = is_pure_content
         self.agents: List[CitizenAgent] = []
         self.product_info = product_info
         self.targeting = targeting
@@ -370,9 +378,14 @@ class ABMSimulation:
         self.history = []  # Record average opinion per round
         self.logs = []     # Record text logs
         
+        # Initialize Random Seed
+        self.seed = seed
+        self.rng = random.Random(seed) if seed is not None else random
+        
         # 初始化Agents
         for c in citizens:
             # 優先使用 top-level element (已被 database.py 的隨機補丁修正)
+            bazi = c.get("bazi_profile", {})
             element = c.get("element") or bazi.get("element", "Fire")
             
             agent = CitizenAgent(
@@ -383,7 +396,8 @@ class ABMSimulation:
                 structure=bazi.get("structure", "正官格"),
                 bazi_profile=bazi,
                 gender=c.get("gender", "unknown"),
-                occupation=c.get("occupation", "unknown")
+                occupation=c.get("occupation", "unknown"),
+                rng=self.rng # 注入一致性 RNG
             )
             # Expert Mode: 增加挑戰性
             if self.expert_mode:
@@ -391,7 +405,8 @@ class ABMSimulation:
                 
             self.agents.append(agent)
         
-        print(f"🧬 [ABM] 已初始化 {len(self.agents)} 個 Agent (Expert: {expert_mode}, Target: {targeting})")
+        print(f"[ABM] Initialized {len(self.agents)} Agents (Expert: {expert_mode}, Target: {targeting}, Seed: {seed})")
+
 
     def build_social_network(self, network_type: str = "element_based"):
         """
@@ -416,8 +431,8 @@ class ABMSimulation:
                         potential_neighbors.append(other.id)
                 
                 # 每個Agent保留3-7個鄰居
-                num_neighbors = min(random.randint(3, 7), len(potential_neighbors))
-                agent.neighbors = random.sample(potential_neighbors, num_neighbors) if potential_neighbors else []
+                num_neighbors = min(self.rng.randint(3, 7), len(potential_neighbors))
+                agent.neighbors = self.rng.sample(potential_neighbors, num_neighbors) if potential_neighbors else []
                 
                 for neighbor_id in agent.neighbors:
                     self.network_edges.append((agent.id, neighbor_id))
@@ -425,12 +440,13 @@ class ABMSimulation:
         else:
             # 隨機網絡（對照組）
             for agent in self.agents:
-                num_neighbors = random.randint(3, 7)
+                num_neighbors = self.rng.randint(3, 7)
                 others = [a.id for a in self.agents if a.id != agent.id]
-                agent.neighbors = random.sample(others, min(num_neighbors, len(others)))
+                agent.neighbors = self.rng.sample(others, min(num_neighbors, len(others)))
         
         avg_degree = np.mean([len(a.neighbors) for a in self.agents])
-        print(f"📊 [ABM] 社交網絡已建立，平均度數: {avg_degree:.2f}")
+        print(f"[ABM] Social network built, avg degree: {avg_degree:.2f}")
+
 
     def initialize_opinions(self):
         """初始化所有Agent的意見 (含 Targeting 與 Expert Mode 邏輯)"""
@@ -484,7 +500,8 @@ class ABMSimulation:
         if np.isnan(avg_opinion): avg_opinion = 0.0
         self.history.append(float(avg_opinion)) # Record initial state
         self.logs.append(f"初始化意見分佈：平均 {avg_opinion:.1f}")
-        print(f"💭 [ABM] 初始意見分佈：平均 {avg_opinion:.1f}，標準差 {np.std([a.current_opinion for a in self.agents]):.1f}")
+        print(f"[ABM] Initial opinion distribution: Avg {avg_opinion:.1f}, Std {np.std([a.current_opinion for a in self.agents]):.1f}")
+
     
     def run_iterations(self, num_iterations: int = 5, convergence_rate: float = 0.3):
         """
@@ -498,7 +515,7 @@ class ABMSimulation:
         
         for iteration in range(num_iterations):
             # 每輪隨機打亂更新順序（避免順序偏差）
-            random.shuffle(self.agents)
+            self.rng.shuffle(self.agents)
             
             # 記錄變化
             changed_count = 0
@@ -529,7 +546,8 @@ class ABMSimulation:
             # Generate log
             log_msg = f"迭代 {self.iteration_count}: 平均意見 {avg_opinion:.1f} (活躍人數: {changed_count})"
             self.logs.append(log_msg)
-            print(f"🔄 [ABM] {log_msg}")
+            print(f"[ABM] {log_msg}")
+
     
     def identify_opinion_leaders(self, top_n: int = 5):
         """識別意見領袖（影響力最大的Agent）"""
@@ -549,7 +567,8 @@ class ABMSimulation:
         for agent_id, score in sorted_leaders:
             agent = agent_map[agent_id]
             agent.is_opinion_leader = True
-            print(f"👑 [ABM] 意見領袖：{agent.name} (影響力分數: {score})")
+            print(f"[ABM] Opinion Leader: {agent.name} (Influence Score: {score})")
+
     
     def analyze_emergence(self) -> Dict:
         """
@@ -607,7 +626,56 @@ class ABMSimulation:
             "network_density": len(self.network_edges) / (len(self.agents) * (len(self.agents) - 1) / 2) if len(self.agents) > 1 else 0
         }
     
-    def get_final_comments(self, num_comments: int = 10) -> List[Dict]:
+    # ===== 評論模板庫 (Class Level or Static) =====
+    COMMENT_TEMPLATES = {
+        "positive": [
+            "這份商業計劃書的邏輯非常清晰，特別是市場定位的部分，完全打中了現在的痛點。我認為如果能加速落地，成功的機會很大。",
+            "產品的概念很有前瞻性，五行屬性的應用也很有趣。作為一個重視創新的消費者，我會想要嘗試看看。",
+            "這種商業模式在目前的市場上很少見，差異化做得很好。只要執行力到位，後續的成長潛力不可限量。",
+            "財務預測看起來很穩健，成本控制的思路也很務實。對於投資人來說，這是一個風險可控且回報可期的項目。",
+            "我看好這個項目的長期發展，特別是它結合了東方智慧與現代科技的特點，這在市場上是非常獨特的賣點。",
+            "雖然市場競爭激烈，但這份計劃書展現了很強的護城河。我特別喜歡原本的行銷策略規劃。"
+        ],
+        "neutral": [
+            "整體架構看起來是完整的，但在具體的執行細節上，我覺得還需要更多的數據佐證。目前的預測稍微有點樂觀。",
+            "這個想法不錯，但是否真的能解決使用者的核心問題？我建議可以在使用者體驗的設計上再多花點心思。",
+            "定價策略方面，我覺得有點冒險。雖然產品有特色，但能不能被大眾市場接受，還需要觀察後續的反應。",
+            "市場分析做得還可以，但我比較擔心競品的反應。如果有更具體的防禦策略，我會對這個項目更有信心。",
+            "概念上是可行的，但在供應鏈管理上可能會遇到挑戰。希望能看到更多關於營運風險的評估與對策。"
+        ],
+        "negative": [
+            "我覺得這個商業模式的可行性存疑，特別是在獲利模式不明確的情況下。目前的燒錢速度可能會讓現金流出現問題。",
+            "市場規模的預估似乎過於樂觀了。考慮到現在的經濟環境，消費者可能不會像預期那樣買單。",
+            "產品的技術門檻看起來不夠高，很容易被大公司複製。如果沒有更強的技術壁壘，長期競爭力令人擔憂。",
+            "我不太理解這個產品的目標客群到底是誰？定位有點模糊，既想抓大眾市場又想做利基市場，容易兩頭落空。",
+            "行銷預算的編列似乎太少了，以現在的獲客成本來看，可能無法達到預期的用戶增長目標。建議重新計算 CAC。"
+        ],
+        "pure_content": {
+            "positive": [
+                "這段影片的視覺構圖非常精彩，色調運用純熟，成功營造出令人沉浸的氛圍。我特別喜歡鏡頭語言傳達的細膩情感。",
+                "敘事節奏掌握得恰到好處，從開場到高潮的轉折自然流暢，讓人不自覺地被劇情吸引。這是一部非常有感染力的作品。",
+                "角色刻畫鮮明，即使沒有太多對白，也能感受到強烈的戲劇張力。視覺風格獨特，展現了極高的影像水準。",
+                "音樂與畫面的結合簡直完美，強化了情感的表達。看完之後餘韻悠長，讓人忍不住想要分享給朋友。",
+                "這是一個非常成功的敘事嘗試，將主題深意巧妙地融合在視覺細節中，引發了我很深的思考與共鳴。"
+            ],
+            "neutral": [
+                "整體的視覺效果在水準之上，但劇情在中間部分稍微有些拖沓。如果能再精簡一些，結構會更緊湊。",
+                "畫面確實漂亮，但故事的概念稍微有點老套，缺少了一點讓人驚艷的驚喜感。整體來說四平八穩。",
+                "這是一部技術上無懈可擊的作品，但在情感連結上稍微淡了一些。我能欣賞它的美感，但很難產生強烈的共鳴。",
+                "影片的嘗試很有趣，但不同風格的拼接顯得有些突兀。我建議在轉場處可以處理得更自然一點。",
+                "風格很鮮明，但受眾可能比較小眾。這部影片需要對特定審美有研究的人才能完全理解其深意。"
+            ],
+            "negative": [
+                "鏡頭晃動得太厲害，讓我感到頭暈。過度的視覺特效反而遮蓋了故事本身的不足，顯得有點喧賓奪主。",
+                "敘事邏輯混亂，看完之後我完全不理解導演想要表達什麼核心意旨。剪輯的節奏感缺失。",
+                "色調調得太誇張了，失去了畫面的真實感。劇情的進展過於突兀，角色的行動缺乏合理動機。",
+                "這部片子缺乏記憶點，看完之後很快就忘記了內容。視覺表現平平，沒有展現出應有的藝術張力。",
+                "聲音處理得不夠理想，與畫面比例不平衡。整體氛圍營造得很強硬，讓人很難入戲。"
+            ]
+        }
+    }
+
+    def get_final_comments(self, num_comments: int = 10, is_pure_content: bool = False) -> List[Dict]:
         """
         獲取最終評論（選擇代表性Agent）
         
@@ -616,9 +684,16 @@ class ABMSimulation:
             - 五行均衡分佈
             - 意見多樣性（正負中性均衡）
         """
+        # 模式同步：優先使用傳入參數，否則使用初始化時的設定
+        active_pure_mode = is_pure_content or getattr(self, "is_pure_content", False)
+        print(f"[ABM DEBUG] get_final_comments called. Mode: {'PURE' if active_pure_mode else 'PRODUCT'}. Total agents: {len(self.agents)}")
+
+        
         # 1. 優先選擇意見領袖
         leaders = [a for a in self.agents if a.is_opinion_leader]
         selected = leaders[:min(3, len(leaders))]
+        print(f"[ABM DEBUG] Selected leaders: {len(selected)}")
+
         
         # 2. 按情緒類型選擇
         remaining_agents = [a for a in self.agents if a not in selected]
@@ -627,19 +702,36 @@ class ABMSimulation:
         negative_agents = [a for a in remaining_agents if a.get_sentiment() == "negative"]
         neutral_agents = [a for a in remaining_agents if a.get_sentiment() == "neutral"]
         
-        # 均衡選擇
-        selected.extend(random.sample(positive_agents, min(3, len(positive_agents))))
-        selected.extend(random.sample(negative_agents, min(2, len(negative_agents))))
-        selected.extend(random.sample(neutral_agents, min(2, len(neutral_agents))))
+        print(f"[ABM DEBUG] Pos: {len(positive_agents)}, Neg: {len(negative_agents)}, Neu: {len(neutral_agents)}")
+
+        
+        # 均衡選擇 (使用一致性 RNG)
+        if len(positive_agents) > 0:
+            selected.extend(self.rng.sample(positive_agents, min(3, len(positive_agents))))
+        if len(negative_agents) > 0:
+            selected.extend(self.rng.sample(negative_agents, min(2, len(negative_agents))))
+        if len(neutral_agents) > 0:
+            selected.extend(self.rng.sample(neutral_agents, min(2, len(neutral_agents))))
         
         # 3. 補足數量
         if len(selected) < num_comments:
             remaining = [a for a in self.agents if a not in selected]
-            selected.extend(random.sample(remaining, min(num_comments - len(selected), len(remaining))))
+            if len(remaining) > 0:
+                selected.extend(self.rng.sample(remaining, min(num_comments - len(selected), len(remaining))))
         
         # 4. 生成評論結構
         comments = []
         for agent in selected[:num_comments]:
+            sentiment = agent.get_sentiment()
+            
+            # 根據模式選擇模板分區
+            if active_pure_mode:
+                template_pool = self.COMMENT_TEMPLATES["pure_content"].get(sentiment, self.COMMENT_TEMPLATES["pure_content"]["neutral"])
+            else:
+                template_pool = self.COMMENT_TEMPLATES.get(sentiment, self.COMMENT_TEMPLATES["neutral"])
+                
+            base_text = self.rng.choice(template_pool)
+            
             comments.append({
                 "citizen_id": agent.id,
                 "name": agent.name,
@@ -648,12 +740,13 @@ class ABMSimulation:
                 "occupation": agent.occupation,
                 "element": agent.element,
                 "structure": agent.structure,
-                "sentiment": agent.get_sentiment(),
+                "sentiment": sentiment,
                 "opinion_score": round(agent.current_opinion, 1),
                 "opinion_change": round(agent.get_opinion_change(), 1),
                 "is_leader": agent.is_opinion_leader,
                 "influenced_count": len(agent.influenced_by),
-                # 評論文本需要由AI生成（基於這些參數）
+                # Generate text from templates to ensure visibility in frontend
+                "text": base_text,
                 "abm_context": {
                     "initial_opinion": agent.initial_opinion,
                     "final_opinion": agent.current_opinion,
@@ -662,6 +755,7 @@ class ABMSimulation:
             })
         
         return comments
+
     
     def _get_agent_by_id(self, agent_id: str) -> CitizenAgent:
         """根據ID獲取Agent"""

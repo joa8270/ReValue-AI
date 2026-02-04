@@ -69,6 +69,57 @@ export const api = {
         }
     },
 
+    async triggerSimulation(formData: FormData): Promise<{ sim_id: string } | null> {
+        try {
+            const res = await fetch(`${API_URL}/api/web/trigger`, {
+                method: "POST",
+                body: formData,
+            });
+            if (res.ok) {
+                return await res.json();
+            }
+            const errText = await res.text();
+            throw new Error(errText || "Trigger failed");
+        } catch (error) {
+            console.error("API/Trigger: Error", error);
+            throw error;
+        }
+    },
+
+    // Video Audit
+    async triggerVideoAudit(url: string): Promise<{ sim_id: string } | null> {
+        try {
+            const formData = new FormData();
+            formData.append("url", url);
+            const res = await fetch(`${API_URL}/api/web/video-audit`, {
+                method: "POST",
+                body: formData,
+            });
+            if (res.ok) {
+                return await res.json();
+            }
+            return null;
+        } catch (error) {
+            console.error("API/VideoAudit: Error", error);
+            return null;
+        }
+    },
+
+    async getRecentVideoAudits(): Promise<any[]> {
+        try {
+            const res = await fetch(`${API_URL}/api/web/video-audits/recent`);
+            if (res.ok) {
+                const data = await res.json();
+                return data.audits || [];
+            }
+            return [];
+        } catch (error) {
+            console.error("API/RecentVideoAudits: Error", error);
+            return [];
+        }
+    },
+
+
     // Utils: Enrich Data
     enrichPersona(p: Persona): Persona {
         let dm = p.day_master;

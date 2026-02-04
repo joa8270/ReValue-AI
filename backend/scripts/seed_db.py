@@ -16,11 +16,19 @@ DATA_FILE = os.path.join(BASE_DIR, 'data', 'citizens.json') # UPDATED for V6
 def seed_db():
     print(">> Starting Database Seed Process (V6 Genesis)...")
     
-    # 1. Always Clear for V6 Genesis
-    from app.core.database import clear_citizens
-    print(">> Clearing existing citizens...")
-    clear_citizens()
-    
+    # 1. Force Re-create Tables (Migration Strategy: Drop & Recreate)
+    # This ensures the schema in DB matches the new code in database.py
+    from app.core.database import engine, Base
+    try:
+        print(">> Dropping existing tables to apply new schema...")
+        Base.metadata.drop_all(bind=engine)
+        print(">> Creating new tables...")
+        Base.metadata.create_all(bind=engine)
+        print(">> Schema migration completed.")
+    except Exception as e:
+        print(f"❌ Schema migration failed: {e}")
+        return
+
     # 2. Load JSON
     if not os.path.exists(DATA_FILE):
         # Fallback to original if V6 not found

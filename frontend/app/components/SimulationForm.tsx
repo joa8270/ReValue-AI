@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square, User, Target, TrendingUp, Users, ShieldAlert, ShoppingBag, Briefcase, Globe, Dices } from 'lucide-react'
+import { Upload, FileText, Image as ImageIcon, Loader2, ArrowRight, X, Sparkles, Mic, Square, User, Target, TrendingUp, Users, ShieldAlert, ShoppingBag, Briefcase, Globe, Dices, PlayCircle } from 'lucide-react'
+
 
 // 🌍 市場配置常數 (Chameleon Architecture)
 const MARKET_CONFIG = {
@@ -13,13 +14,15 @@ const MARKET_CONFIG = {
 } as const;
 type MarketKey = keyof typeof MARKET_CONFIG;
 import { useLanguage } from '../context/LanguageContext'
+import { api } from '../../lib/api'
 import DualRangeSlider from './DualRangeSlider'
 
 export default function SimulationForm() {
     const router = useRouter()
     const { t, language } = useLanguage()
-    const [mode, setMode] = useState<'image' | 'pdf'>('image')
+    const [mode, setMode] = useState<'image' | 'pdf' | 'video'>('image')
     const [files, setFiles] = useState<File[]>([])
+
     const [loading, setLoading] = useState(false)
     const [aiLoading, setAiLoading] = useState(false)
     const [nameLoading, setNameLoading] = useState(false) // AI 識別產品名稱的加載狀態
@@ -32,7 +35,7 @@ export default function SimulationForm() {
     const [targetGender, setTargetGender] = useState<'all' | 'male' | 'female'>('all')
     const [targetOccupations, setTargetOccupations] = useState<string[]>([])
     const [expertMode, setExpertMode] = useState(false)
-    const [forceRandom, setForceRandom] = useState(false) // [New] Force Random Mode
+    const [seedSalt, setSeedSalt] = useState(0) // [New] Batch Control Anchor
     const [tam, setTam] = useState(18600000) // Initial TAM (Taiwan Active Internet Users / Labor Force)
     // Scenario State
     const [analysisScenario, setAnalysisScenario] = useState<'b2c' | 'b2b'>('b2c')
@@ -146,6 +149,9 @@ export default function SimulationForm() {
         search_summary: string;
     } | null>(null) // 市場比價資料
     const [description, setDescription] = useState("")
+    const [videoUrl, setVideoUrl] = useState("") // [New] Video Audit Integration
+    const [showVideoProductInfo, setShowVideoProductInfo] = useState(false) // [New] Toggle for optional info in video mode
+
 
     // AI Writing Style Options
     const [selectedStyle, setSelectedStyle] = useState("professional")
@@ -359,10 +365,16 @@ export default function SimulationForm() {
             return
         }
 
-        if (files.length === 0) {
+        if (mode !== 'video' && files.length === 0) {
             setError(t('simulation_form.error_no_file'))
             return
         }
+
+        if (mode === 'video' && !videoUrl) {
+            setError("請輸入視頻網址")
+            return
+        }
+
 
         setLoading(true)
         setError("")
@@ -371,10 +383,12 @@ export default function SimulationForm() {
             const formData = new FormData()
             files.forEach(f => formData.append("files", f))
 
+            formData.append("product_name", productName)
+            formData.append("price", price)
+            formData.append("description", description)
+            formData.append("video_url", videoUrl) // [New] Pass video URL to backend
+
             if (mode === 'image') {
-                formData.append("product_name", productName)
-                formData.append("price", price)
-                formData.append("description", description)
                 // 🔍 傳遞市場比價資料
                 if (marketPrices) {
                     formData.append("market_prices", JSON.stringify(marketPrices))
@@ -382,6 +396,7 @@ export default function SimulationForm() {
                 formData.append("style", selectedStyle)
                 formData.append("language", language)
             }
+
 
             // Add Scenario Mode
             formData.append("analysis_scenario", analysisScenario)
@@ -396,24 +411,16 @@ export default function SimulationForm() {
             }
             formData.append("targeting", JSON.stringify(targetingData))
             formData.append("expert_mode", expertMode.toString())
-            formData.append("force_random", forceRandom.toString()) // [New] Pass force_random flag
+            formData.append("seed_salt", seedSalt.toString()) // [Anchor] Pass salt to backend
 
-            const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-            const res = await fetch(`${API_BASE_URL}/api/web/trigger`, {
-                method: "POST",
-                body: formData,
-            })
+            const data = await api.triggerSimulation(formData)
 
-            if (!res.ok) {
-                throw new Error("Upload failed, please check backend connection")
-            }
-
-            const data = await res.json()
-            if (data.sim_id) {
+            if (data?.sim_id) {
                 router.push(`/watch/${data.sim_id}`)
             } else {
                 throw new Error("Failed to get Simulation ID")
             }
+
 
         } catch (err: any) {
             console.error(err)
@@ -516,7 +523,18 @@ export default function SimulationForm() {
                     <FileText className="w-4 h-4" />
                     {t('simulation_form.tab_pdf')}
                 </button>
+                <button
+                    onClick={() => { setMode('video'); setFiles([]); }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === 'video'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`}
+                >
+                    <PlayCircle className="w-4 h-4" />
+                    {t('simulation_form.tab_video')}
+                </button>
             </div>
+
 
 
 
@@ -530,234 +548,293 @@ export default function SimulationForm() {
                         exit={{ opacity: 0, x: -20 }}
                         className="space-y-6"
                     >
-                        {/* File Upload Area */}
-                        <div
-                            className={`relative border-2 border-dashed rounded-2xl p-8 transition-all text-center cursor-pointer hover:border-purple-400/50 hover:bg-slate-800/50 ${files.length > 0 ? 'border-purple-500/50 bg-purple-900/10' : 'border-slate-700 bg-slate-950/30'
-                                }`}
-                            onClick={() => files.length === 0 && fileInputRef.current?.click()}
-                        >
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                className="hidden"
-                                multiple // Support multiple files
-                                accept={mode === 'image' ? "image/*" : ".pdf,.docx,.pptx,.txt,.webm,.mp3,.wav,.m4a"}
-                                onChange={handleFileChange}
-                            />
+                        {/* File Upload Area (Only for Image/PDF) */}
+                        {mode !== 'video' && (
+                            <div
+                                className={`relative border-2 border-dashed rounded-2xl p-8 transition-all text-center cursor-pointer hover:border-purple-400/50 hover:bg-slate-800/50 ${files.length > 0 ? 'border-purple-500/50 bg-purple-900/10' : 'border-slate-700 bg-slate-950/30'
+                                    }`}
+                                onClick={() => files.length === 0 && fileInputRef.current?.click()}
+                            >
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    className="hidden"
+                                    multiple // Support multiple files
+                                    accept={mode === 'image' ? "image/*" : ".pdf,.docx,.pptx,.txt,.webm,.mp3,.wav,.m4a"}
+                                    onChange={handleFileChange}
+                                />
 
-                            {files.length > 0 ? (
-                                <div className="flex flex-col items-center gap-2 w-full">
-                                    {mode === 'image' && previewUrls.length > 0 ? (
-                                        <div className="flex flex-wrap justify-center gap-3 w-full">
-                                            {previewUrls.map((url, index) => (
-                                                <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border border-purple-500/30 shadow-sm group/img">
-                                                    <img
-                                                        src={url}
-                                                        alt={`Preview ${index}`}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-xs text-white">
-                                                        {index + 1}
+                                {files.length > 0 ? (
+                                    <div className="flex flex-col items-center gap-2 w-full">
+                                        {mode === 'image' && previewUrls.length > 0 ? (
+                                            <div className="flex flex-wrap justify-center gap-3 w-full">
+                                                {previewUrls.map((url, index) => (
+                                                    <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border border-purple-500/30 shadow-sm group/img">
+                                                        <img
+                                                            src={url}
+                                                            alt={`Preview ${index}`}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-xs text-white">
+                                                            {index + 1}
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-red-600"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                setFiles(prev => prev.filter((_, i) => i !== index))
+                                                            }}
+                                                        >
+                                                            <X className="w-3 h-3" />
+                                                        </button>
                                                     </div>
-                                                    <button
-                                                        type="button"
-                                                        className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-red-600"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            setFiles(prev => prev.filter((_, i) => i !== index))
-                                                        }}
-                                                    >
-                                                        <X className="w-3 h-3" />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            {/* Add More Button */}
-                                            <div
-                                                onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                                                className="w-24 h-24 rounded-lg border-2 border-dashed border-purple-500/30 flex items-center justify-center cursor-pointer hover:bg-purple-500/10 hover:border-purple-500/50 transition-all group/add"
-                                            >
-                                                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center group-hover/add:bg-purple-500/40">
-                                                    <span className="text-xl text-purple-400 font-bold">+</span>
+                                                ))}
+                                                {/* Add More Button */}
+                                                <div
+                                                    onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                                                    className="w-24 h-24 rounded-lg border-2 border-dashed border-purple-500/30 flex items-center justify-center cursor-pointer hover:bg-purple-500/10 hover:border-purple-500/50 transition-all group/add"
+                                                >
+                                                    <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center group-hover/add:bg-purple-500/40">
+                                                        <span className="text-xl text-purple-400 font-bold">+</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className="p-3 bg-purple-500 rounded-full text-white mb-2">
-                                            {mode === 'image' ? <ImageIcon className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
-                                        </div>
-                                    )}
-                                    <p className="text-purple-400 font-bold mt-2">
-                                        {files.length === 1 ? files[0].name : t('simulation_form.files_selected').replace('{count}', files.length.toString())}
-                                    </p>
-                                    <p className="text-slate-500 text-xs">
-                                        {files.length === 1
-                                            ? (files[0].size / 1024 / 1024).toFixed(2) + " MB"
-                                            : `總計 ${(files.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(2)} MB`}
-                                    </p>
-                                    <button
-                                        type="button"
-                                        onClick={(e) => { e.stopPropagation(); clearFile(); }}
-                                        className="mt-2 px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-xs hover:bg-red-500/20 hover:text-red-400 transition-colors flex items-center gap-1"
-                                    >
-                                        <X className="w-3 h-3" /> {t('simulation_form.remove_all')}
-                                    </button>
-                                </div>
-                            ) : isRecording ? (
-                                /* Recording in progress UI */
-                                <div className="flex flex-col items-center gap-4 text-red-400">
-                                    <div className="relative">
-                                        <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center animate-pulse">
-                                            <div className="w-3 h-3 rounded-full bg-red-500 animate-ping"></div>
-                                        </div>
+                                        ) : (
+                                            <div className="p-3 bg-purple-500 rounded-full text-white mb-2">
+                                                {mode === 'image' ? <ImageIcon className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
+                                            </div>
+                                        )}
+                                        <p className="text-purple-400 font-bold mt-2">
+                                            {files.length === 1 ? files[0].name : t('simulation_form.files_selected').replace('{count}', files.length.toString())}
+                                        </p>
+                                        <p className="text-slate-500 text-xs">
+                                            {files.length === 1
+                                                ? (files[0].size / 1024 / 1024).toFixed(2) + " MB"
+                                                : `總計 ${(files.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(2)} MB`}
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); clearFile(); }}
+                                            className="mt-2 px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-xs hover:bg-red-500/20 hover:text-red-400 transition-colors flex items-center gap-1"
+                                        >
+                                            <X className="w-3 h-3" /> {t('simulation_form.remove_all')}
+                                        </button>
                                     </div>
-                                    <p className="font-bold text-lg">{t('simulation_form.recording_in_progress')}</p>
-                                    <p className="text-2xl font-mono">{formatTime(recordingTime)}</p>
+                                ) : isRecording ? (
+                                    /* Recording in progress UI */
+                                    <div className="flex flex-col items-center gap-4 text-red-400">
+                                        <div className="relative">
+                                            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center animate-pulse">
+                                                <div className="w-3 h-3 rounded-full bg-red-500 animate-ping"></div>
+                                            </div>
+                                        </div>
+                                        <p className="font-bold text-lg">{t('simulation_form.recording_in_progress')}</p>
+                                        <p className="text-2xl font-mono">{formatTime(recordingTime)}</p>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); stopRecording(); }}
+                                            className="px-6 py-2 bg-red-500 text-white rounded-full font-bold flex items-center gap-2 hover:bg-red-600 transition-colors"
+                                        >
+                                            <Square className="w-4 h-4" /> {t('simulation_form.stop_recording')}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center gap-3 text-slate-400">
+                                        <Upload className="w-8 h-8 mb-1 opacity-50" />
+                                        <p className="font-bold">{mode === 'image' ? t('simulation_form.upload_placeholder_image') : t('simulation_form.upload_placeholder_pdf')}</p>
+                                        <p className="text-xs opacity-60">
+                                            {mode === 'image' ? t('simulation_form.upload_support_image') : t('simulation_form.upload_support_pdf')}
+                                        </p>
+                                        {/* Live Recording Button (PDF mode only) */}
+                                        {mode === 'pdf' && (
+                                            <div className="mt-3 pt-3 border-t border-slate-700/50 w-full flex flex-col items-center gap-2">
+                                                <p className="text-xs text-slate-500">{t('simulation_form.or_voice_share')}</p>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => { e.stopPropagation(); startRecording(); }}
+                                                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-bold flex items-center gap-2 hover:shadow-lg hover:shadow-purple-500/30 transition-all"
+                                                >
+                                                    <Mic className="w-4 h-4" /> {t('simulation_form.start_recording')}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Manual Identification Button */}
+                                {mode === 'image' && files.length > 0 && (
                                     <button
                                         type="button"
-                                        onClick={(e) => { e.stopPropagation(); stopRecording(); }}
-                                        className="px-6 py-2 bg-red-500 text-white rounded-full font-bold flex items-center gap-2 hover:bg-red-600 transition-colors"
+                                        onClick={(e) => { e.stopPropagation(); handleIdentifyProduct(); }}
+                                        disabled={nameLoading}
+                                        className={`mt-4 w-full py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all ${nameLoading
+                                            ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                                            : 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:scale-[1.02] border border-purple-500/30'
+                                            }`}
                                     >
-                                        <Square className="w-4 h-4" /> {t('simulation_form.stop_recording')}
+                                        {nameLoading ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                {t('simulation_form.btn_identifying')}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Sparkles className="w-4 h-4" />
+                                                {t('simulation_form.btn_identify')}
+                                            </>
+                                        )}
                                     </button>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center gap-3 text-slate-400">
-                                    <Upload className="w-8 h-8 mb-1 opacity-50" />
-                                    <p className="font-bold">{mode === 'image' ? t('simulation_form.upload_placeholder_image') : t('simulation_form.upload_placeholder_pdf')}</p>
-                                    <p className="text-xs opacity-60">
-                                        {mode === 'image' ? t('simulation_form.upload_support_image') : t('simulation_form.upload_support_pdf')}
+                                )}
+                            </div>
+                        )}
+
+                        {/* Video URL Input Area (Only for Video mode) */}
+                        {mode === 'video' && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="relative glass-panel rounded-2xl p-8 border border-blue-500/30 bg-blue-900/5"
+                            >
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                                        🎬
+                                    </div>
+                                    <div className="w-full space-y-2">
+                                        <label className="text-sm font-bold text-blue-400 text-center block uppercase tracking-widest">
+                                            {t('simulation_form.label_video_url')}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={videoUrl}
+                                            onChange={(e) => setVideoUrl(e.target.value)}
+                                            placeholder={t('simulation_form.placeholder_video_url')}
+                                            className="w-full px-6 py-4 bg-slate-950/80 border-2 border-blue-500/30 rounded-2xl focus:outline-none focus:border-blue-500 text-white placeholder-slate-600 transition-all text-center text-lg shadow-inner"
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 italic">
+                                        AI 將自動解析影片幀、音軌與敘事結構，並注入數位市民社交中樞。
                                     </p>
-                                    {/* Live Recording Button (PDF mode only) */}
-                                    {mode === 'pdf' && (
-                                        <div className="mt-3 pt-3 border-t border-slate-700/50 w-full flex flex-col items-center gap-2">
-                                            <p className="text-xs text-slate-500">{t('simulation_form.or_voice_share')}</p>
-                                            <button
-                                                type="button"
-                                                onClick={(e) => { e.stopPropagation(); startRecording(); }}
-                                                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-bold flex items-center gap-2 hover:shadow-lg hover:shadow-purple-500/30 transition-all"
-                                            >
-                                                <Mic className="w-4 h-4" /> {t('simulation_form.start_recording')}
-                                            </button>
-                                        </div>
-                                    )}
                                 </div>
-                            )}
+                            </motion.div>
+                        )}
 
-                            {/* Manual Identification Button */}
-                            {mode === 'image' && files.length > 0 && (
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); handleIdentifyProduct(); }}
-                                    disabled={nameLoading}
-                                    className={`mt-4 w-full py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all ${nameLoading
-                                        ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                                        : 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:scale-[1.02] border border-purple-500/30'
-                                        }`}
-                                >
-                                    {nameLoading ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            {t('simulation_form.btn_identifying')}
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Sparkles className="w-4 h-4" />
-                                            {t('simulation_form.btn_identify')}
-                                        </>
-                                    )}
-                                </button>
-                            )}
-                        </div>
-
-                        {/* Form Inputs (Image Mode Only) */}
+                        {/* Form Inputs (Image & Video Mode) */}
                         <AnimatePresence>
-                            {mode === 'image' && (
+                            {(mode === 'image' || mode === 'video') && (
                                 <motion.div
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
                                     exit={{ opacity: 0, height: 0 }}
                                     className="space-y-4"
                                 >
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1">
-                                            <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
-                                                {t('simulation_form.label_product_name')}
-                                                {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={productName}
-                                                onChange={(e) => setProductName(e.target.value)}
-                                                placeholder={nameLoading ? t('simulation_form.placeholder_product_name_loading') : t('simulation_form.placeholder_product_name')}
-                                                disabled={nameLoading}
-                                                className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''}`}
-                                            />
+                                    {/* Product Name & Price Fields */}
+                                    {mode === 'video' && (
+                                        <div className="flex justify-center">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowVideoProductInfo(!showVideoProductInfo)}
+                                                className="text-xs text-blue-400/70 hover:text-blue-400 flex items-center gap-1.5 py-2 px-4 rounded-full bg-blue-500/5 border border-blue-500/10 transition-all font-bold"
+                                            >
+                                                {showVideoProductInfo ? t('simulation_form.video_info_toggle_show') : t('simulation_form.video_info_toggle_hide')}
+                                            </button>
                                         </div>
-                                        <div className="space-y-1">
-                                            <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
-                                                {t('simulation_form.label_price')}
-                                                {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
-                                            </label>
-                                            <input
-                                                ref={priceInputRef}
-                                                type="text"
-                                                value={price}
-                                                onChange={(e) => { setPrice(e.target.value); setPriceSource(""); }}
-                                                placeholder={nameLoading ? t('simulation_form.placeholder_price_loading') : t('simulation_form.placeholder_price')}
-                                                disabled={nameLoading}
-                                                className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''} ${iterationAlert?.type === 'pivot' ? 'ring-2 ring-amber-500/50' : ''}`}
-                                            />
-                                            {priceSource && (
-                                                <p className="text-[10px] text-purple-400/80 ml-1 mt-1">{priceSource}</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1 relative">
-                                        <div className="flex justify-between items-center flex-wrap gap-2">
-                                            <label className="text-xs text-slate-400 ml-1">{t('simulation_form.label_desc')}</label>
-                                            <div className="flex items-center gap-3">
-                                                {/* Style Dropdown with Label */}
-                                                <div className="flex items-center gap-2">
-                                                    <label className="text-xs text-slate-400 whitespace-nowrap">{t('simulation_form.label_style')}</label>
-                                                    <select
-                                                        value={selectedStyle}
-                                                        onChange={(e) => setSelectedStyle(e.target.value)}
-                                                        className="text-sm px-3 py-2 rounded-lg border border-slate-700 bg-slate-950/50 text-slate-300 focus:outline-none focus:border-purple-500/50 cursor-pointer hover:bg-slate-800/50 transition-colors min-w-[120px]"
-                                                    >
-                                                        {styleOptions.map((opt) => (
-                                                            <option key={opt.value} value={opt.value}>
-                                                                {opt.label}
-                                                            </option>
-                                                        ))}
-                                                    </select>
+                                    )}
+
+                                    <AnimatePresence>
+                                        {(mode === 'image' || (mode === 'video' && showVideoProductInfo)) && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="grid grid-cols-2 gap-4 overflow-hidden pt-2"
+                                            >
+                                                <div className="space-y-1">
+                                                    <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
+                                                        {t('simulation_form.label_product_name')}{mode === 'video' ? t('simulation_form.optional_suffix') : ''}
+                                                        {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={productName}
+                                                        onChange={(e) => setProductName(e.target.value)}
+                                                        placeholder={nameLoading ? t('simulation_form.placeholder_product_name_loading') : t('simulation_form.placeholder_product_name')}
+                                                        disabled={nameLoading}
+                                                        className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''}`}
+                                                    />
                                                 </div>
-                                                {/* AI Write Button */}
-                                                <button
-                                                    type="button"
-                                                    onClick={handleAiGenerate}
-                                                    disabled={aiLoading || files.length === 0 || !productName}
-                                                    className={`text-sm px-4 py-2 rounded-lg border flex items-center gap-2 transition-all font-medium ${aiLoading || files.length === 0 || !productName
-                                                        ? 'text-slate-600 border-slate-700 cursor-not-allowed bg-slate-900'
-                                                        : 'text-purple-400 border-purple-500/50 hover:bg-purple-500/20 hover:border-purple-400 animate-pulse shadow-[0_0_15px_rgba(168,85,247,0.6)] hover:shadow-[0_0_20px_rgba(168,85,247,0.8)]'
-                                                        }`}
-                                                >
-                                                    <Sparkles className="w-4 h-4" />
-                                                    {aiLoading ? t('simulation_form.btn_ai_writing') : t('simulation_form.btn_ai_write')}
-                                                </button>
+                                                <div className="space-y-1">
+                                                    <label className="text-xs text-slate-400 ml-1 flex items-center gap-2">
+                                                        {t('simulation_form.label_price')}{mode === 'video' ? t('simulation_form.optional_suffix') : ''}
+                                                        {nameLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400" />}
+                                                    </label>
+                                                    <input
+                                                        ref={priceInputRef}
+                                                        type="text"
+                                                        value={price}
+                                                        onChange={(e) => { setPrice(e.target.value); setPriceSource(""); }}
+                                                        placeholder={nameLoading ? t('simulation_form.placeholder_price_loading') : t('simulation_form.placeholder_price')}
+                                                        disabled={nameLoading}
+                                                        className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all ${nameLoading ? 'animate-pulse' : ''} ${iterationAlert?.type === 'pivot' ? 'ring-2 ring-amber-500/50' : ''}`}
+                                                    />
+                                                    {priceSource && (
+                                                        <p className="text-[10px] text-purple-400/80 ml-1 mt-1">{priceSource}</p>
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Description field (Optional, hide only for video to keep it clean if user wants, but user asked to hide unnecessary fields) */}
+                                    {mode === 'image' && (
+                                        <div className="space-y-1 relative">
+                                            <div className="flex justify-between items-center flex-wrap gap-2">
+                                                <label className="text-xs text-slate-400 ml-1">{t('simulation_form.label_desc')}</label>
+                                                <div className="flex items-center gap-3">
+                                                    {/* Style Dropdown with Label */}
+                                                    <div className="flex items-center gap-2">
+                                                        <label className="text-xs text-slate-400 whitespace-nowrap">{t('simulation_form.label_style')}</label>
+                                                        <select
+                                                            value={selectedStyle}
+                                                            onChange={(e) => setSelectedStyle(e.target.value)}
+                                                            className="text-sm px-3 py-2 rounded-lg border border-slate-700 bg-slate-950/50 text-slate-300 focus:outline-none focus:border-purple-500/50 cursor-pointer hover:bg-slate-800/50 transition-colors min-w-[120px]"
+                                                        >
+                                                            {styleOptions.map((opt) => (
+                                                                <option key={opt.value} value={opt.value}>
+                                                                    {opt.label}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    {/* AI Write Button */}
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAiGenerate}
+                                                        disabled={aiLoading || files.length === 0 || !productName}
+                                                        className={`text-sm px-4 py-2 rounded-lg border flex items-center gap-2 transition-all font-medium ${aiLoading || files.length === 0 || !productName
+                                                            ? 'text-slate-600 border-slate-700 cursor-not-allowed bg-slate-900'
+                                                            : 'text-purple-400 border-purple-500/50 hover:bg-purple-500/20 hover:border-purple-400 animate-pulse shadow-[0_0_15px_rgba(168,85,247,0.6)] hover:shadow-[0_0_20px_rgba(168,85,247,0.8)]'
+                                                            }`}
+                                                    >
+                                                        <Sparkles className="w-4 h-4" />
+                                                        {aiLoading ? t('simulation_form.btn_ai_writing') : t('simulation_form.btn_ai_write')}
+                                                    </button>
+                                                </div>
                                             </div>
+                                            <textarea
+                                                value={description}
+                                                onChange={(e) => setDescription(e.target.value)}
+                                                placeholder={aiLoading ? t('simulation_form.placeholder_desc_loading') : t('simulation_form.placeholder_desc')}
+                                                rows={5}
+                                                className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all resize-none ${aiLoading ? 'animate-pulse' : ''
+                                                    }`}
+                                            />
                                         </div>
-                                        <textarea
-                                            value={description}
-                                            onChange={(e) => setDescription(e.target.value)}
-                                            placeholder={aiLoading ? t('simulation_form.placeholder_desc_loading') : t('simulation_form.placeholder_desc')}
-                                            rows={5}
-                                            className={`w-full px-4 py-3 bg-slate-950/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-600 transition-all resize-none ${aiLoading ? 'animate-pulse' : ''
-                                                }`}
-                                        />
-                                    </div>
+                                    )}
                                 </motion.div>
                             )}
                         </AnimatePresence>
+
                     </motion.div>
                 )}
 
@@ -937,30 +1014,34 @@ export default function SimulationForm() {
                                 )}
                             </div>
 
-                            {/* Force Random Mode (New) */}
+                            {/* [Anchor Control] Change Batch Logic */}
                             <div className="pt-4 border-t border-slate-800">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-lg transition-colors ${forceRandom ? 'bg-purple-500/20 text-purple-500' : 'bg-slate-800 text-slate-500'}`}>
-                                            <Dices className="w-5 h-5" />
+                                        <div className={`p-2 rounded-lg transition-colors ${seedSalt > 0 ? 'bg-purple-500/20 text-purple-500' : 'bg-slate-800 text-slate-500'}`}>
+                                            <Dices className={`w-5 h-5 ${seedSalt > 0 ? 'animate-spin-slow' : ''}`} />
                                         </div>
                                         <div>
-                                            <h4 className={`font-bold text-sm ${forceRandom ? 'text-purple-400' : 'text-slate-400'}`}>
-                                                {t('simulation_form.force_random_title') || "隨機重抽 (True Randomness)"}
+                                            <h4 className={`font-bold text-sm ${seedSalt > 0 ? 'text-purple-400' : 'text-slate-400'}`}>
+                                                {seedSalt > 0 ? t('simulation_form.btn_change_batch_active') || `目前批次: #${seedSalt} (已定錨)` : t('simulation_form.btn_change_batch_title') || "市民抽樣定錨 (Sampling Anchor)"}
                                             </h4>
                                             <p className="text-xs text-slate-500">
-                                                {t('simulation_form.force_random_desc') || "開啟後將忽略檔案快取，強制重新隨機抽取每一位市民。"}
+                                                {t('simulation_form.btn_change_batch_desc') || "預設鎖定同一群市民以確保對話連續性。點擊右側按鈕可「換一批」新市民。"}
                                             </p>
                                         </div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setForceRandom(!forceRandom)}
-                                        aria-label={t('simulation_form.force_random_title')}
-                                        className={`w-12 h-6 rounded-full relative transition-colors ${forceRandom ? 'bg-purple-600' : 'bg-slate-700'}`}
-                                    >
-                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${forceRandom ? 'left-7' : 'left-1'}`} />
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        {seedSalt > 0 && (
+                                            <span className="text-xs font-mono text-purple-400">Batch #{seedSalt}</span>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => setSeedSalt(prev => prev + 1)}
+                                            className="px-3 py-1.5 bg-slate-800 hover:bg-purple-600 border border-slate-700 hover:border-purple-500 text-xs text-white rounded-lg transition-all flex items-center gap-1"
+                                        >
+                                            <Users className="w-3 h-3" /> {t('simulation_form.btn_change_batch') || "換一批"}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -993,15 +1074,28 @@ export default function SimulationForm() {
                             onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                if (files.length === 0) {
+                                if (mode !== 'video' && files.length === 0) {
                                     setError(t('simulation_form.error_no_file'))
+                                    return
+                                }
+
+                                if (mode === 'video' && videoUrl.trim().length === 0) {
+                                    setError('請輸入視頻網址')
                                     return
                                 }
                                 setStep(2)
                             }}
+                            disabled={
+                                loading ||
+                                (mode !== 'video' && files.length === 0) ||
+                                (mode === 'video' && videoUrl.trim().length === 0)
+                            }
                             className="flex-1 py-4 rounded-xl font-bold text-lg tracking-widest bg-slate-800 hover:bg-slate-700 text-white transition-all shadow-lg flex items-center justify-center gap-2 group"
                         >
-                            {t('simulation_form.step2_next')} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            {mode === 'video' && videoUrl.trim().length === 0
+                                ? '請輸入視頻網址'
+                                : t('simulation_form.step2_next')}
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </button>
                     ) : (
                         <button

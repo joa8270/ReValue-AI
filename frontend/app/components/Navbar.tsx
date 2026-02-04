@@ -46,6 +46,7 @@ export default function Navbar() {
                             {t('navbar.citizens')}
                         </Link>
 
+
                         {/* Language Switcher */}
                         <div className="relative">
                             <button
@@ -129,6 +130,7 @@ export default function Navbar() {
                     >
                         {t('navbar.citizens')}
                     </Link>
+
 
                     <div className="py-2 border-t border-white/5 mt-2">
                         <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Language</p>

@@ -29,7 +29,7 @@ def search_market_prices_sync(product_name: str, user_price: float = None) -> di
     """
     api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key:
-        print("❌ Price search: No API key")
+        print("[PriceSearch] No API key configured", flush=True)
         return _fallback_prices(product_name, user_price)
     
     # 構建搜尋 prompt（強化版本，要求真實搜尋電商網站）
@@ -64,7 +64,7 @@ def search_market_prices_sync(product_name: str, user_price: float = None) -> di
 ⚠️ 重要：請勿虛構價格，如果真的搜尋不到某平台的價格，該平台的 price 請填 0。"""
 
     try:
-        print(f"📊 Searching market prices for: {product_name}")
+        print(f"[PriceSearch] Searching market prices for: {product_name}", flush=True)
         
         # [Fix] Use multiple models with priority
         models = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-flash-latest"]
@@ -74,7 +74,7 @@ def search_market_prices_sync(product_name: str, user_price: float = None) -> di
         for model in models:
             try:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-                print(f"📊 [PriceSearch] Trying model: {model}...")
+                print(f"[PriceSearch] Trying model: {model}...", flush=True)
                 
                 payload = {
                     "contents": [{"parts": [{"text": prompt}]}],
@@ -86,17 +86,18 @@ def search_market_prices_sync(product_name: str, user_price: float = None) -> di
                     break
                 else:
                     last_error = f"{model}: {response.status_code}"
+                    print(f"[PriceSearch] Model {model} returned status {response.status_code}", flush=True)
             except Exception as e:
                 last_error = str(e)
 
         if not response or response.status_code != 200:
-            print(f"❌ Price search failed after all models: {last_error}")
+            print(f"[PriceSearch] Failed after all models: {last_error}", flush=True)
             return _fallback_prices(product_name, user_price)
         
         result = response.json()
         raw_text = result.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '').strip()
         
-        print(f"📊 Price search raw response: {raw_text[:200]}")
+        print(f"[PriceSearch] Raw response length: {len(raw_text)} chars", flush=True)
         
         # 解析 JSON
         clean_text = raw_text.replace('```json', '').replace('```', '').strip()
@@ -107,17 +108,17 @@ def search_market_prices_sync(product_name: str, user_price: float = None) -> di
             try:
                 data = json.loads(json_match.group())
             except json.JSONDecodeError as e:
-                print(f"❌ JSON parse error: {e}")
+                print(f"[PriceSearch] JSON parse error: {e}", flush=True)
                 return _fallback_prices(product_name, user_price)
         else:
-            print("❌ No JSON found in response")
+            print("[PriceSearch] No JSON found in response", flush=True)
             return _fallback_prices(product_name, user_price)
         
         prices = data.get("prices", [])
         valid_prices = [p for p in prices if p.get("price", 0) > 0]
         
         if not valid_prices:
-            print("❌ No valid prices found")
+            print("[PriceSearch] No valid prices found", flush=True)
             return _fallback_prices(product_name, user_price)
         
         price_values = [p["price"] for p in valid_prices]
@@ -146,7 +147,7 @@ def search_market_prices_sync(product_name: str, user_price: float = None) -> di
             elif user_price > max_price * 1.1:
                 price_position = "高於市場"
         
-        print(f"✅ Price search success: {len(valid_prices)} platforms, ${min_price}-${max_price}, median=${median_price}")
+        print(f"[PriceSearch] Success: {len(valid_prices)} platforms, ${min_price}-${max_price}, median=${median_price}", flush=True)
         
         return {
             "success": True,
@@ -163,10 +164,10 @@ def search_market_prices_sync(product_name: str, user_price: float = None) -> di
         }
         
     except requests.Timeout:
-        print("❌ Price search timeout")
+        print("[PriceSearch] Request timeout", flush=True)
         return _fallback_prices(product_name, user_price)
     except Exception as e:
-        print(f"❌ Price search failed: {e}")
+        print(f"[PriceSearch] Exception: {type(e).__name__}: {e}", flush=True)
         return _fallback_prices(product_name, user_price)
 
 
@@ -255,12 +256,12 @@ def search_product_specs_sync(product_name: str) -> str:
         if response and response.status_code == 200:
             result = response.json()
             text = result.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '').strip()
-            print(f"🔍 [SpecSearch] Found specs for {product_name}: {len(text)} chars")
+            print(f"[SpecSearch] Found specs for {product_name}: {len(text)} chars", flush=True)
             return text
             
-        print(f"❌ Spec search failed for {product_name}")
+        print(f"[SpecSearch] Failed for {product_name}", flush=True)
         return ""
         
     except Exception as e:
-        print(f"❌ Spec search exception: {e}")
+        print(f"[SpecSearch] Exception: {type(e).__name__}: {e}", flush=True)
         return ""
